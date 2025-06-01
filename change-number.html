@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تغییر شماره مشتری - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="stylesheet" href="./css/layout.css" />
+    <style>
+      * {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #f0f4f8;
+        margin: 0;
+        padding: 0;
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.2rem 0.5rem 0.5rem 0.5rem;
+      }
+      .form-wrapper {
+        width: 100%;
+        max-width: 380px;
+        margin-top: 1.3rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.33rem;
+        font-weight: 600;
+        font-size: 1.07rem;
+        color: #089863;
+        text-align: right;
+      }
+      input {
+        width: 100%;
+        padding: 0.88rem 0.9rem;
+        font-size: 1.08rem;
+        border: 1.5px solid #ced4da;
+        border-radius: 0.6rem;
+        direction: ltr;
+        text-align: left;
+        margin-bottom: 1.2rem;
+        transition: border-color 0.3s ease;
+        letter-spacing: normal !important;
+      }
+      /* فقط نام راست‌به‌چپ */
+      #nameInput {
+        direction: rtl;
+        text-align: right;
+      }
+      input:focus {
+        border-color: #089863;
+        outline: none;
+      }
+      input::placeholder {
+        text-align: right;
+        direction: rtl;
+        color: #b4b4b4;
+      }
+      .input-error {
+        border-color: #e63946 !important;
+      }
+      .input-message {
+        font-size: 0.94rem;
+        margin-bottom: 1.05rem;
+        border-radius: 0.4rem;
+        padding: 0.75rem;
+        text-align: right;
+        display: none;
+      }
+      .input-message.error {
+        color: #e63946;
+        background: #fae3e3;
+        display: block;
+      }
+      .input-message.success {
+        color: #198754;
+        background: #e6f4f1;
+        display: block;
+      }
+      .copy-button,
+      .clear-button {
+        width: 100%;
+        padding: 0.65rem;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1.09rem;
+        color: white;
+        cursor: pointer;
+        margin-top: 0.4rem;
+        transition: background 0.3s;
+        margin-bottom: 0.4rem;
+        display: block;
+      }
+      .copy-button {
+        background: #00ae71;
+      }
+      .copy-button:disabled {
+        background: #b4b4b4;
+        color: #eee;
+        cursor: not-allowed;
+      }
+      .copy-button:hover:not(:disabled) {
+        background: #089863;
+      }
+      .clear-button {
+        background: #f44336;
+      }
+      .clear-button:hover {
+        background: #c62828;
+      }
+      .result {
+        margin-top: 0.9rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.6rem;
+        font-weight: bold;
+        font-size: 1.02rem;
+        text-align: center;
+        display: none;
+        transition: all 0.3s ease;
+        background-color: #e6f4f1;
+        color: #089863;
+        border: 1px solid #00ae71;
+      }
+      .back-link {
+        display: block;
+        margin-top: 1.3rem;
+        text-align: center;
+        color: #00ae71;
+        text-decoration: none;
+        font-size: 1rem;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+        color: #089863;
+      }
+      @media (max-width: 480px) {
+        header h1 {
+          font-size: 1.07rem;
+          padding-top: 1rem;
+        }
+        .form-wrapper {
+          max-width: 98vw;
+        }
+        input,
+        .copy-button,
+        .clear-button {
+          font-size: 1rem;
+          padding: 0.8rem;
+        }
+        .result {
+          font-size: 0.97rem;
+          padding: 0.6rem 0.7rem;
+        }
+        .input-message {
+          font-size: 0.9rem;
+        }
+      }
+      footer {
+        background: linear-gradient(90deg, #089863, #00ae71);
+        color: #e0e7ff;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+      }
+      footer p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header style="background: linear-gradient(90deg, #00ae71, #089863)">
+      <h1>🔄 تغییر شماره مشتری</h1>
+    </header>
+    <main>
+      <div class="form-wrapper">
+        <label for="nameInput">نام و نام خانوادگی:</label>
+        <input
+          type="text"
+          id="nameInput"
+          placeholder="نام کاربر"
+          autocomplete="off"
+        />
+
+        <label for="nationalIdInput">کد ملی:</label>
+        <input
+          type="text"
+          id="nationalIdInput"
+          placeholder="کد ملی"
+          autocomplete="off"
+          maxlength="10"
+          inputmode="numeric"
+        />
+        <div id="nationalIdMessage" class="input-message"></div>
+
+        <label for="oldNumberInput">شماره قبلی:</label>
+        <input
+          type="text"
+          id="oldNumberInput"
+          placeholder="شماره قبلی"
+          autocomplete="off"
+          maxlength="11"
+          inputmode="numeric"
+        />
+        <div id="oldNumberMessage" class="input-message"></div>
+
+        <label for="newNumberInput">شماره جدید:</label>
+        <input
+          type="text"
+          id="newNumberInput"
+          placeholder="شماره جدید"
+          autocomplete="off"
+          maxlength="11"
+          inputmode="numeric"
+        />
+        <div id="newNumberMessage" class="input-message"></div>
+
+        <button
+          class="copy-button"
+          id="copyBtn"
+          onclick="copyRequest()"
+          disabled
+        >
+          کپی متن درخواست
+        </button>
+        <button class="clear-button" type="button" onclick="clearForm()">
+          پاک کردن فرم
+        </button>
+        <div id="copyResult" class="result"></div>
+        <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+      </div>
+    </main>
+    <div id="footer-placeholder"></div>
+    <script src="./js/change-number.js"></script>
+  </body>
+</html>
