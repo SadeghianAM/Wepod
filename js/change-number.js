@@ -1,29 +1,56 @@
-// فقط اعداد را بپذیر
-function digitsOnly(e) {
-  e.target.value = e.target.value.replace(/[^\d]/g, "");
+// فقط اعداد را بپذیر و شماره موبایل را به صورت 0912 345 6789 فرمت کن
+function formatMobileNumber(input) {
+  // فقط اعداد
+  let value = input.value.replace(/[^\d]/g, "");
+  value = value.slice(0, 11);
+  // فرمت: 0912 345 6789
+  if (value.length >= 8) {
+    input.value = value.replace(/(\d{4})(\d{3})(\d{0,4})/, "$1 $2 $3").trim();
+  } else if (value.length >= 5) {
+    input.value = value.replace(/(\d{4})(\d{0,3})/, "$1 $2").trim();
+  } else {
+    input.value = value;
+  }
+  return value;
 }
 
+// کد ملی را به صورت 509 027231 1 فرمت کن
+function formatNationalId(input) {
+  let value = input.value.replace(/[^\d]/g, "").slice(0, 10);
+  if (value.length >= 10) {
+    input.value = value.replace(/(\d{3})(\d{6})(\d{1})/, "$1 $2 $3");
+  } else if (value.length > 3) {
+    input.value = value.replace(/(\d{3})(\d{0,6})/, "$1 $2");
+  } else {
+    input.value = value;
+  }
+  return value;
+}
+
+// شماره قبلی
 document
   .getElementById("oldNumberInput")
   .addEventListener("input", function (e) {
-    digitsOnly(e);
-    validatePhone(e.target, "oldNumberMessage");
+    const pureValue = formatMobileNumber(e.target);
+    validatePhone(e.target, "oldNumberMessage", pureValue);
     updateCopyButton();
   });
 
+// شماره جدید
 document
   .getElementById("newNumberInput")
   .addEventListener("input", function (e) {
-    digitsOnly(e);
-    validatePhone(e.target, "newNumberMessage");
+    const pureValue = formatMobileNumber(e.target);
+    validatePhone(e.target, "newNumberMessage", pureValue);
     updateCopyButton();
   });
 
+// کد ملی
 document
   .getElementById("nationalIdInput")
   .addEventListener("input", function (e) {
-    digitsOnly(e);
-    validateNationalId(e.target, "nationalIdMessage");
+    const pureValue = formatNationalId(e.target);
+    validateNationalId(e.target, "nationalIdMessage", pureValue);
     updateCopyButton();
   });
 
@@ -37,13 +64,14 @@ document.getElementById("nameInput").addEventListener("input", function (e) {
   updateCopyButton();
 });
 
-// اعتبارسنجی شماره موبایل
-function validatePhone(input, msgId) {
-  const val = input.value;
+// اعتبارسنجی شماره موبایل (مقدار ورودی عددی باید ۱۱ رقم و با ۰۹ شروع شود)
+function validatePhone(input, msgId, pureValue) {
   const msgBox = document.getElementById(msgId);
   input.classList.remove("input-error");
   msgBox.className = "input-message";
   msgBox.innerText = "";
+  let val =
+    pureValue !== undefined ? pureValue : input.value.replace(/[^\d]/g, "");
   if (val && !/^09\d{9}$/.test(val)) {
     msgBox.innerText = "شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.";
     msgBox.classList.add("error");
@@ -67,12 +95,13 @@ function isValidIranianNationalCode(input) {
 }
 
 // اعتبارسنجی کد ملی (عددی، ۱۰ رقمی، معتبر بودن)
-function validateNationalId(input, msgId) {
-  const val = input.value;
+function validateNationalId(input, msgId, pureValue) {
   const msgBox = document.getElementById(msgId);
   input.classList.remove("input-error");
   msgBox.className = "input-message";
   msgBox.innerText = "";
+  let val =
+    pureValue !== undefined ? pureValue : input.value.replace(/[^\d]/g, "");
   if (val && !/^\d{10}$/.test(val)) {
     msgBox.innerText = "کد ملی باید ۱۰ رقم باشد.";
     msgBox.classList.add("error");
@@ -121,11 +150,14 @@ function updateCopyButton() {
 function copyRequest() {
   const name = document.getElementById("nameInput").value.trim() || "نامشخص";
   const oldNumber =
-    document.getElementById("oldNumberInput").value.trim() || "نامشخص";
+    document.getElementById("oldNumberInput").value.replace(/[^\d]/g, "") ||
+    "نامشخص";
   const nationalId =
-    document.getElementById("nationalIdInput").value.trim() || "نامشخص";
+    document.getElementById("nationalIdInput").value.replace(/[^\d]/g, "") ||
+    "نامشخص";
   const newNumber =
-    document.getElementById("newNumberInput").value.trim() || "نامشخص";
+    document.getElementById("newNumberInput").value.replace(/[^\d]/g, "") ||
+    "نامشخص";
   const text = `با سلام
   کاربر: ${name}
   با کد ملی: ${nationalId}
