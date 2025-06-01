@@ -27,6 +27,16 @@ document
     updateCopyButton();
   });
 
+// فقط متن (غیراز عدد) در فیلد نام
+document.getElementById("nameInput").addEventListener("input", function (e) {
+  // اعداد فارسی و انگلیسی حذف می‌شوند
+  let newValue = e.target.value.replace(/[0-9۰-۹]/g, "");
+  if (e.target.value !== newValue) {
+    e.target.value = newValue;
+  }
+  updateCopyButton();
+});
+
 // اعتبارسنجی شماره موبایل
 function validatePhone(input, msgId) {
   const val = input.value;
@@ -107,10 +117,6 @@ function updateCopyButton() {
     btn.disabled = false;
   }
 }
-
-document
-  .getElementById("nameInput")
-  .addEventListener("input", updateCopyButton);
 
 function copyRequest() {
   const name = document.getElementById("nameInput").value.trim() || "نامشخص";
