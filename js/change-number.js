@@ -1,9 +1,7 @@
 // فقط اعداد را بپذیر و شماره موبایل را به صورت 0912 345 6789 فرمت کن
 function formatMobileNumber(input) {
-  // فقط اعداد
   let value = input.value.replace(/[^\d]/g, "");
   value = value.slice(0, 11);
-  // فرمت: 0912 345 6789
   if (value.length >= 8) {
     input.value = value.replace(/(\d{4})(\d{3})(\d{0,4})/, "$1 $2 $3").trim();
   } else if (value.length >= 5) {
@@ -56,7 +54,6 @@ document
 
 // فقط متن (غیراز عدد) در فیلد نام
 document.getElementById("nameInput").addEventListener("input", function (e) {
-  // اعداد فارسی و انگلیسی حذف می‌شوند
   let newValue = e.target.value.replace(/[0-9۰-۹]/g, "");
   if (e.target.value !== newValue) {
     e.target.value = newValue;
@@ -103,25 +100,49 @@ function validateNationalId(input, msgId, pureValue) {
   let val =
     pureValue !== undefined ? pureValue : input.value.replace(/[^\d]/g, "");
   if (val && !/^\d{10}$/.test(val)) {
-    msgBox.innerText = "کد ملی باید ۱۰ رقم باشد.";
+    msgBox.innerText = "کدملی باید ۱۰ رقم باشد.";
     msgBox.classList.add("error");
     input.classList.add("input-error");
     return false;
   }
   if (val && !isValidIranianNationalCode(val)) {
-    msgBox.innerText = "کد ملی وارد شده معتبر نیست.";
+    msgBox.innerText = "کدملی وارد شده معتبر نیست.";
     msgBox.classList.add("error");
     input.classList.add("input-error");
     return false;
   }
   if (val && isValidIranianNationalCode(val)) {
-    msgBox.innerText = "کد ملی معتبر است.";
+    msgBox.innerText = "کدملی معتبر است.";
     msgBox.classList.add("success");
   }
   return true;
 }
 
-// فعال/غیرفعال شدن دکمه کپی
+// بررسی تکراری نبودن شماره‌ها
+function checkDuplicateNumbers() {
+  const oldNumber = document
+    .getElementById("oldNumberInput")
+    .value.replace(/[^\d]/g, "");
+  const newNumber = document
+    .getElementById("newNumberInput")
+    .value.replace(/[^\d]/g, "");
+  const msgBox = document.getElementById("newNumberMessage");
+  if (oldNumber && newNumber && oldNumber === newNumber) {
+    msgBox.innerText = "شماره قبلی و شماره جدید نباید یکسان باشند.";
+    msgBox.className = "input-message error";
+    document.getElementById("newNumberInput").classList.add("input-error");
+    return false;
+  }
+  // اگر قبلا خطا بوده و حالا درست شد
+  if (msgBox.innerText === "شماره قبلی و شماره جدید نباید یکسان باشند.") {
+    msgBox.innerText = "";
+    msgBox.className = "input-message";
+    document.getElementById("newNumberInput").classList.remove("input-error");
+  }
+  return true;
+}
+
+// فعال/غیرفعال شدن دکمه کپی (حالا با بررسی تکراری بودن)
 function updateCopyButton() {
   const oldNumValid = validatePhone(
     document.getElementById("oldNumberInput"),
@@ -135,11 +156,13 @@ function updateCopyButton() {
     document.getElementById("nationalIdInput"),
     "nationalIdMessage"
   );
+  const duplicateCheck = checkDuplicateNumbers();
   const btn = document.getElementById("copyBtn");
   if (
     (document.getElementById("oldNumberInput").value && !oldNumValid) ||
     (document.getElementById("newNumberInput").value && !newNumValid) ||
-    (document.getElementById("nationalIdInput").value && !nationalIdValid)
+    (document.getElementById("nationalIdInput").value && !nationalIdValid) ||
+    !duplicateCheck
   ) {
     btn.disabled = true;
   } else {
@@ -147,6 +170,7 @@ function updateCopyButton() {
   }
 }
 
+// تابع کپی بدون فاصله‌های اضافی
 function copyRequest() {
   const name = document.getElementById("nameInput").value.trim() || "نامشخص";
   const oldNumber =
@@ -158,11 +182,20 @@ function copyRequest() {
   const newNumber =
     document.getElementById("newNumberInput").value.replace(/[^\d]/g, "") ||
     "نامشخص";
-  const text = `با سلام
-  کاربر: ${name}
-  با کد ملی: ${nationalId}
-  قصد تغییر شماره موبایل از : ${oldNumber}
-  به: ${newNumber} را دارند.`;
+  const text =
+    "با سلام\n" +
+    "کاربر: " +
+    name +
+    "\n" +
+    "با کد ملی : " +
+    nationalId +
+    " قصد تغییر شماره موبایل\n" +
+    "از  : " +
+    oldNumber +
+    "\n" +
+    "به : " +
+    newNumber +
+    " را دارند.";
 
   navigator.clipboard.writeText(text).then(
     () => {
