@@ -49,6 +49,10 @@ document
   .addEventListener("input", function (e) {
     const pureValue = formatNationalId(e.target);
     validateNationalId(e.target, "nationalIdMessage", pureValue);
+
+    // به‌روزرسانی نمایش استان و شهر بر اساس سه رقم اول
+    updateProvinceDisplay(pureValue);
+
     updateCopyButton();
   });
 
@@ -228,6 +232,11 @@ function clearForm() {
   document.getElementById("newNumberMessage").innerText = "";
   document.getElementById("newNumberMessage").className = "input-message";
 
+  // مخفی کردن باکس استان و شهر
+  const provinceDiv = document.getElementById("provinceDisplay");
+  provinceDiv.style.display = "none";
+  provinceDiv.innerText = "";
+
   document.getElementById("copyResult").innerText = "";
   document.getElementById("copyResult").style.display = "none";
 
@@ -247,3 +256,43 @@ fetch("footer.html")
   .then((data) => {
     document.getElementById("footer-placeholder").innerHTML = data;
   });
+
+// ===== ۱. بارگذاری JSON شهری =====
+let cityMapping = {};
+
+fetch("data/NationalCode.json")
+  .then((res) => res.json())
+  .then((data) => {
+    cityMapping = data;
+  })
+  .catch((err) => {
+    console.error("خطا در بارگذاری cityMapping.json:", err);
+  });
+
+// ===== ۲. تابع به‌روزرسانی نمایش استان و شهر =====
+function updateProvinceDisplay(pureValue) {
+  const provinceDiv = document.getElementById("provinceDisplay");
+
+  // اگر کمتر از ۳ رقم است، هیچ چیزی نشان نده
+  if (!pureValue || pureValue.length < 3) {
+    provinceDiv.style.display = "none";
+    provinceDiv.innerText = "";
+    return;
+  }
+
+  // سه رقم اول را جدا کن
+  const prefix = pureValue.slice(0, 3);
+
+  // اگر در mapping باشد، نام استان و شهر را بنویس
+  if (cityMapping.hasOwnProperty(prefix)) {
+    const prov = cityMapping[prefix].province;
+    const city = cityMapping[prefix].city;
+    provinceDiv.innerText =
+      "استان محل صدور: " + prov + " | شهر محل صدور: " + city;
+  } else {
+    // در غیر این صورت فقط متن استان نامشخص
+    provinceDiv.innerText = "❌ این کدملی در ثبت احوال وجود ندارد";
+  }
+
+  provinceDiv.style.display = "block";
+}
