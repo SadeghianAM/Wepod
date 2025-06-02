@@ -1,3 +1,8 @@
+// تبدیل اعداد فارسی (۰–۹) به اعداد انگلیسی (0–9)
+function normalizeDigits(text) {
+  return text.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString());
+}
+
 // فقط اعداد را بپذیر و شماره موبایل را به صورت 0912 345 6789 فرمت کن
 function formatMobileNumber(input) {
   let value = input.value.replace(/[^\d]/g, "");
@@ -298,15 +303,15 @@ function updateProvinceDisplay(pureValue) {
   provinceDiv.style.display = "block";
 }
 
-// ===== تابع تکمیل خودکار فرم (به‌روز‌شده) =====
+// ===== تابع تکمیل خودکار فرم (به‌روز‌شده برای تشخیص اعداد فارسی) =====
 function autoFillForm() {
-  // ۱. مقدار متن ورودی را بگیریم
-  const text = document.getElementById("autoFillInput").value.trim();
-
-  if (!text) {
+  // ۱. مقدار متن ورودی را بگیریم و اعداد فارسی را به انگلیسی تبدیل کنیم
+  const rawText = document.getElementById("autoFillInput").value.trim();
+  if (!rawText) {
     alert("لطفاً ابتدا متن درخواست را وارد کنید.");
     return;
   }
+  const text = normalizeDigits(rawText);
 
   // ۲. پاک‌سازی کامل مقادیر و پیام‌های قبلیِ فیلدها (به‌جز textarea#autoFillInput)
   //    -- شماره قبلی
