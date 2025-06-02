@@ -41,7 +41,8 @@
         color: #089863;
         text-align: right;
       }
-      input {
+      input,
+      textarea { /* افزوده‌شده: استایل textarea */
         width: 100%;
         padding: 0.88rem 0.9rem;
         font-size: 1.08rem;
@@ -52,17 +53,25 @@
         margin-bottom: 1.2rem;
         transition: border-color 0.3s ease;
         letter-spacing: normal !important;
+        resize: vertical; /* فقط مجاز به تغییر ارتفاع باشد */
       }
       /* فقط نام راست‌به‌چپ */
       #nameInput {
         direction: rtl;
         text-align: right;
       }
-      input:focus {
+      textarea {
+        direction: rtl;
+        text-align: right;
+        height: 120px; /* ارتفاع مناسب برای متن ورودی */
+      }
+      input:focus,
+      textarea:focus {
         border-color: #089863;
         outline: none;
       }
-      input::placeholder {
+      input::placeholder,
+      textarea::placeholder {
         text-align: right;
         direction: rtl;
         color: #b4b4b4;
@@ -89,7 +98,8 @@
         display: block;
       }
       .copy-button,
-      .clear-button {
+      .clear-button,
+      .auto-fill-button { /* افزوده‌شده: استایل دکمه تکمیل خودکار */
         width: 100%;
         padding: 0.65rem;
         border: none;
@@ -112,6 +122,12 @@
       }
       .copy-button:hover:not(:disabled) {
         background: #089863;
+      }
+      .auto-fill-button { /* افزوده‌شده: رنگ برای دکمه تکمیل خودکار */
+        background: #0d6efd;
+      }
+      .auto-fill-button:hover {
+        background: #0b5ed7;
       }
       .clear-button {
         background: #f44336;
@@ -154,8 +170,10 @@
           max-width: 98vw;
         }
         input,
+        textarea, /* افزوده‌شده */
         .copy-button,
-        .clear-button {
+        .clear-button,
+        .auto-fill-button { /* افزوده‌شده */
           font-size: 1rem;
           padding: 0.8rem;
         }
@@ -188,6 +206,21 @@
     </header>
     <main>
       <div class="form-wrapper">
+        <!-- افزوده‌شده: فیلد متنی برای قرار دادن متن حاوی شماره‌ها و کدملی -->
+        <label for="autoFillInput">متن درخواست (شماره فعلی، شماره جدید و کدملی):</label>
+        <textarea
+          id="autoFillInput"
+          placeholder="متن خود را اینجا وارد کنید..."
+        ></textarea>
+        <button
+          class="auto-fill-button"
+          id="autoFillBtn"
+          type="button"
+          onclick="autoFillForm()"
+        >
+          تکمیل خودکار
+        </button>
+
         <label for="nameInput">نام و نام خانوادگی:</label>
         <input
           type="text"

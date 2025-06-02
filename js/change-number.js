@@ -220,6 +220,7 @@ function copyRequest() {
 
 // پاک کردن فرم
 function clearForm() {
+  document.getElementById("autoFillInput").value = ""; // افزوده‌شده
   document.getElementById("nameInput").value = "";
   document.getElementById("oldNumberInput").value = "";
   document.getElementById("nationalIdInput").value = "";
@@ -295,4 +296,61 @@ function updateProvinceDisplay(pureValue) {
   }
 
   provinceDiv.style.display = "block";
+}
+
+// ===== افزوده‌شده: تابع تکمیل خودکار فرم =====
+function autoFillForm() {
+  const text = document.getElementById("autoFillInput").value.trim();
+
+  if (!text) {
+    alert("لطفاً ابتدا متن درخواست را وارد کنید.");
+    return;
+  }
+
+  // ۱. پیدا کردن همه شماره‌های موبایل (۱۱ رقم، با پیش‌شماره 09)
+  //    الگوی regex: 09\d{9}
+  const phoneMatches = text.match(/09\d{9}/g) || [];
+
+  // ۲. پیدا کردن همه رشته‌های ۱۰ رقمی برای کدملی
+  //    الگوی regex: \b\d{10}\b (عبور از اعداد داخل رشته‌های بزرگ‌تر)
+  const nationalIdMatches = text.match(/\b\d{10}\b/g) || [];
+
+  // اگر حداقل یک شماره موبایل یافت شد، فیلد شماره قبلی را پر کن
+  if (phoneMatches.length >= 1) {
+    document.getElementById("oldNumberInput").value = phoneMatches[0];
+    // فرمت مجدد با فونکشن existing
+    formatMobileNumber(document.getElementById("oldNumberInput"));
+    validatePhone(
+      document.getElementById("oldNumberInput"),
+      "oldNumberMessage",
+      phoneMatches[0]
+    );
+  }
+
+  // اگر حداقل دو شماره موبایل یافت شد، فیلد شماره جدید را پر کن
+  if (phoneMatches.length >= 2) {
+    document.getElementById("newNumberInput").value = phoneMatches[1];
+    formatMobileNumber(document.getElementById("newNumberInput"));
+    validatePhone(
+      document.getElementById("newNumberInput"),
+      "newNumberMessage",
+      phoneMatches[1]
+    );
+  }
+
+  // اگر حداقل یک کدملی یافت شد، فیلد کدملی را پر کن
+  if (nationalIdMatches.length >= 1) {
+    document.getElementById("nationalIdInput").value = nationalIdMatches[0];
+    formatNationalId(document.getElementById("nationalIdInput"));
+    validateNationalId(
+      document.getElementById("nationalIdInput"),
+      "nationalIdMessage",
+      nationalIdMatches[0]
+    );
+    // به‌روزرسانی استان/شهر بر اساس کدملی
+    updateProvinceDisplay(nationalIdMatches[0]);
+  }
+
+  // در نهایت، وضعیت دکمه «کپی» را مجدداً بررسی کن
+  updateCopyButton();
 }
