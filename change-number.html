@@ -42,7 +42,8 @@
         text-align: right;
       }
       input,
-      textarea { /* افزوده‌شده: استایل textarea */
+      textarea {
+        /* افزوده‌شده: استایل textarea */
         width: 100%;
         padding: 0.88rem 0.9rem;
         font-size: 1.08rem;
@@ -99,7 +100,8 @@
       }
       .copy-button,
       .clear-button,
-      .auto-fill-button { /* افزوده‌شده: استایل دکمه تکمیل خودکار */
+      .auto-fill-button {
+        /* افزوده‌شده: استایل دکمه تکمیل خودکار */
         width: 100%;
         padding: 0.65rem;
         border: none;
@@ -123,8 +125,11 @@
       .copy-button:hover:not(:disabled) {
         background: #089863;
       }
-      .auto-fill-button { /* افزوده‌شده: رنگ برای دکمه تکمیل خودکار */
+      .auto-fill-button {
+        /* افزوده‌شده: رنگ برای دکمه تکمیل خودکار */
         background: #0d6efd;
+        margin-top: -10px;
+        margin-bottom: 25px;
       }
       .auto-fill-button:hover {
         background: #0b5ed7;
@@ -173,7 +178,8 @@
         textarea, /* افزوده‌شده */
         .copy-button,
         .clear-button,
-        .auto-fill-button { /* افزوده‌شده */
+        .auto-fill-button {
+          /* افزوده‌شده */
           font-size: 1rem;
           padding: 0.8rem;
         }
@@ -207,7 +213,9 @@
     <main>
       <div class="form-wrapper">
         <!-- افزوده‌شده: فیلد متنی برای قرار دادن متن حاوی شماره‌ها و کدملی -->
-        <label for="autoFillInput">متن درخواست (شماره فعلی، شماره جدید و کدملی):</label>
+        <label for="autoFillInput"
+          >متن درخواست (شماره فعلی، شماره جدید و کدملی):</label
+        >
         <textarea
           id="autoFillInput"
           placeholder="متن خود را اینجا وارد کنید..."

@@ -179,7 +179,7 @@ function updateCopyButton() {
   }
 }
 
-// تابع کپی بدون فاصله‌های اضافی
+// تابع کپی با قالب دلخواه
 function copyRequest() {
   const name = document.getElementById("nameInput").value.trim() || "نامشخص";
   const oldNumber =
@@ -191,18 +191,19 @@ function copyRequest() {
   const newNumber =
     document.getElementById("newNumberInput").value.replace(/[^\d]/g, "") ||
     "نامشخص";
+
   const text =
     "با سلام\n" +
     "کاربر: " +
     name +
     "\n" +
-    "با کد ملی : " +
-    nationalId +
-    " قصد تغییر شماره موبایل\n" +
-    "از  : " +
+    "با شماره موبایل: " +
     oldNumber +
     "\n" +
-    "به : " +
+    "و کدملی: " +
+    nationalId +
+    "\n" +
+    "درخواست تغییر شماره به: " +
     newNumber +
     " را دارند.";
 
