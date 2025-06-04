@@ -23,7 +23,8 @@
 
       /* ======= استایل بدنه ======= */
       body {
-        background-color: #f0f4f8; /* پس‌زمینه روشن و ساده */
+        background-color: #f4fbf7; /* پس‌زمینه روشن هماهنگ با سبز */
+        color: #222;
         margin: 0;
         padding: 0;
         direction: rtl;
@@ -34,20 +35,19 @@
 
       /* ======= هدر بالای صفحه ======= */
       header {
-        background: #00ae70; /* گرادینت سبز */
-        color: white;
+        background: #00ae70;
+        color: #fff;
         height: 70px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* سایه زیر هدر */
+        box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
       }
 
       header h1 {
         font-size: 1.2rem;
         font-weight: 700;
         margin: 0;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* سایه زیر نوشته */
       }
 
       /* ======= بخش اصلی فرم ======= */
@@ -58,20 +58,31 @@
         align-items: center;
         justify-content: center;
         padding: 1rem;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        overflow-y: auto;
+        background: none;
       }
 
       .form-wrapper {
         width: 100%;
         max-width: 480px;
+        background: #fff;
+        border: 1.5px solid #e6f7f0;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
+        padding: 2rem 1.2rem 1.5rem 1.2rem;
+        margin-top: 2rem;
       }
 
       /* ======= استایل لیبل‌های فرم ======= */
       label {
         display: block;
         margin-bottom: 0.7rem;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 1.1rem;
-        color: #089863;
+        color: #00ae70;
       }
 
       /* ======= استایل ورودی شماره شبا ======= */
@@ -79,16 +90,19 @@
         width: 100%;
         padding: 1rem;
         font-size: 1.1rem;
-        border: 2px solid #ced4da;
+        border: 2px solid #e6f7f0;
         border-radius: 0.75rem;
         direction: ltr;
         text-align: left;
         letter-spacing: 1px;
-        transition: border-color 0.3s ease;
+        background: #f4fbf7;
+        color: #222;
+        transition: border-color 0.3s, background 0.3s;
       }
 
       input:focus {
-        border-color: #2563eb;
+        border-color: #00ae70;
+        background: #fff;
         outline: none;
       }
 
@@ -106,21 +120,21 @@
 
       /* رنگ‌بندی حالت‌های مختلف نتیجه */
       .result.success {
-        background-color: #e6f4f1;
+        background-color: #e6f7f0;
         color: #157347;
-        border: 1px solid #157347;
+        border: 1px solid #00ae70;
       }
 
       .result.error {
-        background-color: #fae3e3;
-        color: #c0392b;
-        border: 1px solid #c0392b;
+        background-color: #fdeeee;
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
       }
 
       .result.warning {
-        background-color: #fff6d9;
+        background-color: #fff9e6;
         color: #b9770e;
-        border: 1px solid #b9770e;
+        border: 1px solid #f39c12;
       }
 
       .result img {
@@ -135,13 +149,13 @@
         margin-top: 1.5rem;
         width: 100%;
         padding: 1rem;
-        background-color: #00ae71;
+        background-color: #00ae70;
         border: none;
         border-radius: 0.75rem;
         font-size: 1.1rem;
         color: white;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        transition: background-color 0.3s;
       }
 
       .clear-button:hover {
@@ -153,26 +167,26 @@
         display: block;
         margin-top: 2rem;
         text-align: center;
-        color: #2563eb;
+        color: #00ae70;
         text-decoration: none;
         font-size: 1rem;
       }
 
       .back-link:hover {
         text-decoration: underline;
-        color: #1e3a8a;
+        color: #089863;
       }
 
       /* ======= فوتر (پاورقی) ======= */
       footer {
-        background: linear-gradient(90deg, #089863, #00ae71);
+        background: #00ae70;
         color: #e0e7ff;
         height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
       }
 
       footer p {
@@ -185,10 +199,12 @@
           font-size: 1rem;
           padding: 0.9rem;
         }
-
         .clear-button {
           font-size: 1rem;
           padding: 0.9rem;
+        }
+        .form-wrapper {
+          padding: 1rem 0.4rem 1rem 0.4rem;
         }
       }
     </style>

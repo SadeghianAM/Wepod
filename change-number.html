@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تغییر شماره مشتری - ویپاد</title>
+    <title>تغییر شماره مشتری</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="stylesheet" href="./css/layout.css" />
     <style>
@@ -22,13 +22,29 @@
       }
       /* ======= بدنه‌ی صفحه ======= */
       body {
-        background-color: #f0f4f8; /* پس‌زمینه ملایم */
+        background-color: #f4fbf7;
+        color: #222;
         margin: 0;
         padding: 0;
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
+      }
+      /* ======= هدر بالای سایت ======= */
+      header {
+        background: #00ae70;
+        color: #fff;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
       }
       /* ======= بخش اصلی سایت (مرکز فرم) ======= */
       main {
@@ -42,16 +58,21 @@
       /* ======= جعبه‌ی فرم ======= */
       .form-wrapper {
         width: 100%;
-        max-width: 380px;
+        max-width: 480px;
         margin-top: 1.3rem;
+        background: #fff;
+        border: 1.5px solid #e6f7f0;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
+        padding: 2rem 1.2rem 1.5rem 1.2rem;
       }
       /* ======= برچسب‌های فیلدها ======= */
       label {
         display: block;
         margin-bottom: 0.33rem;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 1.07rem;
-        color: #089863;
+        color: #00ae70;
         text-align: right;
       }
       /* ======= استایل فیلدهای ورودی و تکست اریا ======= */
@@ -60,14 +81,16 @@
         width: 100%;
         padding: 0.88rem 0.9rem;
         font-size: 1.08rem;
-        border: 1.5px solid #ced4da;
+        border: 2px solid #e6f7f0;
         border-radius: 0.6rem;
         direction: ltr;
         text-align: left;
         margin-bottom: 1.2rem;
-        transition: border-color 0.3s ease;
+        transition: border-color 0.3s, background 0.3s;
         letter-spacing: normal !important;
-        resize: vertical; /* امکان تغییر ارتفاع textarea */
+        resize: vertical;
+        background: #f4fbf7;
+        color: #222;
       }
       /* ======= استایل مخصوص فیلد نام ======= */
       #nameInput {
@@ -83,7 +106,8 @@
       /* ======= افکت فوکوس برای فیلدهای ورودی ======= */
       input:focus,
       textarea:focus {
-        border-color: #089863;
+        border-color: #00ae70;
+        background: #fff;
         outline: none;
       }
       /* ======= استایل placeholderها ======= */
@@ -95,7 +119,7 @@
       }
       /* ======= افکت خطا برای فیلد نامعتبر ======= */
       .input-error {
-        border-color: #e63946 !important;
+        border-color: #e74c3c !important;
       }
       /* ======= پیام‌های راهنما و خطا/موفقیت ======= */
       .input-message {
@@ -107,14 +131,16 @@
         display: none;
       }
       .input-message.error {
-        color: #e63946;
-        background: #fae3e3;
+        color: #e74c3c;
+        background: #fdeeee;
         display: block;
+        border: 1px solid #e74c3c;
       }
       .input-message.success {
-        color: #198754;
-        background: #e6f4f1;
+        color: #157347;
+        background: #e6f7f0;
         display: block;
+        border: 1px solid #00ae70;
       }
       /* ======= دکمه‌ها (کپی، پاک، تکمیل خودکار) ======= */
       .copy-button,
@@ -128,12 +154,12 @@
         color: white;
         cursor: pointer;
         margin-top: 0.4rem;
-        transition: background 0.3s;
         margin-bottom: 0.4rem;
         display: block;
+        transition: background 0.3s;
       }
       .copy-button {
-        background: #00ae71;
+        background: #00ae70;
       }
       .copy-button:disabled {
         background: #b4b4b4;
@@ -144,18 +170,18 @@
         background: #089863;
       }
       .auto-fill-button {
-        background: #0d6efd;
+        background: #2563eb;
         margin-top: -10px;
         margin-bottom: 25px;
       }
       .auto-fill-button:hover {
-        background: #0b5ed7;
+        background: #1749b1;
       }
       .clear-button {
-        background: #f44336;
+        background: #e74c3c;
       }
       .clear-button:hover {
-        background: #c62828;
+        background: #b92716;
       }
       /* ======= نمایش نتیجه (موفقیت کپی) ======= */
       .result {
@@ -167,19 +193,19 @@
         text-align: center;
         display: none;
         transition: all 0.3s ease;
-        background-color: #e6f4f1;
-        color: #089863;
-        border: 1px solid #00ae71;
+        background-color: #e6f7f0;
+        color: #157347;
+        border: 1px solid #00ae70;
       }
       /* ======= لینک بازگشت به خانه ======= */
       .back-link {
         display: block;
         margin-top: 1.7rem;
-        margin-bottom: 1.3rem;
         text-align: center;
-        color: #00ae71;
+        color: #00ae70;
         text-decoration: none;
         font-size: 1rem;
+        transition: color 0.2s;
       }
       .back-link:hover {
         text-decoration: underline;
@@ -189,6 +215,7 @@
       @media (max-width: 480px) {
         .form-wrapper {
           max-width: 98vw;
+          padding: 1rem 0.4rem 1rem 0.4rem;
         }
         input,
         textarea,
@@ -215,7 +242,7 @@
         align-items: center;
         justify-content: center;
         font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
       }
       footer p {
         margin: 0;
@@ -223,8 +250,8 @@
     </style>
   </head>
   <body>
-    <!-- ======= هدر سایت با عنوان و گرادینت ======= -->
-    <header style="background: #00ae70; /* گرادینت سبز */">
+    <!-- ======= هدر سایت با عنوان ======= -->
+    <header>
       <h1>🔄 تغییر شماره مشتری</h1>
     </header>
     <main>

@@ -23,7 +23,8 @@
       }
 
       body {
-        background-color: #f0f4f8; /* رنگ پس‌زمینه */
+        background-color: #f4fbf7;
+        color: #222;
         margin: 0;
         padding: 0;
         direction: rtl;
@@ -34,20 +35,19 @@
 
       /* ======= هدر بالای صفحه ======= */
       header {
-        background: #00ae70; /* گرادینت سبز */
+        background: #00ae70;
         color: white;
         height: 70px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* سایه زیر هدر */
+        box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
       }
 
       header h1 {
         font-size: 1.2rem;
         font-weight: 700;
         margin: 0;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* سایه برای عنوان */
       }
 
       /* ======= بخش اصلی و عنوان ابزار ======= */
@@ -63,7 +63,7 @@
       h2 {
         font-size: 1.3rem;
         margin-bottom: 1.5rem;
-        color: #089863;
+        color: #00ae70;
         text-align: center;
         font-weight: 700;
       }
@@ -80,24 +80,25 @@
         border-radius: 0.75rem;
         padding: 1.2rem 1.5rem;
         margin-bottom: 1.2rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        border-right: 4px solid #00ae71;
-        transition: all 0.25s ease-in-out;
+        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
+        border-right: 4px solid #00ae70;
+        transition: all 0.25s;
       }
 
       li:hover {
         transform: translateY(-3px);
         border-right-color: #089863;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
       }
 
       /* ======= استایل لینک ابزارها ======= */
       a {
         text-decoration: none;
-        color: #00ae71;
+        color: #00ae70;
         font-weight: 600;
         font-size: 1.1rem;
         display: block;
+        transition: color 0.2s;
       }
 
       a:hover {
@@ -106,14 +107,14 @@
 
       /* ======= فوتر صفحه ======= */
       footer {
-        background: linear-gradient(90deg, #089863, #00ae71);
+        background: #00ae70;
         color: #e0e7ff;
         height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
       }
 
       footer p {
