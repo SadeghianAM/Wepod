@@ -1,10 +1,11 @@
-// المان‌های صفحه
+// ===== گرفتن المان‌های ورودی و جعبه نمایش نتیجه =====
 const input = document.getElementById("ibanInput");
 const resultBox = document.getElementById("resultBox");
 const validationBox = document.getElementById("ibanValidationBox");
 
-let ibanData = [];
+let ibanData = []; // آرایه برای ذخیره اطلاعات بانک‌ها بر اساس کد شبای آن‌ها
 
+// ===== بارگذاری دیتابیس بانک‌ها از فایل JSON =====
 fetch("./data/iban-data.json")
   .then((res) => res.json())
   .then((data) => {
@@ -15,12 +16,16 @@ fetch("./data/iban-data.json")
     console.error(err);
   });
 
+// ===== رویداد input برای هر بار تغییر شماره شبا توسط کاربر =====
 input.addEventListener("input", (e) => {
+  // پاکسازی و تصحیح ورودی:
+  // فقط IR و اعداد (هر چیز غیرمجاز حذف شود)
   let value = e.target.value
     .toUpperCase()
     .replace(/\s+/g, "")
     .replace(/[^A-Z0-9]/g, "");
 
+  // همیشه با IR شروع شود
   if (!value.startsWith("IR")) {
     value = "IR" + value.replace(/[^0-9]/g, "");
   } else {
@@ -34,6 +39,8 @@ input.addEventListener("input", (e) => {
   clearValidation();
 
   let bankMatched = false;
+
+  // ===== تشخیص بانک از روی کد 3 رقمی بین رقم 4 تا 6 =====
   if (length >= 7) {
     const bankCode = currentIban.substring(4, 7);
     const match = ibanData.find((entry) => entry.code === bankCode);
@@ -58,6 +65,7 @@ input.addEventListener("input", (e) => {
     return;
   }
 
+  // ===== اعتبارسنجی فرمت شبا (در صورتی که کامل وارد شده باشد) =====
   if (length === 26 && /^IR\d{24}$/.test(currentIban)) {
     validateIban(currentIban);
   } else if (length > 2) {
@@ -67,6 +75,7 @@ input.addEventListener("input", (e) => {
   }
 });
 
+// ===== پشتیبانی از چسباندن شماره شبا با فرمت‌های مختلف (paste) =====
 input.addEventListener("paste", (e) => {
   e.preventDefault();
   let pastedValue = e.clipboardData
@@ -75,6 +84,7 @@ input.addEventListener("paste", (e) => {
     .replace(/\s+/g, "")
     .replace(/[^A-Z0-9]/g, "");
 
+  // حذف IR ابتدای مقدار چسبانده شده (در صورت وجود)
   if (pastedValue.startsWith("IR")) {
     pastedValue = pastedValue.slice(2);
   }
@@ -83,11 +93,13 @@ input.addEventListener("paste", (e) => {
   input.dispatchEvent(new Event("input"));
 });
 
+// ===== نمایش نتیجه بانک یا پیام خطا/هشدار =====
 function showResult(message, type, logoName = null, bankName = null) {
   resultBox.className = `result ${type}`;
   resultBox.style.display = "block";
   resultBox.innerHTML = "";
 
+  // نمایش لوگوی بانک در حالت موفقیت
   if (logoName && bankName) {
     const img = document.createElement("img");
     img.src = `./assets/logo/${logoName}.svg`;
@@ -105,12 +117,16 @@ function showResult(message, type, logoName = null, bankName = null) {
   }
 }
 
+// ===== اعتبارسنجی صحت فرمت شماره شبا بر اساس استاندارد IBAN =====
 function validateIban(iban) {
+  // جابجایی ۴ کاراکتر اول به انتهای رشته
   const rearranged = iban.slice(4) + iban.slice(0, 4);
+  // تبدیل حروف به اعداد (A=10 ... Z=35)
   const converted = rearranged.replace(
     /[A-Z]/g,
     (char) => char.charCodeAt(0) - 55
   );
+  // گرفتن باقیمانده تقسیم بر ۹۷
   const remainder = BigInt(converted) % 97n;
 
   if (remainder === 1n) {
@@ -120,24 +136,28 @@ function validateIban(iban) {
   }
 }
 
+// ===== نمایش پیام اعتبارسنجی شبا =====
 function showValidation(message, type) {
   validationBox.className = `result ${type}`;
   validationBox.style.display = "block";
   validationBox.textContent = message;
 }
 
+// ===== پاک کردن جعبه نمایش نتیجه بانک =====
 function clearResult() {
   resultBox.textContent = "";
   resultBox.className = "result";
   resultBox.style.display = "none";
 }
 
+// ===== پاک کردن جعبه نمایش اعتبارسنجی شبا =====
 function clearValidation() {
   validationBox.textContent = "";
   validationBox.className = "result";
   validationBox.style.display = "none";
 }
 
+// ===== پاک کردن کامل فرم و بازنشانی به مقدار اولیه =====
 function clearForm() {
   input.value = "IR";
   input.focus();

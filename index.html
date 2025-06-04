@@ -5,13 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>سرویس‌های بخش پشتیبانی مشتریان</title>
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="stylesheet" href="./css/layout.css" />
+
+    <!-- ======= بارگذاری فونت فارسی وزیرمتن ======= -->
+    <style>
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+      }
+
+      /* ======= ریست استایل و فونت برای کل صفحه ======= */
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f0f4f8; /* رنگ پس‌زمینه */
+        margin: 0;
+        padding: 0;
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ======= هدر بالای صفحه ======= */
+      header {
+        background: #00ae70; /* گرادینت سبز */
+        color: white;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* سایه زیر هدر */
+      }
+
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* سایه برای عنوان */
+      }
+
+      /* ======= بخش اصلی و عنوان ابزار ======= */
+      main {
+        flex-grow: 1;
+        padding: 1.5rem;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        overflow-y: auto;
+      }
+
+      h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        color: #089863;
+        text-align: center;
+        font-weight: 700;
+      }
+
+      /* ======= لیست ابزارهای پشتیبانی ======= */
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-right: 4px solid #00ae71;
+        transition: all 0.25s ease-in-out;
+      }
+
+      li:hover {
+        transform: translateY(-3px);
+        border-right-color: #089863;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      /* ======= استایل لینک ابزارها ======= */
+      a {
+        text-decoration: none;
+        color: #00ae71;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: block;
+      }
+
+      a:hover {
+        color: #089863;
+      }
+
+      /* ======= فوتر صفحه ======= */
+      footer {
+        background: linear-gradient(90deg, #089863, #00ae71);
+        color: #e0e7ff;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      footer p {
+        margin: 0;
+      }
+
+      /* ======= ریسپانسیو موبایل ======= */
+      @media (max-width: 480px) {
+        main {
+          padding: 1rem;
+        }
+
+        a {
+          font-size: 1rem;
+        }
+
+        li {
+          padding: 1rem 1.2rem;
+        }
+      }
+    </style>
   </head>
   <body>
+    <!-- ======= هدر بالای صفحه ======= -->
     <header>
       <h1>سرویس‌های بخش پشتیبانی مشتریان</h1>
     </header>
 
+    <!-- ======= بخش اصلی لیست ابزارها ======= -->
     <main>
       <h2>🛠️ ابزارهای پشتیبانی</h2>
       <ul>
@@ -22,8 +153,10 @@
       </ul>
     </main>
 
+    <!-- ======= محل قرارگیری فوتر ======= -->
     <div id="footer-placeholder"></div>
 
+    <!-- ======= اسکریپت بارگذاری فوتر از فایل جداگانه ======= -->
     <script>
       fetch("footer.html")
         .then((res) => res.text())

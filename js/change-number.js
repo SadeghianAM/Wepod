@@ -1,9 +1,9 @@
-// تبدیل اعداد فارسی (۰–۹) به اعداد انگلیسی (0–9)
+// ===== تبدیل اعداد فارسی (۰–۹) به اعداد انگلیسی (0–9) =====
 function normalizeDigits(text) {
   return text.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString());
 }
 
-// فقط اعداد را بپذیر و شماره موبایل را به صورت 0912 345 6789 فرمت کن
+// ===== فقط اعداد را بپذیر و شماره موبایل را به فرمت 0912 345 6789 تبدیل کن =====
 function formatMobileNumber(input) {
   let value = input.value.replace(/[^\d]/g, "");
   value = value.slice(0, 11);
@@ -17,7 +17,7 @@ function formatMobileNumber(input) {
   return value;
 }
 
-// کد ملی را به صورت 509 027231 1 فرمت کن
+// ===== کد ملی را به صورت 509 027231 1 فرمت کن =====
 function formatNationalId(input) {
   let value = input.value.replace(/[^\d]/g, "").slice(0, 10);
   if (value.length >= 10) {
@@ -30,7 +30,7 @@ function formatNationalId(input) {
   return value;
 }
 
-// شماره قبلی
+// ===== رویداد برای ورودی شماره قبلی: فرمت، اعتبارسنجی و به‌روزرسانی دکمه کپی =====
 document
   .getElementById("oldNumberInput")
   .addEventListener("input", function (e) {
@@ -39,7 +39,7 @@ document
     updateCopyButton();
   });
 
-// شماره جدید
+// ===== رویداد برای ورودی شماره جدید: فرمت، اعتبارسنجی و به‌روزرسانی دکمه کپی =====
 document
   .getElementById("newNumberInput")
   .addEventListener("input", function (e) {
@@ -48,20 +48,18 @@ document
     updateCopyButton();
   });
 
-// کد ملی
+// ===== رویداد برای ورودی کد ملی: فرمت، اعتبارسنجی و آپدیت استان/شهر =====
 document
   .getElementById("nationalIdInput")
   .addEventListener("input", function (e) {
     const pureValue = formatNationalId(e.target);
     validateNationalId(e.target, "nationalIdMessage", pureValue);
-
-    // به‌روزرسانی نمایش استان و شهر بر اساس سه رقم اول
+    // نمایش استان/شهر بر اساس سه رقم اول کدملی
     updateProvinceDisplay(pureValue);
-
     updateCopyButton();
   });
 
-// فقط متن (غیراز عدد) در فیلد نام
+// ===== جلوگیری از وارد کردن عدد در فیلد نام =====
 document.getElementById("nameInput").addEventListener("input", function (e) {
   let newValue = e.target.value.replace(/[0-9۰-۹]/g, "");
   if (e.target.value !== newValue) {
@@ -70,7 +68,7 @@ document.getElementById("nameInput").addEventListener("input", function (e) {
   updateCopyButton();
 });
 
-// اعتبارسنجی شماره موبایل (مقدار ورودی عددی باید ۱۱ رقم و با ۰۹ شروع شود)
+// ===== اعتبارسنجی شماره موبایل (عدد ۱۱ رقمی که با ۰۹ شروع می‌شود) =====
 function validatePhone(input, msgId, pureValue) {
   const msgBox = document.getElementById(msgId);
   input.classList.remove("input-error");
@@ -87,7 +85,7 @@ function validatePhone(input, msgId, pureValue) {
   return true;
 }
 
-// فرمول اعتبارسنجی کد ملی ایران
+// ===== الگوریتم اعتبارسنجی کد ملی ایران =====
 function isValidIranianNationalCode(input) {
   if (!/^\d{10}$/.test(input)) return false;
   if (/^(\d)\1{9}$/.test(input)) return false;
@@ -100,7 +98,7 @@ function isValidIranianNationalCode(input) {
   return (rem < 2 && check == rem) || (rem >= 2 && check == 11 - rem);
 }
 
-// اعتبارسنجی کد ملی (عددی، ۱۰ رقمی، معتبر بودن)
+// ===== اعتبارسنجی کد ملی =====
 function validateNationalId(input, msgId, pureValue) {
   const msgBox = document.getElementById(msgId);
   input.classList.remove("input-error");
@@ -127,7 +125,7 @@ function validateNationalId(input, msgId, pureValue) {
   return true;
 }
 
-// بررسی تکراری نبودن شماره‌ها
+// ===== جلوگیری از تکراری بودن شماره قبلی و جدید =====
 function checkDuplicateNumbers() {
   const oldNumber = document
     .getElementById("oldNumberInput")
@@ -151,7 +149,7 @@ function checkDuplicateNumbers() {
   return true;
 }
 
-// فعال/غیرفعال شدن دکمه کپی (حالا با بررسی تکراری بودن)
+// ===== فعال یا غیرفعال کردن دکمه کپی با توجه به اعتبار داده‌ها =====
 function updateCopyButton() {
   const oldNumValid = validatePhone(
     document.getElementById("oldNumberInput"),
@@ -179,7 +177,7 @@ function updateCopyButton() {
   }
 }
 
-// تابع کپی با قالب دلخواه
+// ===== کپی اطلاعات فرم در قالب متن آماده برای ارسال =====
 function copyRequest() {
   const name = document.getElementById("nameInput").value.trim() || "نامشخص";
   const oldNumber =
@@ -224,7 +222,7 @@ function copyRequest() {
   );
 }
 
-// پاک کردن فرم
+// ===== پاک کردن فرم و ریست همه پیام‌ها و خطاها =====
 function clearForm() {
   document.getElementById("autoFillInput").value = "";
   document.getElementById("nameInput").value = "";
@@ -254,17 +252,10 @@ function clearForm() {
   updateCopyButton();
 }
 
-// بررسی اولیه دکمه
+// ===== بررسی اولیه وضعیت دکمه کپی (در ابتدای بارگذاری) =====
 updateCopyButton();
 
-// لود فوتر از footer.html
-fetch("footer.html")
-  .then((res) => res.text())
-  .then((data) => {
-    document.getElementById("footer-placeholder").innerHTML = data;
-  });
-
-// ===== ۱. بارگذاری JSON شهری =====
+// ===== بارگذاری دیتابیس استان و شهر بر اساس کدملی (JSON) =====
 let cityMapping = {};
 
 fetch("data/NationalCode.json")
@@ -276,7 +267,7 @@ fetch("data/NationalCode.json")
     console.error("خطا در بارگذاری cityMapping.json:", err);
   });
 
-// ===== ۲. تابع به‌روزرسانی نمایش استان و شهر =====
+// ===== تابع به‌روزرسانی نمایش استان و شهر بر اساس سه رقم اول کدملی =====
 function updateProvinceDisplay(pureValue) {
   const provinceDiv = document.getElementById("provinceDisplay");
 
@@ -297,16 +288,16 @@ function updateProvinceDisplay(pureValue) {
     provinceDiv.innerText =
       "استان محل صدور: " + prov + " | شهر محل صدور: " + city;
   } else {
-    // در غیر این صورت فقط متن استان نامشخص
+    // اگر کد سه رقمی در mapping نبود
     provinceDiv.innerText = "❌ این کدملی در ثبت احوال وجود ندارد";
   }
 
   provinceDiv.style.display = "block";
 }
 
-// ===== تابع تکمیل خودکار فرم (به‌روز‌شده برای تشخیص اعداد فارسی) =====
+// ===== تکمیل خودکار فرم از روی متن درخواست (با تشخیص اعداد فارسی و انگلیسی) =====
 function autoFillForm() {
-  // ۱. مقدار متن ورودی را بگیریم و اعداد فارسی را به انگلیسی تبدیل کنیم
+  // ۱. مقدار textarea را بگیریم و اعداد فارسی را به انگلیسی تبدیل کنیم
   const rawText = document.getElementById("autoFillInput").value.trim();
   if (!rawText) {
     alert("لطفاً ابتدا متن درخواست را وارد کنید.");
@@ -314,8 +305,7 @@ function autoFillForm() {
   }
   const text = normalizeDigits(rawText);
 
-  // ۲. پاک‌سازی کامل مقادیر و پیام‌های قبلیِ فیلدها (به‌جز textarea#autoFillInput)
-  //    -- شماره قبلی
+  // ۲. پاک‌سازی کامل فیلدهای ورودی و پیام‌ها
   const oldInput = document.getElementById("oldNumberInput");
   oldInput.value = "";
   oldInput.classList.remove("input-error");
@@ -323,7 +313,6 @@ function autoFillForm() {
   oldMsg.innerText = "";
   oldMsg.className = "input-message";
 
-  //    -- شماره جدید
   const newInput = document.getElementById("newNumberInput");
   newInput.value = "";
   newInput.classList.remove("input-error");
@@ -331,7 +320,6 @@ function autoFillForm() {
   newMsg.innerText = "";
   newMsg.className = "input-message";
 
-  //    -- کدملی
   const nationalInput = document.getElementById("nationalIdInput");
   nationalInput.value = "";
   nationalInput.classList.remove("input-error");
@@ -339,25 +327,22 @@ function autoFillForm() {
   nationalMsg.innerText = "";
   nationalMsg.className = "input-message";
 
-  //    -- باکس نمایش استان/شهر
   const provinceDiv = document.getElementById("provinceDisplay");
   provinceDiv.style.display = "none";
   provinceDiv.innerText = "";
 
-  // ۳. استخراج همهٔ تطابق‌های شمارهٔ موبایل (الگوی 11 رقمی با پیش‌شماره 09)
+  // ۳. جستجوی همه شماره‌های موبایل در متن (11 رقمی با 09)
   const phoneMatches = text.match(/09\d{9}/g) || [];
 
-  // ۴. استخراج همهٔ تطابق‌های ۱۰ رقمی دقیق (به عنوان کدملی)
+  // ۴. جستجوی کد ملی‌های 10 رقمی
   const nationalIdMatches = text.match(/\b\d{10}\b/g) || [];
 
-  // ۵. پر کردن فیلدهای شماره قبلی و جدید
+  // ۵. مقداردهی خودکار شماره قبلی و جدید
   if (phoneMatches.length === 1) {
-    // فقط یک شماره پیدا شده → در «شماره جدید» قرار می‌گیرد
     newInput.value = phoneMatches[0];
     formatMobileNumber(newInput);
     validatePhone(newInput, "newNumberMessage", phoneMatches[0]);
   } else if (phoneMatches.length >= 2) {
-    // حداقل دو شماره پیدا شده → شمارهٔ اول در old و شمارهٔ دوم در new
     oldInput.value = phoneMatches[0];
     formatMobileNumber(oldInput);
     validatePhone(oldInput, "oldNumberMessage", phoneMatches[0]);
@@ -366,9 +351,9 @@ function autoFillForm() {
     formatMobileNumber(newInput);
     validatePhone(newInput, "newNumberMessage", phoneMatches[1]);
   }
-  // اگر اصلاً شماره‌ای نیافتیم که هیچ فیلدی پر نشود
+  // اگر هیچ شماره‌ای نبود، هیچ کاری انجام نشود
 
-  // ۶. پر کردن فیلد کدملی (در صورت وجود حداقل یک تطابق 10 رقمی)
+  // ۶. مقداردهی خودکار کدملی (در صورت وجود)
   if (nationalIdMatches.length >= 1) {
     nationalInput.value = nationalIdMatches[0];
     formatNationalId(nationalInput);
@@ -379,8 +364,7 @@ function autoFillForm() {
     );
     updateProvinceDisplay(nationalIdMatches[0]);
   }
-  // اگر اصلاً کدملی‌ای نیافتیم که فیلد کدملی خالی بماند
 
-  // ۷. در نهایت، وضعیت دکمهٔ «کپی متن درخواست» را مجدداً بررسی می‌کنیم
+  // ۷. به‌روزرسانی وضعیت دکمه کپی
   updateCopyButton();
 }

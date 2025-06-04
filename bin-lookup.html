@@ -3,10 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تشخیص نام بانک از شماره کارت</title>
+    <title>اعتبارسنجی کارت</title>
 
-    <link rel="stylesheet" href="./css/layout.css" />
-
+    <!-- ======= بارگذاری فونت فارسی وزیرمتن ======= -->
     <style>
       @font-face {
         font-family: "Vazirmatn";
@@ -14,6 +13,7 @@
         font-weight: 100 900;
       }
 
+      /* ======= ریست استایل و فونت برای کل عناصر صفحه ======= */
       *,
       *::before,
       *::after {
@@ -21,8 +21,9 @@
         box-sizing: border-box;
       }
 
+      /* ======= بدنه صفحه ======= */
       body {
-        background-color: #f0f4f8;
+        background-color: #f0f4f8; /* پس‌زمینه روشن */
         margin: 0;
         padding: 0;
         direction: rtl;
@@ -31,6 +32,25 @@
         flex-direction: column;
       }
 
+      /* ======= هدر بالای صفحه ======= */
+      header {
+        background: #00ae70;
+        color: white;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* سایه زیر هدر */
+      }
+
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* سایه برای عنوان */
+      }
+
+      /* ======= بخش اصلی فرم ======= */
       main {
         flex-grow: 1;
         display: flex;
@@ -38,13 +58,19 @@
         align-items: center;
         justify-content: center;
         padding: 1rem;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        overflow-y: auto;
       }
 
+      /* ======= باکس فرم ======= */
       .form-wrapper {
         width: 100%;
         max-width: 480px;
       }
 
+      /* ======= استایل لیبل فیلد فرم ======= */
       label {
         display: block;
         margin-bottom: 0.7rem;
@@ -53,6 +79,7 @@
         color: #089863;
       }
 
+      /* ======= استایل فیلد ورودی شماره کارت ======= */
       input {
         width: 100%;
         padding: 1rem;
@@ -66,10 +93,11 @@
       }
 
       input:focus {
-        border-color: #2563eb;
+        border-color: #2563eb; /* افکت فوکوس */
         outline: none;
       }
 
+      /* ======= جعبه نمایش نتیجه یا خطا ======= */
       .result {
         margin-top: 1rem;
         padding: 1rem 1.5rem;
@@ -106,6 +134,7 @@
         margin-left: 5px !important;
       }
 
+      /* ======= دکمه پاک کردن فرم ======= */
       .clear-button {
         margin-top: 1.5rem;
         width: 100%;
@@ -123,42 +152,38 @@
         background-color: #089863;
       }
 
+      /* ======= لینک بازگشت به صفحه اصلی ======= */
       .back-link {
         display: block;
         margin-top: 2rem;
         text-align: center;
-        color: #2563eb;
+        color: #00ae70;
         text-decoration: none;
         font-size: 1rem;
       }
 
       .back-link:hover {
         text-decoration: underline;
-        color: #1e3a8a;
+        color: #089863;
       }
 
-      .inline-feedback {
-        margin-top: 2rem;
-        background-color: #e0f2fe;
-        color: #0c4a6e;
-        padding: 0.8rem 1.25rem;
-        border-radius: 0.75rem;
-        font-size: 0.95rem;
-        text-align: center;
-        line-height: 1.7;
+      /* ======= فوتر صفحه ======= */
+      footer {
+        background: #00ae70;
+        color: #e0e7ff;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08); /* سایه بالا */
       }
 
-      .inline-feedback a {
-        color: #2563eb;
-        text-decoration: none;
-        font-weight: bold;
-        margin-right: 0.4rem;
+      footer p {
+        margin: 0;
       }
 
-      .inline-feedback a:hover {
-        text-decoration: underline;
-      }
-
+      /* ======= استایل واکنش‌گرا برای موبایل ======= */
       @media (max-width: 480px) {
         input {
           font-size: 1rem;
@@ -170,32 +195,19 @@
           padding: 0.9rem;
         }
       }
-
-      footer {
-        background: linear-gradient(90deg, #089863, #00ae71);
-        color: #e0e7ff;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
-      }
-
-      footer p {
-        margin: 0;
-      }
     </style>
   </head>
 
   <body>
+    <!-- ======= هدر بالای صفحه ======= -->
     <header>
-      <h1>🔍 تشخیص بانک صادرکننده کارت</h1>
+      <h1>🔍 اعتبارسنجی کارت</h1>
     </header>
 
+    <!-- ======= بخش اصلی فرم ======= -->
     <main>
       <div class="form-wrapper">
-        <label for="binInput">💳 شماره کارت (حداقل ۶ رقم اول):</label>
+        <label for="binInput">شماره کارت (حداقل ۶ رقم اول):</label>
         <input
           type="text"
           id="binInput"
@@ -205,32 +217,15 @@
         />
         <div class="result" id="resultBox"></div>
         <div class="result" id="validationBox"></div>
-
         <button class="clear-button" onclick="clearForm()">پاک کردن فرم</button>
         <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
 
+    <!-- ======= محل قرارگیری فوتر ======= -->
     <div id="footer-placeholder"></div>
 
     <script>
-      const input = document.getElementById("binInput");
-
-      input.addEventListener("input", (e) => {
-        const rawValue = e.target.value.replace(/\D/g, "").substring(0, 16);
-        const groups = rawValue.match(/.{1,4}/g) || [];
-        e.target.value = groups.join(" ");
-        const cleaned = rawValue;
-
-        if (cleaned.length >= 6) {
-          const event = new CustomEvent("bin-check", { detail: cleaned });
-          window.dispatchEvent(event);
-        } else {
-          const clearEvent = new CustomEvent("clear-both");
-          window.dispatchEvent(clearEvent);
-        }
-      });
-
       fetch("footer.html")
         .then((res) => res.text())
         .then((data) => {
@@ -238,6 +233,7 @@
         });
     </script>
 
+    <!-- ======= اسکریپت تشخیص بانک بر اساس شماره کارت ======= -->
     <script src="./js/binService.js"></script>
   </body>
 </html>
