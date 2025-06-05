@@ -64,10 +64,21 @@
       main {
         flex-grow: 1;
         padding: 1.5rem;
-        max-width: 800px;
+        max-width: 1100px;
         width: 100%;
         margin: 0 auto;
         overflow-y: auto;
+      }
+
+      /* گرید دو ستونه */
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+      .column {
+        background: transparent;
       }
 
       h2 {
@@ -128,15 +139,23 @@
         margin: 0;
       }
 
+      @media (max-width: 900px) {
+        .main-content {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+        .column {
+          width: 100%;
+        }
+      }
+
       @media (max-width: 480px) {
         main {
           padding: 1rem;
         }
-
         a {
           font-size: 1rem;
         }
-
         li {
           padding: 1rem 1.2rem;
         }
@@ -146,8 +165,7 @@
       }
 
       /* استایل بخش بانکداری ویدیویی */
-      .video-banking-status {
-      }
+
       .video-banking-box {
         background: #eafff4;
         padding: 1.2rem 1.5rem;
@@ -193,34 +211,39 @@
 
     <!-- ======= بخش اصلی لیست ابزارها ======= -->
     <main>
-      <!-- ======= بخش بانکداری ویدیویی و اطلاع رسانی ======= -->
-      <h2>📣 اطلاع رسانی</h2>
-      <div id="video-banking-status" class="video-banking-status"></div>
+      <div class="main-content">
+        <!-- ستون راست: اطلاع‌رسانی و بانکداری ویدیویی -->
+        <div class="column column-info">
+          <h2>📣 اطلاع رسانی</h2>
+          <div id="video-banking-status" class="video-banking-status"></div>
+          <div id="news-alerts"></div>
+        </div>
 
-      <!-- ======= اخبار و اطلاعیه‌های مهم ======= -->
-      <div id="news-alerts"></div>
+        <!-- ستون چپ: ابزارها و سرویس‌ها -->
+        <div class="column column-tools">
+          <h2>🛠️ ابزارهای پشتیبانی</h2>
+          <ul>
+            <li><a href="change-number.html">🔄 پیگیری تغییر شماره</a></li>
+            <li>
+              <a href="account-block.html">🚫 پیگیری مسدودی حساب / آزمایشی</a>
+            </li>
+          </ul>
 
-      <h2>🛠️ ابزارهای پشتیبانی</h2>
-      <ul>
-        <li><a href="change-number.html">🔄 پیگیری تغییر شماره</a></li>
-        <li>
-          <a href="account-block.html">🚫 پیگیری مسدودی حساب / آزمایشی</a>
-        </li>
-      </ul>
+          <h2>🔍 سرویس‌های استعلامی</h2>
+          <ul>
+            <li><a href="iban-lookup.html">🔍 اعتبارسنجی شبا</a></li>
+            <li><a href="bin-lookup.html">🔍 اعتبارسنجی کارت</a></li>
+            <li><a href="#">🔍 شعبه افتتاح کننده و نوع حساب (بزودی)</a></li>
+          </ul>
 
-      <h2>🔍 سرویس‌های استعلامی</h2>
-      <ul>
-        <li><a href="iban-lookup.html">🔍 اعتبارسنجی شبا</a></li>
-        <li><a href="bin-lookup.html">🔍 اعتبارسنجی کارت</a></li>
-        <li><a href="#">🔍 شعبه افتتاح کننده و نوع حساب (بزودی)</a></li>
-      </ul>
-
-      <h2>🔰 دیگر بخش‌ها</h2>
-      <ul>
-        <li><a href="#">💸 محاسبه کارمزد انتقال وجه (بزودی)</a></li>
-        <li><a href="#">🏦 اطلاعات شعب بانک (بزودی)</a></li>
-        <li><a href="#">📚 آموزش (بزودی)</a></li>
-      </ul>
+          <h2>🔰 دیگر بخش‌ها</h2>
+          <ul>
+            <li><a href="#">💸 محاسبه کارمزد انتقال وجه (بزودی)</a></li>
+            <li><a href="#">🏦 اطلاعات شعب بانک (بزودی)</a></li>
+            <li><a href="#">📚 آموزش (بزودی)</a></li>
+          </ul>
+        </div>
+      </div>
     </main>
 
     <!-- ======= محل قرارگیری فوتر ======= -->

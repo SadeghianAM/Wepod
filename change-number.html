@@ -7,20 +7,17 @@
     <meta name="robots" content="noindex, nofollow" />
     <link rel="stylesheet" href="./css/layout.css" />
     <style>
-      /* ======= فونت وزیرمتن، برای زیبایی متن فارسی ======= */
       @font-face {
         font-family: "Vazirmatn";
         src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
-      /* ======= تنظیمات پایه (ریست و فونت) ======= */
       *,
       *::before,
       *::after {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
       }
-      /* ======= بدنه‌ی صفحه ======= */
       body {
         background-color: #f4fbf7;
         color: #222;
@@ -31,7 +28,6 @@
         display: flex;
         flex-direction: column;
       }
-      /* ======= هدر بالای سایت ======= */
       header {
         background: #00ae70;
         color: #fff;
@@ -46,7 +42,6 @@
         font-weight: 700;
         margin: 0;
       }
-      /* ======= بخش اصلی سایت (مرکز فرم) ======= */
       main {
         flex-grow: 1;
         display: flex;
@@ -55,18 +50,15 @@
         justify-content: center;
         padding: 1.2rem 0.5rem 0.5rem 0.5rem;
       }
-      /* ======= جعبه‌ی فرم ======= */
       .form-wrapper {
         width: 100%;
-        max-width: 480px;
-        margin-top: 1.3rem;
+        max-width: 45%;
         background: #fff;
         border: 1.5px solid #e6f7f0;
         border-radius: 1rem;
         box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
         padding: 2rem 1.2rem 1.5rem 1.2rem;
       }
-      /* ======= برچسب‌های فیلدها ======= */
       label {
         display: block;
         margin-bottom: 0.33rem;
@@ -75,7 +67,6 @@
         color: #00ae70;
         text-align: right;
       }
-      /* ======= استایل فیلدهای ورودی و تکست اریا ======= */
       input,
       textarea {
         width: 100%;
@@ -83,45 +74,41 @@
         font-size: 1.08rem;
         border: 2px solid #e6f7f0;
         border-radius: 0.6rem;
-        direction: ltr;
-        text-align: left;
+        background: #f4fbf7;
+        color: #222;
         margin-bottom: 1.2rem;
         transition: border-color 0.3s, background 0.3s;
         letter-spacing: normal !important;
-        resize: vertical;
-        background: #f4fbf7;
-        color: #222;
       }
-      /* ======= استایل مخصوص فیلد نام ======= */
       #nameInput {
         direction: rtl;
         text-align: right;
       }
-      /* ======= textarea به صورت راست‌چین و ارتفاع اولیه ======= */
       textarea {
         direction: rtl;
         text-align: right;
         height: 120px;
+        resize: vertical;
       }
-      /* ======= افکت فوکوس برای فیلدهای ورودی ======= */
+      input[type="text"]:not(#nameInput):not([id^="desc"]) {
+        direction: ltr;
+        text-align: left;
+      }
       input:focus,
       textarea:focus {
         border-color: #00ae70;
         background: #fff;
         outline: none;
       }
-      /* ======= استایل placeholderها ======= */
       input::placeholder,
       textarea::placeholder {
         text-align: right;
         direction: rtl;
         color: #b4b4b4;
       }
-      /* ======= افکت خطا برای فیلد نامعتبر ======= */
       .input-error {
         border-color: #e74c3c !important;
       }
-      /* ======= پیام‌های راهنما و خطا/موفقیت ======= */
       .input-message {
         font-size: 0.94rem;
         margin-bottom: 1.05rem;
@@ -142,7 +129,6 @@
         display: block;
         border: 1px solid #00ae70;
       }
-      /* ======= دکمه‌ها (کپی، پاک، تکمیل خودکار) ======= */
       .copy-button,
       .clear-button,
       .auto-fill-button {
@@ -183,7 +169,6 @@
       .clear-button:hover {
         background: #b92716;
       }
-      /* ======= نمایش نتیجه (موفقیت کپی) ======= */
       .result {
         margin-top: 0.9rem;
         padding: 0.8rem 1rem;
@@ -197,7 +182,6 @@
         color: #157347;
         border: 1px solid #00ae70;
       }
-      /* ======= لینک بازگشت به خانه ======= */
       .back-link {
         display: block;
         margin-top: 1.7rem;
@@ -211,7 +195,24 @@
         text-decoration: underline;
         color: #089863;
       }
-      /* ======= واکنش‌گرایی در موبایل ======= */
+      /* --- دو ستونه --- */
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+      /* تک‌ستونه در موبایل و تبلت */
+      @media (max-width: 700px) {
+        .form-row {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+        }
+      }
       @media (max-width: 480px) {
         .form-wrapper {
           max-width: 98vw;
@@ -233,7 +234,6 @@
           font-size: 0.9rem;
         }
       }
-      /* ======= فوتر سایت ======= */
       footer {
         background: #00ae70;
         color: #e0e7ff;
@@ -250,16 +250,13 @@
     </style>
   </head>
   <body>
-    <!-- ======= هدر سایت با عنوان ======= -->
     <header>
       <h1>🔄 تغییر شماره مشتری</h1>
     </header>
     <main>
       <div class="form-wrapper">
         <!-- ======= فیلد متنی برای دریافت اطلاعات خام کاربر ======= -->
-        <label for="autoFillInput"
-          >متن درخواست (جهت تکمیل خودکار):</label
-        >
+        <label for="autoFillInput">متن درخواست (جهت تکمیل خودکار):</label>
         <textarea
           id="autoFillInput"
           placeholder="متن تیکت مشتری را وارد کنید (شامل کدملی و شماره جدید)"
@@ -272,54 +269,62 @@
         >
           تکمیل خودکار
         </button>
-        <!-- ======= فیلد نام ======= -->
-        <label for="nameInput">نام و نام خانوادگی:</label>
-        <input
-          type="text"
-          id="nameInput"
-          placeholder="نام کاربر"
-          autocomplete="off"
-        />
-        <!-- ======= فیلد کدملی ======= -->
-        <label for="nationalIdInput">کدملی:</label>
-        <input
-          type="text"
-          id="nationalIdInput"
-          placeholder="کدملی"
-          autocomplete="off"
-          maxlength="12"
-          inputmode="numeric"
-        />
-        <div id="nationalIdMessage" class="input-message"></div>
-        <!-- نمایش استان شناسایی شده از روی کدملی (در صورت موفقیت) -->
-        <div
-          id="provinceDisplay"
-          class="input-message success"
-          style="display: none"
-        ></div>
-        <!-- ======= فیلد شماره قبلی ======= -->
-        <label for="oldNumberInput">شماره قبلی:</label>
-        <input
-          type="text"
-          id="oldNumberInput"
-          placeholder="شماره قبلی"
-          autocomplete="off"
-          maxlength="13"
-          inputmode="numeric"
-        />
-        <div id="oldNumberMessage" class="input-message"></div>
-        <!-- ======= فیلد شماره جدید ======= -->
-        <label for="newNumberInput">شماره جدید:</label>
-        <input
-          type="text"
-          id="newNumberInput"
-          placeholder="شماره جدید"
-          autocomplete="off"
-          maxlength="13"
-          inputmode="numeric"
-        />
-        <div id="newNumberMessage" class="input-message"></div>
-        <!-- ======= دکمه کپی و پاک کردن ======= -->
+        <!-- دو ستونه از اینجا -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nameInput">نام و نام خانوادگی:</label>
+            <input
+              type="text"
+              id="nameInput"
+              placeholder="نام کاربر"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-group">
+            <label for="nationalIdInput">کدملی:</label>
+            <input
+              type="text"
+              id="nationalIdInput"
+              placeholder="کدملی"
+              autocomplete="off"
+              maxlength="12"
+              inputmode="numeric"
+            />
+            <div id="nationalIdMessage" class="input-message"></div>
+            <div
+              id="provinceDisplay"
+              class="input-message success"
+              style="display: none"
+            ></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="oldNumberInput">شماره قبلی:</label>
+            <input
+              type="text"
+              id="oldNumberInput"
+              placeholder="شماره قبلی"
+              autocomplete="off"
+              maxlength="13"
+              inputmode="numeric"
+            />
+            <div id="oldNumberMessage" class="input-message"></div>
+          </div>
+          <div class="form-group">
+            <label for="newNumberInput">شماره جدید:</label>
+            <input
+              type="text"
+              id="newNumberInput"
+              placeholder="شماره جدید"
+              autocomplete="off"
+              maxlength="13"
+              inputmode="numeric"
+            />
+            <div id="newNumberMessage" class="input-message"></div>
+          </div>
+        </div>
+        <!-- دکمه‌ها و وضعیت -->
         <button
           class="copy-button"
           id="copyBtn"
@@ -331,14 +336,11 @@
         <button class="clear-button" type="button" onclick="clearForm()">
           پاک کردن فرم
         </button>
-        <!-- ======= نمایش وضعیت موفقیت یا خطا ======= -->
         <div id="copyResult" class="result"></div>
-        <!-- ======= لینک بازگشت به صفحه اصلی ======= -->
         <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <!-- ======= اسکریپت بارگذاری فوتر از فایل جداگانه ======= -->
     <script>
       fetch("footer.html")
         .then((res) => res.text())
@@ -346,7 +348,6 @@
           document.getElementById("footer-placeholder").innerHTML = data;
         });
     </script>
-    <!-- ======= اسکریپت منطق فرم ======= -->
     <script src="./js/change-number.js"></script>
   </body>
 </html>

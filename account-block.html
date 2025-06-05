@@ -52,8 +52,7 @@
       }
       .form-wrapper {
         width: 100%;
-        max-width: 480px;
-        margin-top: 1.3rem;
+        max-width: 55%;
         background: #fff;
         border: 1.5px solid #e6f7f0;
         border-radius: 1rem;
@@ -185,6 +184,23 @@
         text-decoration: underline;
         color: #089863;
       }
+      /* دو ستونه */
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+      @media (max-width: 700px) {
+        .form-row {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+        }
+      }
       @media (max-width: 480px) {
         .form-wrapper {
           max-width: 98vw;
@@ -241,51 +257,66 @@
         >
           تکمیل خودکار
         </button>
-        <!-- نوع مسدودی -->
-        <label for="blockTypeInput">نوع مسدودی:</label>
-        <input
-          type="text"
-          id="blockTypeInput"
-          placeholder="برداشت / مبلغی / کامل"
-          autocomplete="off"
-        />
-        <!-- علت مسدودی -->
-        <label for="reasonInput">علت مسدودی:</label>
-        <input
-          type="text"
-          id="reasonInput"
-          placeholder="علت مسدودی"
-          autocomplete="off"
-        />
-        <!-- شماره نامه مسدودی -->
-        <label for="letterNoInput">شماره نامه مسدودی:</label>
-        <input
-          type="text"
-          id="letterNoInput"
-          placeholder="شماره نامه"
-          autocomplete="off"
-        />
-        <!-- تاریخ مسدودی -->
-        <label for="dateInput">تاریخ مسدودی (شمسی):</label>
-        <input
-          type="text"
-          id="dateInput"
-          placeholder="۱۴۰۴/۰۱/۰۱"
-          autocomplete="off"
-        />
-        <!-- مبلغ مسدودی -->
-        <label for="amountInput">مبلغ مسدودی (ریال):</label>
-        <input
-          type="text"
-          id="amountInput"
-          placeholder="۱۰۰٫۰۰۰ ریال"
-          autocomplete="off"
-          inputmode="numeric"
-        />
-        <!-- توضیحات -->
-        <label for="descInput">توضیحات:</label>
-        <textarea id="descInput" placeholder="توضیحات تکمیلی"></textarea>
-        <!-- دکمه کپی و پاک کردن -->
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="blockTypeInput">نوع مسدودی:</label>
+            <input
+              type="text"
+              id="blockTypeInput"
+              placeholder="برداشت / مبلغی / کامل"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-group">
+            <label for="reasonInput">علت مسدودی:</label>
+            <input
+              type="text"
+              id="reasonInput"
+              placeholder="علت مسدودی"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="letterNoInput">شماره نامه مسدودی:</label>
+            <input
+              type="text"
+              id="letterNoInput"
+              placeholder="شماره نامه"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-group">
+            <label for="dateInput">تاریخ مسدودی:</label>
+            <input
+              type="text"
+              id="dateInput"
+              placeholder="۱۴۰۴/۰۱/۰۱"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="amountInput">مبلغ مسدودی (ریال):</label>
+            <input
+              type="text"
+              id="amountInput"
+              placeholder="۱۰۰٫۰۰۰ ریال"
+              autocomplete="off"
+              inputmode="numeric"
+            />
+          </div>
+          <div class="form-group">
+            <label for="descInput">توضیحات:</label>
+            <textarea id="descInput" placeholder="توضیحات تکمیلی"></textarea>
+          </div>
+        </div>
+
         <button
           class="copy-button"
           id="copyBtn"
@@ -297,7 +328,6 @@
         <button class="clear-button" type="button" onclick="clearForm()">
           پاک کردن فرم
         </button>
-        <!-- نمایش وضعیت -->
         <div id="copyResult" class="result"></div>
         <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
