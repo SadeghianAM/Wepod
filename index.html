@@ -147,7 +147,6 @@
 
       /* استایل بخش بانکداری ویدیویی */
       .video-banking-status {
-        margin-bottom: 1.5rem;
       }
       .video-banking-box {
         background: #eafff4;
@@ -157,6 +156,29 @@
         border-right: 4px solid #00ae70;
       }
       .video-banking-box.closed {
+        background: #fff0f3;
+        border-right-color: #ff0040;
+      }
+
+      /* استایل بخش اطلاعیه و اخبار */
+      .news-alert-box {
+        background: #eafff4;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.75rem;
+        border-right: 4px solid #00ae70;
+        transition: background 0.3s, border-color 0.3s;
+        font-size: 1rem;
+      }
+      .news-alert-box.green {
+        background: #eafff4;
+        border-right-color: #00ae70;
+      }
+      .news-alert-box.yellow {
+        background: #fffde0;
+        border-right-color: #ffd600;
+      }
+      .news-alert-box.red {
         background: #fff0f3;
         border-right-color: #ff0040;
       }
@@ -171,10 +193,12 @@
 
     <!-- ======= بخش اصلی لیست ابزارها ======= -->
     <main>
-      <!-- ======= بخش بانکداری ویدیویی ======= -->
+      <!-- ======= بخش بانکداری ویدیویی و اطلاع رسانی ======= -->
       <h2>📣 اطلاع رسانی</h2>
-
       <div id="video-banking-status" class="video-banking-status"></div>
+
+      <!-- ======= اخبار و اطلاعیه‌های مهم ======= -->
+      <div id="news-alerts"></div>
 
       <h2>🛠️ ابزارهای پشتیبانی</h2>
       <ul>

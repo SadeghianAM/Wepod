@@ -79,6 +79,21 @@ function getTodayPersianDate() {
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("today-date").innerText = getTodayPersianDate();
   updateVideoBankingStatus();
+  // این خط را اضافه کن تا اطلاعیه‌ها هنگام بارگذاری نمایش داده شود
+  setNewsAlerts([
+    {
+      text: "<b>متن های زیر جهت نمایش ویژگی‌ها و قابلیت‌های این بخش وارد شده اند.</b>",
+      color: "yellow",
+    },
+    {
+      text: "مشکل سامانه اعتبارسنجی ایرانیان درحال پیگیری / اختلال ثبت کنید.",
+      color: "red",
+    },
+    {
+      text: 'نسخه جدید ویپاد در بازار منتشر شد! <a href="https://cafebazaar.ir/app/com.dotin.wepod" target="_blank" style="color:#00ae70; text-decoration:underline;">صفحه برنامه</a>',
+      color: "green",
+    },
+  ]);
 });
 
 // ===== اسکریپت بانکداری ویدیویی =====
@@ -120,9 +135,9 @@ async function updateVideoBankingStatus() {
     statusHTML = `
       <div class="video-banking-box closed">
         <b>بانکداری ویدیویی : <span style="font-size:1.2em;">❌ غیرفعال</span></b>
-          <br>
-        <b>سیکل تسویه پایا :</b> ۱۳:۴۵ الی ۱۴:۵۰
-      </div>
+        <br>
+        امروز تعطیل رسمی است و خدمات بانکداری ویدیویی ارائه نمی‌شود.
+        </div>
     `;
   } else if (weekday >= 1 && weekday <= 3) {
     // دوشنبه تا چهارشنبه (1،2،3)
@@ -157,4 +172,24 @@ async function updateVideoBankingStatus() {
     `;
   }
   statusDiv.innerHTML = statusHTML;
+}
+
+// ====== اخبار و اطلاعیه‌های مهم ======
+function setNewsAlerts(newsItems) {
+  const newsDiv = document.getElementById("news-alerts");
+  if (!newsDiv) return;
+  if (!newsItems || newsItems.length === 0) {
+    newsDiv.innerHTML = "";
+    return;
+  }
+  let html = "";
+  newsItems.forEach((item) => {
+    const colorClass = item.color || "green";
+    html += `
+      <div class="news-alert-box ${colorClass}">
+        ${item.text}
+      </div>
+    `;
+  });
+  newsDiv.innerHTML = html;
 }
