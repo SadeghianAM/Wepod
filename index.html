@@ -49,7 +49,6 @@
         margin: 0;
       }
 
-      /* ======= استایل تاریخ امروز در هدر ======= */
       #today-date {
         position: absolute;
         left: 1.5rem;
@@ -147,6 +146,22 @@
           left: 0.8rem;
         }
       }
+
+      /* استایل بخش بانکداری ویدیویی */
+      .video-banking-status {
+        margin-bottom: 1.5rem;
+      }
+      .video-banking-box {
+        background: #eafff4;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.75rem;
+        border-right: 4px solid #00ae70;
+      }
+      .video-banking-box.closed {
+        background: #fff0f3;
+        border-right-color: #ff0040;
+      }
     </style>
   </head>
   <body>
@@ -158,6 +173,9 @@
 
     <!-- ======= بخش اصلی لیست ابزارها ======= -->
     <main>
+      <!-- ======= بخش بانکداری ویدیویی ======= -->
+      <div id="video-banking-status" class="video-banking-status"></div>
+
       <h2>🛠️ ابزارهای پشتیبانی</h2>
       <ul>
         <li><a href="change-number.html">🔄 تغییر شماره مشتری</a></li>
@@ -165,97 +183,14 @@
         <li><a href="iban-lookup.html">🔍 اعتبارسنجی شبا</a></li>
         <li><a href="bin-lookup.html">🔍 اعتبارسنجی کارت</a></li>
         <li><a href="#">🏦 اطلاعات شعب بانک (بزودی)</a></li>
+        <li><a href="#">📚 آموزش (بزودی)</a></li>
       </ul>
     </main>
 
     <!-- ======= محل قرارگیری فوتر ======= -->
     <div id="footer-placeholder"></div>
 
-    <!-- ======= اسکریپت بارگذاری فوتر از فایل جداگانه ======= -->
-    <script>
-      fetch("footer.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("footer-placeholder").innerHTML = data;
-        });
-    </script>
-
-    <!-- ======= اسکریپت تاریخ شمسی با اعداد فارسی ======= -->
-    <script>
-      // روزهای هفته و ماه‌های شمسی
-      const weekdays = [
-        "یک‌شنبه",
-        "دوشنبه",
-        "سه‌شنبه",
-        "چهارشنبه",
-        "پنج‌شنبه",
-        "جمعه",
-        "شنبه",
-      ];
-      const persianMonths = [
-        "فروردین",
-        "اردیبهشت",
-        "خرداد",
-        "تیر",
-        "مرداد",
-        "شهریور",
-        "مهر",
-        "آبان",
-        "آذر",
-        "دی",
-        "بهمن",
-        "اسفند",
-      ];
-
-      // تبدیل تاریخ میلادی به شمسی
-      function toJalali(gy, gm, gd) {
-        var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-        var jy = gy > 1600 ? 979 : 0;
-        gy -= gy > 1600 ? 1600 : 621;
-        var gy2 = gm > 2 ? gy + 1 : gy;
-        var days =
-          365 * gy +
-          Math.floor((gy2 + 3) / 4) -
-          Math.floor((gy2 + 99) / 100) +
-          Math.floor((gy2 + 399) / 400) -
-          80 +
-          gd +
-          g_d_m[gm - 1];
-        jy += 33 * Math.floor(days / 12053);
-        days %= 12053;
-        jy += 4 * Math.floor(days / 1461);
-        days %= 1461;
-        if (days > 365) {
-          jy += Math.floor((days - 1) / 365);
-          days = (days - 1) % 365;
-        }
-        var jm =
-          days < 186
-            ? 1 + Math.floor(days / 31)
-            : 7 + Math.floor((days - 186) / 30);
-        var jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30);
-        return [jy, jm, jd];
-      }
-
-      // تبدیل اعداد لاتین به فارسی
-      function toPersianDigits(str) {
-        return str.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
-      }
-
-      // گرفتن و نمایش تاریخ امروز شمسی با اعداد فارسی
-      function getTodayPersianDate() {
-        var today = new Date();
-        var weekday = weekdays[today.getDay()];
-        var gYear = today.getFullYear();
-        var gMonth = today.getMonth() + 1;
-        var gDay = today.getDate();
-        var [jy, jm, jd] = toJalali(gYear, gMonth, gDay);
-        var pMonth = persianMonths[jm - 1];
-        return toPersianDigits(`امروز ${weekday} ${jd} ${pMonth} ${jy}`);
-      }
-
-      // درج تاریخ در هدر
-      document.getElementById("today-date").innerText = getTodayPersianDate();
-    </script>
+    <!-- ======= فایل جاوااسکریپت خارجی ======= -->
+    <script src="main.js"></script>
   </body>
 </html>
