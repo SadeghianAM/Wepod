@@ -161,7 +161,7 @@ async function updateVideoBankingStatus() {
       <div class="video-banking-box closed">
         <b>بانکداری ویدیویی : <span style="font-size:1.2em;">❌ غیرفعال</span></b>
         <br>
-        امروز تعطیل رسمی است یا جمعه است و خدمات بانکداری ویدیویی ارائه نمی‌شود.
+        امروز تعطیل رسمی است و خدمات بانکداری ویدیویی ارائه نمی‌شود.
       </div>
     `;
   } else if (weekday >= 6 || weekday <= 3) {
@@ -221,8 +221,10 @@ const payaaCycles = [
 function toPersianTimeStr(totalMin) {
   let h = Math.floor(totalMin / 60);
   let m = totalMin % 60;
-  if (h > 0) {
+  if (h > 0 && m > 0) {
     return `${toPersianDigitsText(h)} ساعت و ${toPersianDigitsText(m)} دقیقه`;
+  } else if (h > 0) {
+    return `${toPersianDigitsText(h)} ساعت`;
   } else {
     return `${toPersianDigitsText(m)} دقیقه`;
   }
@@ -281,18 +283,47 @@ function renderPayaaCycleStatus(isHoliday) {
 
     // ساخت رشته تاریخ و ساعت چرخه بعدی
     const nextDate = cycle.start;
-    const weekdayName = weekdays[nextDate.getDay()];
-    const gYear = nextDate.getFullYear();
-    const gMonth = nextDate.getMonth() + 1;
-    const gDay = nextDate.getDate();
-    const [jy, jm, jd] = toJalali(gYear, gMonth, gDay);
-    const pMonth = persianMonths[jm - 1];
-    const persianDay = toPersianDigitsText(jd);
+
+    // تاریخ امروز به شمسی
+    const today = new Date();
+    const [jy, jm, jd] = toJalali(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      today.getDate()
+    );
+    // تاریخ چرخه بعدی به شمسی
+    const [cy, cm, cd] = toJalali(
+      nextDate.getFullYear(),
+      nextDate.getMonth() + 1,
+      nextDate.getDate()
+    );
+
+    let dayLabel = "";
+    if (jy === cy && jm === cm && jd === cd) {
+      dayLabel = "امروز";
+    } else {
+      // یک روز بعد؟
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const [ty, tm, td] = toJalali(
+        tomorrow.getFullYear(),
+        tomorrow.getMonth() + 1,
+        tomorrow.getDate()
+      );
+      if (cy === ty && cm === tm && cd === td) {
+        dayLabel = "فردا";
+      } else {
+        dayLabel = weekdays[nextDate.getDay()];
+      }
+    }
+
+    const pMonth = persianMonths[cm - 1];
+    const persianDay = toPersianDigitsText(cd);
     const persianHour = toPersianDigitsText(cycle.hour);
     const persianMin = toPersianDigitsText(
       cycle.min.toString().padStart(2, "0")
     );
-    const nextCycleText = `چرخه بعدی : ${weekdayName} ${persianDay} ${pMonth} ساعت ${persianHour}:${persianMin}`;
+    const nextCycleText = `چرخه بعدی : ${dayLabel} ${persianDay} ${pMonth} ساعت ${persianHour}:${persianMin}`;
 
     if (cycle.inProgress) {
       statusDiv.innerHTML = `
@@ -341,3 +372,41 @@ async function setupPayaaCycleStatus() {
 
 // اجرای اولیه پس از لود صفحه
 document.addEventListener("DOMContentLoaded", setupPayaaCycleStatus);
+
+// ====================== جستجوی ابزارهای پشتیبانی =======================
+document.addEventListener("DOMContentLoaded", function () {
+  const searchInput = document.getElementById("tools-search");
+  if (!searchInput) return;
+
+  // همه عناوین و لیست‌ها را جدا می‌کنیم
+  const column = document.querySelector(".column-tools");
+  const sections = [];
+  let curTitle = null,
+    curList = null;
+
+  Array.from(column.children).forEach((el) => {
+    if (el.tagName === "H2") curTitle = el;
+    if (el.tagName === "UL" && curTitle) {
+      sections.push({ title: curTitle, list: el });
+      curTitle = null;
+    }
+  });
+
+  searchInput.addEventListener("input", function () {
+    const value = searchInput.value.trim().toLowerCase();
+    const showAll = !value;
+
+    sections.forEach(({ title, list }) => {
+      let hasVisible = false;
+      Array.from(list.querySelectorAll("li")).forEach((li) => {
+        const text = li.innerText.replace(/\s+/g, " ").toLowerCase();
+        const matched = showAll || text.includes(value);
+        li.style.display = matched ? "" : "none";
+        if (matched) hasVisible = true;
+      });
+      // فقط تیترهایی که آیتم نمایش داده شده دارند نشان بده
+      title.style.display = hasVisible ? "" : "none";
+      list.style.display = hasVisible ? "" : "none";
+    });
+  });
+});

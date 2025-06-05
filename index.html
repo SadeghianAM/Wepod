@@ -187,6 +187,20 @@
         background: #fff0f3;
         border-right-color: #ff0040;
       }
+      #tools-search {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.7em 1em;
+        border-radius: 0.6em;
+        border: 1.5px solid #eee;
+        margin-bottom: 1em;
+        box-sizing: border-box;
+        outline: none;
+        transition: border 0.2s;
+      }
+      #tools-search:focus {
+        border-color: #00ae70;
+      }
     </style>
   </head>
   <body>
@@ -208,7 +222,12 @@
         <!-- ستون چپ: ابزارها و سرویس‌ها -->
         <div class="column column-tools">
           <h2>🛠️ ابزارهای پشتیبانی</h2>
-          <ul>
+          <input
+            type="text"
+            id="tools-search"
+            placeholder="جستجو در ابزارها..."
+          />
+          <ul id="tools-list">
             <li><a href="change-number.html">🔄 پیگیری تغییر شماره</a></li>
             <li>
               <a href="account-block.html">🚫 پیگیری مسدودی حساب / آزمایشی</a>
