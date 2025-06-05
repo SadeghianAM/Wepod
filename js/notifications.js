@@ -8,7 +8,7 @@ function showNotification(title, desc, type = "green") {
   notif.id = "global-notification";
   notif.className = `news-alert-box ${type}`;
   notif.style.position = "fixed";
-  notif.style.top = "20px";
+  notif.style.top = "650px";
   notif.style.right = "20px";
   notif.style.zIndex = "9999";
   notif.style.maxWidth = "400px";
@@ -18,23 +18,24 @@ function showNotification(title, desc, type = "green") {
     <button style="float:left; margin-top:5px; background:none; border:none; color:#b00; cursor:pointer" onclick="this.parentNode.remove()">×</button>`;
   document.body.appendChild(notif);
 
-  setTimeout(() => notif.remove(), 25000);
+  setTimeout(() => notif.remove(), 2500000);
 
   // ===== پخش صدا =====
-  try {
-    let audio = new Audio("../assets/notif.wav");
-    audio.play();
-  } catch (e) {
-    // silent fail
-  }
+  // try {
+  //   let audio = new Audio("../assets/notif.wav");
+  //   audio.play();
+  // } catch (e) {
+  // silent fail
+  //}
 }
 
 async function checkNotification() {
   try {
-    let res = await fetch("notifications.json?" + Date.now());
+    let res = await fetch("data/notifications.json?" + Date.now());
     if (!res.ok) return;
     let data = await res.json();
-    if (data.id !== lastNotificationId) {
+    // شرط جدید: هم id تغییر کند و هم title مقدار داشته باشد
+    if (data.id !== lastNotificationId && data.title) {
       showNotification(data.title, data.description, data.type || "green");
       lastNotificationId = data.id;
     }
