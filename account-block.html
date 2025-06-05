@@ -3,24 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تغییر شماره مشتری</title>
+    <title>پیگیری مسدودی حساب</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="stylesheet" href="./css/layout.css" />
     <style>
-      /* ======= فونت وزیرمتن، برای زیبایی متن فارسی ======= */
       @font-face {
         font-family: "Vazirmatn";
         src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
-      /* ======= تنظیمات پایه (ریست و فونت) ======= */
       *,
       *::before,
       *::after {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
       }
-      /* ======= بدنه‌ی صفحه ======= */
       body {
         background-color: #f4fbf7;
         color: #222;
@@ -31,7 +28,6 @@
         display: flex;
         flex-direction: column;
       }
-      /* ======= هدر بالای سایت ======= */
       header {
         background: #00ae70;
         color: #fff;
@@ -46,7 +42,6 @@
         font-weight: 700;
         margin: 0;
       }
-      /* ======= بخش اصلی سایت (مرکز فرم) ======= */
       main {
         flex-grow: 1;
         display: flex;
@@ -55,7 +50,6 @@
         justify-content: center;
         padding: 1.2rem 0.5rem 0.5rem 0.5rem;
       }
-      /* ======= جعبه‌ی فرم ======= */
       .form-wrapper {
         width: 100%;
         max-width: 480px;
@@ -66,7 +60,6 @@
         box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
         padding: 2rem 1.2rem 1.5rem 1.2rem;
       }
-      /* ======= برچسب‌های فیلدها ======= */
       label {
         display: block;
         margin-bottom: 0.33rem;
@@ -75,7 +68,6 @@
         color: #00ae70;
         text-align: right;
       }
-      /* ======= استایل فیلدهای ورودی و تکست اریا ======= */
       input,
       textarea {
         width: 100%;
@@ -83,45 +75,30 @@
         font-size: 1.08rem;
         border: 2px solid #e6f7f0;
         border-radius: 0.6rem;
-        direction: ltr;
-        text-align: left;
+        direction: rtl;
+        text-align: right;
         margin-bottom: 1.2rem;
         transition: border-color 0.3s, background 0.3s;
-        letter-spacing: normal !important;
-        resize: vertical;
         background: #f4fbf7;
         color: #222;
       }
-      /* ======= استایل مخصوص فیلد نام ======= */
-      #nameInput {
-        direction: rtl;
-        text-align: right;
-      }
-      /* ======= textarea به صورت راست‌چین و ارتفاع اولیه ======= */
       textarea {
-        direction: rtl;
-        text-align: right;
         height: 120px;
+        resize: vertical;
       }
-      /* ======= افکت فوکوس برای فیلدهای ورودی ======= */
       input:focus,
       textarea:focus {
         border-color: #00ae70;
         background: #fff;
         outline: none;
       }
-      /* ======= استایل placeholderها ======= */
       input::placeholder,
       textarea::placeholder {
-        text-align: right;
-        direction: rtl;
         color: #b4b4b4;
       }
-      /* ======= افکت خطا برای فیلد نامعتبر ======= */
       .input-error {
         border-color: #e74c3c !important;
       }
-      /* ======= پیام‌های راهنما و خطا/موفقیت ======= */
       .input-message {
         font-size: 0.94rem;
         margin-bottom: 1.05rem;
@@ -142,7 +119,6 @@
         display: block;
         border: 1px solid #00ae70;
       }
-      /* ======= دکمه‌ها (کپی، پاک، تکمیل خودکار) ======= */
       .copy-button,
       .clear-button,
       .auto-fill-button {
@@ -183,7 +159,6 @@
       .clear-button:hover {
         background: #b92716;
       }
-      /* ======= نمایش نتیجه (موفقیت کپی) ======= */
       .result {
         margin-top: 0.9rem;
         padding: 0.8rem 1rem;
@@ -197,7 +172,6 @@
         color: #157347;
         border: 1px solid #00ae70;
       }
-      /* ======= لینک بازگشت به خانه ======= */
       .back-link {
         display: block;
         margin-top: 1.7rem;
@@ -211,7 +185,6 @@
         text-decoration: underline;
         color: #089863;
       }
-      /* ======= واکنش‌گرایی در موبایل ======= */
       @media (max-width: 480px) {
         .form-wrapper {
           max-width: 98vw;
@@ -233,7 +206,6 @@
           font-size: 0.9rem;
         }
       }
-      /* ======= فوتر سایت ======= */
       footer {
         background: #00ae70;
         color: #e0e7ff;
@@ -250,19 +222,16 @@
     </style>
   </head>
   <body>
-    <!-- ======= هدر سایت با عنوان ======= -->
     <header>
-      <h1>🔄 تغییر شماره مشتری</h1>
+      <h1>پیگیری مسدودی حساب</h1>
     </header>
     <main>
       <div class="form-wrapper">
-        <!-- ======= فیلد متنی برای دریافت اطلاعات خام کاربر ======= -->
-        <label for="autoFillInput"
-          >متن درخواست (جهت تکمیل خودکار):</label
-        >
+        <!-- ======= متن آزاد برای تکمیل خودکار ======= -->
+        <label for="autoFillInput">متن مسدودی (جهت تکمیل خودکار):</label>
         <textarea
           id="autoFillInput"
-          placeholder="متن تیکت مشتری را وارد کنید (شامل کدملی و شماره جدید)"
+          placeholder="متن بخش مسدودی حساب را از نوع مسدودی تا پایان توضیحات جایگذاری کنید"
         ></textarea>
         <button
           class="auto-fill-button"
@@ -272,73 +241,68 @@
         >
           تکمیل خودکار
         </button>
-        <!-- ======= فیلد نام ======= -->
-        <label for="nameInput">نام و نام خانوادگی:</label>
+        <!-- نوع مسدودی -->
+        <label for="blockTypeInput">نوع مسدودی:</label>
         <input
           type="text"
-          id="nameInput"
-          placeholder="نام کاربر"
+          id="blockTypeInput"
+          placeholder="برداشت / مبلغی / کامل"
           autocomplete="off"
         />
-        <!-- ======= فیلد کدملی ======= -->
-        <label for="nationalIdInput">کدملی:</label>
+        <!-- علت مسدودی -->
+        <label for="reasonInput">علت مسدودی:</label>
         <input
           type="text"
-          id="nationalIdInput"
-          placeholder="کدملی"
+          id="reasonInput"
+          placeholder="علت مسدودی"
           autocomplete="off"
-          maxlength="12"
+        />
+        <!-- شماره نامه مسدودی -->
+        <label for="letterNoInput">شماره نامه مسدودی:</label>
+        <input
+          type="text"
+          id="letterNoInput"
+          placeholder="شماره نامه"
+          autocomplete="off"
+        />
+        <!-- تاریخ مسدودی -->
+        <label for="dateInput">تاریخ مسدودی (شمسی):</label>
+        <input
+          type="text"
+          id="dateInput"
+          placeholder="۱۴۰۴/۰۱/۰۱"
+          autocomplete="off"
+        />
+        <!-- مبلغ مسدودی -->
+        <label for="amountInput">مبلغ مسدودی (ریال):</label>
+        <input
+          type="text"
+          id="amountInput"
+          placeholder="۱۰۰٫۰۰۰ ریال"
+          autocomplete="off"
           inputmode="numeric"
         />
-        <div id="nationalIdMessage" class="input-message"></div>
-        <!-- نمایش استان شناسایی شده از روی کدملی (در صورت موفقیت) -->
-        <div
-          id="provinceDisplay"
-          class="input-message success"
-          style="display: none"
-        ></div>
-        <!-- ======= فیلد شماره قبلی ======= -->
-        <label for="oldNumberInput">شماره قبلی:</label>
-        <input
-          type="text"
-          id="oldNumberInput"
-          placeholder="شماره قبلی"
-          autocomplete="off"
-          maxlength="13"
-          inputmode="numeric"
-        />
-        <div id="oldNumberMessage" class="input-message"></div>
-        <!-- ======= فیلد شماره جدید ======= -->
-        <label for="newNumberInput">شماره جدید:</label>
-        <input
-          type="text"
-          id="newNumberInput"
-          placeholder="شماره جدید"
-          autocomplete="off"
-          maxlength="13"
-          inputmode="numeric"
-        />
-        <div id="newNumberMessage" class="input-message"></div>
-        <!-- ======= دکمه کپی و پاک کردن ======= -->
+        <!-- توضیحات -->
+        <label for="descInput">توضیحات:</label>
+        <textarea id="descInput" placeholder="توضیحات تکمیلی"></textarea>
+        <!-- دکمه کپی و پاک کردن -->
         <button
           class="copy-button"
           id="copyBtn"
           onclick="copyRequest()"
           disabled
         >
-          کپی متن درخواست
+          کپی متن گزارش
         </button>
         <button class="clear-button" type="button" onclick="clearForm()">
           پاک کردن فرم
         </button>
-        <!-- ======= نمایش وضعیت موفقیت یا خطا ======= -->
+        <!-- نمایش وضعیت -->
         <div id="copyResult" class="result"></div>
-        <!-- ======= لینک بازگشت به صفحه اصلی ======= -->
         <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <!-- ======= اسکریپت بارگذاری فوتر از فایل جداگانه ======= -->
     <script>
       fetch("footer.html")
         .then((res) => res.text())
@@ -346,7 +310,6 @@
           document.getElementById("footer-placeholder").innerHTML = data;
         });
     </script>
-    <!-- ======= اسکریپت منطق فرم ======= -->
-    <script src="./js/change-number.js"></script>
+    <script src="./js/account-block.js"></script>
   </body>
 </html>

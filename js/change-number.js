@@ -151,58 +151,57 @@ function checkDuplicateNumbers() {
 
 // ===== فعال یا غیرفعال کردن دکمه کپی با توجه به اعتبار داده‌ها =====
 function updateCopyButton() {
-  const oldNumValid = validatePhone(
-    document.getElementById("oldNumberInput"),
-    "oldNumberMessage"
-  );
-  const newNumValid = validatePhone(
-    document.getElementById("newNumberInput"),
-    "newNumberMessage"
-  );
+  const newNumberInput = document.getElementById("newNumberInput");
+  const nationalIdInput = document.getElementById("nationalIdInput");
+
+  const newNumValid = validatePhone(newNumberInput, "newNumberMessage");
   const nationalIdValid = validateNationalId(
-    document.getElementById("nationalIdInput"),
+    nationalIdInput,
     "nationalIdMessage"
   );
   const duplicateCheck = checkDuplicateNumbers();
+
+  // فقط اگر شماره جدید و کدملی پر و معتبر باشند و شماره‌ها تکراری نباشند، دکمه فعال شود
   const btn = document.getElementById("copyBtn");
   if (
-    (document.getElementById("oldNumberInput").value && !oldNumValid) ||
-    (document.getElementById("newNumberInput").value && !newNumValid) ||
-    (document.getElementById("nationalIdInput").value && !nationalIdValid) ||
-    !duplicateCheck
+    newNumberInput.value.trim() &&
+    newNumValid &&
+    nationalIdInput.value.trim() &&
+    nationalIdValid &&
+    duplicateCheck
   ) {
-    btn.disabled = true;
-  } else {
     btn.disabled = false;
+  } else {
+    btn.disabled = true;
   }
 }
 
 // ===== کپی اطلاعات فرم در قالب متن آماده برای ارسال =====
 function copyRequest() {
-  const name = document.getElementById("nameInput").value.trim() || "نامشخص";
-  const oldNumber =
-    document.getElementById("oldNumberInput").value.replace(/[^\d]/g, "") ||
-    "نامشخص";
-  const nationalId =
-    document.getElementById("nationalIdInput").value.replace(/[^\d]/g, "") ||
-    "نامشخص";
-  const newNumber =
-    document.getElementById("newNumberInput").value.replace(/[^\d]/g, "") ||
-    "نامشخص";
+  const name = document.getElementById("nameInput").value.trim();
+  const oldNumber = document
+    .getElementById("oldNumberInput")
+    .value.replace(/[^\d]/g, "");
+  const nationalId = document
+    .getElementById("nationalIdInput")
+    .value.replace(/[^\d]/g, "");
+  const newNumber = document
+    .getElementById("newNumberInput")
+    .value.replace(/[^\d]/g, "");
 
   const text =
     "با سلام\n" +
     "کاربر: " +
-    name +
+    (name ? name : "جای خالی") +
     "\n" +
     "با شماره موبایل: " +
-    oldNumber +
+    (oldNumber ? oldNumber : "جای خالی") +
     "\n" +
     "و کدملی: " +
-    nationalId +
+    (nationalId ? nationalId : "جای خالی") +
     "\n" +
     "درخواست تغییر شماره به: " +
-    newNumber +
+    (newNumber ? newNumber : "جای خالی") +
     " را دارند.";
 
   navigator.clipboard.writeText(text).then(

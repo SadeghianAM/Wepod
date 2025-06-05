@@ -119,9 +119,9 @@ async function updateVideoBankingStatus() {
   if (isHoliday) {
     statusHTML = `
       <div class="video-banking-box closed">
-        <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ غیرفعال</span></b>
-        <br>
-        امروز تعطیل رسمی است و خدمات بانکداری ویدیویی ارائه نمی‌شود.
+        <b>بانکداری ویدیویی : <span style="font-size:1.2em;">❌ غیرفعال</span></b>
+          <br>
+        <b>سیکل تسویه پایا :</b> ۱۳:۴۵ الی ۱۴:۵۰
       </div>
     `;
   } else if (weekday >= 1 && weekday <= 3) {
