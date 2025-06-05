@@ -5,22 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>سرویس‌های بخش پشتیبانی مشتریان</title>
     <meta name="robots" content="noindex, nofollow" />
-
-    <!-- ======= بارگذاری فونت فارسی وزیرمتن ======= -->
     <style>
       @font-face {
         font-family: "Vazirmatn";
         src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
-
       *,
       *::before,
       *::after {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
       }
-
       body {
         background-color: #f4fbf7;
         color: #222;
@@ -31,7 +27,6 @@
         display: flex;
         flex-direction: column;
       }
-
       header {
         background: #00ae70;
         color: white;
@@ -42,14 +37,23 @@
         box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
         position: relative;
       }
-
       header h1 {
         font-size: 1.2rem;
         font-weight: 700;
         margin: 0;
       }
-
       #today-date {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        color: #fff;
+        opacity: 0.85;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      #current-time {
         position: absolute;
         left: 1.5rem;
         top: 50%;
@@ -60,7 +64,6 @@
         font-weight: 500;
         white-space: nowrap;
       }
-
       main {
         flex-grow: 1;
         padding: 1.5rem;
@@ -69,8 +72,6 @@
         margin: 0 auto;
         overflow-y: auto;
       }
-
-      /* گرید دو ستونه */
       .main-content {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -80,7 +81,6 @@
       .column {
         background: transparent;
       }
-
       h2 {
         font-size: 1.3rem;
         margin-bottom: 1.5rem;
@@ -88,13 +88,11 @@
         text-align: center;
         font-weight: 700;
       }
-
       ul {
         list-style: none;
         padding: 0;
         margin: 0;
       }
-
       li {
         background-color: #ffffff;
         border-radius: 0.75rem;
@@ -104,13 +102,11 @@
         border-right: 4px solid #00ae70;
         transition: all 0.25s;
       }
-
       li:hover {
         transform: translateY(-3px);
         border-right-color: #089863;
         box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
       }
-
       a {
         text-decoration: none;
         color: #00ae70;
@@ -119,11 +115,9 @@
         display: block;
         transition: color 0.2s;
       }
-
       a:hover {
         color: #089863;
       }
-
       footer {
         background: #00ae70;
         color: #e0e7ff;
@@ -134,11 +128,9 @@
         font-size: 0.85rem;
         box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
       }
-
       footer p {
         margin: 0;
       }
-
       @media (max-width: 900px) {
         .main-content {
           grid-template-columns: 1fr;
@@ -148,7 +140,6 @@
           width: 100%;
         }
       }
-
       @media (max-width: 480px) {
         main {
           padding: 1rem;
@@ -159,13 +150,11 @@
         li {
           padding: 1rem 1.2rem;
         }
-        #today-date {
+        #today-date,
+        #current-time {
           display: none;
         }
       }
-
-      /* استایل بخش بانکداری ویدیویی */
-
       .video-banking-box {
         background: #eafff4;
         padding: 1.2rem 1.5rem;
@@ -177,8 +166,6 @@
         background: #fff0f3;
         border-right-color: #ff0040;
       }
-
-      /* استایل بخش اطلاعیه و اخبار */
       .news-alert-box {
         background: #eafff4;
         padding: 1.2rem 1.5rem;
@@ -205,20 +192,19 @@
   <body>
     <!-- ======= هدر بالای صفحه ======= -->
     <header>
-      <h1>سرویس‌های بخش پشتیبانی مشتریان</h1>
       <span id="today-date"></span>
+      <h1>سرویس‌های بخش پشتیبانی مشتریان</h1>
+      <span id="current-time"></span>
     </header>
-
-    <!-- ======= بخش اصلی لیست ابزارها ======= -->
     <main>
       <div class="main-content">
         <!-- ستون راست: اطلاع‌رسانی و بانکداری ویدیویی -->
         <div class="column column-info">
           <h2>📣 اطلاع رسانی</h2>
+          <div id="payaa-cycle-status"></div>
           <div id="video-banking-status" class="video-banking-status"></div>
           <div id="news-alerts"></div>
         </div>
-
         <!-- ستون چپ: ابزارها و سرویس‌ها -->
         <div class="column column-tools">
           <h2>🛠️ ابزارهای پشتیبانی</h2>
@@ -228,14 +214,12 @@
               <a href="account-block.html">🚫 پیگیری مسدودی حساب / آزمایشی</a>
             </li>
           </ul>
-
           <h2>🔍 سرویس‌های استعلامی</h2>
           <ul>
             <li><a href="iban-lookup.html">🔍 اعتبارسنجی شبا</a></li>
             <li><a href="bin-lookup.html">🔍 اعتبارسنجی کارت</a></li>
             <li><a href="#">🔍 شعبه افتتاح کننده و نوع حساب (بزودی)</a></li>
           </ul>
-
           <h2>🔰 دیگر بخش‌ها</h2>
           <ul>
             <li><a href="#">💸 محاسبه کارمزد انتقال وجه (بزودی)</a></li>
@@ -245,11 +229,7 @@
         </div>
       </div>
     </main>
-
-    <!-- ======= محل قرارگیری فوتر ======= -->
     <div id="footer-placeholder"></div>
-
-    <!-- ======= فایل جاوااسکریپت خارجی ======= -->
     <script src="main.js"></script>
   </body>
 </html>
