@@ -19,6 +19,14 @@ function showNotification(title, desc, type = "green") {
   document.body.appendChild(notif);
 
   setTimeout(() => notif.remove(), 25000);
+
+  // ===== پخش صدا =====
+  try {
+    let audio = new Audio("../assets/notif.wav");
+    audio.play();
+  } catch (e) {
+    // silent fail
+  }
 }
 
 async function checkNotification() {
@@ -36,4 +44,4 @@ async function checkNotification() {
 }
 
 checkNotification();
-setInterval(checkNotification, 12000);
+setInterval(checkNotification, 5000);
