@@ -28,20 +28,6 @@
         display: flex;
         flex-direction: column;
       }
-      header {
-        background: #00ae70;
-        color: #fff;
-        height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
-      }
-      header h1 {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin: 0;
-      }
       main {
         flex-grow: 1;
         display: flex;
@@ -238,9 +224,7 @@
     </style>
   </head>
   <body>
-    <header>
-      <h1>پیگیری مسدودی حساب</h1>
-    </header>
+    <div id="header-placeholder"></div>
     <main>
       <div class="form-wrapper">
         <!-- ======= متن آزاد برای تکمیل خودکار ======= -->
@@ -340,6 +324,15 @@
           document.getElementById("footer-placeholder").innerHTML = data;
         });
     </script>
+    <script>
+      fetch("header.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("header-placeholder").innerHTML = data;
+          setupHeader("پیگیری مسدودی حساب");
+        });
+    </script>
+    <script src="js/header.js"></script>
     <script src="./js/account-block.js"></script>
   </body>
 </html>

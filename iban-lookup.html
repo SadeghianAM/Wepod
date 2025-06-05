@@ -4,26 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>اعتبارسنجی شماره شبا</title>
-
-    <!-- ======= بارگذاری فونت فارسی وزیرمتن برای کل صفحه ======= -->
+    <link rel="stylesheet" href="./css/layout.css" />
     <style>
       @font-face {
         font-family: "Vazirmatn";
         src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
-
-      /* ======= ریست استایل و فونت پیش‌فرض ======= */
       *,
       *::before,
       *::after {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
       }
-
-      /* ======= استایل بدنه ======= */
       body {
-        background-color: #f4fbf7; /* پس‌زمینه روشن هماهنگ با سبز */
+        background-color: #f4fbf7;
         color: #222;
         margin: 0;
         padding: 0;
@@ -32,25 +27,6 @@
         display: flex;
         flex-direction: column;
       }
-
-      /* ======= هدر بالای صفحه ======= */
-      header {
-        background: #00ae70;
-        color: #fff;
-        height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
-      }
-
-      header h1 {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin: 0;
-      }
-
-      /* ======= بخش اصلی فرم ======= */
       main {
         flex-grow: 1;
         display: flex;
@@ -64,7 +40,6 @@
         overflow-y: auto;
         background: none;
       }
-
       .form-wrapper {
         width: 100%;
         max-width: 480px;
@@ -75,8 +50,6 @@
         padding: 2rem 1.2rem 1.5rem 1.2rem;
         margin-top: 2rem;
       }
-
-      /* ======= استایل لیبل‌های فرم ======= */
       label {
         display: block;
         margin-bottom: 0.7rem;
@@ -84,8 +57,6 @@
         font-size: 1.1rem;
         color: #00ae70;
       }
-
-      /* ======= استایل ورودی شماره شبا ======= */
       input {
         width: 100%;
         padding: 1rem;
@@ -99,14 +70,11 @@
         color: #222;
         transition: border-color 0.3s, background 0.3s;
       }
-
       input:focus {
         border-color: #00ae70;
         background: #fff;
         outline: none;
       }
-
-      /* ======= جعبه نمایش نتیجه یا خطا ======= */
       .result {
         margin-top: 1rem;
         padding: 1rem 1.5rem;
@@ -117,34 +85,27 @@
         display: none;
         transition: all 0.3s ease;
       }
-
-      /* رنگ‌بندی حالت‌های مختلف نتیجه */
       .result.success {
         background-color: #e6f7f0;
         color: #157347;
         border: 1px solid #00ae70;
       }
-
       .result.error {
         background-color: #fdeeee;
         color: #e74c3c;
         border: 1px solid #e74c3c;
       }
-
       .result.warning {
         background-color: #fff9e6;
         color: #b9770e;
         border: 1px solid #f39c12;
       }
-
       .result img {
         vertical-align: middle;
         width: 24px;
         height: 24px;
         margin-left: 5px !important;
       }
-
-      /* ======= دکمه پاک کردن فرم ======= */
       .clear-button {
         margin-top: 1.5rem;
         width: 100%;
@@ -157,12 +118,9 @@
         cursor: pointer;
         transition: background-color 0.3s;
       }
-
       .clear-button:hover {
         background-color: #089863;
       }
-
-      /* ======= لینک بازگشت به صفحه اصلی ======= */
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -171,13 +129,10 @@
         text-decoration: none;
         font-size: 1rem;
       }
-
       .back-link:hover {
         text-decoration: underline;
         color: #089863;
       }
-
-      /* ======= فوتر (پاورقی) ======= */
       footer {
         background: #00ae70;
         color: #e0e7ff;
@@ -188,12 +143,9 @@
         font-size: 0.85rem;
         box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
       }
-
       footer p {
         margin: 0;
       }
-
-      /* ======= واکنش‌گرایی در موبایل ======= */
       @media (max-width: 480px) {
         input {
           font-size: 1rem;
@@ -209,14 +161,8 @@
       }
     </style>
   </head>
-
   <body>
-    <!-- ======= هدر بالای صفحه ======= -->
-    <header>
-      <h1>🔍 اعتبارسنجی شماره شبا</h1>
-    </header>
-
-    <!-- ======= بخش اصلی فرم ======= -->
+    <div id="header-placeholder"></div>
     <main>
       <div class="form-wrapper">
         <label for="ibanInput">شماره شبا (حداقل ۵ رقم اول):</label>
@@ -234,11 +180,7 @@
         <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
-
-    <!-- ======= محل نمایش فوتر ======= -->
     <div id="footer-placeholder"></div>
-
-    <!-- ======= اسکریپت بارگذاری فوتر از فایل جداگانه ======= -->
     <script>
       fetch("footer.html")
         .then((res) => res.text())
@@ -246,8 +188,15 @@
           document.getElementById("footer-placeholder").innerHTML = data;
         });
     </script>
-
-    <!-- ======= اسکریپت اعتبارسنجی و تشخیص بانک از شبا ======= -->
+    <script>
+      fetch("header.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("header-placeholder").innerHTML = data;
+          setupHeader("اعتبارسنجی شماره شبا");
+        });
+    </script>
+    <script src="js/header.js"></script>
     <script src="./js/ibanService.js"></script>
   </body>
 </html>
