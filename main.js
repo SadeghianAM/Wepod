@@ -62,7 +62,6 @@ function toJalali(gy, gm, gd) {
 function toPersianDigits(str) {
   return str.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
-
 function toPersianDigitsText(num) {
   return num.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
@@ -91,9 +90,7 @@ function getCurrentTimePersian() {
 
 // درج تاریخ و ساعت در هدر
 document.addEventListener("DOMContentLoaded", function () {
-  // تاریخ شمسی سمت راست
   document.getElementById("today-date").innerText = getTodayPersianDate();
-  // ساعت سمت چپ
   const timeElem = document.getElementById("current-time");
   function updateTime() {
     timeElem.innerText = getCurrentTimePersian();
@@ -153,9 +150,6 @@ async function updateVideoBankingStatus() {
   let weekday = today.getDay();
   let statusHTML = "";
 
-  // شنبه (6)، یک‌شنبه (0)، دوشنبه (1)، سه‌شنبه (2)، چهارشنبه (3) => فعال
-  // پنج‌شنبه (4) => مثل قبل
-  // جمعه (5) و تعطیلات رسمی => غیر فعال
   if (isHoliday || weekday === 5) {
     statusHTML = `
       <div class="video-banking-box closed">
@@ -165,7 +159,6 @@ async function updateVideoBankingStatus() {
       </div>
     `;
   } else if (weekday >= 6 || weekday <= 3) {
-    // شنبه تا چهارشنبه (6,0,1,2,3)
     statusHTML = `
       <div class="video-banking-box">
         <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
@@ -176,7 +169,6 @@ async function updateVideoBankingStatus() {
       </div>
     `;
   } else if (weekday === 4) {
-    // پنج‌شنبه (4)
     statusHTML = `
       <div class="video-banking-box">
         <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
@@ -211,12 +203,23 @@ function setNewsAlerts(newsItems) {
 }
 
 // ======= نمایش زمان‌بندی پایا و شمارش معکوس =======
+
+// لیست سیکل‌های پایا (روز غیر تعطیل)
 const payaaCycles = [
   { hour: 3, min: 45, endH: 4, endM: 50 },
   { hour: 10, min: 45, endH: 11, endM: 50 },
   { hour: 13, min: 45, endH: 14, endM: 50 },
   { hour: 18, min: 45, endH: 19, endM: 50 },
 ];
+
+// سیکل مخصوص تعطیلات رسمی
+const holidayCycle = [{ hour: 13, min: 45, endH: 14, endM: 50 }];
+
+// تابع بررسی تعطیلی رسمی بودن یک تاریخ شمسی
+function isHolidayJalali(jy, jm, jd, holidays) {
+  const dateStr = `${jy}-${pad(jm)}-${pad(jd)}`;
+  return holidays.some((h) => h.date === dateStr);
+}
 
 function toPersianTimeStr(totalMin) {
   let h = Math.floor(totalMin / 60);
@@ -230,10 +233,19 @@ function toPersianTimeStr(totalMin) {
   }
 }
 
-function getNextPayaaCycle(now, isHoliday) {
-  let todayCycles = isHoliday
-    ? [{ hour: 13, min: 45, endH: 14, endM: 50 }]
-    : payaaCycles;
+// تابع یافتن چرخه بعدی پایا با در نظر گرفتن تعطیلی امروز و فردا
+function getNextPayaaCycle(now, holidays) {
+  // تاریخ امروز شمسی
+  const [jy, jm, jd] = toJalali(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    now.getDate()
+  );
+  const isHolidayToday = isHolidayJalali(jy, jm, jd, holidays);
+
+  // سیکل‌های امروز (با توجه به تعطیلی)
+  let todayCycles = isHolidayToday ? holidayCycle : payaaCycles;
+
   for (let cycle of todayCycles) {
     const cycleTime = new Date(now);
     cycleTime.setHours(cycle.hour, cycle.min, 0, 0);
@@ -255,10 +267,18 @@ function getNextPayaaCycle(now, isHoliday) {
       return { ...cycle, start: cycleTime, end: endTime, inProgress: true };
     }
   }
-  // اگر همه سیکل‌ها گذشته، اولین سیکل فردا
-  const firstCycle = todayCycles[0];
+
+  // اگر همه سیکل‌های امروز تمام شده، اولین سیکل فردا با توجه به تعطیلی فردا
   const tomorrow = new Date(now);
   tomorrow.setDate(now.getDate() + 1);
+  const [ty, tm, td] = toJalali(
+    tomorrow.getFullYear(),
+    tomorrow.getMonth() + 1,
+    tomorrow.getDate()
+  );
+  const isHolidayTomorrow = isHolidayJalali(ty, tm, td, holidays);
+  const tomorrowCycles = isHolidayTomorrow ? holidayCycle : payaaCycles;
+  const firstCycle = tomorrowCycles[0];
   tomorrow.setHours(firstCycle.hour, firstCycle.min, 0, 0);
   return {
     ...firstCycle,
@@ -273,13 +293,14 @@ function getNextPayaaCycle(now, isHoliday) {
   };
 }
 
-function renderPayaaCycleStatus(isHoliday) {
+// تابع رندر وضعیت چرخه
+function renderPayaaCycleStatus(holidays) {
   const statusDiv = document.getElementById("payaa-cycle-status");
   if (!statusDiv) return;
 
   function updateStatus() {
     const now = new Date();
-    const cycle = getNextPayaaCycle(now, isHoliday);
+    const cycle = getNextPayaaCycle(now, holidays);
 
     // ساخت رشته تاریخ و ساعت چرخه بعدی
     const nextDate = cycle.start;
@@ -351,26 +372,15 @@ function renderPayaaCycleStatus(isHoliday) {
 
 // ترکیب با سیستم تعطیلات موجود
 async function setupPayaaCycleStatus() {
-  // تاریخ امروز شمسی
-  var today = new Date();
-  var gYear = today.getFullYear();
-  var gMonth = today.getMonth() + 1;
-  var gDay = today.getDate();
-  var [jy, jm, jd] = toJalali(gYear, gMonth, gDay);
-  var todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
-
   let holidays = [];
   try {
     const res = await fetch("data/holidays-1404.json");
     holidays = await res.json();
   } catch (e) {}
 
-  // آیا امروز تعطیل رسمی است؟
-  const isHoliday = holidays.some((h) => h.date === todayStr);
-  renderPayaaCycleStatus(isHoliday);
+  renderPayaaCycleStatus(holidays);
 }
 
-// اجرای اولیه پس از لود صفحه
 document.addEventListener("DOMContentLoaded", setupPayaaCycleStatus);
 
 // ====================== جستجوی ابزارهای پشتیبانی =======================
