@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>محاسبه کارمزد انتقال وجه</title>
+    <meta name="robots" content="noindex, nofollow" />
     <style>
       @font-face {
         font-family: "Vazirmatn";
@@ -31,40 +32,39 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        padding: 1rem;
-        max-width: 800px;
-        width: 100%;
-        margin: 0 auto;
-        overflow-y: auto;
-        background: none;
-      }
-      /* عنوان صفحه */
-      .page-title {
-        font-size: 1.6rem;
-        color: #00ae70;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        text-align: center;
+        justify-content: center;
+        padding: 1.2rem 0.5rem 0.5rem 0.5rem;
       }
       .form-wrapper {
         width: 100%;
-        max-width: 480px;
+        max-width: 35%;
         background: #fff;
         border: 1.5px solid #e6f7f0;
         border-radius: 1rem;
         box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        padding: 2rem 1.2rem 2rem 1.2rem;
+        padding: 2rem 1.2rem 1.5rem 1.2rem;
       }
       label {
         display: block;
-        margin-bottom: 0.7rem;
+        margin-bottom: 0.33rem;
         font-weight: 700;
-        font-size: 1.1rem;
+        font-size: 1.07rem;
         color: #00ae70;
+        text-align: right;
       }
-
-      /* ---------- تغییرات برای نمایش «تومان» داخل فیلد ورودی ---------- */
+      input,
+      textarea {
+        width: 100%;
+        padding: 0.88rem 0.9rem;
+        font-size: 1.08rem;
+        border: 2px solid #e6f7f0;
+        border-radius: 0.6rem;
+        background: #f4fbf7;
+        color: #222;
+        transition: border-color 0.3s, background 0.3s;
+        letter-spacing: normal !important;
+      }
+      /* برای فیلد «مبلغ انتقال» */
       .input-with-currency {
         position: relative;
         display: block;
@@ -75,39 +75,30 @@
         top: 50%;
         left: 12px;
         transform: translateY(-50%);
-        font-size: 1.1rem;
+        font-size: 1.08rem;
         color: #222;
         pointer-events: none;
         user-select: none;
         white-space: nowrap;
       }
       .input-with-currency input[type="text"] {
-        width: 100%;
         padding-left: 60px; /* فضای لازم برای «تومان» */
-        padding-right: 1rem;
-        font-size: 1.1rem;
-        border: 2px solid #e6f7f0;
-        border-radius: 0.75rem;
+        padding-right: 0.9rem;
         direction: ltr;
         text-align: center;
-        background: #f4fbf7;
-        color: #222;
         height: 55px;
-        transition: border-color 0.3s, background 0.3s;
       }
       .input-with-currency input[type="text"]:focus {
         border-color: #00ae70;
         background: #fff;
         outline: none;
       }
-
       .amount-words {
         margin-top: 0.5rem;
         font-size: 0.95rem;
         color: #555;
         min-height: 1.5rem; /* برای جلوگیری از جابه‌جایی‌های ناگهانی */
       }
-
       .method-cards-container {
         margin-top: 12px;
         display: flex;
@@ -156,7 +147,7 @@
       }
       .back-link {
         display: block;
-        margin-top: 2rem;
+        margin-top: 1.7rem;
         text-align: center;
         color: #00ae70;
         text-decoration: none;
@@ -179,25 +170,43 @@
       footer p {
         margin: 0;
       }
-      @media (max-width: 480px) {
+      /* واکنش‌گرایی */
+      @media (max-width: 700px) {
+        .form-wrapper {
+          max-width: 98vw;
+          padding: 1rem 0.4rem 1rem 0.4rem;
+        }
+        .form-wrapper,
+        input,
+        textarea,
+        .copy-button,
+        .clear-button,
+        .auto-fill-button {
+          font-size: 1rem;
+          padding: 0.8rem;
+        }
+        .result {
+          font-size: 0.97rem;
+          padding: 0.6rem 0.7rem;
+        }
+        .input-message {
+          font-size: 0.9rem;
+        }
         .input-with-currency input[type="text"] {
           font-size: 1rem;
-          padding-left: 50px; /* برای موبایل کمی کمتر */
+          padding-left: 50px;
           padding-right: 0.9rem;
-        }
-        .form-wrapper {
-          padding: 1rem 0.4rem 1rem 0.4rem;
         }
       }
     </style>
   </head>
   <body>
-    <!-- جایگاهی برای هدر داینامیک -->
+    <!-- هدر داینامیک -->
     <div id="header-placeholder"></div>
 
     <main>
       <div class="form-wrapper">
-        <!-- ورودی مبلغ (با لِیبل «تومان» داخل فیلد) -->
+        <!-- ورودی مبلغ (با «تومان» داخل فیلد) -->
         <label for="amountInput">مبلغ انتقال :</label>
         <div class="input-with-currency">
           <span class="currency-label">تومان</span>
@@ -211,7 +220,7 @@
         <!-- اینجا متنِ «مبلغ به حروف به ریال» نمایش داده می‌شود -->
         <div id="amountWords" class="amount-words"></div>
 
-        <!-- کارت‌های فیچر برای هر روش انتقال -->
+        <!-- کارت‌های روش انتقال -->
         <div class="method-cards-container">
           <!-- کارت برای کارت به کارت -->
           <div class="method-card" id="card-shetabi">
@@ -249,12 +258,13 @@
             <div class="fee-display" id="feePol"></div>
           </div>
         </div>
-      </div>
 
-      <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+        <!-- دکمه بازگشت داخل فرم -->
+        <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+      </div>
     </main>
 
-    <!-- جایگاهی برای فوتر داینامیک -->
+    <!-- فوتر داینامیک -->
     <div id="footer-placeholder"></div>
 
     <!-- اسکریپت بارگذاری هدر و فوتر -->
@@ -264,7 +274,6 @@
         .then((res) => res.text())
         .then((data) => {
           document.getElementById("header-placeholder").innerHTML = data;
-          // اگر تابع setupHeader تعریف شده باشد، عنوان صفحه را ارسال می‌کند
           if (typeof setupHeader === "function") {
             setupHeader("محاسبه کارمزد انتقال وجه");
           }
