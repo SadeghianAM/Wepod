@@ -100,10 +100,16 @@
         background: #fff;
         outline: none;
       }
-      /* ---------- پایان تغییرات ---------- */
+
+      .amount-words {
+        margin-top: 0.5rem;
+        font-size: 0.95rem;
+        color: #555;
+        min-height: 1.5rem; /* برای جلوگیری از جابه‌جایی‌های ناگهانی */
+      }
 
       .method-cards-container {
-        margin-top: 1.5rem;
+        margin-top: 12px;
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -198,16 +204,18 @@
           <input
             type="text"
             id="amountInput"
-            placeholder="مبلغ به تومان"
+            placeholder="۵٬۰۰۰٬۰۰۰"
             autocomplete="off"
           />
         </div>
+        <!-- اینجا متنِ «مبلغ به حروف به ریال» نمایش داده می‌شود -->
+        <div id="amountWords" class="amount-words"></div>
 
         <!-- کارت‌های فیچر برای هر روش انتقال -->
         <div class="method-cards-container">
           <!-- کارت برای کارت به کارت -->
           <div class="method-card" id="card-shetabi">
-            <div class="method-title">کارت به کارت (شتابی)</div>
+            <div class="method-title">کارت به کارت</div>
             <div class="limits" id="limitsShetabi">
               کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۱۰٬۰۰۰٬۰۰۰ تومان
             </div>
@@ -270,7 +278,7 @@
         });
     </script>
 
-    <!-- اسکریپت محاسبه کارمزد -->
+    <!-- اسکریپت محاسبه کارمزد و تبدیل به حروف -->
     <script src="js/feeCalculator.js"></script>
     <script src="js/header.js"></script>
   </body>

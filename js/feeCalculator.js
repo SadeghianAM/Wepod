@@ -1,5 +1,6 @@
 // ===== گرفتن المان‌ها =====
 const amountInput = document.getElementById("amountInput");
+const amountWordsDiv = document.getElementById("amountWords");
 
 // المان‌های مربوط به هر روش
 const cardShetabi = document.getElementById("card-shetabi");
@@ -141,6 +142,106 @@ function calculateFee(method, amount) {
   }
 }
 
+// ===== تبدیل عدد (ریال) به حروف (فارسی) =====
+// نقشه برای اعداد ۰ تا ۱۹
+const persianNums = {
+  0: "صفر",
+  1: "یک",
+  2: "دو",
+  3: "سه",
+  4: "چهار",
+  5: "پنج",
+  6: "شش",
+  7: "هفت",
+  8: "هشت",
+  9: "نه",
+  10: "ده",
+  11: "یازده",
+  12: "دوازده",
+  13: "سیزده",
+  14: "چهارده",
+  15: "پانزده",
+  16: "شانزده",
+  17: "هفده",
+  18: "هجده",
+  19: "نوزده",
+};
+
+// نقشه برای دهگان (۲۰، ۳۰، …، ۹۰)
+const persianTens = {
+  20: "بیست",
+  30: "سی",
+  40: "چهل",
+  50: "پنجاه",
+  60: "شصت",
+  70: "هفتاد",
+  80: "هشتاد",
+  90: "نود",
+};
+
+// نقشه برای صدگان (۱۰۰، ۲۰۰، …، ۹۰۰)
+const persianHundreds = {
+  100: "صد",
+  200: "دویست",
+  300: "سیصد",
+  400: "چهارصد",
+  500: "پانصد",
+  600: "ششصد",
+  700: "هفتصد",
+  800: "هشتصد",
+  900: "نهصد",
+};
+
+// تابعی که عدد سه‌رقمی (۰ تا ۹۹۹) را به حروف فارسی تبدیل می‌کند
+function threeDigitToWords(n) {
+  let str = "";
+  if (n >= 100) {
+    const h = Math.floor(n / 100) * 100;
+    str += persianHundreds[h];
+    n %= 100;
+    if (n) str += " و ";
+  }
+  if (n >= 20) {
+    const t = Math.floor(n / 10) * 10;
+    str += persianTens[t];
+    n %= 10;
+    if (n) str += " و ";
+  }
+  if (n > 0 && n < 20) {
+    str += persianNums[n];
+  }
+  return str;
+}
+
+// مقیاس‌های هزار به بالا
+const scales = ["", "هزار", "میلیون", "میلیارد", "تریلیون", "کوادریلیون"];
+
+// تابع اصلی برای تبدیل هر عدد صحیح (مثلاً 123456789) به حروف فارسی + واژه‌ی "ریال"
+function convertNumberToPersianWords(num) {
+  if (num === 0) return persianNums[0] + " ریال";
+
+  let result = "";
+  let scaleIdx = 0;
+
+  while (num > 0) {
+    const chunk = num % 1000;
+    if (chunk) {
+      const chunkWords = threeDigitToWords(chunk);
+      const scaleWord = scales[scaleIdx];
+      const section = chunkWords + (scaleWord ? " " + scaleWord : "");
+      if (result) {
+        result = section + " و " + result;
+      } else {
+        result = section;
+      }
+    }
+    num = Math.floor(num / 1000);
+    scaleIdx++;
+  }
+
+  return result + " ریال";
+}
+
 // ===== تابع برای به‌روزرسانی وضعیت هر کارت =====
 function updateCardStatus(cardElement, feeElement, methodKey, amount) {
   const result = calculateFee(methodKey, amount);
@@ -158,6 +259,16 @@ function updateCardStatus(cardElement, feeElement, methodKey, amount) {
     const feeStr = formatWithSeparators(result.fee);
     feeElement.textContent = `کارمزد: ${feeStr} تومان`;
   }
+}
+
+// ===== به‌روزرسانی متنِ مبلغ به حروف (ریال) =====
+function updateAmountInWords(rialAmount) {
+  if (isNaN(rialAmount) || rialAmount <= 0) {
+    amountWordsDiv.textContent = "";
+    return;
+  }
+  const words = convertNumberToPersianWords(rialAmount);
+  amountWordsDiv.textContent = words;
 }
 
 // ===== رویداد تغییر ورودی =====
@@ -190,6 +301,7 @@ function handleInputChange() {
         (feeEl) => (feeEl.textContent = "")
       );
       amountInput.value = ""; // اگر خالی است، هیچی ننویس
+      updateAmountInWords(NaN); // پاک کردن متنِ حروف
     } else {
       // اگر غیرعددی است، همهٔ کارت‌ها غیرفعال شوند و پیام «مبلغ نامعتبر است»
       [cardShetabi, cardPaya, cardSatna, cardPol].forEach((card) => {
@@ -200,6 +312,7 @@ function handleInputChange() {
         feeEl.classList.add("disabled-text");
       });
       amountInput.value = "";
+      updateAmountInWords(NaN);
     }
     return;
   }
@@ -207,6 +320,10 @@ function handleInputChange() {
   // در غیر این صورت، numeric یک عدد معتبر با حداکثر 11 رقم است
   // فرمت با جداکننده و ارقام فارسی و جایگزینی در input
   amountInput.value = formatWithSeparators(numeric);
+
+  // به‌روزکردن مبلغ به حروف (ریال): هر «تومان» = ۱۰ ریال
+  const rialAmount = numeric * 10;
+  updateAmountInWords(rialAmount);
 
   // به‌روزرسانی وضعیت هر کارت
   updateCardStatus(cardShetabi, feeShetabi, "shetabi", numeric);
@@ -229,4 +346,5 @@ window.addEventListener("DOMContentLoaded", () => {
   [feeShetabi, feePaya, feeSatna, feePol].forEach(
     (feeEl) => (feeEl.textContent = "")
   );
+  updateAmountInWords(NaN);
 });
