@@ -55,7 +55,6 @@
         border-radius: 1rem;
         box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
         padding: 2rem 1.2rem 2rem 1.2rem;
-        margin-bottom: 2rem;
       }
       label {
         display: block;
@@ -71,7 +70,7 @@
         border: 2px solid #e6f7f0;
         border-radius: 0.75rem;
         direction: ltr;
-        text-align: left;
+        text-align: right;
         background: #f4fbf7;
         color: #222;
         transition: border-color 0.3s, background 0.3s;
@@ -81,65 +80,51 @@
         background: #fff;
         outline: none;
       }
-      .radio-group {
+      .method-cards-container {
         margin-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
       }
-      /* کارت‌های فیچر برای هر روش انتقال */
       .method-card {
         background-color: #fcfffc;
         border: 1px solid #e6f7f0;
         border-radius: 0.75rem;
         padding: 0.8rem 1rem;
-        margin-bottom: 1rem;
+        position: relative;
+        transition: background-color 0.3s, opacity 0.3s;
       }
-      .radio-option {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.4rem;
+      .method-card.disabled {
+        background-color: #f0f0f0;
+        opacity: 0.6;
       }
-      .radio-option input[type="radio"] {
-        accent-color: #00ae70;
-        width: 1.2rem;
-        height: 1.2rem;
-        margin-left: 0.5rem;
-        cursor: pointer;
-      }
-      .radio-option label {
-        font-size: 1rem;
-        margin: 0;
-        cursor: pointer;
+      .method-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #00ae70;
+        margin-bottom: 0.5rem;
       }
       .limits {
         font-size: 0.95rem;
         color: #555;
-        margin-top: 0.4rem;
         line-height: 1.4;
+        margin-bottom: 0.6rem;
         padding-right: 1.8rem;
       }
-      .result {
-        margin-top: 1rem;
-        padding: 1rem 1.5rem;
-        border-radius: 0.75rem;
-        font-weight: bold;
+      .fee-display {
         font-size: 1rem;
-        text-align: center;
-        display: none;
-        transition: all 0.3s ease;
-      }
-      .result.success {
-        background-color: #e6f7f0;
+        font-weight: bold;
+        text-align: right;
         color: #157347;
-        border: 1px solid #00ae70;
       }
-      .result.error {
-        background-color: #fdeeee;
+      .fee-display.error {
         color: #e74c3c;
-        border: 1px solid #e74c3c;
       }
-      .result.warning {
-        background-color: #fff9e6;
+      .fee-display.warning {
         color: #b9770e;
-        border: 1px solid #f39c12;
+      }
+      .fee-display.disabled-text {
+        color: #ff0000;
       }
       .back-link {
         display: block;
@@ -178,13 +163,10 @@
     </style>
   </head>
   <body>
-    <!-- هدر داینامیک -->
+    <!-- جایگاهی برای هدر داینامیک -->
     <div id="header-placeholder"></div>
 
     <main>
-      <!-- عنوان صفحه درون بدنه -->
-      <h1 class="page-title">محاسبه کارمزد انتقال وجه</h1>
-
       <div class="form-wrapper">
         <!-- ورودی مبلغ -->
         <label for="amountInput">مبلغ انتقال (تومان):</label>
@@ -195,94 +177,66 @@
           autocomplete="off"
         />
 
-        <!-- گروه دکمه‌های رادیویی داخل کارت‌ها -->
-        <div class="radio-group">
+        <!-- کارت‌های فیچر برای هر روش انتقال -->
+        <div class="method-cards-container">
           <!-- کارت برای کارت به کارت -->
-          <div class="method-card">
-            <div class="radio-option">
-              <input
-                type="radio"
-                id="methodShetabi"
-                name="transferMethod"
-                value="shetabi"
-                checked
-              />
-              <label for="methodShetabi">کارت به کارت (شتابی)</label>
-            </div>
+          <div class="method-card" id="card-shetabi">
+            <div class="method-title">کارت به کارت (شتابی)</div>
             <div class="limits" id="limitsShetabi">
               کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۱۰٬۰۰۰٬۰۰۰ تومان
             </div>
+            <div class="fee-display" id="feeShetabi"></div>
           </div>
 
           <!-- کارت برای پایا -->
-          <div class="method-card">
-            <div class="radio-option">
-              <input
-                type="radio"
-                id="methodPaya"
-                name="transferMethod"
-                value="paya"
-              />
-              <label for="methodPaya">پایا</label>
-            </div>
+          <div class="method-card" id="card-paya">
+            <div class="method-title">پایا</div>
             <div class="limits" id="limitsPaya">
               کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۲۰۰٬۰۰۰٬۰۰۰ تومان
             </div>
+            <div class="fee-display" id="feePaya"></div>
           </div>
 
           <!-- کارت برای ساتنا -->
-          <div class="method-card">
-            <div class="radio-option">
-              <input
-                type="radio"
-                id="methodSatna"
-                name="transferMethod"
-                value="satna"
-              />
-              <label for="methodSatna">ساتنا</label>
-            </div>
+          <div class="method-card" id="card-satna">
+            <div class="method-title">ساتنا</div>
             <div class="limits" id="limitsSatna">
-              کف: ۱۰۰٬۰۰۰٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۱۰٬۰۰۰٬۰۰۰٬۰۰۰ تومان
+              کف: ۱۰۰٬۰۰۰٬۰۰۰ تومان &nbsp; | &nbsp; بدون سقف
             </div>
+            <div class="fee-display" id="feeSatna"></div>
           </div>
 
           <!-- کارت برای پل -->
-          <div class="method-card">
-            <div class="radio-option">
-              <input
-                type="radio"
-                id="methodPol"
-                name="transferMethod"
-                value="pol"
-              />
-              <label for="methodPol">پل</label>
-            </div>
+          <div class="method-card" id="card-pol">
+            <div class="method-title">پل</div>
             <div class="limits" id="limitsPol">
               کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۵۰٬۰۰۰٬۰۰۰ تومان
             </div>
+            <div class="fee-display" id="feePol"></div>
           </div>
         </div>
-
-        <!-- جعبه نمایش نتیجه -->
-        <div class="result" id="resultBox"></div>
       </div>
 
       <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
     </main>
 
-    <!-- فوتر داینامیک -->
+    <!-- جایگاهی برای فوتر داینامیک -->
     <div id="footer-placeholder"></div>
 
-    <!-- بارگذاری داینامیک هدر و فوتر -->
+    <!-- اسکریپت بارگذاری هدر و فوتر -->
     <script>
+      // بارگذاری هدر
       fetch("header.html")
         .then((res) => res.text())
         .then((data) => {
           document.getElementById("header-placeholder").innerHTML = data;
+          // اگر تابع setupHeader تعریف شده باشد، عنوان صفحه را ارسال می‌کند
           if (typeof setupHeader === "function") {
             setupHeader("محاسبه کارمزد انتقال وجه");
           }
         });
+
+      // بارگذاری فوتر
       fetch("footer.html")
         .then((res) => res.text())
         .then((data) => {
@@ -290,7 +244,8 @@
         });
     </script>
 
-    <!-- فایل JS جداگانه -->
+    <!-- اسکریپت محاسبه کارمزد -->
     <script src="js/feeCalculator.js"></script>
+    <script src="js/header.js"></script>
   </body>
 </html>
