@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>محاسبه کارمزد انتقال وجه</title>
+    <style>
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+      }
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #f4fbf7;
+        color: #222;
+        margin: 0;
+        padding: 0;
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 1rem;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        overflow-y: auto;
+        background: none;
+      }
+      /* عنوان صفحه */
+      .page-title {
+        font-size: 1.6rem;
+        color: #00ae70;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      .form-wrapper {
+        width: 100%;
+        max-width: 480px;
+        background: #fff;
+        border: 1.5px solid #e6f7f0;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
+        padding: 2rem 1.2rem 2rem 1.2rem;
+        margin-bottom: 2rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.7rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #00ae70;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        border: 2px solid #e6f7f0;
+        border-radius: 0.75rem;
+        direction: ltr;
+        text-align: left;
+        background: #f4fbf7;
+        color: #222;
+        transition: border-color 0.3s, background 0.3s;
+      }
+      input[type="text"]:focus {
+        border-color: #00ae70;
+        background: #fff;
+        outline: none;
+      }
+      .radio-group {
+        margin-top: 1.5rem;
+      }
+      /* کارت‌های فیچر برای هر روش انتقال */
+      .method-card {
+        background-color: #fcfffc;
+        border: 1px solid #e6f7f0;
+        border-radius: 0.75rem;
+        padding: 0.8rem 1rem;
+        margin-bottom: 1rem;
+      }
+      .radio-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.4rem;
+      }
+      .radio-option input[type="radio"] {
+        accent-color: #00ae70;
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-left: 0.5rem;
+        cursor: pointer;
+      }
+      .radio-option label {
+        font-size: 1rem;
+        margin: 0;
+        cursor: pointer;
+      }
+      .limits {
+        font-size: 0.95rem;
+        color: #555;
+        margin-top: 0.4rem;
+        line-height: 1.4;
+        padding-right: 1.8rem;
+      }
+      .result {
+        margin-top: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: bold;
+        font-size: 1rem;
+        text-align: center;
+        display: none;
+        transition: all 0.3s ease;
+      }
+      .result.success {
+        background-color: #e6f7f0;
+        color: #157347;
+        border: 1px solid #00ae70;
+      }
+      .result.error {
+        background-color: #fdeeee;
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+      }
+      .result.warning {
+        background-color: #fff9e6;
+        color: #b9770e;
+        border: 1px solid #f39c12;
+      }
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        text-align: center;
+        color: #00ae70;
+        text-decoration: none;
+        font-size: 1rem;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+        color: #089863;
+      }
+      footer {
+        background: #00ae70;
+        color: #e0e7ff;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+      }
+      footer p {
+        margin: 0;
+      }
+      @media (max-width: 480px) {
+        input[type="text"] {
+          font-size: 1rem;
+          padding: 0.9rem;
+        }
+        .form-wrapper {
+          padding: 1rem 0.4rem 1rem 0.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- هدر داینامیک -->
+    <div id="header-placeholder"></div>
+
+    <main>
+      <!-- عنوان صفحه درون بدنه -->
+      <h1 class="page-title">محاسبه کارمزد انتقال وجه</h1>
+
+      <div class="form-wrapper">
+        <!-- ورودی مبلغ -->
+        <label for="amountInput">مبلغ انتقال (تومان):</label>
+        <input
+          type="text"
+          id="amountInput"
+          placeholder="مثال: ۵٬۰۰۰٬۰۰۰"
+          autocomplete="off"
+        />
+
+        <!-- گروه دکمه‌های رادیویی داخل کارت‌ها -->
+        <div class="radio-group">
+          <!-- کارت برای کارت به کارت -->
+          <div class="method-card">
+            <div class="radio-option">
+              <input
+                type="radio"
+                id="methodShetabi"
+                name="transferMethod"
+                value="shetabi"
+                checked
+              />
+              <label for="methodShetabi">کارت به کارت (شتابی)</label>
+            </div>
+            <div class="limits" id="limitsShetabi">
+              کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۱۰٬۰۰۰٬۰۰۰ تومان
+            </div>
+          </div>
+
+          <!-- کارت برای پایا -->
+          <div class="method-card">
+            <div class="radio-option">
+              <input
+                type="radio"
+                id="methodPaya"
+                name="transferMethod"
+                value="paya"
+              />
+              <label for="methodPaya">پایا</label>
+            </div>
+            <div class="limits" id="limitsPaya">
+              کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۲۰۰٬۰۰۰٬۰۰۰ تومان
+            </div>
+          </div>
+
+          <!-- کارت برای ساتنا -->
+          <div class="method-card">
+            <div class="radio-option">
+              <input
+                type="radio"
+                id="methodSatna"
+                name="transferMethod"
+                value="satna"
+              />
+              <label for="methodSatna">ساتنا</label>
+            </div>
+            <div class="limits" id="limitsSatna">
+              کف: ۱۰۰٬۰۰۰٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۱۰٬۰۰۰٬۰۰۰٬۰۰۰ تومان
+            </div>
+          </div>
+
+          <!-- کارت برای پل -->
+          <div class="method-card">
+            <div class="radio-option">
+              <input
+                type="radio"
+                id="methodPol"
+                name="transferMethod"
+                value="pol"
+              />
+              <label for="methodPol">پل</label>
+            </div>
+            <div class="limits" id="limitsPol">
+              کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۵۰٬۰۰۰٬۰۰۰ تومان
+            </div>
+          </div>
+        </div>
+
+        <!-- جعبه نمایش نتیجه -->
+        <div class="result" id="resultBox"></div>
+      </div>
+
+      <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+    </main>
+
+    <!-- فوتر داینامیک -->
+    <div id="footer-placeholder"></div>
+
+    <!-- بارگذاری داینامیک هدر و فوتر -->
+    <script>
+      fetch("header.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("header-placeholder").innerHTML = data;
+          if (typeof setupHeader === "function") {
+            setupHeader("محاسبه کارمزد انتقال وجه");
+          }
+        });
+      fetch("footer.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+
+    <!-- فایل JS جداگانه -->
+    <script src="js/feeCalculator.js"></script>
+  </body>
+</html>
