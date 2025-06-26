@@ -96,5 +96,5 @@ function setupHeader(title) {
   // ⏱ ریلود خودکار صفحه هر ۳۰ ثانیه
   setInterval(() => {
     location.reload();
-  }, 45 * 1000);
+  }, 30 * 1000);
 }

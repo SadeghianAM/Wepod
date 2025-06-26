@@ -154,9 +154,9 @@ async function updateVideoBankingStatus() {
       <div class="video-banking-box">
         <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
         <br>
-        بخش احراز هویت از ساعت <b>۷:۳۰ تا ۱۷</b>
+        بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷</b>
         <br>
-        بخش انتقال وجه از ساعت <b>۷:۳۰ تا ۱۳:۳۰</b>
+        بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۳:۰۰</b>
       </div>
     `;
   } else if (weekday === 4) {
@@ -164,9 +164,9 @@ async function updateVideoBankingStatus() {
       <div class="video-banking-box">
         <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
         <br>
-        بخش احراز هویت از ساعت <b>۷:۳۰ تا ۱۷</b>
+        بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷</b>
         <br>
-        بخش انتقال وجه از ساعت <b>۷:۳۰ تا ۱۲:۳۰</b>
+        بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۲:۳۰</b>
       </div>
     `;
   }
@@ -370,7 +370,9 @@ function renderPayaaCycleStatus(holidays) {
       if (diffMin < 1) diffMin = 1;
       statusDiv.innerHTML = `
         <div class="news-alert-box green" style="font-weight:bold;">
-          <span>${toPersianTimeStr(diffMin)} تا چرخه بعدی پایا (امکان تاخیر وجود دارد)</span>
+          <span>${toPersianTimeStr(
+            diffMin
+          )} تا چرخه بعدی پایا (امکان تاخیر وجود دارد)</span>
           <div style="color:#888; font-size:0.95em; margin-top:0.5em;">${nextCycleText}</div>
         </div>
       `;
