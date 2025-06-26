@@ -370,7 +370,7 @@ function renderPayaaCycleStatus(holidays) {
       if (diffMin < 1) diffMin = 1;
       statusDiv.innerHTML = `
         <div class="news-alert-box green" style="font-weight:bold;">
-          <span>${toPersianTimeStr(diffMin)} تا چرخه بعدی پایا</span>
+          <span>${toPersianTimeStr(diffMin)} تا چرخه بعدی پایا (امکان تاخیر وجود دارد)</span>
           <div style="color:#888; font-size:0.95em; margin-top:0.5em;">${nextCycleText}</div>
         </div>
       `;
