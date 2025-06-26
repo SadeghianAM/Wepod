@@ -1,5 +1,3 @@
-// header.js
-
 const weekdays = [
   "یک‌شنبه",
   "دوشنبه",
@@ -23,6 +21,7 @@ const persianMonths = [
   "بهمن",
   "اسفند",
 ];
+
 function toJalali(gy, gm, gd) {
   var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
   var jy = gy > 1600 ? 979 : 0;
@@ -49,6 +48,7 @@ function toJalali(gy, gm, gd) {
   var jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30);
   return [jy, jm, jd];
 }
+
 function toPersianDigits(str) {
   return str.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
@@ -78,6 +78,7 @@ function setupHeader(title) {
   // درج تاریخ شمسی سمت راست
   const dateElem = document.getElementById("today-date");
   if (dateElem) dateElem.innerText = getTodayPersianDate();
+
   // درج ساعت سمت چپ
   const timeElem = document.getElementById("current-time");
   function updateTime() {
@@ -85,9 +86,15 @@ function setupHeader(title) {
   }
   updateTime();
   setInterval(updateTime, 60 * 1000);
+
   // عنوان صفحه اگر داده باشیم
   if (title) {
     let pageTitleElem = document.getElementById("page-title");
     if (pageTitleElem) pageTitleElem.innerText = title;
   }
+
+  // ⏱ ریلود خودکار صفحه هر ۳۰ ثانیه
+  setInterval(() => {
+    location.reload();
+  }, 45 * 1000);
 }

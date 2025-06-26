@@ -1,0 +1,17 @@
+[
+  {
+    "title": "ویژگی‌ها و قابلیت‌ها",
+    "description": "متن های زیر جهت نمایش ویژگی‌ها و قابلیت‌های این بخش وارد شده اند.",
+    "color": "yellow"
+  },
+  {
+    "title": "اخبار مهم",
+    "description": "مشکل سامانه اعتبارسنجی ایرانیان درحال پیگیری / اختلال ثبت کنید.",
+    "color": "red"
+  },
+  {
+    "title": "نسخه جدید ویپاد",
+    "description": "نسخه جدید ویپاد در بازار منتشر شد! <a href=\"https://cafebazaar.ir/app/com.dotin.wepod\" target=\"_blank\" style=\"color:#00ae70; text-decoration:underline;\">صفحه برنامه</a>",
+    "color": "green"
+  }
+]

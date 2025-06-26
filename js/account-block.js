@@ -68,35 +68,29 @@ function autoFillForm() {
   }
   const text = normalizeDigits(rawText);
 
-  // نوع مسدودی (خط اول که "مسدودی ..." است)
   const blockTypeMatch = text.match(/^(مسدودی[^\n]*)/m);
   document.getElementById("blockTypeInput").value = blockTypeMatch
     ? blockTypeMatch[1].replace("مسدودی", "").trim()
     : "";
 
-  // علت مسدودی (فقط تا قبل از عنوان نامه/شماره نامه یا انتهای خط)
   const reasonMatch = text.match(/علت مسدودی *: *([^\n]*)/);
   let reason = reasonMatch ? reasonMatch[1].trim() : "";
   reason = reason.replace(/(عنوان نامه|شماره نامه)[\s\S]*/g, "").trim();
   document.getElementById("reasonInput").value = reason;
 
-  // شماره نامه
   const letterNoMatch = text.match(/شماره نامه مسدودی *: *([^\n]*)/);
-  document.getElementById("letterNoInput").value = toPersianDigits(
+  document.getElementById("letterNoInput").value = normalizeDigits(
     letterNoMatch ? letterNoMatch[1].trim() : ""
   );
 
-  // تاریخ
   const dateMatch = text.match(/تاریخ مسدودی *: *([^\n]*)/);
-  document.getElementById("dateInput").value = toPersianDigits(
+  document.getElementById("dateInput").value = normalizeDigits(
     dateMatch ? dateMatch[1].trim() : ""
   );
 
-  // مبلغ مسدودی
   const amount = extractAmount(text);
-  document.getElementById("amountInput").value = toPersianDigits(amount);
+  document.getElementById("amountInput").value = normalizeDigits(amount);
 
-  // توضیحات
   const descMatch = text.match(/توضیحات *: *([\s\S]*)/);
   document.getElementById("descInput").value = descMatch
     ? descMatch[1].trim()
@@ -115,10 +109,6 @@ function autoFillForm() {
   "descInput",
 ].forEach((id) => {
   document.getElementById(id).addEventListener("input", function () {
-    // تبدیل خودکار اعداد به فارسی برای فیلدهای عددی
-    if (["letterNoInput", "dateInput", "amountInput"].includes(id)) {
-      this.value = toPersianDigits(this.value);
-    }
     validateFields();
   });
 });
@@ -162,9 +152,9 @@ function copyRequest() {
   const text =
     "باسلام و احترام\n" +
     `کاربرگرامی، طی بررسی انجام شده حساب شما دارای مسدودی ${blockType} است\n` +
-    `حساب شما به علت : ${reason} و طی شماره نامه : ${toPersianDigits(
+    `حساب شما به علت : ${reason} و طی شماره نامه : ${normalizeDigits(
       letterNo
-    )} در تاریخ : ${toPersianDigits(date)} به مبلغ : ${toPersianDigits(
+    )} در تاریخ : ${normalizeDigits(date)} به مبلغ : ${normalizeDigits(
       amount
     )} مسدود شده است\n` +
     `توضیحات  ${desc}\n` +

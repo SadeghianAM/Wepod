@@ -88,8 +88,9 @@ function getCurrentTimePersian() {
   return `ساعت ${persianH}:${persianM}`;
 }
 
-// درج تاریخ و ساعت در هدر
+// درج تاریخ و ساعت در هدر و سایر عملیات اولیه
 document.addEventListener("DOMContentLoaded", function () {
+  // درج تاریخ و ساعت
   document.getElementById("today-date").innerText = getTodayPersianDate();
   const timeElem = document.getElementById("current-time");
   function updateTime() {
@@ -98,21 +99,11 @@ document.addEventListener("DOMContentLoaded", function () {
   updateTime();
   setInterval(updateTime, 60 * 1000);
 
+  // به‌روزرسانی وضعیت بانکداری ویدیویی
   updateVideoBankingStatus();
-  setNewsAlerts([
-    {
-      text: "<b>متن های زیر جهت نمایش ویژگی‌ها و قابلیت‌های این بخش وارد شده اند.</b>",
-      color: "yellow",
-    },
-    {
-      text: "مشکل سامانه اعتبارسنجی ایرانیان درحال پیگیری / اختلال ثبت کنید.",
-      color: "red",
-    },
-    {
-      text: 'نسخه جدید ویپاد در بازار منتشر شد! <a href="https://cafebazaar.ir/app/com.dotin.wepod" target="_blank" style="color:#00ae70; text-decoration:underline;">صفحه برنامه</a>',
-      color: "green",
-    },
-  ]);
+
+  // ====== تغییر جدید: بارگذاری اخبار از فایل JSON ======
+  loadAndDisplayNewsAlerts();
 });
 
 // ===== اسکریپت بانکداری ویدیویی =====
@@ -183,6 +174,25 @@ async function updateVideoBankingStatus() {
 }
 
 // ====== اخبار و اطلاعیه‌های مهم ======
+
+// *** تابع جدید برای بارگذاری اخبار از فایل JSON ***
+async function loadAndDisplayNewsAlerts() {
+  try {
+    const response = await fetch("data/news-alerts.json");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const newsItems = await response.json();
+    setNewsAlerts(newsItems);
+  } catch (error) {
+    console.error("Could not fetch news alerts:", error);
+    // در صورت خطا، بخش اخبار را خالی می‌گذاریم
+    const newsDiv = document.getElementById("news-alerts");
+    if (newsDiv) newsDiv.innerHTML = "";
+  }
+}
+
+// *** تابع setNewsAlerts به‌روز شده برای نمایش عنوان و توضیحات ***
 function setNewsAlerts(newsItems) {
   const newsDiv = document.getElementById("news-alerts");
   if (!newsDiv) return;
@@ -192,10 +202,11 @@ function setNewsAlerts(newsItems) {
   }
   let html = "";
   newsItems.forEach((item) => {
-    const colorClass = item.color || "green";
+    const colorClass = item.color || "green"; // یک رنگ پیشفرض در نظر می‌گیریم
     html += `
       <div class="news-alert-box ${colorClass}">
-        ${item.text}
+        <b>${item.title}</b>
+        <p style="margin-top: 8px; margin-bottom: 0;">${item.description}</p>
       </div>
     `;
   });
