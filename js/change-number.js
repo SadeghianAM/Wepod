@@ -17,7 +17,7 @@ function formatMobileNumber(input) {
   return value;
 }
 
-// ===== کد ملی را به صورت 509 027231 1 فرمت کن =====
+// ===== کد ملی را به صورت 000 00000 0 فرمت کن =====
 function formatNationalId(input) {
   let value = input.value.replace(/[^\d]/g, "").slice(0, 10);
   if (value.length >= 10) {
@@ -140,7 +140,6 @@ function checkDuplicateNumbers() {
     document.getElementById("newNumberInput").classList.add("input-error");
     return false;
   }
-  // اگر قبلا خطا بوده و حالا درست شد
   if (msgBox.innerText === "شماره قبلی و شماره جدید نباید یکسان باشند.") {
     msgBox.innerText = "";
     msgBox.className = "input-message";
@@ -191,18 +190,15 @@ function copyRequest() {
 
   const text =
     "با سلام\n" +
-    "کاربر: " +
+    "کاربر " +
     (name ? name : "جای خالی") +
-    "\n" +
-    "با شماره موبایل: " +
+    " با شماره موبایل " +
     (oldNumber ? oldNumber : "جای خالی") +
-    "\n" +
-    "و کدملی: " +
+    " و کدملی " +
     (nationalId ? nationalId : "جای خالی") +
-    "\n" +
-    "درخواست تغییر شماره به: " +
+    " درخواست تغییر شماره به " +
     (newNumber ? newNumber : "جای خالی") +
-    " را دارند.";
+    " را دارد.";
 
   navigator.clipboard.writeText(text).then(
     () => {
@@ -364,6 +360,5 @@ function autoFillForm() {
     updateProvinceDisplay(nationalIdMatches[0]);
   }
 
-  // ۷. به‌روزرسانی وضعیت دکمه کپی
   updateCopyButton();
 }

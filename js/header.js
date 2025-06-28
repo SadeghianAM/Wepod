@@ -92,9 +92,4 @@ function setupHeader(title) {
     let pageTitleElem = document.getElementById("page-title");
     if (pageTitleElem) pageTitleElem.innerText = title;
   }
-
-  // ⏱ ریلود خودکار صفحه هر ۳۰ ثانیه
-  setInterval(() => {
-    location.reload();
-  }, 30 * 1000);
 }
