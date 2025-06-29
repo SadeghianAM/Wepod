@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش‌های پشتیبانی</title>
+    <style>
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+      }
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #f4fbf7;
+        color: #222;
+        margin: 0;
+        padding: 0;
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        flex-grow: 1;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 2rem 1.2rem;
+      }
+      h2 {
+        color: #00ae70;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+      .lesson-box {
+        background: #ffffff;
+        border-right: 4px solid #00ae70;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
+        transition: 0.3s;
+      }
+      .lesson-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
+        border-right-color: #089863;
+      }
+      .lesson-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.6rem;
+        color: #00ae70;
+      }
+      .lesson-content {
+        font-size: 1rem;
+        line-height: 1.8;
+      }
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        text-align: center;
+        color: #00ae70;
+        text-decoration: none;
+      }
+      .back-link:hover {
+        color: #089863;
+        text-decoration: underline;
+      }
+      footer {
+        background: #00ae70;
+        color: #e0e7ff;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+      }
+      footer p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <h2>📚 آموزش‌های پشتیبانی</h2>
+
+      <div class="lesson-box">
+        <div class="lesson-title">نحوه پیگیری تغییر شماره تماس</div>
+        <div class="lesson-content">
+          برای پیگیری تغییر شماره، ابتدا وارد بخش «پیگیری تغییر شماره» شوید و کد
+          ملی مشتری را وارد نمایید. در صورت وجود درخواست ثبت‌شده، وضعیت آن به
+          شما نمایش داده می‌شود.
+        </div>
+      </div>
+
+      <div class="lesson-box">
+        <div class="lesson-title">استعلام شماره شبا</div>
+        <div class="lesson-content">
+          در این ابزار می‌توانید شماره شبای مشتری را وارد کرده و اعتبار آن را
+          بررسی کنید. همچنین مشخص می‌شود که این شماره شبا مربوط به کدام بانک
+          است.
+        </div>
+      </div>
+
+      <div class="lesson-box">
+        <div class="lesson-title">نحوه محاسبه کارمزد انتقال وجه</div>
+        <div class="lesson-content">
+          با مراجعه به ابزار محاسبه کارمزد و وارد کردن مبلغ انتقال، نوع انتقال
+          (پایا، ساتنا و...) و بانک مقصد، میزان کارمزد به‌صورت دقیق نمایش داده
+          می‌شود.
+        </div>
+      </div>
+
+      <a href="../index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script>
+      fetch("../header.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("header-placeholder").innerHTML = data;
+          setupHeader("آموزش‌های پشتیبانی");
+        });
+    </script>
+    <script>
+      fetch("../footer.html")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+    <script src="../js/header.js"></script>
+  </body>
+</html>
