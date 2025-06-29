@@ -464,14 +464,16 @@ async function loadAndDisplayServiceStatus() {
 
     let html = "";
     if (services.length === 0) {
-      html = `<div class="news-alert-box green">همه سرویس‌ها بدون مشکل هستند.</div>`;
+      html = `<div class="news-alert-box green">همه سرویس‌ها فعال هستند.</div>`;
     } else {
       services.forEach((service) => {
         let colorClass = "green"; // Default to green
-        if (service.status === "اختلال") {
+        if (service.status === "غیرفعال") {
           colorClass = "red";
         } else if (service.status === "در حال بررسی") {
           colorClass = "yellow";
+        } else if (service.status === "اختلال در عملکرد") {
+          colorClass = "orange";
         }
 
         html += `

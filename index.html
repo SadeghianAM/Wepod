@@ -187,6 +187,10 @@
         background: #fff0f3;
         border-right-color: #ff0040;
       }
+      .news-alert-box.orange {
+        background: #fff6e5;
+        border-right-color: #ffa500;
+      }
       #tools-search {
         width: 100%;
         font-size: 1rem;
@@ -200,6 +204,21 @@
       }
       #tools-search:focus {
         border-color: #00ae70;
+      }
+      .highlight-link {
+        text-align: center;
+        background-color: #e6f0ff; /* آبی روشن */
+        border-right-color: #1a73e8; /* آبی اصلی */
+        font-weight: bold;
+      }
+
+      .highlight-link a {
+        color: #000000;
+      }
+
+      .highlight-link:hover {
+        transform: translateY(-3px);
+        border-right-color: #174ea6; /* آبی تیره‌تر */
       }
     </style>
   </head>
@@ -216,8 +235,13 @@
           <div id="payaa-cycle-status"></div>
           <div id="video-banking-status" class="video-banking-status"></div>
           <div id="news-alerts"></div>
-          <h2>🛠️ وضعیت سرویس‌ها</h2>
+          <h2>🛠️ وضعیت کلی سرویس‌ها</h2>
           <div id="service-status"></div>
+          <ul>
+            <li class="highlight-link">
+              <a href="/news.html">نمایش وضعیت تمامی سرویس ها</a>
+            </li>
+          </ul>
         </div>
         <div class="column column-tools">
           <h2>🛠️ ابزارهای پشتیبانی</h2>
@@ -240,8 +264,6 @@
           </ul>
           <h2>🔰 دیگر بخش‌ها</h2>
           <ul>
-            <li><a href="/news.html">📣 اخبار و اطلاعیه‌ها</a></li>
-
             <li>
               <a href="/learn/index.html">📚 آموزش</a>
             </li>
@@ -257,19 +279,14 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        // بررسی اینکه آیا در localhost نیستیم (یعنی در GitHub Pages یا هر محیط آنلاین دیگه هستیم)
         const isNotLocalhost = window.location.hostname !== "localhost";
 
         if (isNotLocalhost) {
           const basePath = "/Wepod"; // مسیر مورد نظر برای پروژه آنلاین
-
-          // انتخاب تمام لینک‌ها
           const links = document.querySelectorAll("a");
 
           links.forEach((link) => {
             const href = link.getAttribute("href");
-
-            // اگر href یک لینک نسبی است، '/wepod/' به آن اضافه می‌کنیم
             if (href && !href.startsWith("http") && !href.startsWith("www")) {
               link.setAttribute("href", basePath + href);
             }
