@@ -242,9 +242,7 @@
           <h2>🔰 دیگر بخش‌ها</h2>
           <ul>
             <li>
-              <a href="https://sadeghianam.github.io/Wepod/learn/index.html"
-                >📚 آموزش</a
-              >
+              <a href="learn/index.html">📚 آموزش</a>
             </li>
             <li>
               <a href="fee-calculator.html">💸 محاسبه کارمزد انتقال وجه</a>
@@ -255,6 +253,30 @@
       </div>
     </main>
     <div id="footer-placeholder"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // بررسی اینکه آیا در localhost نیستیم (یعنی در GitHub Pages یا هر محیط آنلاین دیگه هستیم)
+        const isNotLocalhost = window.location.hostname !== "localhost";
+
+        if (isNotLocalhost) {
+          const basePath = "/Wepod/"; // مسیر مورد نظر برای پروژه آنلاین
+
+          // انتخاب تمام لینک‌ها
+          const links = document.querySelectorAll("a");
+
+          links.forEach((link) => {
+            const href = link.getAttribute("href");
+
+            // اگر href یک لینک نسبی است، '/wepod/' به آن اضافه می‌کنیم
+            if (href && !href.startsWith("http") && !href.startsWith("www")) {
+              link.setAttribute("href", basePath + href);
+            }
+          });
+        }
+      });
+    </script>
+
     <script src="main.js"></script>
   </body>
 </html>
