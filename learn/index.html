@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>آموزش‌های پشتیبانی</title>
+    <title>آموزش‌های بخش پشتیانی مشتریان</title>
     <style>
       @font-face {
         font-family: "Vazirmatn";
@@ -37,6 +37,22 @@
         margin-bottom: 1.5rem;
         font-weight: 700;
       }
+      /* === استایل‌های اضافه شده برای کادر جستجو === */
+      #lesson-search {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.7em 1em;
+        border-radius: 0.6em;
+        border: 1.5px solid #ddd;
+        margin-bottom: 2rem; /* فاصله از لیست آموزش‌ها */
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      #lesson-search:focus {
+        border-color: #00ae70;
+      }
+      /* ========================================= */
       .lesson-link {
         text-decoration: none;
         color: inherit;
@@ -96,29 +112,36 @@
     <div id="header-placeholder"></div>
 
     <main>
-      <h2>📚 آموزش‌های پشتیبانی</h2>
+      <h2>📚 لیست آموزش‌ها</h2>
 
-      <a href="loan-marriage.html" class="lesson-link">
-        <div class="lesson-box">
-          <div class="lesson-title">نحوه و شرایط دریافت وام ازدواج</div>
-          <div class="lesson-content">
-            برای دریافت وام ازدواج، باید ازدواج رسمی شما در سامانه ثبت احوال ثبت
-            شده باشد. پس از ثبت‌نام در سامانه وام ازدواج و دریافت کد رهگیری، به
-            بانک معرفی خواهید شد...
+      <input
+        type="text"
+        id="lesson-search"
+        placeholder="جستجو در عنوان و محتوای آموزش‌ها..."
+      />
+      <div id="lessons-container">
+        <a href="loan-marriage.html" class="lesson-link">
+          <div class="lesson-box">
+            <div class="lesson-title">نحوه و شرایط دریافت وام ازدواج</div>
+            <div class="lesson-content">
+              برای دریافت وام ازدواج، باید ازدواج رسمی شما در سامانه ثبت احوال
+              ثبت شده باشد. پس از ثبت‌نام در سامانه وام ازدواج و دریافت کد
+              رهگیری، به بانک معرفی خواهید شد...
+            </div>
           </div>
-        </div>
-      </a>
+        </a>
 
-      <a href="loan-child.html" class="lesson-link">
-        <div class="lesson-box">
-          <div class="lesson-title">نحوه و شرایط دریافت وام فرزندآوری</div>
-          <div class="lesson-content">
-            این وام به والدینی که پس از سال ۱۴۰۰ صاحب فرزند شده‌اند، تعلق
-            می‌گیرد. متقاضیان باید از طریق سامانه تسهیلات فرزندآوری اقدام کرده و
-            اطلاعات فرزند خود را ثبت نمایند...
+        <a href="loan-child.html" class="lesson-link">
+          <div class="lesson-box">
+            <div class="lesson-title">نحوه و شرایط دریافت وام فرزندآوری</div>
+            <div class="lesson-content">
+              این وام به والدینی که پس از سال ۱۴۰۰ صاحب فرزند شده‌اند، تعلق
+              می‌گیرد. متقاضیان باید از طریق سامانه تسهیلات فرزندآوری اقدام کرده
+              و اطلاعات فرزند خود را ثبت نمایند...
+            </div>
           </div>
-        </div>
-      </a>
+        </a>
+      </div>
 
       <a href="../index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
     </main>
@@ -130,7 +153,7 @@
         .then((res) => res.text())
         .then((data) => {
           document.getElementById("header-placeholder").innerHTML = data;
-          setupHeader("آموزش‌های پشتیبانی");
+          setupHeader("آموزش‌های بخش پشتیانی مشتریان");
         });
     </script>
     <script>
@@ -141,5 +164,25 @@
         });
     </script>
     <script src="../js/header.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const searchInput = document.getElementById("lesson-search");
+        const lessons = document.querySelectorAll(".lesson-link");
+
+        searchInput.addEventListener("input", function () {
+          const searchTerm = this.value.trim().toLowerCase();
+
+          lessons.forEach((lesson) => {
+            const lessonText = lesson.textContent.toLowerCase();
+            if (lessonText.includes(searchTerm)) {
+              lesson.style.display = "block";
+            } else {
+              lesson.style.display = "none";
+            }
+          });
+        });
+      });
+    </script>
   </body>
 </html>
