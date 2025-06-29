@@ -68,12 +68,20 @@ function calculateFee(method, amount) {
           )} تومان است.`,
         };
       }
-      if (amount <= 1_000_000) {
-        return { fee: 900 };
-      }
-      const extraMillions = Math.floor((amount - 1_000_000) / 1_000_000);
-      const fee = 900 + extraMillions * 320;
-      return { fee };
+      // UPDATED: منطق جدید و پلکانی برای سال ۱۴۰۴
+      if (amount <= 1_000_000) return { fee: 900 };
+      if (amount <= 2_000_000) return { fee: 1220 };
+      if (amount <= 3_000_000) return { fee: 1540 };
+      if (amount <= 4_000_000) return { fee: 1860 };
+      if (amount <= 5_000_000) return { fee: 2180 };
+      if (amount <= 6_000_000) return { fee: 2500 };
+      if (amount <= 7_000_000) return { fee: 2820 };
+      if (amount <= 8_000_000) return { fee: 3140 };
+      if (amount <= 9_000_000) return { fee: 3460 };
+      if (amount <= 10_000_000) return { fee: 3780 };
+
+      // این بخش در عمل اجرا نمی‌شود چون توسط محدودیت سقف پوشش داده شده است
+      return { fee: 3800 };
     }
 
     case "paya": {
@@ -91,10 +99,10 @@ function calculateFee(method, amount) {
           )} تومان است.`,
         };
       }
-      // کارمزد = 0.01٪ مبلغ تراکنش
+      // کارمزد = 0.01٪ مبلغ تراکنش (۰.۰۱ درصد)
       let rawFee = amount * 0.0001;
       let fee = Math.ceil(rawFee);
-      // حداقل 300 و حداکثر 7500
+      // حداقل 300 تومان (3,000 ریال) و حداکثر 7,500 تومان (75,000 ریال)
       if (fee < 300) fee = 300;
       if (fee > 7500) fee = 7500;
       return { fee };
@@ -108,7 +116,7 @@ function calculateFee(method, amount) {
           )} تومان است.`,
         };
       }
-      // کارمزد = 0.02٪ مبلغ تراکنش، سقف 35000
+      // کارمزد = 0.02٪ مبلغ تراکنش (۰.۰۲ درصد)، سقف 35,000 تومان (350,000 ریال)
       let rawFee = amount * 0.0002;
       let fee = Math.ceil(rawFee);
       if (fee > 35000) fee = 35000;

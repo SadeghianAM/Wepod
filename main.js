@@ -102,11 +102,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // به‌روزرسانی وضعیت بانکداری ویدیویی
   updateVideoBankingStatus();
 
-  // ====== تغییر جدید: بارگذاری اخبار از فایل JSON ======
+  // ====== بارگذاری اخبار از فایل JSON ======
   loadAndDisplayNewsAlerts();
 });
 
-// ===== اسکریپت بانکداری ویدیویی =====
+// ===== اسکریپت بانکداری ویدیویی (نسخه اصلاح‌شده با کنترل ساعت) =====
 function pad(num) {
   return num.toString().padStart(2, "0");
 }
@@ -115,13 +115,13 @@ async function updateVideoBankingStatus() {
   const statusDiv = document.getElementById("video-banking-status");
   statusDiv.innerHTML = "در حال بررسی وضعیت بانکداری ویدیویی...";
 
-  // تاریخ امروز شمسی
-  var today = new Date();
-  var gYear = today.getFullYear();
-  var gMonth = today.getMonth() + 1;
-  var gDay = today.getDate();
-  var [jy, jm, jd] = toJalali(gYear, gMonth, gDay);
-  var todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
+  // تاریخ امروز شمسی و اطلاعات زمانی
+  const today = new Date();
+  const gYear = today.getFullYear();
+  const gMonth = today.getMonth() + 1;
+  const gDay = today.getDate();
+  const [jy, jm, jd] = toJalali(gYear, gMonth, gDay);
+  const todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
 
   // خواندن تعطیلات رسمی
   let holidays = [];
@@ -138,37 +138,76 @@ async function updateVideoBankingStatus() {
   const isHoliday = holidays.some((h) => h.date === todayStr);
 
   // تعیین روز هفته (0=یک‌شنبه ... 6=شنبه)
-  let weekday = today.getDay();
+  const weekday = today.getDay();
+  // ====== تغییر ۱: گرفتن ساعت فعلی برای بررسی زمان کاری ======
+  const currentHour = today.getHours();
   let statusHTML = "";
 
+  // قانون اول: روزهای تعطیل رسمی و جمعه‌ها همیشه غیرفعال هستند
   if (isHoliday || weekday === 5) {
     statusHTML = `
       <div class="video-banking-box closed">
         <b>بانکداری ویدیویی : <span style="font-size:1.2em;">❌ غیرفعال</span></b>
         <br>
-        امروز تعطیل رسمی است و خدمات بانکداری ویدیویی ارائه نمی‌شود.
+        امروز تعطیل است و خدمات بانکداری ویدیویی ارائه نمی‌شود.
       </div>
     `;
-  } else if (weekday >= 6 || weekday <= 3) {
-    statusHTML = `
-      <div class="video-banking-box">
-        <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
-        <br>
-        بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷</b>
-        <br>
-        بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۳:۰۰</b>
-      </div>
-    `;
-  } else if (weekday === 4) {
-    statusHTML = `
-      <div class="video-banking-box">
-        <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
-        <br>
-        بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷</b>
-        <br>
-        بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۲:۳۰</b>
-      </div>
-    `;
+  } else {
+    // قانون دوم: روزهای کاری (شنبه تا پنج‌شنبه)
+    let isWorkingTime = false;
+    let activeMessage = "";
+    let endedMessage = "";
+
+    // تعریف ساعات کاری و پیام‌ها برای شنبه تا چهارشنبه
+    if (weekday >= 6 || weekday <= 3) {
+      // شنبه تا چهارشنبه
+      isWorkingTime = currentHour >= 7 && currentHour < 17; // ساعت کاری از ۷ صبح تا قبل از ۵ بعد از ظهر
+      activeMessage = `
+        <div class="video-banking-box">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
+          <br>
+          بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b>
+          <br>
+          بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۳:۰۰</b>
+        </div>
+      `;
+      endedMessage = `
+        <div class="video-banking-box closed">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
+          <br>
+          ساعات کاری امروز (۷:۰۰ الی ۱۷:۰۰) به پایان رسیده است.
+        </div>
+      `;
+    }
+    // تعریف ساعات کاری و پیام‌ها برای پنج‌شنبه
+    else if (weekday === 4) {
+      // فقط پنج‌شنبه
+      isWorkingTime = currentHour >= 7 && currentHour < 17; // ساعت کاری از ۷ صبح تا قبل از ۵ بعد از ظهر
+      activeMessage = `
+        <div class="video-banking-box">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
+          <br>
+          بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b>
+          <br>
+          بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۲:۳۰</b>
+        </div>
+      `;
+      endedMessage = `
+        <div class="video-banking-box closed">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
+          <br>
+          ساعات کاری امروز (۷:۰۰ الی ۱۷:۰۰) به پایان رسیده است.
+        </div>
+      `;
+    }
+
+    // ====== تغییر ۲: تصمیم‌گیری نهایی بر اساس ساعت کاری ======
+    // اگر در ساعات کاری باشیم، پیام "فعال" وگرنه پیام "خارج از ساعت کاری" نمایش داده می‌شود
+    if (isWorkingTime) {
+      statusHTML = activeMessage;
+    } else {
+      statusHTML = endedMessage;
+    }
   }
   statusDiv.innerHTML = statusHTML;
 }
@@ -370,9 +409,7 @@ function renderPayaaCycleStatus(holidays) {
       if (diffMin < 1) diffMin = 1;
       statusDiv.innerHTML = `
         <div class="news-alert-box green" style="font-weight:bold;">
-          <span>${toPersianTimeStr(
-            diffMin
-          )} تا چرخه بعدی پایا </span>
+          <span>${toPersianTimeStr(diffMin)} تا چرخه بعدی پایا </span>
           <div style="color:#888; font-size:0.95em; margin-top:0.5em;">${nextCycleText}</div>
         </div>
       `;
