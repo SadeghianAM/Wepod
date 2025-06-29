@@ -158,11 +158,14 @@ async function updateVideoBankingStatus() {
 
   // تعیین روز هفته (0=یک‌شنبه ... 6=شنبه)
   const weekday = today.getDay();
-  // ====== تغییر ۱: گرفتن ساعت فعلی برای بررسی زمان کاری ======
   const currentHour = today.getHours();
+  const currentMinute = today.getMinutes();
   let statusHTML = "";
 
-  // قانون اول: روزهای تعطیل رسمی و جمعه‌ها همیشه غیرفعال هستند
+  const workingHours = {
+    "weekday-sat-wed": { startHour: 7, endHour: 17, endMinute: 0 },
+    "weekday-thu": { startHour: 7, endHour: 17, endMinute: 0 },
+  };
   if (isHoliday || weekday === 5) {
     statusHTML = `
       <div class="video-banking-box closed">
@@ -172,15 +175,27 @@ async function updateVideoBankingStatus() {
       </div>
     `;
   } else {
-    // قانون دوم: روزهای کاری (شنبه تا پنج‌شنبه)
-    let isWorkingTime = false;
+    let startHour, endHour, endMinute;
     let activeMessage = "";
-    let endedMessage = "";
+    let beforeHoursMessage = `
+        <div class="video-banking-box closed">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
+          <br>
+          ساعات کاری هنوز شروع نشده است (۷ صبح)
+        </div>
+      `;
+    let afterHoursMessage = `
+        <div class="video-banking-box closed">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
+          <br>
+          ساعات کاری امروز به پایان رسیده است.
+        </div>
+      `;
 
-    // تعریف ساعات کاری و پیام‌ها برای شنبه تا چهارشنبه
     if (weekday >= 6 || weekday <= 3) {
-      // شنبه تا چهارشنبه
-      isWorkingTime = currentHour >= 7 && currentHour < 17; // ساعت کاری از ۷ صبح تا قبل از ۵ بعد از ظهر
+      startHour = workingHours["weekday-sat-wed"].startHour;
+      endHour = workingHours["weekday-sat-wed"].endHour;
+      endMinute = workingHours["weekday-sat-wed"].endMinute;
       activeMessage = `
         <div class="video-banking-box">
           <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
@@ -190,18 +205,11 @@ async function updateVideoBankingStatus() {
           بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۳:۰۰</b>
         </div>
       `;
-      endedMessage = `
-        <div class="video-banking-box closed">
-          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
-          <br>
-          ساعات کاری امروز (۷:۰۰ الی ۱۷:۰۰) به پایان رسیده است.
-        </div>
-      `;
     }
-    // تعریف ساعات کاری و پیام‌ها برای پنج‌شنبه
     else if (weekday === 4) {
-      // فقط پنج‌شنبه
-      isWorkingTime = currentHour >= 7 && currentHour < 17; // ساعت کاری از ۷ صبح تا قبل از ۵ بعد از ظهر
+      startHour = workingHours["weekday-thu"].startHour;
+      endHour = workingHours["weekday-thu"].endHour;
+      endMinute = workingHours["weekday-thu"].endMinute;
       activeMessage = `
         <div class="video-banking-box">
           <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
@@ -211,21 +219,20 @@ async function updateVideoBankingStatus() {
           بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۲:۳۰</b>
         </div>
       `;
-      endedMessage = `
-        <div class="video-banking-box closed">
-          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
-          <br>
-          ساعات کاری امروز (۷:۰۰ الی ۱۷:۰۰) به پایان رسیده است.
-        </div>
-      `;
     }
-
-    // ====== تغییر ۲: تصمیم‌گیری نهایی بر اساس ساعت کاری ======
-    // اگر در ساعات کاری باشیم، پیام "فعال" وگرنه پیام "خارج از ساعت کاری" نمایش داده می‌شود
-    if (isWorkingTime) {
+    if (
+      currentHour > startHour &&
+      (currentHour < endHour ||
+        (currentHour === endHour && currentMinute < endMinute))
+    ) {
       statusHTML = activeMessage;
+    } else if (
+      currentHour < startHour ||
+      (currentHour === startHour && currentMinute < 0) // Before 7:00
+    ) {
+      statusHTML = beforeHoursMessage;
     } else {
-      statusHTML = endedMessage;
+      statusHTML = afterHoursMessage;
     }
   }
   statusDiv.innerHTML = statusHTML;
