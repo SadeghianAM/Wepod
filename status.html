@@ -201,26 +201,10 @@
         <div class="column column-info">
           <div id="news-alerts-page"></div>
         </div>
-        <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+        <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
     <div id="footer-placeholder"></div>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const isNotLocalhost = window.location.hostname !== "localhost";
-        if (isNotLocalhost) {
-          const basePath = "/Wepod";
-          const links = document.querySelectorAll("a");
-          links.forEach((link) => {
-            const href = link.getAttribute("href");
-            if (href && !href.startsWith("http") && !href.startsWith("www")) {
-              link.setAttribute("href", basePath + href);
-            }
-          });
-        }
-      });
-    </script>
     <script src="main.js"></script>
   </body>
 </html>
