@@ -102,8 +102,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // به‌روزرسانی وضعیت بانکداری ویدیویی
   updateVideoBankingStatus();
 
-  // ====== بارگذاری اخبار از فایل JSON ======
-  loadAndDisplayNewsAlerts();
+  // فراخوانی تابع جدید برای بارگذاری وضعیت سرویس‌ها
+  loadAndDisplayServiceStatus();
 });
 
 // ===== اسکریپت بانکداری ویدیویی (نسخه اصلاح‌شده با کنترل ساعت) =====
@@ -210,46 +210,6 @@ async function updateVideoBankingStatus() {
     }
   }
   statusDiv.innerHTML = statusHTML;
-}
-
-// ====== اخبار و اطلاعیه‌های مهم ======
-
-// *** تابع جدید برای بارگذاری اخبار از فایل JSON ***
-async function loadAndDisplayNewsAlerts() {
-  try {
-    const response = await fetch("data/news-alerts.json");
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const newsItems = await response.json();
-    setNewsAlerts(newsItems);
-  } catch (error) {
-    console.error("Could not fetch news alerts:", error);
-    // در صورت خطا، بخش اخبار را خالی می‌گذاریم
-    const newsDiv = document.getElementById("news-alerts");
-    if (newsDiv) newsDiv.innerHTML = "";
-  }
-}
-
-// *** تابع setNewsAlerts به‌روز شده برای نمایش عنوان و توضیحات ***
-function setNewsAlerts(newsItems) {
-  const newsDiv = document.getElementById("news-alerts");
-  if (!newsDiv) return;
-  if (!newsItems || newsItems.length === 0) {
-    newsDiv.innerHTML = "";
-    return;
-  }
-  let html = "";
-  newsItems.forEach((item) => {
-    const colorClass = item.color || "green"; // یک رنگ پیشفرض در نظر می‌گیریم
-    html += `
-      <div class="news-alert-box ${colorClass}">
-        <b>${item.title}</b>
-        <p style="margin-top: 8px; margin-bottom: 0;">${item.description}</p>
-      </div>
-    `;
-  });
-  newsDiv.innerHTML = html;
 }
 
 // ======= نمایش زمان‌بندی پایا و شمارش معکوس =======
@@ -470,3 +430,48 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+// ====== وضعیت سرویس ها =====
+async function loadAndDisplayServiceStatus() {
+  const serviceStatusDiv = document.getElementById("service-status");
+  if (!serviceStatusDiv) return;
+
+  serviceStatusDiv.innerHTML = "در حال بارگذاری وضعیت سرویس‌ها...";
+
+  try {
+    const response = await fetch("data/service-status.json");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const services = await response.json();
+
+    let html = "";
+    if (services.length === 0) {
+      html = `<div class="news-alert-box green">همه سرویس‌ها بدون مشکل هستند.</div>`;
+    } else {
+      services.forEach((service) => {
+        let colorClass = "green"; // Default to green
+        if (service.status === "اختلال") {
+          colorClass = "red";
+        } else if (service.status === "در حال بررسی") {
+          colorClass = "yellow";
+        }
+
+        html += `
+          <div class="news-alert-box ${colorClass}">
+            <b>${service.name}:</b> ${service.status}
+            ${
+              service.description
+                ? `<p style="margin-top: 8px; margin-bottom: 0;">${service.description}</p>`
+                : ""
+            }
+          </div>
+        `;
+      });
+    }
+    serviceStatusDiv.innerHTML = html;
+  } catch (error) {
+    console.error("Could not fetch service status:", error);
+    serviceStatusDiv.innerHTML = `<div class="news-alert-box red">خطا در بارگذاری وضعیت سرویس‌ها.</div>`;
+  }
+}
