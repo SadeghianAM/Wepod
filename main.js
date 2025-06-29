@@ -99,11 +99,30 @@ document.addEventListener("DOMContentLoaded", function () {
   updateTime();
   setInterval(updateTime, 60 * 1000);
 
-  // به‌روزرسانی وضعیت بانکداری ویدیویی
-  updateVideoBankingStatus();
+  // به‌روزرسانی وضعیت بانکداری ویدیویی (فقط اگر عناصر مربوطه در صفحه وجود داشته باشند)
+  if (document.getElementById("video-banking-status")) {
+    updateVideoBankingStatus();
+  }
 
-  // فراخوانی تابع جدید برای بارگذاری وضعیت سرویس‌ها
-  loadAndDisplayServiceStatus();
+  // فراخوانی تابع برای بارگذاری وضعیت سرویس‌ها (فقط اگر عناصر مربوطه در صفحه وجود داشته باشند)
+  if (document.getElementById("service-status")) {
+    loadAndDisplayServiceStatus();
+  }
+
+  // فراخوانی تابع جدید برای بارگذاری اطلاع‌رسانی‌ها (اخبار) در صفحه news.html
+  if (document.getElementById("news-alerts-page")) {
+    loadAndDisplayNewsAlerts();
+  }
+
+  // تنظیمات جستجو (فقط اگر عناصر مربوطه در صفحه وجود داشته باشند)
+  if (document.getElementById("tools-search")) {
+    setupToolsSearch();
+  }
+
+  // تنظیمات وضعیت پایا (فقط اگر عناصر مربوطه در صفحه وجود داشته باشند)
+  if (document.getElementById("payaa-cycle-status")) {
+    setupPayaaCycleStatus();
+  }
 });
 
 // ===== اسکریپت بانکداری ویدیویی (نسخه اصلاح‌شده با کنترل ساعت) =====
@@ -391,10 +410,8 @@ async function setupPayaaCycleStatus() {
   renderPayaaCycleStatus(holidays);
 }
 
-document.addEventListener("DOMContentLoaded", setupPayaaCycleStatus);
-
 // ====================== جستجوی ابزارهای پشتیبانی =======================
-document.addEventListener("DOMContentLoaded", function () {
+function setupToolsSearch() {
   const searchInput = document.getElementById("tools-search");
   if (!searchInput) return;
 
@@ -429,7 +446,7 @@ document.addEventListener("DOMContentLoaded", function () {
       list.style.display = hasVisible ? "" : "none";
     });
   });
-});
+}
 
 // ====== وضعیت سرویس ها =====
 async function loadAndDisplayServiceStatus() {
@@ -473,5 +490,89 @@ async function loadAndDisplayServiceStatus() {
   } catch (error) {
     console.error("Could not fetch service status:", error);
     serviceStatusDiv.innerHTML = `<div class="news-alert-box red">خطا در بارگذاری وضعیت سرویس‌ها.</div>`;
+  }
+}
+
+// ====== تابع جدید برای نمایش اطلاعیه‌ها (اخبار) در صفحه news.html =====
+async function loadAndDisplayNewsAlerts() {
+  const newsAlertsDiv = document.getElementById("news-alerts-page"); // تغییر ID به news-alerts-page
+  if (!newsAlertsDiv) return;
+
+  newsAlertsDiv.innerHTML = "در حال بارگذاری اطلاعیه‌ها...";
+
+  try {
+    const response = await fetch("data/news-alerts.json"); // مسیر صحیح فایل JSON
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const alerts = await response.json();
+
+    let html = "";
+    if (alerts.length === 0) {
+      html = `<div class="news-alert-box green">در حال حاضر اطلاعیه جدیدی وجود ندارد.</div>`;
+    } else {
+      alerts.forEach((alert) => {
+        const colorClass = alert.color; // استفاده از رنگ تعریف شده در JSON
+        let startDateTimeInfo = "";
+        let endDateTimeInfo = "";
+        let durationInfo = ""; // برای نمایش مدت زمان
+
+        // اطلاعات تاریخ و ساعت شروع
+        if (alert.startDate && alert.startTime) {
+          const persianStartDate = toPersianDigits(alert.startDate);
+          const persianStartTime = toPersianDigits(alert.startTime);
+          startDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">شروع: ${persianStartDate} ساعت ${persianStartTime}</p>`;
+        }
+
+        // اطلاعات تاریخ و ساعت پایان
+        if (alert.endDate && alert.endTime) {
+          const persianEndDate = toPersianDigits(alert.endDate);
+          const persianEndTime = toPersianDigits(alert.endTime);
+          endDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">پایان: ${persianEndDate} ساعت ${persianEndTime}</p>`;
+
+          // محاسبه و نمایش مدت زمان (اختیاری)
+          try {
+            // تبدیل تاریخ شمسی به میلادی برای محاسبه مدت زمان دقیق
+            // فرض می‌کنیم تاریخ‌ها شمسی و با فرمت YYYY-MM-DD هستند
+            const [sYear, sMonth, sDay] = alert.startDate
+              .split("-")
+              .map(Number);
+            const [eYear, eMonth, eDay] = alert.endDate.split("-").map(Number);
+
+            // تبدیل ساعت و دقیقه به اعداد
+            const [sHour, sMin] = alert.startTime.split(":").map(Number);
+            const [eHour, eMin] = alert.endTime.split(":").map(Number);
+
+            // توابع toJalali و getTodayPersianDate برای تبدیل میلادی به شمسی هستند.
+            // برای تبدیل شمسی به میلادی نیاز به یک کتابخانه مثل 'moment-jalaali' یا منطق پیچیده‌تر داریم.
+            // به سادگی، اگر تاریخ‌های JSON شما شمسی هستند، برای محاسبه اختلاف زمانی دقیق‌تر باید آنها را به میلادی تبدیل کنید.
+            // برای سادگی، من در اینجا فقط به نمایش تاریخ/ساعت بسنده می‌کنم، محاسبه دقیق مدت زمان پیچیده‌تر است.
+            // اگر واقعاً نیاز به محاسبه مدت زمان دارید، باید یک تابع `jalaliToGregorian` اضافه کنید.
+
+            // اگر نیازی به محاسبه دقیق مدت زمان نیست و فقط نمایش کافیست، این بخش را نادیده بگیرید.
+            // برای مثال ساده، فقط شروع و پایان را نمایش می‌دهیم.
+          } catch (e) {
+            console.error("خطا در محاسبه مدت زمان:", e);
+          }
+        }
+
+        html += `
+          <div class="news-alert-box ${colorClass}">
+            <b>${alert.title}</b>
+            ${
+              alert.description
+                ? `<p style="margin-top: 8px; margin-bottom: 0;">${alert.description}</p>`
+                : ""
+            }
+            ${startDateTimeInfo}
+            ${endDateTimeInfo}
+          </div>
+        `;
+      });
+    }
+    newsAlertsDiv.innerHTML = html;
+  } catch (error) {
+    console.error("Could not fetch news alerts:", error);
+    newsAlertsDiv.innerHTML = `<div class="news-alert-box red">خطا در بارگذاری اطلاعیه‌ها.</div>`;
   }
 }
