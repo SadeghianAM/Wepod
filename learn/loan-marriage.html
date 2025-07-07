@@ -323,43 +323,7 @@
       </a>
     </main>
     <div id="footer-placeholder"></div>
-    <script>
-      fetch("../header.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("header-placeholder").innerHTML = data;
-          setupHeader("وام فرزندآوری");
-        });
-    </script>
-    <script>
-      fetch("../footer.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("footer-placeholder").innerHTML = data;
-        });
-    </script>
-    <script src="../js/header.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // بررسی اینکه آیا در localhost نیستیم (یعنی در GitHub Pages یا هر محیط آنلاین دیگه هستیم)
-        const isNotLocalhost = window.location.hostname !== "localhost";
-
-        if (isNotLocalhost) {
-          const basePath = "/Wepod"; // مسیر مورد نظر برای پروژه آنلاین
-
-          // انتخاب تمام لینک‌ها
-          const links = document.querySelectorAll("a");
-
-          links.forEach((link) => {
-            const href = link.getAttribute("href");
-
-            // اگر href یک لینک نسبی است، '/wepod/' به آن اضافه می‌کنیم
-            if (href && !href.startsWith("http") && !href.startsWith("www")) {
-              link.setAttribute("href", basePath + href);
-            }
-          });
-        }
-      });
-    </script>
+    <script src="/js/header.js"></script>
+    <script src="/js/common.js"></script>
   </body>
 </html>

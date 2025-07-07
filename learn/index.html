@@ -37,7 +37,6 @@
         margin-bottom: 1.5rem;
         font-weight: 700;
       }
-      /* === استایل‌های اضافه شده برای کادر جستجو === */
       #lesson-search {
         width: 100%;
         font-size: 1rem;
@@ -52,7 +51,6 @@
       #lesson-search:focus {
         border-color: #00ae70;
       }
-      /* ========================================= */
       .lesson-link {
         text-decoration: none;
         color: inherit;
@@ -120,7 +118,7 @@
         placeholder="جستجو در عنوان و محتوای آموزش‌ها..."
       />
       <div id="lessons-container">
-        <a href="loan-marriage.html" class="lesson-link">
+        <a href="/learn/loan-marriage.html" class="lesson-link">
           <div class="lesson-box">
             <div class="lesson-title">نحوه و شرایط دریافت وام ازدواج</div>
             <div class="lesson-content">
@@ -131,7 +129,7 @@
           </div>
         </a>
 
-        <a href="loan-child.html" class="lesson-link">
+        <a href="/learn/loan-child.html" class="lesson-link">
           <div class="lesson-box">
             <div class="lesson-title">نحوه و شرایط دریافت وام فرزندآوری</div>
             <div class="lesson-content">
@@ -143,13 +141,13 @@
         </a>
       </div>
 
-      <a href="../index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+      <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
     </main>
 
     <div id="footer-placeholder"></div>
 
     <script>
-      fetch("../header.html")
+      fetch("/header.html")
         .then((res) => res.text())
         .then((data) => {
           document.getElementById("header-placeholder").innerHTML = data;
@@ -157,13 +155,13 @@
         });
     </script>
     <script>
-      fetch("../footer.html")
+      fetch("/footer.html")
         .then((res) => res.text())
         .then((data) => {
           document.getElementById("footer-placeholder").innerHTML = data;
         });
     </script>
-    <script src="../js/header.js"></script>
+    <script src="/js/header.js"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {

@@ -8,7 +8,7 @@
     <style>
       @font-face {
         font-family: "Vazirmatn";
-        src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
       *,
@@ -64,7 +64,6 @@
         transition: border-color 0.3s, background 0.3s;
         letter-spacing: normal !important;
       }
-      /* برای فیلد «مبلغ انتقال» */
       .input-with-currency {
         position: relative;
         display: block;
@@ -82,7 +81,7 @@
         white-space: nowrap;
       }
       .input-with-currency input[type="text"] {
-        padding-left: 60px; /* فضای لازم برای «تومان» */
+        padding-left: 60px;
         padding-right: 0.9rem;
         direction: ltr;
         text-align: center;
@@ -97,7 +96,7 @@
         margin-top: 0.5rem;
         font-size: 0.95rem;
         color: #555;
-        min-height: 1.5rem; /* برای جلوگیری از جابه‌جایی‌های ناگهانی */
+        min-height: 1.5rem;
       }
       .method-cards-container {
         margin-top: 12px;
@@ -201,12 +200,10 @@
     </style>
   </head>
   <body>
-    <!-- هدر داینامیک -->
     <div id="header-placeholder"></div>
 
     <main>
       <div class="form-wrapper">
-        <!-- ورودی مبلغ (با «تومان» داخل فیلد) -->
         <label for="amountInput">مبلغ انتقال :</label>
         <div class="input-with-currency">
           <span class="currency-label">تومان</span>
@@ -217,12 +214,8 @@
             autocomplete="off"
           />
         </div>
-        <!-- اینجا متنِ «مبلغ به حروف به ریال» نمایش داده می‌شود -->
         <div id="amountWords" class="amount-words"></div>
-
-        <!-- کارت‌های روش انتقال -->
         <div class="method-cards-container">
-          <!-- کارت برای کارت به کارت -->
           <div class="method-card" id="card-shetabi">
             <div class="method-title">کارت به کارت</div>
             <div class="limits" id="limitsShetabi">
@@ -230,8 +223,6 @@
             </div>
             <div class="fee-display" id="feeShetabi"></div>
           </div>
-
-          <!-- کارت برای پایا -->
           <div class="method-card" id="card-paya">
             <div class="method-title">پایا</div>
             <div class="limits" id="limitsPaya">
@@ -240,7 +231,6 @@
             <div class="fee-display" id="feePaya"></div>
           </div>
 
-          <!-- کارت برای ساتنا -->
           <div class="method-card" id="card-satna">
             <div class="method-title">ساتنا</div>
             <div class="limits" id="limitsSatna">
@@ -248,8 +238,6 @@
             </div>
             <div class="fee-display" id="feeSatna"></div>
           </div>
-
-          <!-- کارت برای پل -->
           <div class="method-card" id="card-pol">
             <div class="method-title">پل</div>
             <div class="limits" id="limitsPol">
@@ -258,37 +246,12 @@
             <div class="fee-display" id="feePol"></div>
           </div>
         </div>
-
-        <!-- دکمه بازگشت داخل فرم -->
         <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
-
-    <!-- فوتر داینامیک -->
     <div id="footer-placeholder"></div>
-
-    <!-- اسکریپت بارگذاری هدر و فوتر -->
-    <script>
-      // بارگذاری هدر
-      fetch("header.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("header-placeholder").innerHTML = data;
-          if (typeof setupHeader === "function") {
-            setupHeader("محاسبه کارمزد انتقال وجه");
-          }
-        });
-
-      // بارگذاری فوتر
-      fetch("footer.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("footer-placeholder").innerHTML = data;
-        });
-    </script>
-
-    <!-- اسکریپت محاسبه کارمزد و تبدیل به حروف -->
-    <script src="js/feeCalculator.js"></script>
-    <script src="js/header.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/feeCalculator.js"></script>
   </body>
 </html>

@@ -8,7 +8,7 @@
     <style>
       @font-face {
         font-family: "Vazirmatn";
-        src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
       *,
@@ -207,8 +207,8 @@
       }
       .highlight-link {
         text-align: center;
-        background-color: #e6f0ff; /* آبی روشن */
-        border-right-color: #1a73e8; /* آبی اصلی */
+        background-color: #e6f0ff;
+        border-right-color: #1a73e8;
         font-weight: bold;
       }
 
@@ -218,7 +218,7 @@
 
       .highlight-link:hover {
         transform: translateY(-3px);
-        border-right-color: #174ea6; /* آبی تیره‌تر */
+        border-right-color: #174ea6;
       }
     </style>
   </head>
@@ -251,15 +251,15 @@
             placeholder="جستجو در ابزارها..."
           />
           <ul id="tools-list">
-            <li><a href="change-number.html">🔄 پیگیری تغییر شماره</a></li>
+            <li><a href="/change-number.html">🔄 پیگیری تغییر شماره</a></li>
             <li>
-              <a href="account-block.html">🚫 پیگیری مسدودی حساب / آزمایشی</a>
+              <a href="/account-block.html">🚫 پیگیری مسدودی حساب / آزمایشی</a>
             </li>
           </ul>
           <h2>🔍 سرویس‌های استعلامی</h2>
           <ul>
-            <li><a href="iban-lookup.html">🔍 اعتبارسنجی شبا</a></li>
-            <li><a href="bin-lookup.html">🔍 اعتبارسنجی کارت</a></li>
+            <li><a href="/iban-lookup.html">🔍 اعتبارسنجی شبا</a></li>
+            <li><a href="/bin-lookup.html">🔍 اعتبارسنجی کارت</a></li>
             <li><a href="#">🔍 شعبه افتتاح کننده و نوع حساب (بزودی)</a></li>
           </ul>
           <h2>🔰 دیگر بخش‌ها</h2>
@@ -268,7 +268,7 @@
               <a href="/learn/index.html">📚 آموزش</a>
             </li>
             <li>
-              <a href="fee-calculator.html">💸 محاسبه کارمزد انتقال وجه</a>
+              <a href="/fee-calculator.html">💸 محاسبه کارمزد انتقال وجه</a>
             </li>
             <li><a href="#">🏦 اطلاعات شعب بانک (بزودی)</a></li>
           </ul>
@@ -276,25 +276,7 @@
       </div>
     </main>
     <div id="footer-placeholder"></div>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const isNotLocalhost = window.location.hostname !== "localhost";
-
-        if (isNotLocalhost) {
-          const basePath = "/Wepod"; // مسیر مورد نظر برای پروژه آنلاین
-          const links = document.querySelectorAll("a");
-
-          links.forEach((link) => {
-            const href = link.getAttribute("href");
-            if (href && !href.startsWith("http") && !href.startsWith("www")) {
-              link.setAttribute("href", basePath + href);
-            }
-          });
-        }
-      });
-    </script>
-
-    <script src="main.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/common.js"></script>
   </body>
 </html>

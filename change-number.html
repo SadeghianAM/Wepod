@@ -8,7 +8,7 @@
     <style>
       @font-face {
         font-family: "Vazirmatn";
-        src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
       *,
@@ -180,7 +180,6 @@
         text-decoration: underline;
         color: #089863;
       }
-      /* --- دو ستونه --- */
       .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -238,7 +237,6 @@
     <div id="header-placeholder"></div>
     <main>
       <div class="form-wrapper">
-        <!-- ======= فیلد متنی برای دریافت اطلاعات خام کاربر ======= -->
         <label for="autoFillInput">متن درخواست (جهت تکمیل خودکار):</label>
         <textarea
           id="autoFillInput"
@@ -252,7 +250,6 @@
         >
           تکمیل خودکار
         </button>
-        <!-- دو ستونه از اینجا -->
         <div class="form-row">
           <div class="form-group">
             <label for="nameInput">نام و نام خانوادگی:</label>
@@ -307,7 +304,6 @@
             <div id="newNumberMessage" class="input-message"></div>
           </div>
         </div>
-        <!-- دکمه‌ها و وضعیت -->
         <button
           class="copy-button"
           id="copyBtn"
@@ -320,26 +316,12 @@
           پاک کردن فرم
         </button>
         <div id="copyResult" class="result"></div>
-        <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+        <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script>
-      fetch("footer.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("footer-placeholder").innerHTML = data;
-        });
-    </script>
-    <script>
-      fetch("header.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("header-placeholder").innerHTML = data;
-          setupHeader("تغییر شماره مشتری");
-        });
-    </script>
-    <script src="js/header.js"></script>
-    <script src="./js/change-number.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/change-number.js"></script>
   </body>
 </html>

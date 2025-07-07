@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>پیگیری مسدودی حساب</title>
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="stylesheet" href="./css/layout.css" />
     <style>
       @font-face {
         font-family: "Vazirmatn";
-        src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
       *,
@@ -170,7 +169,6 @@
         text-decoration: underline;
         color: #089863;
       }
-      /* دو ستونه */
       .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -227,7 +225,6 @@
     <div id="header-placeholder"></div>
     <main>
       <div class="form-wrapper">
-        <!-- ======= متن آزاد برای تکمیل خودکار ======= -->
         <label for="autoFillInput">متن مسدودی (جهت تکمیل خودکار):</label>
         <textarea
           id="autoFillInput"
@@ -313,26 +310,12 @@
           پاک کردن فرم
         </button>
         <div id="copyResult" class="result"></div>
-        <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+        <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script>
-      fetch("footer.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("footer-placeholder").innerHTML = data;
-        });
-    </script>
-    <script>
-      fetch("header.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("header-placeholder").innerHTML = data;
-          setupHeader("پیگیری مسدودی حساب");
-        });
-    </script>
-    <script src="js/header.js"></script>
-    <script src="./js/account-block.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/account-block.js"></script>
   </body>
 </html>

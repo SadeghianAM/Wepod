@@ -1,10 +1,3 @@
-// ===== بارگذاری فوتر از فایل جداگانه =====
-fetch("footer.html")
-  .then((res) => res.text())
-  .then((data) => {
-    document.getElementById("footer-placeholder").innerHTML = data;
-  });
-
 // ===== تاریخ شمسی با اعداد فارسی =====
 const weekdays = [
   "یک‌شنبه",
@@ -205,8 +198,7 @@ async function updateVideoBankingStatus() {
           بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۳:۰۰</b>
         </div>
       `;
-    }
-    else if (weekday === 4) {
+    } else if (weekday === 4) {
       startHour = workingHours["weekday-thu"].startHour;
       endHour = workingHours["weekday-thu"].endHour;
       endMinute = workingHours["weekday-thu"].endMinute;
@@ -403,10 +395,9 @@ function renderPayaaCycleStatus(holidays) {
   }
 
   updateStatus();
-  setInterval(updateStatus, 60 * 1000); // هر دقیقه یکبار آپدیت شود
+  setInterval(updateStatus, 60 * 1000);
 }
 
-// ترکیب با سیستم تعطیلات موجود
 async function setupPayaaCycleStatus() {
   let holidays = [];
   try {
@@ -538,28 +529,13 @@ async function loadAndDisplayNewsAlerts() {
           const persianEndDate = toPersianDigits(alert.endDate);
           const persianEndTime = toPersianDigits(alert.endTime);
           endDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">پایان: ${persianEndDate} ساعت ${persianEndTime}</p>`;
-
-          // محاسبه و نمایش مدت زمان (اختیاری)
           try {
-            // تبدیل تاریخ شمسی به میلادی برای محاسبه مدت زمان دقیق
-            // فرض می‌کنیم تاریخ‌ها شمسی و با فرمت YYYY-MM-DD هستند
             const [sYear, sMonth, sDay] = alert.startDate
               .split("-")
               .map(Number);
             const [eYear, eMonth, eDay] = alert.endDate.split("-").map(Number);
-
-            // تبدیل ساعت و دقیقه به اعداد
             const [sHour, sMin] = alert.startTime.split(":").map(Number);
             const [eHour, eMin] = alert.endTime.split(":").map(Number);
-
-            // توابع toJalali و getTodayPersianDate برای تبدیل میلادی به شمسی هستند.
-            // برای تبدیل شمسی به میلادی نیاز به یک کتابخانه مثل 'moment-jalaali' یا منطق پیچیده‌تر داریم.
-            // به سادگی، اگر تاریخ‌های JSON شما شمسی هستند، برای محاسبه اختلاف زمانی دقیق‌تر باید آنها را به میلادی تبدیل کنید.
-            // برای سادگی، من در اینجا فقط به نمایش تاریخ/ساعت بسنده می‌کنم، محاسبه دقیق مدت زمان پیچیده‌تر است.
-            // اگر واقعاً نیاز به محاسبه مدت زمان دارید، باید یک تابع `jalaliToGregorian` اضافه کنید.
-
-            // اگر نیازی به محاسبه دقیق مدت زمان نیست و فقط نمایش کافیست، این بخش را نادیده بگیرید.
-            // برای مثال ساده، فقط شروع و پایان را نمایش می‌دهیم.
           } catch (e) {
             console.error("خطا در محاسبه مدت زمان:", e);
           }

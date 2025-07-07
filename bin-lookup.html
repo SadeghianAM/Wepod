@@ -7,7 +7,7 @@
     <style>
       @font-face {
         font-family: "Vazirmatn";
-        src: url("./assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
       *,
@@ -175,26 +175,12 @@
         <div class="result" id="resultBox"></div>
         <div class="result" id="validationBox"></div>
         <button class="clear-button" onclick="clearForm()">پاک کردن فرم</button>
-        <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+        <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script>
-      fetch("footer.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("footer-placeholder").innerHTML = data;
-        });
-    </script>
-    <script>
-      fetch("header.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("header-placeholder").innerHTML = data;
-          setupHeader("اعتبارسنجی کارت");
-        });
-    </script>
-    <script src="js/header.js"></script>
-    <script src="./js/binService.js"></script>
+    <script src="/js/header.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/binService.js"></script>
   </body>
 </html>
