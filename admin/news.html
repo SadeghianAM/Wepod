@@ -526,7 +526,7 @@
         itemListDiv.innerHTML = "";
         if (jsonData.length === 0) {
           itemListDiv.innerHTML =
-            '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">لطفاً فایل JSON خود را با استفاده از دکمه "بارگذاری فایل JSON" انتخاب کنید.</p>';
+            '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">اطلاعیه‌ای برای نمایش وجود ندارد. می‌توانید یک فایل JSON را بارگذاری یا اطلاعیه جدید اضافه کنید.</p>';
           return;
         }
         jsonData.forEach((item, index) => {
@@ -676,11 +676,35 @@
         }
       });
 
-      // Initial render when the page loads (starts empty, waits for file upload)
+      // --- بارگذاری خودکار JSON در هنگام بارگذاری صفحه ---
+      async function loadInitialJson() {
+        try {
+          const response = await fetch("/data/news-alerts.json");
+          if (!response.ok) {
+            if (response.status === 404) {
+              console.warn(
+                "news-alerts.json not found. Starting with empty data."
+              );
+              jsonData = []; // Initialize with empty array if file not found
+            } else {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+          } else {
+            jsonData = await response.json();
+            console.log("JSON loaded successfully on page load.");
+          }
+        } catch (error) {
+          console.error("Error loading news-alerts.json:", error);
+          alert(
+            "خطا در بارگذاری اولیه فایل JSON. ممکن است فایل وجود نداشته باشد یا خراب باشد."
+          );
+          jsonData = []; // Ensure jsonData is an empty array on error
+        } finally {
+          renderItems();
+        }
+      }
       document.addEventListener("DOMContentLoaded", () => {
-        renderItems();
-        updateDateTime(); // Call once immediately
-        setInterval(updateDateTime, 1000); // Then update every second
+        loadInitialJson();
       });
     </script>
     <div id="footer-placeholder"></div>
