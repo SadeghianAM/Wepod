@@ -6,7 +6,18 @@ let postalData = [];
 fetch("./data/postalcode.json")
   .then((res) => res.json())
   .then((data) => {
+    // بارگذاری استان‌ها
     postalData = data.provinces;
+    // مرتب‌سازی شهرها هر استان بر اساس طول بازه (موارد خاص‌تر اول)
+    postalData.forEach((province) => {
+      province.cities.sort((a, b) => {
+        const rangeA =
+          parseInt(a.postal_code_end, 10) - parseInt(a.postal_code_start, 10);
+        const rangeB =
+          parseInt(b.postal_code_end, 10) - parseInt(b.postal_code_start, 10);
+        return rangeA - rangeB; // بازه‌های کوچک‌تر (جزئی‌تر) زودتر چک شوند
+      });
+    });
   })
   .catch((err) => {
     console.error("خطا در بارگذاری فایل JSON:", err);
@@ -14,11 +25,26 @@ fetch("./data/postalcode.json")
   });
 
 postalInput.addEventListener("input", () => {
-  const cleaned = postalInput.value.replace(/\D/g, "").substring(0, 10);
-  postalInput.value = cleaned;
+  // Remove all non-digit characters
+  const cleaned = postalInput.value.replace(/\D/g, "");
 
-  if (cleaned.length >= 5) {
-    checkPostalCode(cleaned.substring(0, 5));
+  // Format with spaces every 5 digits
+  let formatted = "";
+  for (let i = 0; i < cleaned.length; i++) {
+    if (i > 0 && i % 5 === 0) {
+      formatted += " ";
+    }
+    formatted += cleaned[i];
+  }
+
+  // Limit to 11 characters (10 digits + 1 space)
+  postalInput.value = formatted.substring(0, 11);
+
+  // Get the pure digits for checking
+  const digitsOnly = cleaned.substring(0, 10);
+
+  if (digitsOnly.length >= 5) {
+    checkPostalCode(digitsOnly.substring(0, 5));
   } else {
     clearResult();
   }

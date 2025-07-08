@@ -424,42 +424,42 @@
       "province": "تهران",
       "cities": [
         {
-          "name": "منطقه 11",
+          "name": "۱۱ تهران",
           "postal_code_start": "11111",
           "postal_code_end": "11999"
         },
         {
-          "name": "منطقه 13",
+          "name": "۱۳ تهران",
           "postal_code_start": "13111",
           "postal_code_end": "13999"
         },
         {
-          "name": "منطقه 14",
+          "name": "۱۴ تهران",
           "postal_code_start": "14111",
           "postal_code_end": "14999"
         },
         {
-          "name": "منطقه 15",
+          "name": "۱۵ تهران",
           "postal_code_start": "15111",
           "postal_code_end": "15999"
         },
         {
-          "name": "منطقه 16",
+          "name": "۱۶ تهران",
           "postal_code_start": "16111",
           "postal_code_end": "16999"
         },
         {
-          "name": "منطقه 17",
+          "name": "۱۷ تهران ",
           "postal_code_start": "17111",
           "postal_code_end": "17999"
         },
         {
-          "name": "منطقه 18",
+          "name": "۱۸ تهران",
           "postal_code_start": "18111",
           "postal_code_end": "18999"
         },
         {
-          "name": "منطقه 19",
+          "name": "۱۹ تهران",
           "postal_code_start": "19111",
           "postal_code_end": "19999"
         }
