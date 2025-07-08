@@ -462,6 +462,61 @@
           "name": "۱۹ تهران",
           "postal_code_start": "19111",
           "postal_code_end": "19999"
+        },
+        {
+          "name": "شمیرانات",
+          "postal_code_start": "19561",
+          "postal_code_end": "19841"
+        },
+        {
+          "name": "دماوند",
+          "postal_code_start": "39711",
+          "postal_code_end": "39791"
+        },
+        {
+          "name": "ری",
+          "postal_code_start": "18131",
+          "postal_code_end": "18986"
+        },
+        {
+          "name": "اسلامشهر",
+          "postal_code_start": "33131",
+          "postal_code_end": "33191"
+        },
+        {
+          "name": "شهریار",
+          "postal_code_start": "33511",
+          "postal_code_end": "33591"
+        },
+        {
+          "name": "شهرقدس",
+          "postal_code_start": "37511",
+          "postal_code_end": "37591"
+        },
+        {
+          "name": "رباط کریم",
+          "postal_code_start": "37611",
+          "postal_code_end": "37691"
+        },
+        {
+          "name": "فیروزکوه",
+          "postal_code_start": "39811",
+          "postal_code_end": "39891"
+        },
+        {
+          "name": "ورامین",
+          "postal_code_start": "33711",
+          "postal_code_end": "33791"
+        },
+        {
+          "name": "پیشوا",
+          "postal_code_start": "33811",
+          "postal_code_end": "33891"
+        },
+        {
+          "name": "قرچک",
+          "postal_code_start": "33911",
+          "postal_code_end": "33991"
         }
       ]
     },
