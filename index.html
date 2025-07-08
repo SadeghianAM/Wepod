@@ -220,6 +220,17 @@
         transform: translateY(-3px);
         border-right-color: #174ea6;
       }
+      #tools-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      @media (max-width: 600px) {
+        #tools-list {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
@@ -250,17 +261,22 @@
             id="tools-search"
             placeholder="جستجو در ابزارها..."
           />
-          <ul id="tools-list">
+          <ul>
             <li><a href="/change-number.html">🔄 پیگیری تغییر شماره</a></li>
             <li>
-              <a href="/account-block.html">🚫 پیگیری مسدودی حساب | آزمایشی</a>
+              <a href="/account-block.html">🚫 پیگیری مسدودی حساب</a>
+            </li>
+            <li>
+              <a href="/learn/index.html">📚 آموزش ها</a>
             </li>
           </ul>
           <h2>🔍 سرویس‌های استعلامی</h2>
           <ul>
             <li><a href="/iban-lookup.html">🔍 اعتبارسنجی شبا</a></li>
             <li><a href="/bin-lookup.html">🔍 اعتبارسنجی کارت</a></li>
-            <li><a href="#">🔍 شعبه افتتاح کننده و نوع حساب | بزودی</a></li>
+            <li>
+              <a href="#">🏦 استعلام نوع حساب و اطلاعات شعب | بزودی</a>
+            </li>
             <li>
               <a
                 href="https://vbank.bpi.ir/public/inquiries/inquiry-paya"
@@ -275,25 +291,23 @@
                 >🏦 پیگیری تراکنش ساتنا</a
               >
             </li>
-          </ul>
-          <h2>🔰 دیگر بخش‌ها</h2>
-          <ul>
-            <li>
-              <a href="/learn/index.html">📚 آموزش</a>
-            </li>
             <li>
               <a href="/fee-calculator.html">💸 محاسبه کارمزد انتقال وجه</a>
             </li>
-            <li><a href="#">🏦 اطلاعات شعب بانک | بزودی</a></li>
           </ul>
-          <h2>🔍 لینک های مفید</h2>
-          <ul>
+          <h2>🔗 سامانه های داخلی</h2>
+          <ul id="tools-list">
             <li>
               <a href="https://172.29.1.82/" target="_blank">💼 پنل CRM</a>
             </li>
             <li>
               <a href="https://callcenter.pod.ir/" target="_blank"
                 >🧾 پنل پاد</a
+              >
+            </li>
+            <li>
+              <a href="https://pay.pod.ir/card/activate" target="_blank"
+                >💳 فعالسازی کارت</a
               >
             </li>
             <li>
@@ -304,26 +318,8 @@
               >
             </li>
           </ul>
-          <h2>💻 سامانه‌های داتین</h2>
-          <ul>
-            <li>
-              <a href="https://karsu.dotin.ir" target="_blank">⏳ کارسو</a>
-            </li>
-            <li>
-              <a href="https://divan.dotin.ir" target="_blank">⚖️ دیوان</a>
-            </li>
-            <li>
-              <a href="https://hotspot.dotin.ir" target="_blank"
-                >📶 هات‌اسپات</a
-              >
-            </li>
-            <li>
-              <a href="https://e.dotin.ir" target="_blank">🪟 پنجره داتین</a>
-            </li>
-          </ul>
-
           <h2>📦 رهگیری مرسولات</h2>
-          <ul>
+          <ul id="tools-list">
             <li>
               <a href="/iban-lookup.html" target="_blank">📦 پنل مدیریت</a>
             </li>
@@ -343,6 +339,23 @@
                 target="_blank"
                 >🚚 رهگیری فوروارد</a
               >
+            </li>
+          </ul>
+          <h2>💻 سامانه‌های داتین</h2>
+          <ul id="tools-list">
+            <li>
+              <a href="https://karsu.dotin.ir" target="_blank">⏳ کارسو</a>
+            </li>
+            <li>
+              <a href="https://divan.dotin.ir" target="_blank">⚖️ دیوان</a>
+            </li>
+            <li>
+              <a href="https://hotspot.dotin.ir" target="_blank"
+                >📶 هات‌اسپات</a
+              >
+            </li>
+            <li>
+              <a href="https://e.dotin.ir" target="_blank">🪟 پنجره داتین</a>
             </li>
           </ul>
         </div>
