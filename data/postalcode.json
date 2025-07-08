@@ -1,0 +1,1664 @@
+{
+  "provinces": [
+    {
+      "province": "آذربایجان شرقی",
+      "cities": [
+        {
+          "name": "تبریز",
+          "postal_code_start": "51331",
+          "postal_code_end": "51999"
+        },
+        {
+          "name": "میانه",
+          "postal_code_start": "53131",
+          "postal_code_end": "53491"
+        },
+        {
+          "name": "اسکو",
+          "postal_code_start": "53511",
+          "postal_code_end": "53591"
+        },
+        {
+          "name": "سردرود",
+          "postal_code_start": "53616",
+          "postal_code_end": "53651"
+        },
+        {
+          "name": "باسمنج",
+          "postal_code_start": "53661",
+          "postal_code_end": "53691"
+        },
+        {
+          "name": "آذرشهر",
+          "postal_code_start": "53711",
+          "postal_code_end": "53791"
+        },
+        {
+          "name": "شبستر",
+          "postal_code_start": "53811",
+          "postal_code_end": "53891"
+        },
+        {
+          "name": "هریس",
+          "postal_code_start": "53911",
+          "postal_code_end": "53991"
+        },
+        {
+          "name": "مرند",
+          "postal_code_start": "54131",
+          "postal_code_end": "54199"
+        },
+        {
+          "name": "جلفا",
+          "postal_code_start": "54311",
+          "postal_code_end": "54319"
+        },
+        {
+          "name": "اهر",
+          "postal_code_start": "54491",
+          "postal_code_end": "54561"
+        },
+        {
+          "name": "کلیبر",
+          "postal_code_start": "54611",
+          "postal_code_end": "54691"
+        },
+        {
+          "name": "سراب",
+          "postal_code_start": "54711",
+          "postal_code_end": "54891"
+        },
+        {
+          "name": "بستان آباد",
+          "postal_code_start": "54911",
+          "postal_code_end": "54991"
+        },
+        {
+          "name": "مراغه",
+          "postal_code_start": "55131",
+          "postal_code_end": "55391"
+        },
+        {
+          "name": "عجبشیر",
+          "postal_code_start": "55411",
+          "postal_code_end": "55491"
+        },
+        {
+          "name": "بناب",
+          "postal_code_start": "55511",
+          "postal_code_end": "55591"
+        },
+        {
+          "name": "ملکان",
+          "postal_code_start": "55611",
+          "postal_code_end": "55691"
+        },
+        {
+          "name": "هشترود",
+          "postal_code_start": "55711",
+          "postal_code_end": "55781"
+        },
+        {
+          "name": "چاراویماق",
+          "postal_code_start": "55791",
+          "postal_code_end": "55991"
+        }
+      ]
+    },
+    {
+      "province": "آذربایجان غربی",
+      "cities": [
+        {
+          "name": "ارومیه",
+          "postal_code_start": "57131",
+          "postal_code_end": "57591"
+        },
+        {
+          "name": "نقده",
+          "postal_code_start": "57611",
+          "postal_code_end": "57691"
+        },
+        {
+          "name": "اشنویه",
+          "postal_code_start": "57711",
+          "postal_code_end": "57791"
+        },
+        {
+          "name": "پیرانشهر",
+          "postal_code_start": "57811",
+          "postal_code_end": "57991"
+        },
+        {
+          "name": "خوی",
+          "postal_code_start": "58131",
+          "postal_code_end": "58591"
+        },
+        {
+          "name": "ماکو",
+          "postal_code_start": "58611",
+          "postal_code_end": "58631"
+        },
+        {
+          "name": "چالدران",
+          "postal_code_start": "58641",
+          "postal_code_end": "58791"
+        },
+        {
+          "name": "سلماس",
+          "postal_code_start": "58811",
+          "postal_code_end": "58991"
+        },
+        {
+          "name": "مهاباد",
+          "postal_code_start": "59131",
+          "postal_code_end": "59341"
+        },
+        {
+          "name": "میاندوآب",
+          "postal_code_start": "59351",
+          "postal_code_end": "59361"
+        },
+        {
+          "name": "بوکان",
+          "postal_code_start": "59431",
+          "postal_code_end": "59591"
+        },
+        {
+          "name": "سردشت",
+          "postal_code_start": "59611",
+          "postal_code_end": "59891"
+        },
+        {
+          "name": "تکاب",
+          "postal_code_start": "59916",
+          "postal_code_end": "59971"
+        }
+      ]
+    },
+    {
+      "province": "اردبیل",
+      "cities": [
+        {
+          "name": "اردبیل",
+          "postal_code_start": "56131",
+          "postal_code_end": "56491"
+        },
+        {
+          "name": "نمین",
+          "postal_code_start": "56311",
+          "postal_code_end": "56361"
+        },
+        {
+          "name": "نیر",
+          "postal_code_start": "56411",
+          "postal_code_end": "56451"
+        },
+        {
+          "name": "گرمی",
+          "postal_code_start": "56511",
+          "postal_code_end": "56591"
+        },
+        {
+          "name": "مشکین شهر",
+          "postal_code_start": "56611",
+          "postal_code_end": "56691"
+        },
+        {
+          "name": "بیله سوار",
+          "postal_code_start": "56711",
+          "postal_code_end": "56791"
+        },
+        {
+          "name": "کوثر",
+          "postal_code_start": "56841",
+          "postal_code_end": "56861"
+        },
+        {
+          "name": "خلخال",
+          "postal_code_start": "56811",
+          "postal_code_end": "56891"
+        },
+        {
+          "name": "پارس آباد",
+          "postal_code_start": "56911",
+          "postal_code_end": "56991"
+        }
+      ]
+    },
+    {
+      "province": "اصفهان",
+      "cities": [
+        {
+          "name": "اصفهان",
+          "postal_code_start": "81331",
+          "postal_code_end": "83791"
+        },
+        {
+          "name": "برخوار و میمه",
+          "postal_code_start": "83131",
+          "postal_code_end": "83591"
+        },
+        {
+          "name": "نائین",
+          "postal_code_start": "83611",
+          "postal_code_end": "83991"
+        },
+        {
+          "name": "اردستان",
+          "postal_code_start": "83811",
+          "postal_code_end": "84491"
+        },
+        {
+          "name": "خمینی شهر",
+          "postal_code_start": "84131",
+          "postal_code_end": "84391"
+        },
+        {
+          "name": "فلاورجان",
+          "postal_code_start": "81789",
+          "postal_code_end": "84691"
+        },
+        {
+          "name": "لنجان",
+          "postal_code_start": "84711",
+          "postal_code_end": "84971"
+        },
+        {
+          "name": "مبارکه",
+          "postal_code_start": "84811",
+          "postal_code_end": "86319"
+        },
+        {
+          "name": "نجف آباد",
+          "postal_code_start": "85131",
+          "postal_code_end": "85891"
+        },
+        {
+          "name": "فریدن",
+          "postal_code_start": "85611",
+          "postal_code_end": "85781"
+        },
+        {
+          "name": "چادگان",
+          "postal_code_start": "85713",
+          "postal_code_end": "85791"
+        },
+        {
+          "name": "فریدونشهر",
+          "postal_code_start": "85911",
+          "postal_code_end": "85991"
+        },
+        {
+          "name": "شهرضا",
+          "postal_code_start": "86131",
+          "postal_code_end": "86611"
+        },
+        {
+          "name": "سمیرم سفلی",
+          "postal_code_start": "86413",
+          "postal_code_end": "86461"
+        },
+        {
+          "name": "سمیرم",
+          "postal_code_start": "86613",
+          "postal_code_end": "86991"
+        },
+        {
+          "name": "تیران و کرون",
+          "postal_code_start": "85311",
+          "postal_code_end": "85381"
+        },
+        {
+          "name": "کاشان",
+          "postal_code_start": "87131",
+          "postal_code_end": "87591"
+        },
+        {
+          "name": "آران و بیدگل",
+          "postal_code_start": "87411",
+          "postal_code_end": "87491"
+        },
+        {
+          "name": "نطنز",
+          "postal_code_start": "87611",
+          "postal_code_end": "87691"
+        },
+        {
+          "name": "گلپایگان",
+          "postal_code_start": "87711",
+          "postal_code_end": "87891"
+        },
+        {
+          "name": "خوانسار",
+          "postal_code_start": "87911",
+          "postal_code_end": "87991"
+        }
+      ]
+    },
+    {
+      "province": "ایلام",
+      "cities": [
+        {
+          "name": "ایلام",
+          "postal_code_start": "69311",
+          "postal_code_end": "69391"
+        },
+        {
+          "name": "ایوان",
+          "postal_code_start": "69411",
+          "postal_code_end": "69491"
+        },
+        {
+          "name": "شیروان و چرداول",
+          "postal_code_start": "69511",
+          "postal_code_end": "69591"
+        },
+        {
+          "name": "دره شهر",
+          "postal_code_start": "69611",
+          "postal_code_end": "69691"
+        },
+        {
+          "name": "آبدانان",
+          "postal_code_start": "69711",
+          "postal_code_end": "69791"
+        },
+        {
+          "name": "دهلران",
+          "postal_code_start": "69811",
+          "postal_code_end": "69891"
+        },
+        {
+          "name": "مهران",
+          "postal_code_start": "69911",
+          "postal_code_end": "69991"
+        }
+      ]
+    },
+    {
+      "province": "بوشهر",
+      "cities": [
+        {
+          "name": "بوشهر",
+          "postal_code_start": "75131",
+          "postal_code_end": "75461"
+        },
+        {
+          "name": "دشتی",
+          "postal_code_start": "75411",
+          "postal_code_end": "75451"
+        },
+        {
+          "name": "تنگستان",
+          "postal_code_start": "75471",
+          "postal_code_end": "75519"
+        },
+        {
+          "name": "دیر",
+          "postal_code_start": "75531",
+          "postal_code_end": "75551"
+        },
+        {
+          "name": "کنگان",
+          "postal_code_start": "75391",
+          "postal_code_end": "75591"
+        },
+        {
+          "name": "دشتستان",
+          "postal_code_start": "75611",
+          "postal_code_end": "75691"
+        },
+        {
+          "name": "گناوه",
+          "postal_code_start": "75311",
+          "postal_code_end": "75351"
+        },
+        {
+          "name": "دیلم",
+          "postal_code_start": "75361",
+          "postal_code_end": "75371"
+        }
+      ]
+    },
+    {
+      "province": "تهران",
+      "cities": [
+        {
+          "name": "منطقه 11",
+          "postal_code_start": "11111",
+          "postal_code_end": "11999"
+        },
+        {
+          "name": "منطقه 13",
+          "postal_code_start": "13111",
+          "postal_code_end": "13999"
+        },
+        {
+          "name": "منطقه 14",
+          "postal_code_start": "14111",
+          "postal_code_end": "14999"
+        },
+        {
+          "name": "منطقه 15",
+          "postal_code_start": "15111",
+          "postal_code_end": "15999"
+        },
+        {
+          "name": "منطقه 16",
+          "postal_code_start": "16111",
+          "postal_code_end": "16999"
+        },
+        {
+          "name": "منطقه 17",
+          "postal_code_start": "17111",
+          "postal_code_end": "17999"
+        },
+        {
+          "name": "منطقه 18",
+          "postal_code_start": "18111",
+          "postal_code_end": "18999"
+        },
+        {
+          "name": "منطقه 19",
+          "postal_code_start": "19111",
+          "postal_code_end": "19999"
+        }
+      ]
+    },
+    {
+      "province": "چهارمحال و بختیاری",
+      "cities": [
+        {
+          "name": "شهرکرد",
+          "postal_code_start": "88131",
+          "postal_code_end": "88591"
+        },
+        {
+          "name": "فارسان",
+          "postal_code_start": "88611",
+          "postal_code_end": "88671"
+        },
+        {
+          "name": "کوهرنگ",
+          "postal_code_start": "88641",
+          "postal_code_end": "88691"
+        },
+        {
+          "name": "بروجن",
+          "postal_code_start": "88711",
+          "postal_code_end": "88791"
+        },
+        {
+          "name": "اردل",
+          "postal_code_start": "88811",
+          "postal_code_end": "88891"
+        },
+        {
+          "name": "لردگان",
+          "postal_code_start": "88911",
+          "postal_code_end": "88991"
+        }
+      ]
+    },
+    {
+      "province": "خراسان جنوبی",
+      "cities": [
+        {
+          "name": "بیرجند",
+          "postal_code_start": "97131",
+          "postal_code_end": "97481"
+        },
+        {
+          "name": "سربیشه",
+          "postal_code_start": "97311",
+          "postal_code_end": "97491"
+        },
+        {
+          "name": "درمیان",
+          "postal_code_start": "97441",
+          "postal_code_end": "97471"
+        },
+        {
+          "name": "نهبندان",
+          "postal_code_start": "97511",
+          "postal_code_end": "97591"
+        },
+        {
+          "name": "قائنات",
+          "postal_code_start": "97611",
+          "postal_code_end": "97691"
+        },
+        {
+          "name": "فردوس",
+          "postal_code_start": "97711",
+          "postal_code_end": "97881"
+        },
+        {
+          "name": "سرایان",
+          "postal_code_start": "97761",
+          "postal_code_end": "97891"
+        }
+      ]
+    },
+    {
+      "province": "خراسان رضوی",
+      "cities": [
+        {
+          "name": "مشهد",
+          "postal_code_start": "91331",
+          "postal_code_end": "93781"
+        },
+        {
+          "name": "نیشابور",
+          "postal_code_start": "93131",
+          "postal_code_end": "93491"
+        },
+        {
+          "name": "چناران",
+          "postal_code_start": "93611",
+          "postal_code_end": "93691"
+        },
+        {
+          "name": "کلات",
+          "postal_code_start": "93711",
+          "postal_code_end": "94931"
+        },
+        {
+          "name": "سرخس",
+          "postal_code_start": "93811",
+          "postal_code_end": "93891"
+        },
+        {
+          "name": "فریمان",
+          "postal_code_start": "93911",
+          "postal_code_end": "93991"
+        },
+        {
+          "name": "تربت حیدریه",
+          "postal_code_start": "95131",
+          "postal_code_end": "95591"
+        },
+        {
+          "name": "رشتخوار",
+          "postal_code_start": "95411",
+          "postal_code_end": "95481"
+        },
+        {
+          "name": "خواف",
+          "postal_code_start": "95611",
+          "postal_code_end": "95691"
+        },
+        {
+          "name": "تربت جام",
+          "postal_code_start": "95711",
+          "postal_code_end": "95891"
+        },
+        {
+          "name": "تایباد",
+          "postal_code_start": "95911",
+          "postal_code_end": "95991"
+        },
+        {
+          "name": "سبزوار",
+          "postal_code_start": "96131",
+          "postal_code_end": "96591"
+        },
+        {
+          "name": "کاشمر",
+          "postal_code_start": "96711",
+          "postal_code_end": "96791"
+        },
+        {
+          "name": "خلیل آباد",
+          "postal_code_start": "96751",
+          "postal_code_end": "96781"
+        },
+        {
+          "name": "بردسکن",
+          "postal_code_start": "96811",
+          "postal_code_end": "96891"
+        },
+        {
+          "name": "گناباد",
+          "postal_code_start": "96911",
+          "postal_code_end": "96991"
+        },
+        {
+          "name": "درگز",
+          "postal_code_start": "94911",
+          "postal_code_end": "94991"
+        },
+        {
+          "name": "قوچان",
+          "postal_code_start": "94711",
+          "postal_code_end": "94861"
+        }
+      ]
+    },
+    {
+      "province": "خراسان شمالی",
+      "cities": [
+        {
+          "name": "بجنورد",
+          "postal_code_start": "94131",
+          "postal_code_end": "94591"
+        },
+        {
+          "name": "جاجرم",
+          "postal_code_start": "94311",
+          "postal_code_end": "94491"
+        },
+        {
+          "name": "مانه و سملقان",
+          "postal_code_start": "94341",
+          "postal_code_end": "94551"
+        },
+        {
+          "name": "شیروان",
+          "postal_code_start": "94611",
+          "postal_code_end": "94691"
+        },
+        {
+          "name": "فاروج",
+          "postal_code_start": "94811",
+          "postal_code_end": "94891"
+        },
+        {
+          "name": "اسفراین",
+          "postal_code_start": "96611",
+          "postal_code_end": "96691"
+        }
+      ]
+    },
+    {
+      "province": "خوزستان",
+      "cities": [
+        {
+          "name": "ماهشهر",
+          "postal_code_start": "63511",
+          "postal_code_end": "63581"
+        },
+        {
+          "name": "هندیجان",
+          "postal_code_start": "63591",
+          "postal_code_end": "63591"
+        },
+        {
+          "name": "رامهرمز",
+          "postal_code_start": "63811",
+          "postal_code_end": "64961"
+        },
+        {
+          "name": "شادگان",
+          "postal_code_start": "64311",
+          "postal_code_end": "64361"
+        },
+        {
+          "name": "دشت آزادگان",
+          "postal_code_start": "64411",
+          "postal_code_end": "64491"
+        },
+        {
+          "name": "شوشتر",
+          "postal_code_start": "64511",
+          "postal_code_end": "64591"
+        },
+        {
+          "name": "دزفول",
+          "postal_code_start": "64611",
+          "postal_code_end": "64691"
+        },
+        {
+          "name": "شوش",
+          "postal_code_start": "64711",
+          "postal_code_end": "64791"
+        },
+        {
+          "name": "مسجد سلیمان",
+          "postal_code_start": "64911",
+          "postal_code_end": "64991"
+        },
+        {
+          "name": "لالی",
+          "postal_code_start": "64941",
+          "postal_code_end": "64941"
+        }
+      ]
+    },
+    {
+      "province": "زنجان",
+      "cities": [
+        {
+          "name": "زنجان",
+          "postal_code_start": "45131",
+          "postal_code_end": "45541"
+        },
+        {
+          "name": "ایجرود",
+          "postal_code_start": "45311",
+          "postal_code_end": "45971"
+        },
+        {
+          "name": "ماهنشان",
+          "postal_code_start": "45411",
+          "postal_code_end": "45481"
+        },
+        {
+          "name": "ابهر",
+          "postal_code_start": "45511",
+          "postal_code_end": "45741"
+        },
+        {
+          "name": "خرمدره",
+          "postal_code_start": "45711",
+          "postal_code_end": "45761"
+        },
+        {
+          "name": "خدابنده",
+          "postal_code_start": "45771",
+          "postal_code_end": "45891"
+        },
+        {
+          "name": "طارم",
+          "postal_code_start": "45911",
+          "postal_code_end": "45991"
+        }
+      ]
+    },
+    {
+      "province": "سمنان",
+      "cities": [
+        {
+          "name": "سمنان",
+          "postal_code_start": "35131",
+          "postal_code_end": "35791"
+        },
+        {
+          "name": "گرمسار",
+          "postal_code_start": "35811",
+          "postal_code_end": "35991"
+        },
+        {
+          "name": "شاهرود",
+          "postal_code_start": "36131",
+          "postal_code_end": "36691"
+        },
+        {
+          "name": "دامغان",
+          "postal_code_start": "36711",
+          "postal_code_end": "36991"
+        }
+      ]
+    },
+    {
+      "province": "سیستان و بلوچستان",
+      "cities": [
+        {
+          "name": "زاهدان",
+          "postal_code_start": "98131",
+          "postal_code_end": "98491"
+        },
+        {
+          "name": "زابل",
+          "postal_code_start": "98511",
+          "postal_code_end": "98791"
+        },
+        {
+          "name": "خاش",
+          "postal_code_start": "98811",
+          "postal_code_end": "98991"
+        },
+        {
+          "name": "ایرانشهر",
+          "postal_code_start": "99131",
+          "postal_code_end": "99491"
+        },
+        {
+          "name": "دلگان",
+          "postal_code_start": "99471",
+          "postal_code_end": "99471"
+        },
+        {
+          "name": "سراوان",
+          "postal_code_start": "99511",
+          "postal_code_end": "99691"
+        },
+        {
+          "name": "زابلی",
+          "postal_code_start": "99661",
+          "postal_code_end": "99661"
+        },
+        {
+          "name": "سرباز",
+          "postal_code_start": "99311",
+          "postal_code_end": "99391"
+        },
+        {
+          "name": "نیکشهر",
+          "postal_code_start": "99331",
+          "postal_code_end": "99991"
+        },
+        {
+          "name": "چابهار",
+          "postal_code_start": "99711",
+          "postal_code_end": "99861"
+        }
+      ]
+    },
+    {
+      "province": "فارس",
+      "cities": [
+        {
+          "name": "شیراز",
+          "postal_code_start": "71331",
+          "postal_code_end": "73491"
+        },
+        {
+          "name": "مرودشت",
+          "postal_code_start": "73431",
+          "postal_code_end": "73771"
+        },
+        {
+          "name": "پاسارگاد",
+          "postal_code_start": "73741",
+          "postal_code_end": "73791"
+        },
+        {
+          "name": "ارسنجان",
+          "postal_code_start": "73731",
+          "postal_code_end": "73761"
+        },
+        {
+          "name": "خرمبید",
+          "postal_code_start": "73751",
+          "postal_code_end": "73961"
+        },
+        {
+          "name": "بوانات",
+          "postal_code_start": "73781",
+          "postal_code_end": "73971"
+        },
+        {
+          "name": "آباده",
+          "postal_code_start": "73911",
+          "postal_code_end": "73991"
+        },
+        {
+          "name": "اقلید",
+          "postal_code_start": "73811",
+          "postal_code_end": "73891"
+        },
+        {
+          "name": "کازرون",
+          "postal_code_start": "73111",
+          "postal_code_end": "73391"
+        },
+        {
+          "name": "ممسنی",
+          "postal_code_start": "73511",
+          "postal_code_end": "73591"
+        },
+        {
+          "name": "سپیدان",
+          "postal_code_start": "73611",
+          "postal_code_end": "73691"
+        },
+        {
+          "name": "جهرم",
+          "postal_code_start": "74131",
+          "postal_code_end": "74591"
+        },
+        {
+          "name": "استهبان",
+          "postal_code_start": "74461",
+          "postal_code_end": "74519"
+        },
+        {
+          "name": "داراب",
+          "postal_code_start": "74111",
+          "postal_code_end": "74891"
+        },
+        {
+          "name": "فسا",
+          "postal_code_start": "74611",
+          "postal_code_end": "74691"
+        },
+        {
+          "name": "فراشبند",
+          "postal_code_start": "74771",
+          "postal_code_end": "74781"
+        },
+        {
+          "name": "فیروزآباد",
+          "postal_code_start": "74711",
+          "postal_code_end": "74791"
+        },
+        {
+          "name": "قیر و کارزین",
+          "postal_code_start": "74714",
+          "postal_code_end": "74761"
+        },
+        {
+          "name": "زرین دشت",
+          "postal_code_start": "74814",
+          "postal_code_end": "74861"
+        },
+        {
+          "name": "لامرد",
+          "postal_code_start": "74341",
+          "postal_code_end": "74441"
+        },
+        {
+          "name": "مهر",
+          "postal_code_start": "74414",
+          "postal_code_end": "74451"
+        },
+        {
+          "name": "لارستان",
+          "postal_code_start": "74311",
+          "postal_code_end": "74419"
+        },
+        {
+          "name": "نی ریز",
+          "postal_code_start": "74911",
+          "postal_code_end": "74991"
+        }
+      ]
+    },
+    {
+      "province": "قزوین",
+      "cities": [
+        {
+          "name": "قزوین",
+          "postal_code_start": "34131",
+          "postal_code_end": "34981"
+        },
+        {
+          "name": "البرز",
+          "postal_code_start": "34151",
+          "postal_code_end": "34161"
+        },
+        {
+          "name": "آبیک",
+          "postal_code_start": "34411",
+          "postal_code_end": "34481"
+        },
+        {
+          "name": "بوئین زهرا",
+          "postal_code_start": "34491",
+          "postal_code_end": "34691"
+        },
+        {
+          "name": "تاکستان",
+          "postal_code_start": "34561",
+          "postal_code_end": "34951"
+        }
+      ]
+    },
+    {
+      "province": "قم",
+      "cities": [
+        {
+          "name": "قم",
+          "postal_code_start": "37131",
+          "postal_code_end": "37491"
+        }
+      ]
+    },
+    {
+      "province": "کردستان",
+      "cities": [
+        {
+          "name": "سنندج",
+          "postal_code_start": "66131",
+          "postal_code_end": "66199"
+        },
+        {
+          "name": "بیجار",
+          "postal_code_start": "66511",
+          "postal_code_end": "66591"
+        },
+        {
+          "name": "دیواندره",
+          "postal_code_start": "66411",
+          "postal_code_end": "66491"
+        },
+        {
+          "name": "قروه",
+          "postal_code_start": "66611",
+          "postal_code_end": "66691"
+        },
+        {
+          "name": "کامیاران",
+          "postal_code_start": "66311",
+          "postal_code_end": "66391"
+        },
+        {
+          "name": "مریوان",
+          "postal_code_start": "66711",
+          "postal_code_end": "66761"
+        },
+        {
+          "name": "سروآباد",
+          "postal_code_start": "66771",
+          "postal_code_end": "66791"
+        },
+        {
+          "name": "سقز",
+          "postal_code_start": "66811",
+          "postal_code_end": "66891"
+        },
+        {
+          "name": "بانه",
+          "postal_code_start": "66911",
+          "postal_code_end": "66991"
+        }
+      ]
+    },
+    {
+      "province": "کرمان",
+      "cities": [
+        {
+          "name": "کرمان",
+          "postal_code_start": "76131",
+          "postal_code_end": "77951"
+        },
+        {
+          "name": "راور",
+          "postal_code_start": "76511",
+          "postal_code_end": "77991"
+        },
+        {
+          "name": "رفسنجان",
+          "postal_code_start": "77131",
+          "postal_code_end": "77491"
+        },
+        {
+          "name": "زرند",
+          "postal_code_start": "77611",
+          "postal_code_end": "77691"
+        },
+        {
+          "name": "کوهبنان",
+          "postal_code_start": "77711",
+          "postal_code_end": "77891"
+        },
+        {
+          "name": "شهر بابک",
+          "postal_code_start": "77511",
+          "postal_code_end": "77591"
+        },
+        {
+          "name": "سیرجان",
+          "postal_code_start": "78131",
+          "postal_code_end": "78391"
+        },
+        {
+          "name": "عنبرآباد",
+          "postal_code_start": "78719",
+          "postal_code_end": "78791"
+        },
+        {
+          "name": "کهنوج",
+          "postal_code_start": "78811",
+          "postal_code_end": "78891"
+        },
+        {
+          "name": "منوجان",
+          "postal_code_start": "78851",
+          "postal_code_end": "78991"
+        },
+        {
+          "name": "قلعه گنج",
+          "postal_code_start": "78841",
+          "postal_code_end": "78971"
+        },
+        {
+          "name": "رودبار",
+          "postal_code_start": "78831",
+          "postal_code_end": "78831"
+        }
+      ]
+    },
+    {
+      "province": "کرمانشاه",
+      "cities": [
+        {
+          "name": "کرمانشاه",
+          "postal_code_start": "67131",
+          "postal_code_end": "67851"
+        },
+        {
+          "name": "هرسین",
+          "postal_code_start": "67311",
+          "postal_code_end": "67371"
+        },
+        {
+          "name": "کنگاور",
+          "postal_code_start": "67411",
+          "postal_code_end": "67451"
+        },
+        {
+          "name": "صحنه",
+          "postal_code_start": "67461",
+          "postal_code_end": "67591"
+        },
+        {
+          "name": "سنقر",
+          "postal_code_start": "67511",
+          "postal_code_end": "67571"
+        },
+        {
+          "name": "دالاهو",
+          "postal_code_start": "67631",
+          "postal_code_end": "67671"
+        },
+        {
+          "name": "روانسر",
+          "postal_code_start": "67731",
+          "postal_code_end": "67961"
+        },
+        {
+          "name": "سرپل ذهاب",
+          "postal_code_start": "67711",
+          "postal_code_end": "67751"
+        },
+        {
+          "name": "گیلانغرب",
+          "postal_code_start": "67781",
+          "postal_code_end": "67891"
+        },
+        {
+          "name": "قصر شیرین",
+          "postal_code_start": "67811",
+          "postal_code_end": "67861"
+        },
+        {
+          "name": "جوانرود",
+          "postal_code_start": "67981",
+          "postal_code_end": "67981"
+        },
+        {
+          "name": "روانسر/جوانرود",
+          "postal_code_start": "67971",
+          "postal_code_end": "67971"
+        },
+        {
+          "name": "روانسر/کرمانشاه",
+          "postal_code_start": "67681",
+          "postal_code_end": "67681"
+        }
+      ]
+    },
+    {
+      "province": "کهگیلویه و بویراحمد",
+      "cities": [
+        {
+          "name": "کهگیلویه",
+          "postal_code_start": "75711",
+          "postal_code_end": "75791"
+        },
+        {
+          "name": "گچساران",
+          "postal_code_start": "75811",
+          "postal_code_end": "75891"
+        },
+        {
+          "name": "بویراحمد",
+          "postal_code_start": "75911",
+          "postal_code_end": "75981"
+        },
+        {
+          "name": "دنا",
+          "postal_code_start": "75941",
+          "postal_code_end": "75991"
+        }
+      ]
+    },
+    {
+      "province": "گلستان",
+      "cities": [
+        {
+          "name": "گرگان",
+          "postal_code_start": "49131",
+          "postal_code_end": "49371"
+        },
+        {
+          "name": "آق قلا",
+          "postal_code_start": "49311",
+          "postal_code_end": "49391"
+        },
+        {
+          "name": "علی آباد",
+          "postal_code_start": "49411",
+          "postal_code_end": "49491"
+        },
+        {
+          "name": "رامیان",
+          "postal_code_start": "49511",
+          "postal_code_end": "49681"
+        },
+        {
+          "name": "آزاد شهر",
+          "postal_code_start": "49611",
+          "postal_code_end": "49671"
+        },
+        {
+          "name": "گنبد کاووس",
+          "postal_code_start": "49691",
+          "postal_code_end": "49791"
+        },
+        {
+          "name": "مینو دشت",
+          "postal_code_start": "49811",
+          "postal_code_end": "49891"
+        },
+        {
+          "name": "کلاله",
+          "postal_code_start": "49851",
+          "postal_code_end": "49991"
+        },
+        {
+          "name": "بندر گز",
+          "postal_code_start": "48711",
+          "postal_code_end": "48791"
+        },
+        {
+          "name": "کردکوی",
+          "postal_code_start": "48811",
+          "postal_code_end": "48891"
+        },
+        {
+          "name": "ترکمن",
+          "postal_code_start": "48911",
+          "postal_code_end": "48991"
+        }
+      ]
+    },
+    {
+      "province": "گیلان",
+      "cities": [
+        {
+          "name": "لاهیجان",
+          "postal_code_start": "44131",
+          "postal_code_end": "44371"
+        },
+        {
+          "name": "سیاهکل",
+          "postal_code_start": "44311",
+          "postal_code_end": "44391"
+        },
+        {
+          "name": "فومن",
+          "postal_code_start": "43511",
+          "postal_code_end": "43581"
+        },
+        {
+          "name": "شفت",
+          "postal_code_start": "43541",
+          "postal_code_end": "43591"
+        },
+        {
+          "name": "صومعه سرا",
+          "postal_code_start": "43611",
+          "postal_code_end": "43691"
+        },
+        {
+          "name": "طوالش",
+          "postal_code_start": "43711",
+          "postal_code_end": "43791"
+        },
+        {
+          "name": "ماسال",
+          "postal_code_start": "43811",
+          "postal_code_end": "43851"
+        },
+        {
+          "name": "لنگرود",
+          "postal_code_start": "44711",
+          "postal_code_end": "44791"
+        }
+      ]
+    },
+    {
+      "province": "لرستان",
+      "cities": [
+        {
+          "name": "خرم آباد",
+          "postal_code_start": "68131",
+          "postal_code_end": "68891"
+        },
+        {
+          "name": "دورود",
+          "postal_code_start": "68811",
+          "postal_code_end": "68851"
+        },
+        {
+          "name": "ازنا",
+          "postal_code_start": "68711",
+          "postal_code_end": "68731"
+        },
+        {
+          "name": "الیگودرز",
+          "postal_code_start": "68611",
+          "postal_code_end": "68691"
+        },
+        {
+          "name": "دلفان",
+          "postal_code_start": "68311",
+          "postal_code_end": "68391"
+        },
+        {
+          "name": "کوهدشت",
+          "postal_code_start": "68411",
+          "postal_code_end": "68491"
+        },
+        {
+          "name": "پلدختر",
+          "postal_code_start": "68511",
+          "postal_code_end": "68571"
+        },
+        {
+          "name": "سلسله",
+          "postal_code_start": "68911",
+          "postal_code_end": "68961"
+        },
+        {
+          "name": "بروجرد",
+          "postal_code_start": "68971",
+          "postal_code_end": "69199"
+        }
+      ]
+    },
+    {
+      "province": "مازندران",
+      "cities": [
+        {
+          "name": "آمل",
+          "postal_code_start": "46131",
+          "postal_code_end": "46391"
+        },
+        {
+          "name": "محمودآباد",
+          "postal_code_start": "46311",
+          "postal_code_end": "46341"
+        },
+        {
+          "name": "نور",
+          "postal_code_start": "46411",
+          "postal_code_end": "46561"
+        },
+        {
+          "name": "نوشهر",
+          "postal_code_start": "46511",
+          "postal_code_end": "46591"
+        },
+        {
+          "name": "چالوس",
+          "postal_code_start": "46611",
+          "postal_code_end": "46691"
+        },
+        {
+          "name": "تنکابن",
+          "postal_code_start": "46711",
+          "postal_code_end": "46891"
+        },
+        {
+          "name": "رامسر",
+          "postal_code_start": "46911",
+          "postal_code_end": "46991"
+        },
+        {
+          "name": "بابل",
+          "postal_code_start": "47131",
+          "postal_code_end": "47591"
+        },
+        {
+          "name": "بابلسر",
+          "postal_code_start": "47411",
+          "postal_code_end": "47531"
+        },
+        {
+          "name": "قائم شهر",
+          "postal_code_start": "47611",
+          "postal_code_end": "47791"
+        },
+        {
+          "name": "جویبار",
+          "postal_code_start": "47711",
+          "postal_code_end": "47771"
+        },
+        {
+          "name": "سواد کوه",
+          "postal_code_start": "47811",
+          "postal_code_end": "47991"
+        },
+        {
+          "name": "ساری",
+          "postal_code_start": "48131",
+          "postal_code_end": "48491"
+        },
+        {
+          "name": "نکا",
+          "postal_code_start": "48381",
+          "postal_code_end": "48591"
+        },
+        {
+          "name": "بهشهر",
+          "postal_code_start": "48511",
+          "postal_code_end": "48691"
+        }
+      ]
+    },
+    {
+      "province": "مرکزی",
+      "cities": [
+        {
+          "name": "اراک",
+          "postal_code_start": "38131",
+          "postal_code_end": "38571"
+        },
+        {
+          "name": "کمیجان",
+          "postal_code_start": "38511",
+          "postal_code_end": "38591"
+        },
+        {
+          "name": "شازند",
+          "postal_code_start": "38611",
+          "postal_code_end": "39991"
+        },
+        {
+          "name": "خمین",
+          "postal_code_start": "38811",
+          "postal_code_end": "38991"
+        },
+        {
+          "name": "ساوه",
+          "postal_code_start": "39131",
+          "postal_code_end": "39491"
+        },
+        {
+          "name": "زرندیه",
+          "postal_code_start": "37711",
+          "postal_code_end": "39441"
+        },
+        {
+          "name": "تفرش",
+          "postal_code_start": "39511",
+          "postal_code_end": "39591"
+        },
+        {
+          "name": "آشتیان",
+          "postal_code_start": "39611",
+          "postal_code_end": "39691"
+        },
+        {
+          "name": "محلات",
+          "postal_code_start": "37811",
+          "postal_code_end": "37891"
+        },
+        {
+          "name": "دلیجان",
+          "postal_code_start": "37911",
+          "postal_code_end": "37991"
+        },
+        {
+          "name": "خنداب",
+          "postal_code_start": "38413",
+          "postal_code_end": "38491"
+        }
+      ]
+    },
+    {
+      "province": "هرمزگان",
+      "cities": [
+        {
+          "name": "بندر عباس",
+          "postal_code_start": "79131",
+          "postal_code_end": "79661"
+        },
+        {
+          "name": "قشم",
+          "postal_code_start": "79511",
+          "postal_code_end": "79581"
+        },
+        {
+          "name": "ابوموسی",
+          "postal_code_start": "79591",
+          "postal_code_end": "79591"
+        },
+        {
+          "name": "بستک",
+          "postal_code_start": "79611",
+          "postal_code_end": "79691"
+        },
+        {
+          "name": "بندر لنگه",
+          "postal_code_start": "79413",
+          "postal_code_end": "79781"
+        },
+        {
+          "name": "جاسک",
+          "postal_code_start": "79481",
+          "postal_code_end": "79891"
+        },
+        {
+          "name": "حاجی آباد",
+          "postal_code_start": "79371",
+          "postal_code_end": "79411"
+        },
+        {
+          "name": "میناب",
+          "postal_code_start": "79461",
+          "postal_code_end": "79991"
+        },
+        {
+          "name": "رودان",
+          "postal_code_start": "79911",
+          "postal_code_end": "79951"
+        }
+      ]
+    },
+    {
+      "province": "همدان",
+      "cities": [
+        {
+          "name": "همدان",
+          "postal_code_start": "65131",
+          "postal_code_end": "65651"
+        },
+        {
+          "name": "بهار",
+          "postal_code_start": "65311",
+          "postal_code_end": "65391"
+        },
+        {
+          "name": "اسد آباد",
+          "postal_code_start": "65411",
+          "postal_code_end": "65491"
+        },
+        {
+          "name": "کبودر آهنگ",
+          "postal_code_start": "65511",
+          "postal_code_end": "65591"
+        },
+        {
+          "name": "رزن",
+          "postal_code_start": "65661",
+          "postal_code_end": "65691"
+        },
+        {
+          "name": "ملایر",
+          "postal_code_start": "65711",
+          "postal_code_end": "65791"
+        },
+        {
+          "name": "تویسرکان",
+          "postal_code_start": "65811",
+          "postal_code_end": "65891"
+        },
+        {
+          "name": "نهاوند",
+          "postal_code_start": "65911",
+          "postal_code_end": "65991"
+        }
+      ]
+    },
+    {
+      "province": "یزد",
+      "cities": [
+        {
+          "name": "یزد",
+          "postal_code_start": "89131",
+          "postal_code_end": "89493"
+        },
+        {
+          "name": "ابرکوه",
+          "postal_code_start": "89131",
+          "postal_code_end": "89391"
+        },
+        {
+          "name": "اردکان",
+          "postal_code_start": "89511",
+          "postal_code_end": "89691"
+        },
+        {
+          "name": "میبد",
+          "postal_code_start": "89611",
+          "postal_code_end": "89681"
+        },
+        {
+          "name": "بافق",
+          "postal_code_start": "89711",
+          "postal_code_end": "89791"
+        },
+        {
+          "name": "مهریز",
+          "postal_code_start": "89811",
+          "postal_code_end": "89861"
+        },
+        {
+          "name": "خاتم",
+          "postal_code_start": "89871",
+          "postal_code_end": "89891"
+        },
+        {
+          "name": "تفت",
+          "postal_code_start": "89911",
+          "postal_code_end": "89991"
+        },
+        {
+          "name": "صدوق",
+          "postal_code_start": "89411",
+          "postal_code_end": "89481"
+        },
+        {
+          "name": "طبس",
+          "postal_code_start": "97911",
+          "postal_code_end": "97991"
+        }
+      ]
+    }
+  ]
+}

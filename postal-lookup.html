@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>بررسی کد پستی</title>
+    <style>
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+      }
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #f4fbf7;
+        color: #222;
+        margin: 0;
+        padding: 0;
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        overflow-y: auto;
+        background: none;
+      }
+      .form-wrapper {
+        width: 100%;
+        max-width: 480px;
+        background: #fff;
+        border: 1.5px solid #e6f7f0;
+        border-radius: 1rem;
+        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
+        padding: 2rem 1.2rem 1.5rem 1.2rem;
+        margin-top: 2rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.7rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #00ae70;
+      }
+      input {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        border: 2px solid #e6f7f0;
+        border-radius: 0.75rem;
+        direction: ltr;
+        text-align: left;
+        letter-spacing: 1px;
+        background: #f4fbf7;
+        color: #222;
+        transition: border-color 0.3s, background 0.3s;
+      }
+      input:focus {
+        border-color: #00ae70;
+        background: #fff;
+        outline: none;
+      }
+      .result {
+        margin-top: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: bold;
+        font-size: 16px;
+        text-align: center;
+        display: none;
+        transition: all 0.3s ease;
+      }
+      .result.success {
+        background-color: #e6f7f0;
+        color: #157347;
+        border: 1px solid #00ae70;
+      }
+      .result.error {
+        background-color: #fdeeee;
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+      }
+      .clear-button {
+        margin-top: 1.5rem;
+        width: 100%;
+        padding: 1rem;
+        background-color: #00ae70;
+        border: none;
+        border-radius: 0.75rem;
+        font-size: 1.1rem;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .clear-button:hover {
+        background-color: #089863;
+      }
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        text-align: center;
+        color: #00ae70;
+        text-decoration: none;
+        font-size: 1rem;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+        color: #089863;
+      }
+      footer {
+        background: #00ae70;
+        color: #e0e7ff;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+      }
+      footer p {
+        margin: 0;
+      }
+      @media (max-width: 480px) {
+        input {
+          font-size: 1rem;
+          padding: 0.9rem;
+        }
+        .clear-button {
+          font-size: 1rem;
+          padding: 0.9rem;
+        }
+        .form-wrapper {
+          padding: 1rem 0.4rem 1rem 0.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="form-wrapper">
+        <label for="postalInput">کد پستی (۱۰ رقمی):</label>
+        <input
+          type="text"
+          id="postalInput"
+          inputmode="numeric"
+          maxlength="10"
+          placeholder="مثلاً: 5152547890"
+        />
+        <div class="result" id="postalResult"></div>
+        <button class="clear-button" onclick="clearForm()">پاک کردن فرم</button>
+        <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="/js/header.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/postal-lookup.js"></script>
+  </body>
+</html>
