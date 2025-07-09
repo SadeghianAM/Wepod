@@ -235,13 +235,13 @@ async function updateVideoBankingStatus() {
 // لیست سیکل‌های پایا (روز غیر تعطیل)
 const payaaCycles = [
   { hour: 3, min: 45, endH: 4, endM: 50 },
-  { hour: 10, min: 45, endH: 11, endM: 50 },
-  { hour: 13, min: 45, endH: 14, endM: 50 },
+  { hour: 9, min: 45, endH: 10, endM: 50 }, // ← چرخه دوم
+  { hour: 12, min: 45, endH: 13, endM: 50 }, // ← چرخه سوم
   { hour: 18, min: 45, endH: 19, endM: 50 },
 ];
 
 // سیکل مخصوص تعطیلات رسمی
-const holidayCycle = [{ hour: 13, min: 45, endH: 14, endM: 50 }];
+const holidayCycle = [{ hour: 12, min: 45, endH: 13, endM: 50 }];
 
 // تابع بررسی تعطیلی رسمی بودن یک تاریخ شمسی
 function isHolidayJalali(jy, jm, jd, holidays) {
