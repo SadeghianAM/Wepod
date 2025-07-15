@@ -10,10 +10,12 @@
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
+
       * {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
       }
+
       body {
         background-color: #f4fbf7;
         color: #222;
@@ -26,34 +28,62 @@
 
       .search-container {
         text-align: center;
-        max-width: 600px;
+        max-width: 800px;
         width: 100%;
         padding: 2rem;
         margin: auto;
       }
+
       h1 {
-        font-size: 2.5rem;
+        font-size: 2.7rem;
         color: #00ae70;
         margin-bottom: 2rem;
       }
+
+      .search-form {
+        padding: 2rem;
+        border-radius: 1.2rem;
+        margin-bottom: 2rem;
+      }
+
+      .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group span {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+        color: #888;
+      }
+
       input[type="text"],
       select {
         width: 100%;
-        padding: 1em 1.2em;
-        font-size: 1.2rem;
+        padding: 0.9em 2.5em 0.9em 1em;
+        font-size: 1.1rem;
         border: 1.5px solid #ddd;
         border-radius: 0.8em;
         outline: none;
-        margin-bottom: 1rem;
+        background-color: #f9f9f9;
+        transition: 0.3s;
       }
+
       input[type="text"]:focus,
       select:focus {
         border-color: #00ae70;
+        background-color: #fff;
+        box-shadow: 0 0 0 2px rgba(0, 174, 112, 0.1);
       }
+
       .results {
         margin-top: 2rem;
         text-align: right;
       }
+
       .result-item {
         background: #ffffff;
         border-right: 4px solid #00ae70;
@@ -63,31 +93,38 @@
         box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
         transition: 0.3s;
         cursor: pointer;
+        max-width: 100%;
       }
+
       .result-item:hover {
         transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
         border-right-color: #089863;
       }
+
       .result-title {
         font-size: 1.4rem;
         font-weight: bold;
         color: #00ae70;
         margin-bottom: 0.5rem;
       }
+
       .result-category {
         font-size: 0.95rem;
         color: #555;
         margin-bottom: 0.5rem;
       }
+
       .result-desc {
         font-size: 1.1rem;
         line-height: 1.6;
       }
+
       .no-result {
         color: #999;
         margin-top: 2rem;
       }
+
       footer {
         background: #00ae70;
         color: #e0e7ff;
@@ -98,11 +135,11 @@
         font-size: 0.85rem;
         box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
       }
+
       footer p {
         margin: 0;
       }
 
-      /* Toast */
       #toast {
         position: fixed;
         bottom: 30px;
@@ -122,124 +159,43 @@
         display: block;
         opacity: 1;
       }
+
+      @media (max-width: 900px) {
+        .search-container {
+          max-width: 98vw;
+          padding: 1rem;
+        }
+        .search-form {
+          padding: 1rem;
+        }
+      }
     </style>
   </head>
   <body>
-    <!-- هدر -->
     <div id="header-placeholder"></div>
 
-    <!-- محتوای اصلی -->
     <div class="search-container">
       <h1>ویکی ویپاد</h1>
-      <input
-        type="text"
-        id="search-input"
-        placeholder="عنوان یا توضیح را وارد کنید..."
-      />
-      <select id="category-filter">
-        <option value="">همه دسته‌ها</option>
-      </select>
+      <div class="search-form">
+        <div class="form-group">
+          <span>🔍</span>
+          <input type="text" id="search-input" />
+        </div>
+        <div class="form-group">
+          <span>🗂️</span>
+          <select id="category-filter">
+            <option value="">همه دسته‌ها</option>
+          </select>
+        </div>
+      </div>
       <div class="results" id="results-container"></div>
     </div>
 
-    <!-- پیام کپی -->
     <div id="toast">کپی شد!</div>
-
-    <!-- فوتر -->
     <div id="footer-placeholder"></div>
 
-    <!-- اسکریپت‌ها -->
     <script src="/js/header.js"></script>
     <script src="/js/common.js"></script>
-    <script>
-      let data = [];
-
-      fetch("/wiki/data.json")
-        .then((res) => res.json())
-        .then((json) => {
-          data = json;
-          populateCategories(json);
-        });
-
-      const searchInput = document.getElementById("search-input");
-      const categoryFilter = document.getElementById("category-filter");
-      const resultsContainer = document.getElementById("results-container");
-
-      searchInput.addEventListener("input", filterResults);
-      categoryFilter.addEventListener("change", filterResults);
-
-      function populateCategories(data) {
-        const categories = [...new Set(data.map((item) => item.category))];
-        categories.forEach((cat) => {
-          const option = document.createElement("option");
-          option.value = cat;
-          option.textContent = cat;
-          categoryFilter.appendChild(option);
-        });
-      }
-
-      function filterResults() {
-        const term = searchInput.value.trim().toLowerCase();
-        const selectedCategory = categoryFilter.value;
-        resultsContainer.innerHTML = "";
-
-        const filtered = data.filter((item) => {
-          const matchesTerm =
-            item.title.toLowerCase().includes(term) ||
-            item.description.toLowerCase().includes(term);
-          const matchesCategory =
-            !selectedCategory || item.category === selectedCategory;
-          return matchesTerm && matchesCategory;
-        });
-
-        if (filtered.length === 0) {
-          resultsContainer.innerHTML =
-            '<div class="no-result">نتیجه‌ای یافت نشد.</div>';
-          return;
-        }
-
-        filtered.forEach((item) => {
-          const box = document.createElement("div");
-          box.className = "result-item";
-          box.innerHTML = `
-            <div class="result-title">${item.title}</div>
-            <div class="result-category">دسته: ${item.category}</div>
-            <div class="result-desc">${item.description}</div>
-          `;
-
-          // کپی به کلیپ‌برد و نمایش toast
-          box.addEventListener("click", () => {
-            navigator.clipboard
-              .writeText(item.description)
-              .then(() => {
-                showToast("محتوا کپی شد!");
-                box.style.backgroundColor = "#e6fff4";
-                setTimeout(() => {
-                  box.style.backgroundColor = "#ffffff";
-                }, 800);
-              })
-              .catch((err) => {
-                console.error("خطا در کپی:", err);
-                showToast("کپی نشد!");
-              });
-          });
-
-          resultsContainer.appendChild(box);
-        });
-      }
-
-      function showToast(message = "کپی شد!") {
-        const toast = document.getElementById("toast");
-        toast.textContent = message;
-        toast.classList.add("show");
-        toast.style.display = "block";
-        setTimeout(() => {
-          toast.classList.remove("show");
-          setTimeout(() => {
-            toast.style.display = "none";
-          }, 400);
-        }, 2000);
-      }
-    </script>
+    <script src="/wiki/main.js"></script>
   </body>
 </html>
