@@ -22,7 +22,12 @@ searchInput.addEventListener("input", filterResults);
 categoryFilter.addEventListener("change", filterResults);
 
 function populateCategories(data) {
-  const categories = [...new Set(data.map((item) => item.category))];
+  // همه دسته‌بندی‌های یکتا از آرایه categories هر آیتم
+  const categoriesSet = new Set();
+  data.forEach((item) => {
+    (item.categories || []).forEach((cat) => categoriesSet.add(cat));
+  });
+  const categories = Array.from(categoriesSet);
   categories.forEach((cat) => {
     const option = document.createElement("option");
     option.value = cat;
@@ -33,7 +38,11 @@ function populateCategories(data) {
 
 function filterResults() {
   const term = searchInput.value.trim().toLowerCase();
-  const selectedCategory = categoryFilter.value;
+  // گرفتن دسته‌بندی‌های انتخاب‌شده (چندگانه)
+  const selectedCategories = Array.from(categoryFilter.selectedOptions)
+    .map((opt) => opt.value)
+    .filter((v) => v); // فقط گزینه‌های پر شده
+
   resultsContainer.innerHTML = "";
 
   const filtered = data.filter((item) => {
@@ -42,7 +51,9 @@ function filterResults() {
       item.description.toLowerCase().includes(term) ||
       (item.id && item.id.toString().includes(term));
     const matchesCategory =
-      !selectedCategory || item.category === selectedCategory;
+      !selectedCategories.length ||
+      (item.categories &&
+        item.categories.some((cat) => selectedCategories.includes(cat)));
     return matchesTerm && matchesCategory;
   });
 
@@ -57,7 +68,9 @@ function filterResults() {
     box.className = "result-item";
     box.innerHTML = `
       <div class="result-title">${item.title}</div>
-      <div class="result-category">دسته: ${item.category}</div>
+      <div class="result-category">دسته‌ها: ${(item.categories || []).join(
+        "، "
+      )}</div>
       <div class="result-id">آیدی: ${toPersianDigits(item.id)}</div>
       <div class="result-desc">${item.description.replace(/\n/g, "<br>")}</div>
     `;

@@ -10,12 +10,10 @@
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
-
       * {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
       }
-
       body {
         background-color: #f4fbf7;
         color: #222;
@@ -25,7 +23,6 @@
         flex-direction: column;
         min-height: 100vh;
       }
-
       .search-container {
         text-align: center;
         max-width: 800px;
@@ -33,24 +30,20 @@
         padding: 2rem;
         margin: auto;
       }
-
       h1 {
         font-size: 2.7rem;
         color: #00ae70;
         margin-bottom: 2rem;
       }
-
       .search-form {
         padding: 2rem;
         border-radius: 1.2rem;
         margin-bottom: 2rem;
       }
-
       .form-group {
         position: relative;
         margin-bottom: 1.5rem;
       }
-
       .form-group span {
         position: absolute;
         right: 1rem;
@@ -59,7 +52,6 @@
         font-size: 1.2rem;
         color: #888;
       }
-
       input[type="text"],
       select {
         width: 100%;
@@ -71,19 +63,21 @@
         background-color: #f9f9f9;
         transition: 0.3s;
       }
-
+      select[multiple] {
+        min-height: 100px;
+        height: 120px;
+        cursor: pointer;
+      }
       input[type="text"]:focus,
       select:focus {
         border-color: #00ae70;
         background-color: #fff;
         box-shadow: 0 0 0 2px rgba(0, 174, 112, 0.1);
       }
-
       .results {
         margin-top: 2rem;
         text-align: right;
       }
-
       .result-item {
         background: #ffffff;
         border-right: 4px solid #00ae70;
@@ -95,42 +89,35 @@
         cursor: pointer;
         max-width: 100%;
       }
-
       .result-item:hover {
         transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
         border-right-color: #089863;
       }
-
       .result-title {
         font-size: 1.4rem;
         font-weight: bold;
         color: #00ae70;
         margin-bottom: 0.5rem;
       }
-
       .result-category {
         font-size: 0.95rem;
         color: #555;
         margin-bottom: 0.5rem;
       }
-
       .result-id {
         font-size: 0.93rem;
         color: #555;
         margin-bottom: 0.5rem;
       }
-
       .result-desc {
         font-size: 1.1rem;
         line-height: 1.6;
       }
-
       .no-result {
         color: #999;
         margin-top: 2rem;
       }
-
       footer {
         background: #00ae70;
         color: #e0e7ff;
@@ -141,11 +128,9 @@
         font-size: 0.85rem;
         box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
       }
-
       footer p {
         margin: 0;
       }
-
       #toast {
         position: fixed;
         bottom: 30px;
@@ -160,12 +145,10 @@
         transition: opacity 0.4s ease;
         opacity: 0;
       }
-
       #toast.show {
         display: block;
         opacity: 1;
       }
-
       @media (max-width: 900px) {
         .search-container {
           max-width: 98vw;
