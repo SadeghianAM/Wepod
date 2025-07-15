@@ -9,12 +9,11 @@ const searchInput = document.getElementById("search-input");
 const categoryFilter = document.getElementById("category-filter");
 const resultsContainer = document.getElementById("results-container");
 
-fetch("/wiki/data.json")
+fetch("/data/wiki.json")
   .then((res) => res.json())
   .then((json) => {
     data = json;
     populateCategories(json);
-    // اینجا مقدار placeholder رو با عدد فارسی می‌گذاریم
     searchInput.placeholder = `جستجو از میان ${toPersianDigits(
       data.length
     )} متن آماده`;

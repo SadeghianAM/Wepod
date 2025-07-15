@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>مدیریت اسکریپت‌ها و پیام‌های آماده</title>
     <style>
-      /* تمام استایل‌ها دقیقاً مثل نمونه قبلی باقی ماند */
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
@@ -41,34 +40,12 @@
         gap: 2rem;
         align-items: start;
       }
-      .column {
-        background: transparent;
-      }
       h2 {
         font-size: 1.3rem;
         margin-bottom: 1.5rem;
         color: #00ae70;
         text-align: center;
         font-weight: 700;
-      }
-      ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-      li {
-        background-color: #ffffff;
-        border-radius: 0.75rem;
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        border-right: 4px solid #00ae70;
-        transition: all 0.25s;
-      }
-      li:hover {
-        transform: translateY(-3px);
-        border-right-color: #089863;
-        box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
       }
       a {
         text-decoration: none;
@@ -99,9 +76,6 @@
           grid-template-columns: 1fr;
           gap: 1.5rem;
         }
-        .column {
-          width: 100%;
-        }
       }
       @media (max-width: 480px) {
         main {
@@ -109,13 +83,6 @@
         }
         a {
           font-size: 1rem;
-        }
-        li {
-          padding: 1rem 1.2rem;
-        }
-        #today-date,
-        #current-time {
-          display: none;
         }
       }
       .news-alert-box {
@@ -133,10 +100,6 @@
       .news-alert-box:hover {
         transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
-      }
-      .news-alert-box.unknown-status {
-        background-color: #f0f0f0;
-        border-right-color: #999;
       }
       .modal {
         display: none;
@@ -183,8 +146,7 @@
         color: #333;
         font-size: 0.95rem;
       }
-      .modal-content input[type="text"],
-      .modal-content select {
+      .modal-content input[type="text"] {
         width: 100%;
         padding: 10px 12px;
         margin-bottom: 18px;
@@ -196,13 +158,13 @@
         transition: border-color 0.2s;
       }
       .modal-content input[type="text"]:focus,
-      .modal-content select:focus {
+      .modal-content textarea:focus {
         border-color: #00ae70;
         outline: none;
       }
-      .modal-content .description-editor {
+      .modal-content textarea {
         width: 100%;
-        min-height: 150px;
+        min-height: 120px;
         padding: 10px 12px;
         margin-bottom: 18px;
         border: 1px solid #ccc;
@@ -211,12 +173,9 @@
         box-sizing: border-box;
         background-color: #fcfcfc;
         transition: border-color 0.2s;
-        overflow-y: auto;
-        line-height: 1.6;
-      }
-      .modal-content .description-editor:focus {
-        border-color: #00ae70;
-        outline: none;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.7;
       }
       .modal-content .button-group {
         display: flex;
@@ -267,7 +226,7 @@
         background-color: #089863;
         transform: translateY(-2px);
       }
-      .item-card .actions {
+      .news-alert-box .actions {
         margin-top: 15px;
         display: flex;
         justify-content: flex-start;
@@ -330,32 +289,6 @@
         gap: 15px;
         margin-bottom: 25px;
       }
-      .editor-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 10px;
-        padding: 10px;
-        background-color: #eaf4f1;
-        border-radius: 0.5rem;
-        border: 1px solid #d4e0db;
-      }
-      .editor-toolbar button {
-        background-color: #00ae70;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.95rem;
-        transition: background-color 0.2s;
-      }
-      .editor-toolbar button:hover {
-        background-color: #089863;
-      }
-      .editor-toolbar button:active {
-        background-color: #007c52;
-      }
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -368,7 +301,6 @@
         text-decoration: underline;
         color: #089863;
       }
-      /* استایل سرچ */
       #search-input {
         width: 350px;
         max-width: 100%;
@@ -412,7 +344,6 @@
       <div id="item-list" class="main-content"></div>
       <a href="/admin/index.html" class="back-link">بازگشت به بخش مدیریت</a>
     </main>
-
     <div id="itemModal" class="modal">
       <div class="modal-content">
         <span class="close-button">&times;</span>
@@ -424,28 +355,15 @@
           <input type="hidden" id="itemId" />
           <label for="title">عنوان پیام:</label>
           <input type="text" id="title" name="title" required />
-
           <label for="category">دسته‌بندی:</label>
           <input type="text" id="category" name="category" required />
-
-          <label for="description">متن پیام:</label>
-          <div class="editor-toolbar">
-            <button type="button" data-command="bold">Bold</button>
-            <button type="button" data-command="italic">Italic</button>
-            <button type="button" data-command="insertUnorderedList">
-              List
-            </button>
-            <button type="button" data-command="insertHTML" data-value="<br>">
-              New Line
-            </button>
-          </div>
-          <div
-            id="description-editor"
-            class="description-editor"
-            contenteditable="true"
-            role="textbox"
-            aria-multiline="true"
-          ></div>
+          <label for="description-textarea">متن پیام:</label>
+          <textarea
+            id="description-textarea"
+            name="description"
+            rows="7"
+            required
+          ></textarea>
           <div class="button-group">
             <button type="submit" id="save-item-btn">ذخیره</button>
             <button type="button" id="cancel-edit-btn">لغو</button>
@@ -468,20 +386,21 @@
       const fileInput = document.getElementById("file-input");
       const copyJsonBtn = document.getElementById("copy-json-btn");
       const modalTitle = document.getElementById("modalTitle");
-      const descriptionEditor = document.getElementById("description-editor");
-      const editorToolbar = document.querySelector(".editor-toolbar");
+      const descriptionTextarea = document.getElementById(
+        "description-textarea"
+      );
       const searchInput = document.getElementById("search-input");
 
       // Modal functions
       function openModal() {
         itemModal.style.display = "block";
-        if (descriptionEditor) descriptionEditor.focus();
+        if (descriptionTextarea) descriptionTextarea.focus();
       }
       function closeModal() {
         itemModal.style.display = "none";
         itemForm.reset();
         currentItemIndex = -1;
-        if (descriptionEditor) descriptionEditor.innerHTML = "";
+        if (descriptionTextarea) descriptionTextarea.value = "";
       }
       closeButton.onclick = closeModal;
       window.onclick = function (event) {
@@ -510,14 +429,17 @@
         filtered.forEach((item, index) => {
           const card = document.createElement("div");
           card.classList.add("news-alert-box");
+          // نمایش description با تبدیل \n به <br>
+          const descriptionHtml = (item.description || "").replace(
+            /\n/g,
+            "<br>"
+          );
           card.innerHTML = `
             <h3 style="margin-bottom:6px">${item.title || "بدون عنوان"}</h3>
             <p style="font-size:0.96rem; color:#7c7c7c; margin:0 0 7px 0;"><strong>دسته‌بندی:</strong> ${
               item.category || "-"
             }</p>
-            <div style="margin-bottom:10px">${
-              item.description || "بدون توضیحات"
-            }</div>
+            <div style="margin-bottom:10px">${descriptionHtml}</div>
             <div class="actions">
               <button class="edit-btn" data-index="${index}">ویرایش</button>
               <button class="delete-btn" data-index="${index}">حذف</button>
@@ -553,7 +475,7 @@
         document.getElementById("itemId").value = index;
         document.getElementById("title").value = item.title || "";
         document.getElementById("category").value = item.category || "";
-        descriptionEditor.innerHTML = item.description || "";
+        descriptionTextarea.value = item.description || "";
         modalTitle.textContent = "ویرایش پیام";
         openModal();
       }
@@ -561,7 +483,7 @@
       addNewItemBtn.addEventListener("click", () => {
         currentItemIndex = -1;
         itemForm.reset();
-        descriptionEditor.innerHTML = "";
+        descriptionTextarea.value = "";
         modalTitle.textContent = "افزودن پیام جدید";
         openModal();
       });
@@ -571,7 +493,7 @@
         const newItem = {
           title: document.getElementById("title").value,
           category: document.getElementById("category").value,
-          description: descriptionEditor.innerHTML,
+          description: descriptionTextarea.value,
         };
         if (currentItemIndex === -1) {
           jsonData.push(newItem);
@@ -631,19 +553,10 @@
             alert("خطا در کپی کردن به کلیپ‌بورد. لطفا به صورت دستی کپی کنید.");
           });
       });
-      // ویرایشگر
-      editorToolbar.addEventListener("click", (event) => {
-        const command = event.target.dataset.command;
-        const value = event.target.dataset.value;
-        if (command) {
-          document.execCommand(command, false, value);
-          descriptionEditor.focus();
-        }
-      });
       // بارگذاری اولیه
       async function loadInitialJson() {
         try {
-          const response = await fetch("/data/scripts-messages.json");
+          const response = await fetch("/data/wiki.json");
           if (!response.ok) {
             if (response.status === 404) {
               console.warn(
