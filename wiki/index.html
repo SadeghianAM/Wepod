@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>جستجو</title>
+    <style>
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+      }
+      * {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #f4fbf7;
+        color: #222;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .search-container {
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        padding: 2rem;
+        margin: auto;
+      }
+      h1 {
+        font-size: 2rem;
+        color: #00ae70;
+        margin-bottom: 1.5rem;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 0.8em 1em;
+        font-size: 1.1rem;
+        border: 1.5px solid #ddd;
+        border-radius: 0.7em;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      input[type="text"]:focus {
+        border-color: #00ae70;
+      }
+      .results {
+        margin-top: 2rem;
+        text-align: right;
+      }
+      .result-item {
+        background: #ffffff;
+        border-right: 4px solid #00ae70;
+        border-radius: 0.75rem;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
+        transition: 0.3s;
+      }
+      .result-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
+        border-right-color: #089863;
+      }
+      .result-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #00ae70;
+        margin-bottom: 0.5rem;
+      }
+      .result-desc {
+        font-size: 1rem;
+        line-height: 1.6;
+      }
+      .no-result {
+        color: #999;
+        margin-top: 2rem;
+      }
+
+      /* استایل فوتر از فایل اول */
+      footer {
+        background: #00ae70;
+        color: #e0e7ff;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+      }
+      footer p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- هدر -->
+    <div id="header-placeholder"></div>
+
+    <!-- محتوای اصلی -->
+    <div class="search-container">
+      <h1>ویکی ویپاد</h1>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="عنوان یا توضیح را وارد کنید..."
+      />
+      <div class="results" id="results-container"></div>
+    </div>
+
+    <!-- فوتر -->
+    <div id="footer-placeholder"></div>
+
+    <!-- اسکریپت‌ها -->
+    <script src="/js/header.js"></script>
+    <script src="/js/common.js"></script>
+    <script>
+      let data = [];
+
+      fetch("/wiki/data.json")
+        .then((res) => res.json())
+        .then((json) => {
+          data = json;
+        });
+
+      document
+        .getElementById("search-input")
+        .addEventListener("input", function () {
+          const term = this.value.trim().toLowerCase();
+          const resultsContainer = document.getElementById("results-container");
+          resultsContainer.innerHTML = "";
+
+          if (!term) return;
+
+          const filtered = data.filter(
+            (item) =>
+              item.title.toLowerCase().includes(term) ||
+              item.description.toLowerCase().includes(term)
+          );
+
+          if (filtered.length === 0) {
+            resultsContainer.innerHTML =
+              '<div class="no-result">نتیجه‌ای یافت نشد.</div>';
+            return;
+          }
+
+          filtered.forEach((item) => {
+            const box = document.createElement("div");
+            box.className = "result-item";
+            box.innerHTML = `
+              <div class="result-title">${item.title}</div>
+              <div class="result-desc">${item.description}</div>
+            `;
+            resultsContainer.appendChild(box);
+          });
+        });
+    </script>
+  </body>
+</html>
