@@ -2,6 +2,14 @@ let jsonData = [];
 let currentItemIndex = -1;
 let searchValue = "";
 
+// دسته‌بندی‌های از پیش تعریف شده (برگرفته از wiki-categories.json)
+const availableCategories = [
+  "اسکریپت‌های اصلی",
+  "کار با برنامه",
+  "ارتقا سطح",
+  "حساب دیجیتال",
+];
+
 const itemListDiv = document.getElementById("item-list");
 const itemModal = document.getElementById("itemModal");
 const closeButton = document.querySelector(".close-button");
@@ -16,21 +24,27 @@ const descriptionTextarea = document.getElementById("description-textarea");
 const searchInput = document.getElementById("search-input");
 const idInput = document.getElementById("id-input");
 const copySingleJsonBtn = document.getElementById("copy-single-json-btn");
-const categoriesInput = document.getElementById("categories-input");
+// عنصر جدید برای نگهداری چک‌باکس‌ها
+const categoriesCheckboxContainer = document.getElementById(
+  "categories-checkbox-container"
+);
 
 // Modal functions
 function openModal() {
   itemModal.style.display = "block";
   if (descriptionTextarea) descriptionTextarea.focus();
 }
+
 function closeModal() {
   itemModal.style.display = "none";
   itemForm.reset();
   currentItemIndex = -1;
   if (descriptionTextarea) descriptionTextarea.value = "";
   if (idInput) idInput.value = "";
-  if (categoriesInput) categoriesInput.value = "";
+  // پاک کردن چک‌باکس‌ها
+  if (categoriesCheckboxContainer) categoriesCheckboxContainer.innerHTML = "";
 }
+
 closeButton.onclick = closeModal;
 window.onclick = function (event) {
   if (event.target == itemModal) closeModal();
@@ -98,11 +112,37 @@ function renderItems() {
     });
   });
 }
+
 // جستجو
 searchInput.addEventListener("input", (e) => {
   searchValue = e.target.value;
   renderItems();
 });
+
+// توابع جدید برای دسته‌بندی‌ها
+function renderCategoryCheckboxes(selectedCategories = []) {
+  categoriesCheckboxContainer.innerHTML = ""; // پاک کردن چک‌باکس‌های قبلی
+  availableCategories.forEach((category) => {
+    const div = document.createElement("div");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = `cat-${category}`;
+    checkbox.name = "category";
+    checkbox.value = category;
+    checkbox.checked = selectedCategories.includes(category); // انتخاب بر اساس دسته‌بندی‌های موجود
+
+    const label = document.createElement("label");
+    label.htmlFor = `cat-${category}`;
+    label.textContent = category;
+    label.style.marginRight = "10px"; // فاصله بین متن و چک‌باکس
+    label.style.cursor = "pointer";
+
+    div.appendChild(checkbox);
+    div.appendChild(label);
+    div.style.marginBottom = "5px"; // فاصله بین هر چک‌باکس
+    categoriesCheckboxContainer.appendChild(div);
+  });
+}
 
 // Edit
 function editItem(index) {
@@ -111,34 +151,46 @@ function editItem(index) {
   document.getElementById("itemId").value = index;
   idInput.value = item.id || "";
   document.getElementById("title").value = item.title || "";
-  categoriesInput.value = (item.categories || []).join(", ");
   descriptionTextarea.value = item.description || "";
   modalTitle.textContent = "ویرایش پیام";
   openModal();
+  renderCategoryCheckboxes(item.categories || []); // نمایش چک‌باکس‌ها با مقادیر انتخاب شده
 }
+
 // Add
 addNewItemBtn.addEventListener("click", () => {
   currentItemIndex = -1;
   itemForm.reset();
   descriptionTextarea.value = "";
-  categoriesInput.value = "";
   // مقدار id را مقدار پیشفرض (id بزرگ‌تر +۱) ست کن:
   const maxId =
     jsonData.length > 0 ? Math.max(...jsonData.map((i) => i.id || 0)) : 0;
   idInput.value = maxId + 1;
   modalTitle.textContent = "افزودن پیام جدید";
   openModal();
+  renderCategoryCheckboxes([]); // نمایش چک‌باکس‌های خالی برای افزودن
 });
+
 // Save
 itemForm.addEventListener("submit", (e) => {
   e.preventDefault();
+
+  const selectedCategories = Array.from(
+    categoriesCheckboxContainer.querySelectorAll(
+      'input[type="checkbox"]:checked'
+    )
+  ).map((cb) => cb.value);
+
+  // اعتبار سنجی: حداقل یک دسته بندی باید انتخاب شود
+  if (selectedCategories.length === 0) {
+    alert("لطفاً حداقل یک دسته‌بندی را انتخاب کنید.");
+    return;
+  }
+
   const newItem = {
     id: parseInt(idInput.value, 10),
     title: document.getElementById("title").value,
-    categories: categoriesInput.value
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
+    categories: selectedCategories, // استفاده از دسته‌بندی‌های انتخاب شده
     description: descriptionTextarea.value,
   };
   // چک کردن اینکه id تکراری نباشد
@@ -161,6 +213,7 @@ itemForm.addEventListener("submit", (e) => {
     'تغییرات اعمال شد. برای ذخیره نهایی، دکمه "کپی JSON در کلیپ‌بورد" را بزنید و در فایل اصلی خود جایگذاری کنید.'
   );
 });
+
 // Delete
 function deleteItem(index) {
   if (confirm("آیا مطمئن هستید که می‌خواهید این پیام را حذف کنید؟")) {
@@ -171,6 +224,7 @@ function deleteItem(index) {
     );
   }
 }
+
 // بارگذاری فایل
 fileInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
@@ -193,6 +247,7 @@ fileInput.addEventListener("change", (event) => {
     reader.readAsText(file);
   }
 });
+
 // کپی JSON کل لیست
 copyJsonBtn.addEventListener("click", () => {
   const jsonToCopy = JSON.stringify(jsonData, null, 2);
@@ -211,14 +266,23 @@ copyJsonBtn.addEventListener("click", () => {
 
 // کپی فقط پیام فعلی به صورت JSON
 copySingleJsonBtn.addEventListener("click", function () {
+  const selectedCategories = Array.from(
+    categoriesCheckboxContainer.querySelectorAll(
+      'input[type="checkbox"]:checked'
+    )
+  ).map((cb) => cb.value);
+
+  // اعتبار سنجی: حداقل یک دسته بندی باید انتخاب شود
+  if (selectedCategories.length === 0) {
+    alert("لطفاً حداقل یک دسته‌بندی را انتخاب کنید تا بتوانید کپی کنید.");
+    return;
+  }
+
   // اطلاعات فعلی فرم را بخوان (چه در حالت افزودن، چه ویرایش)
   const item = {
     id: parseInt(idInput.value, 10),
     title: document.getElementById("title").value,
-    categories: categoriesInput.value
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
+    categories: selectedCategories, // استفاده از دسته‌بندی‌های انتخاب شده
     description: descriptionTextarea.value,
   };
   const singleJson = JSON.stringify(item, null, 2);
@@ -259,6 +323,7 @@ async function loadInitialJson() {
     renderItems();
   }
 }
+
 document.addEventListener("DOMContentLoaded", () => {
   loadInitialJson();
 });

@@ -327,6 +327,59 @@
         background-color: #d69900 !important;
         color: #fff !important;
       }
+      #categories-checkbox-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-right: 5px;
+      }
+      #categories-checkbox-container div {
+        display: flex;
+        align-items: center;
+      }
+      #categories-checkbox-container input[type="checkbox"] {
+        margin-left: 8px;
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        min-height: 18px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s ease-in-out;
+        position: relative;
+      }
+      #categories-checkbox-container input[type="checkbox"]:checked {
+        background-color: #00ae70;
+        border-color: #00ae70;
+      }
+      #categories-checkbox-container input[type="checkbox"]:focus {
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.3);
+      }
+      #categories-checkbox-container input[type="checkbox"]:checked::before {
+        content: "✔";
+        display: block;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        line-height: 18px;
+        font-size: 14px;
+        color: white;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      #categories-checkbox-container label {
+        margin-bottom: 0 !important;
+        font-weight: normal !important;
+        color: #555 !important;
+        font-size: 0.95rem !important;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -353,7 +406,7 @@
     </main>
     <div id="itemModal" class="modal">
       <div class="modal-content">
-        <span class="close-button">&times;</span>
+        <span class="close-button">×</span>
         <h2
           id="modalTitle"
           style="text-align: center; margin-bottom: 25px"
@@ -371,16 +424,11 @@
           />
           <label for="title">عنوان پیام:</label>
           <input type="text" id="title" name="title" required />
-          <label for="categories-input"
-            >دسته‌بندی‌ها (با ویرگول جدا کنید):</label
-          >
-          <input
-            type="text"
-            id="categories-input"
-            name="categories"
-            required
-            placeholder="مثال: اسکریپت‌های اصلی, پاسخ سریع"
-          />
+          <label>دسته‌بندی‌ها:</label>
+          <div
+            id="categories-checkbox-container"
+            style="margin-bottom: 18px"
+          ></div>
           <label for="description-textarea">متن پیام:</label>
           <textarea
             id="description-textarea"
