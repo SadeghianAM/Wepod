@@ -32,20 +32,22 @@
         margin: auto;
       }
       h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
         color: #00ae70;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
       }
-      input[type="text"] {
+      input[type="text"],
+      select {
         width: 100%;
-        padding: 0.8em 1em;
-        font-size: 1.1rem;
+        padding: 1em 1.2em;
+        font-size: 1.2rem;
         border: 1.5px solid #ddd;
-        border-radius: 0.7em;
+        border-radius: 0.8em;
         outline: none;
-        transition: border-color 0.2s;
+        margin-bottom: 1rem;
       }
-      input[type="text"]:focus {
+      input[type="text"]:focus,
+      select:focus {
         border-color: #00ae70;
       }
       .results {
@@ -60,6 +62,7 @@
         margin-bottom: 1rem;
         box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
         transition: 0.3s;
+        cursor: pointer;
       }
       .result-item:hover {
         transform: translateY(-3px);
@@ -67,21 +70,24 @@
         border-right-color: #089863;
       }
       .result-title {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         font-weight: bold;
         color: #00ae70;
         margin-bottom: 0.5rem;
       }
+      .result-category {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 0.5rem;
+      }
       .result-desc {
-        font-size: 1rem;
+        font-size: 1.1rem;
         line-height: 1.6;
       }
       .no-result {
         color: #999;
         margin-top: 2rem;
       }
-
-      /* استایل فوتر از فایل اول */
       footer {
         background: #00ae70;
         color: #e0e7ff;
@@ -94,6 +100,27 @@
       }
       footer p {
         margin: 0;
+      }
+
+      /* Toast */
+      #toast {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: #00ae70;
+        color: white;
+        padding: 0.8rem 1.2rem;
+        border-radius: 1rem;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        transition: opacity 0.4s ease;
+        opacity: 0;
+      }
+
+      #toast.show {
+        display: block;
+        opacity: 1;
       }
     </style>
   </head>
@@ -109,8 +136,14 @@
         id="search-input"
         placeholder="عنوان یا توضیح را وارد کنید..."
       />
+      <select id="category-filter">
+        <option value="">همه دسته‌ها</option>
+      </select>
       <div class="results" id="results-container"></div>
     </div>
+
+    <!-- پیام کپی -->
+    <div id="toast">کپی شد!</div>
 
     <!-- فوتر -->
     <div id="footer-placeholder"></div>
@@ -125,39 +158,88 @@
         .then((res) => res.json())
         .then((json) => {
           data = json;
+          populateCategories(json);
         });
 
-      document
-        .getElementById("search-input")
-        .addEventListener("input", function () {
-          const term = this.value.trim().toLowerCase();
-          const resultsContainer = document.getElementById("results-container");
-          resultsContainer.innerHTML = "";
+      const searchInput = document.getElementById("search-input");
+      const categoryFilter = document.getElementById("category-filter");
+      const resultsContainer = document.getElementById("results-container");
 
-          if (!term) return;
+      searchInput.addEventListener("input", filterResults);
+      categoryFilter.addEventListener("change", filterResults);
 
-          const filtered = data.filter(
-            (item) =>
-              item.title.toLowerCase().includes(term) ||
-              item.description.toLowerCase().includes(term)
-          );
+      function populateCategories(data) {
+        const categories = [...new Set(data.map((item) => item.category))];
+        categories.forEach((cat) => {
+          const option = document.createElement("option");
+          option.value = cat;
+          option.textContent = cat;
+          categoryFilter.appendChild(option);
+        });
+      }
 
-          if (filtered.length === 0) {
-            resultsContainer.innerHTML =
-              '<div class="no-result">نتیجه‌ای یافت نشد.</div>';
-            return;
-          }
+      function filterResults() {
+        const term = searchInput.value.trim().toLowerCase();
+        const selectedCategory = categoryFilter.value;
+        resultsContainer.innerHTML = "";
 
-          filtered.forEach((item) => {
-            const box = document.createElement("div");
-            box.className = "result-item";
-            box.innerHTML = `
-              <div class="result-title">${item.title}</div>
-              <div class="result-desc">${item.description}</div>
-            `;
-            resultsContainer.appendChild(box);
+        const filtered = data.filter((item) => {
+          const matchesTerm =
+            item.title.toLowerCase().includes(term) ||
+            item.description.toLowerCase().includes(term);
+          const matchesCategory =
+            !selectedCategory || item.category === selectedCategory;
+          return matchesTerm && matchesCategory;
+        });
+
+        if (filtered.length === 0) {
+          resultsContainer.innerHTML =
+            '<div class="no-result">نتیجه‌ای یافت نشد.</div>';
+          return;
+        }
+
+        filtered.forEach((item) => {
+          const box = document.createElement("div");
+          box.className = "result-item";
+          box.innerHTML = `
+            <div class="result-title">${item.title}</div>
+            <div class="result-category">دسته: ${item.category}</div>
+            <div class="result-desc">${item.description}</div>
+          `;
+
+          // کپی به کلیپ‌برد و نمایش toast
+          box.addEventListener("click", () => {
+            navigator.clipboard
+              .writeText(item.description)
+              .then(() => {
+                showToast("محتوا کپی شد!");
+                box.style.backgroundColor = "#e6fff4";
+                setTimeout(() => {
+                  box.style.backgroundColor = "#ffffff";
+                }, 800);
+              })
+              .catch((err) => {
+                console.error("خطا در کپی:", err);
+                showToast("کپی نشد!");
+              });
           });
+
+          resultsContainer.appendChild(box);
         });
+      }
+
+      function showToast(message = "کپی شد!") {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        toast.style.display = "block";
+        setTimeout(() => {
+          toast.classList.remove("show");
+          setTimeout(() => {
+            toast.style.display = "none";
+          }, 400);
+        }, 2000);
+      }
     </script>
   </body>
 </html>
