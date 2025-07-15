@@ -1,4 +1,3 @@
-// تابع تبدیل عدد به فارسی
 function toPersianDigits(num) {
   return num.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
@@ -60,7 +59,7 @@ function filterResults() {
       <div class="result-title">${item.title}</div>
       <div class="result-category">دسته: ${item.category}</div>
       <div class="result-id">آیدی: ${toPersianDigits(item.id)}</div>
-      <div class="result-desc">${item.description}</div>
+      <div class="result-desc">${item.description.replace(/\n/g, "<br>")}</div>
     `;
 
     box.addEventListener("click", () => {
