@@ -40,7 +40,8 @@ function filterResults() {
   const filtered = data.filter((item) => {
     const matchesTerm =
       item.title.toLowerCase().includes(term) ||
-      item.description.toLowerCase().includes(term);
+      item.description.toLowerCase().includes(term) ||
+      (item.id && item.id.toString().includes(term));
     const matchesCategory =
       !selectedCategory || item.category === selectedCategory;
     return matchesTerm && matchesCategory;
@@ -58,6 +59,7 @@ function filterResults() {
     box.innerHTML = `
       <div class="result-title">${item.title}</div>
       <div class="result-category">دسته: ${item.category}</div>
+      <div class="result-id">آیدی: ${toPersianDigits(item.id)}</div>
       <div class="result-desc">${item.description}</div>
     `;
 
