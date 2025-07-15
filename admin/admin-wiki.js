@@ -278,14 +278,14 @@ copySingleJsonBtn.addEventListener("click", function () {
     return;
   }
 
-  // اطلاعات فعلی فرم را بخوان (چه در حالت افزودن، چه ویرایش)
-  const item = {
+  // ساخت آبجکت با ترتیب ثابت فیلدها
+  const ordered = {
     id: parseInt(idInput.value, 10),
     title: document.getElementById("title").value,
-    categories: selectedCategories, // استفاده از دسته‌بندی‌های انتخاب شده
     description: descriptionTextarea.value,
+    categories: selectedCategories,
   };
-  const singleJson = JSON.stringify(item, null, 2);
+  const singleJson = JSON.stringify(ordered, null, 2);
   navigator.clipboard
     .writeText(singleJson)
     .then(() => {
