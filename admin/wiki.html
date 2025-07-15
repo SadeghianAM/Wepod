@@ -146,7 +146,8 @@
         color: #333;
         font-size: 0.95rem;
       }
-      .modal-content input[type="text"] {
+      .modal-content input[type="text"],
+      .modal-content input[type="number"] {
         width: 100%;
         padding: 10px 12px;
         margin-bottom: 18px;
@@ -158,6 +159,7 @@
         transition: border-color 0.2s;
       }
       .modal-content input[type="text"]:focus,
+      .modal-content input[type="number"]:focus,
       .modal-content textarea:focus {
         border-color: #00ae70;
         outline: none;
@@ -350,6 +352,16 @@
         ></h2>
         <form id="itemForm">
           <input type="hidden" id="itemId" />
+          <!-- فیلد جدید برای ID -->
+          <label for="id-input">ID:</label>
+          <input
+            type="number"
+            id="id-input"
+            name="id"
+            required
+            min="1"
+            style="direction: ltr; text-align: left; margin-bottom: 18px"
+          />
           <label for="title">عنوان پیام:</label>
           <input type="text" id="title" name="title" required />
           <label for="category">دسته‌بندی:</label>
@@ -387,6 +399,7 @@
         "description-textarea"
       );
       const searchInput = document.getElementById("search-input");
+      const idInput = document.getElementById("id-input");
 
       // Modal functions
       function openModal() {
@@ -398,6 +411,7 @@
         itemForm.reset();
         currentItemIndex = -1;
         if (descriptionTextarea) descriptionTextarea.value = "";
+        if (idInput) idInput.value = "";
       }
       closeButton.onclick = closeModal;
       window.onclick = function (event) {
@@ -415,7 +429,8 @@
             (item) =>
               (item.title && item.title.includes(q)) ||
               (item.description && item.description.includes(q)) ||
-              (item.category && item.category.includes(q))
+              (item.category && item.category.includes(q)) ||
+              (item.id && String(item.id).includes(q))
           );
         }
         if (filtered.length === 0) {
@@ -432,7 +447,12 @@
             "<br>"
           );
           card.innerHTML = `
-            <h3 style="margin-bottom:6px">${item.title || "بدون عنوان"}</h3>
+            <h3 style="margin-bottom:6px">
+              ${item.title || "بدون عنوان"}
+              <span style="font-size:0.92rem; color:#999; margin-right:7px;">[ID: ${
+                item.id || "-"
+              }]</span>
+            </h3>
             <p style="font-size:0.96rem; color:#7c7c7c; margin:0 0 7px 0;"><strong>دسته‌بندی:</strong> ${
               item.category || "-"
             }</p>
@@ -470,6 +490,7 @@
         currentItemIndex = index;
         const item = jsonData[index];
         document.getElementById("itemId").value = index;
+        idInput.value = item.id || "";
         document.getElementById("title").value = item.title || "";
         document.getElementById("category").value = item.category || "";
         descriptionTextarea.value = item.description || "";
@@ -481,6 +502,10 @@
         currentItemIndex = -1;
         itemForm.reset();
         descriptionTextarea.value = "";
+        // مقدار id را مقدار پیشفرض (id بزرگ‌تر +۱) ست کن:
+        const maxId =
+          jsonData.length > 0 ? Math.max(...jsonData.map((i) => i.id || 0)) : 0;
+        idInput.value = maxId + 1;
         modalTitle.textContent = "افزودن پیام جدید";
         openModal();
       });
@@ -488,10 +513,20 @@
       itemForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const newItem = {
+          id: parseInt(idInput.value, 10),
           title: document.getElementById("title").value,
           category: document.getElementById("category").value,
           description: descriptionTextarea.value,
         };
+        // چک کردن اینکه id تکراری نباشد
+        if (
+          jsonData.some(
+            (item, idx) => item.id === newItem.id && idx !== currentItemIndex
+          )
+        ) {
+          alert("این ID قبلاً استفاده شده است. لطفاً یک ID یکتا وارد کنید.");
+          return;
+        }
         if (currentItemIndex === -1) {
           jsonData.push(newItem);
         } else {
