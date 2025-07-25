@@ -16,32 +16,34 @@ fetch("./data/iban-data.json")
     console.error(err);
   });
 
-// ===== رویداد input برای هر بار تغییر شماره شبا توسط کاربر =====
 input.addEventListener("input", (e) => {
-  // پاکسازی و تصحیح ورودی:
-  // فقط IR و اعداد (هر چیز غیرمجاز حذف شود)
-  let value = e.target.value
-    .toUpperCase()
-    .replace(/\s+/g, "")
-    .replace(/[^A-Z0-9]/g, "");
-
-  // همیشه با IR شروع شود
-  if (!value.startsWith("IR")) {
-    value = "IR" + value.replace(/[^0-9]/g, "");
+  // ۱. پاکسازی اولیه ورودی
+  let rawValue = e.target.value.replace(/\s+/g, "").toUpperCase();
+  if (!rawValue.startsWith("IR")) {
+    rawValue = "IR" + rawValue.replace(/[^0-9]/g, "");
   } else {
-    value = "IR" + value.slice(2).replace(/[^0-9]/g, "");
+    rawValue = "IR" + rawValue.slice(2).replace(/[^0-9]/g, "");
   }
-  e.target.value = value;
+  // محدود کردن طول به ۲۶ کاراکتر (IR + 24 رقم)
+  const currentIban = rawValue.substring(0, 26);
+  const numericPart = currentIban.slice(2); // ۲. اعمال فرمت‌بندی جدید برای نمایش
 
-  const currentIban = value;
-  const length = currentIban.length;
+  const parts = [];
+  if (numericPart.length > 0) parts.push(numericPart.substring(0, 2));
+  if (numericPart.length > 2) parts.push(numericPart.substring(2, 6));
+  if (numericPart.length > 6) parts.push(numericPart.substring(6, 10));
+  if (numericPart.length > 10) parts.push(numericPart.substring(10, 14));
+  if (numericPart.length > 14) parts.push(numericPart.substring(14, 18));
+  if (numericPart.length > 18) parts.push(numericPart.substring(18, 22));
+  if (numericPart.length > 22) parts.push(numericPart.substring(22, 24));
+
+  e.target.value = "IR" + parts.join(" "); // ۳. اجرای منطق برنامه بر اساس شماره شبای خام (currentIban)
 
   clearValidation();
 
-  let bankMatched = false;
+  let bankMatched = false; // ===== تشخیص بانک از روی کد 3 رقمی =====
 
-  // ===== تشخیص بانک از روی کد 3 رقمی بین رقم 4 تا 6 =====
-  if (length >= 7) {
+  if (currentIban.length >= 7) {
     const bankCode = currentIban.substring(4, 7);
     const match = ibanData.find((entry) => entry.code === bankCode);
 
@@ -63,12 +65,11 @@ input.addEventListener("input", (e) => {
 
   if (!bankMatched) {
     return;
-  }
+  } // ===== اعتبارسنجی فرمت شبا (در صورتی که کامل وارد شده باشد) =====
 
-  // ===== اعتبارسنجی فرمت شبا (در صورتی که کامل وارد شده باشد) =====
-  if (length === 26 && /^IR\d{24}$/.test(currentIban)) {
+  if (currentIban.length === 26 && /^IR\d{24}$/.test(currentIban)) {
     validateIban(currentIban);
-  } else if (length > 2) {
+  } else if (currentIban.length > 2) {
     showValidation("برای اعتبارسنجی شماره شبا را کامل وارد کنید", "warning");
   } else {
     clearValidation();
@@ -82,24 +83,22 @@ input.addEventListener("paste", (e) => {
     .getData("text")
     .toUpperCase()
     .replace(/\s+/g, "")
-    .replace(/[^A-Z0-9]/g, "");
+    .replace(/[^A-Z0-9]/g, ""); // حذف IR ابتدای مقدار چسبانده شده (در صورت وجود)
 
-  // حذف IR ابتدای مقدار چسبانده شده (در صورت وجود)
   if (pastedValue.startsWith("IR")) {
     pastedValue = pastedValue.slice(2);
   }
   pastedValue = pastedValue.replace(/[^0-9]/g, "");
   input.value = "IR" + pastedValue;
-  input.dispatchEvent(new Event("input"));
+  input.dispatchEvent(new Event("input")); // فراخوانی رویداد input برای اجرای فرمت‌بندی
 });
 
 // ===== نمایش نتیجه بانک یا پیام خطا/هشدار =====
 function showResult(message, type, logoName = null, bankName = null) {
   resultBox.className = `result ${type}`;
   resultBox.style.display = "block";
-  resultBox.innerHTML = "";
+  resultBox.innerHTML = ""; // نمایش لوگوی بانک در حالت موفقیت
 
-  // نمایش لوگوی بانک در حالت موفقیت
   if (logoName && bankName) {
     const img = document.createElement("img");
     img.src = `./assets/logo/${logoName}.svg`;
@@ -120,13 +119,11 @@ function showResult(message, type, logoName = null, bankName = null) {
 // ===== اعتبارسنجی صحت فرمت شماره شبا بر اساس استاندارد IBAN =====
 function validateIban(iban) {
   // جابجایی ۴ کاراکتر اول به انتهای رشته
-  const rearranged = iban.slice(4) + iban.slice(0, 4);
-  // تبدیل حروف به اعداد (A=10 ... Z=35)
+  const rearranged = iban.slice(4) + iban.slice(0, 4); // تبدیل حروف به اعداد (A=10 ... Z=35)
   const converted = rearranged.replace(
     /[A-Z]/g,
     (char) => char.charCodeAt(0) - 55
-  );
-  // گرفتن باقیمانده تقسیم بر ۹۷
+  ); // گرفتن باقیمانده تقسیم بر ۹۷
   const remainder = BigInt(converted) % 97n;
 
   if (remainder === 1n) {
