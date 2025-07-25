@@ -2,7 +2,7 @@ let jsonData = [];
 let currentItemIndex = -1;
 let searchValue = "";
 
-// دسته‌بندی‌های از پیش تعریف شده (برگرفته از wiki-categories.json)
+// دسته‌بندی‌های از پیش تعریف شده
 const availableCategories = [
   "عمومی",
   "احراز هویت",
@@ -37,20 +37,33 @@ const itemListDiv = document.getElementById("item-list");
 const itemModal = document.getElementById("itemModal");
 const closeButton = document.querySelector(".close-button");
 const itemForm = document.getElementById("itemForm");
-const saveItemBtn = document.getElementById("save-item-btn");
 const cancelEditBtn = document.getElementById("cancel-edit-btn");
 const addNewItemBtn = document.getElementById("add-new-item-btn");
-const fileInput = document.getElementById("file-input");
-const copyJsonBtn = document.getElementById("copy-json-btn");
 const modalTitle = document.getElementById("modalTitle");
 const descriptionTextarea = document.getElementById("description-textarea");
 const searchInput = document.getElementById("search-input");
 const idInput = document.getElementById("id-input");
-const copySingleJsonBtn = document.getElementById("copy-single-json-btn");
-// عنصر جدید برای نگهداری چک‌باکس‌ها
 const categoriesCheckboxContainer = document.getElementById(
   "categories-checkbox-container"
 );
+
+// --- تابع جدید برای ذخیره خودکار در سرور ---
+async function saveDataToServer() {
+  try {
+    const response = await fetch("/data/save-wiki.php", {
+      // ❗️ آدرس فایل PHP جدید
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(jsonData, null, 2),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "خطای سرور");
+    console.log(result.message);
+  } catch (error) {
+    console.error("Error saving data:", error);
+    alert("خطا در ذخیره اطلاعات: " + error.message);
+  }
+}
 
 // Modal functions
 function openModal() {
@@ -64,7 +77,6 @@ function closeModal() {
   currentItemIndex = -1;
   if (descriptionTextarea) descriptionTextarea.value = "";
   if (idInput) idInput.value = "";
-  // پاک کردن چک‌باکس‌ها
   if (categoriesCheckboxContainer) categoriesCheckboxContainer.innerHTML = "";
 }
 
@@ -79,26 +91,34 @@ function renderItems() {
   itemListDiv.innerHTML = "";
   let filtered = jsonData;
   if (searchValue.trim()) {
-    const q = searchValue.trim();
+    const q = searchValue.trim().toLowerCase();
     filtered = jsonData.filter(
       (item) =>
-        (item.title && item.title.includes(q)) ||
-        (item.description && item.description.includes(q)) ||
+        (item.title && item.title.toLowerCase().includes(q)) ||
+        (item.description && item.description.toLowerCase().includes(q)) ||
         (item.categories &&
           Array.isArray(item.categories) &&
-          item.categories.some((c) => c.includes(q))) ||
+          item.categories.some((c) => c.toLowerCase().includes(q))) ||
         (item.id && String(item.id).includes(q))
     );
   }
   if (filtered.length === 0) {
     itemListDiv.innerHTML =
-      '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">موردی برای نمایش وجود ندارد. می‌توانید یک فایل JSON را بارگذاری یا پیام جدید اضافه کنید.</p>';
+      '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">موردی برای نمایش وجود ندارد.</p>';
     return;
   }
-  filtered.forEach((item, index) => {
+
+  // مرتب‌سازی بر اساس ID
+  filtered.sort((a, b) => (a.id > b.id ? 1 : -1));
+
+  filtered.forEach((item) => {
+    // پیدا کردن ایندکس واقعی آیتم در آرایه اصلی برای ویرایش و حذف
+    const originalIndex = jsonData.findIndex(
+      (originalItem) => originalItem.id === item.id
+    );
+
     const card = document.createElement("div");
     card.classList.add("news-alert-box");
-    // نمایش description با تبدیل \n به <br>
     const descriptionHtml = (item.description || "").replace(/\n/g, "<br>");
     card.innerHTML = `
       <h3 style="margin-bottom:6px">
@@ -114,37 +134,37 @@ function renderItems() {
       }</p>
       <div style="margin-bottom:10px">${descriptionHtml}</div>
       <div class="actions">
-        <button class="edit-btn" data-index="${index}">ویرایش</button>
-        <button class="delete-btn" data-index="${index}">حذف</button>
+        <button class="edit-btn" data-index="${originalIndex}">ویرایش</button>
+        <button class="delete-btn" data-index="${originalIndex}">حذف</button>
       </div>
     `;
     itemListDiv.appendChild(card);
   });
+
   document.querySelectorAll(".edit-btn").forEach((button) => {
     button.addEventListener("click", (e) => {
       e.stopPropagation();
-      const index = parseInt(e.target.dataset.index);
-      editItem(index);
+      editItem(parseInt(e.target.dataset.index));
     });
   });
+
   document.querySelectorAll(".delete-btn").forEach((button) => {
     button.addEventListener("click", (e) => {
       e.stopPropagation();
-      const index = parseInt(e.target.dataset.index);
-      deleteItem(index);
+      deleteItem(parseInt(e.target.dataset.index));
     });
   });
 }
 
-// جستجو
+// Search
 searchInput.addEventListener("input", (e) => {
   searchValue = e.target.value;
   renderItems();
 });
 
-// توابع جدید برای دسته‌بندی‌ها
+// Category Checkbox functions
 function renderCategoryCheckboxes(selectedCategories = []) {
-  categoriesCheckboxContainer.innerHTML = ""; // پاک کردن چک‌باکس‌های قبلی
+  categoriesCheckboxContainer.innerHTML = "";
   availableCategories.forEach((category) => {
     const div = document.createElement("div");
     const checkbox = document.createElement("input");
@@ -152,17 +172,12 @@ function renderCategoryCheckboxes(selectedCategories = []) {
     checkbox.id = `cat-${category}`;
     checkbox.name = "category";
     checkbox.value = category;
-    checkbox.checked = selectedCategories.includes(category); // انتخاب بر اساس دسته‌بندی‌های موجود
-
+    checkbox.checked = selectedCategories.includes(category);
     const label = document.createElement("label");
     label.htmlFor = `cat-${category}`;
     label.textContent = category;
-    label.style.marginRight = "10px"; // فاصله بین متن و چک‌باکس
-    label.style.cursor = "pointer";
-
     div.appendChild(checkbox);
     div.appendChild(label);
-    div.style.marginBottom = "5px"; // فاصله بین هر چک‌باکس
     categoriesCheckboxContainer.appendChild(div);
   });
 }
@@ -176,8 +191,8 @@ function editItem(index) {
   document.getElementById("title").value = item.title || "";
   descriptionTextarea.value = item.description || "";
   modalTitle.textContent = "ویرایش پیام";
+  renderCategoryCheckboxes(item.categories || []);
   openModal();
-  renderCategoryCheckboxes(item.categories || []); // نمایش چک‌باکس‌ها با مقادیر انتخاب شده
 }
 
 // Add
@@ -185,38 +200,33 @@ addNewItemBtn.addEventListener("click", () => {
   currentItemIndex = -1;
   itemForm.reset();
   descriptionTextarea.value = "";
-  // مقدار id را مقدار پیشفرض (id بزرگ‌تر +۱) ست کن:
   const maxId =
     jsonData.length > 0 ? Math.max(...jsonData.map((i) => i.id || 0)) : 0;
   idInput.value = maxId + 1;
   modalTitle.textContent = "افزودن پیام جدید";
+  renderCategoryCheckboxes([]);
   openModal();
-  renderCategoryCheckboxes([]); // نمایش چک‌باکس‌های خالی برای افزودن
 });
 
-// Save
+// --- فرم ذخیره با قابلیت ذخیره خودکار ---
 itemForm.addEventListener("submit", (e) => {
   e.preventDefault();
-
   const selectedCategories = Array.from(
     categoriesCheckboxContainer.querySelectorAll(
       'input[type="checkbox"]:checked'
     )
   ).map((cb) => cb.value);
 
-  // اعتبار سنجی: حداقل یک دسته بندی باید انتخاب شود
   if (selectedCategories.length === 0) {
     alert("لطفاً حداقل یک دسته‌بندی را انتخاب کنید.");
     return;
   }
-
   const newItem = {
     id: parseInt(idInput.value, 10),
     title: document.getElementById("title").value,
-    categories: selectedCategories, // استفاده از دسته‌بندی‌های انتخاب شده
+    categories: selectedCategories,
     description: descriptionTextarea.value,
   };
-  // چک کردن اینکه id تکراری نباشد
   if (
     jsonData.some(
       (item, idx) => item.id === newItem.id && idx !== currentItemIndex
@@ -232,121 +242,35 @@ itemForm.addEventListener("submit", (e) => {
   }
   renderItems();
   closeModal();
-  alert(
-    'تغییرات اعمال شد. برای ذخیره نهایی، دکمه "کپی JSON در کلیپ‌بورد" را بزنید و در فایل اصلی خود جایگذاری کنید.'
-  );
+  saveDataToServer(); // 🚀 ذخیره خودکار
 });
 
-// Delete
+// --- تابع حذف با قابلیت ذخیره خودکار ---
 function deleteItem(index) {
   if (confirm("آیا مطمئن هستید که می‌خواهید این پیام را حذف کنید؟")) {
     jsonData.splice(index, 1);
     renderItems();
-    alert(
-      'پیام حذف شد. برای ذخیره نهایی، دکمه "کپی JSON در کلیپ‌بورد" را بزنید و در فایل اصلی خود جایگذاری کنید.'
-    );
+    saveDataToServer(); // 🚀 ذخیره خودکار
   }
 }
 
-// بارگذاری فایل
-fileInput.addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        jsonData = JSON.parse(e.target.result);
-        renderItems();
-        alert(
-          "فایل JSON با موفقیت بارگذاری شد. حالا می‌توانید آن را ویرایش کنید."
-        );
-      } catch (parseError) {
-        alert(
-          "خطا در خواندن یا تجزیه فایل JSON. لطفا مطمئن شوید که فایل یک JSON معتبر است."
-        );
-        console.error("Error parsing JSON:", parseError);
-      }
-    };
-    reader.readAsText(file);
-  }
-});
-
-// کپی JSON کل لیست
-copyJsonBtn.addEventListener("click", () => {
-  const jsonToCopy = JSON.stringify(jsonData, null, 2);
-  navigator.clipboard
-    .writeText(jsonToCopy)
-    .then(() => {
-      alert(
-        "محتوای JSON به کلیپ‌بورد کپی شد. حالا می‌توانید آن را در فایل خود جایگذاری کنید."
-      );
-    })
-    .catch((err) => {
-      console.error("Failed to copy JSON to clipboard: ", err);
-      alert("خطا در کپی کردن به کلیپ‌بورد. لطفا به صورت دستی کپی کنید.");
-    });
-});
-
-// کپی فقط پیام فعلی به صورت JSON
-copySingleJsonBtn.addEventListener("click", function () {
-  const selectedCategories = Array.from(
-    categoriesCheckboxContainer.querySelectorAll(
-      'input[type="checkbox"]:checked'
-    )
-  ).map((cb) => cb.value);
-
-  // اعتبار سنجی: حداقل یک دسته بندی باید انتخاب شود
-  if (selectedCategories.length === 0) {
-    alert("لطفاً حداقل یک دسته‌بندی را انتخاب کنید تا بتوانید کپی کنید.");
-    return;
-  }
-
-  // ساخت آبجکت با ترتیب ثابت فیلدها
-  const ordered = {
-    id: parseInt(idInput.value, 10),
-    title: document.getElementById("title").value,
-    description: descriptionTextarea.value,
-    categories: selectedCategories,
-  };
-  const singleJson = JSON.stringify(ordered, null, 2);
-  navigator.clipboard
-    .writeText(singleJson)
-    .then(() => {
-      alert("پیام فعلی به صورت JSON در کلیپ‌بورد کپی شد!");
-    })
-    .catch((err) => {
-      alert("خطا در کپی کردن به کلیپ‌بورد.");
-    });
-});
-
-// بارگذاری اولیه
+// --- بارگذاری اولیه JSON ---
 async function loadInitialJson() {
   try {
-    const response = await fetch("/data/wiki.json");
+    const response = await fetch(`/data/wiki.json?v=${new Date().getTime()}`);
     if (!response.ok) {
-      if (response.status === 404) {
-        console.warn(
-          "scripts-messages.json not found. Starting with empty data."
-        );
-        jsonData = [];
-      } else {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (response.status === 404) jsonData = [];
+      else throw new Error(`HTTP error! status: ${response.status}`);
     } else {
       jsonData = await response.json();
-      console.log("JSON loaded successfully on page load.");
     }
   } catch (error) {
-    console.error("Error loading scripts-messages.json:", error);
-    alert(
-      "خطا در بارگذاری اولیه فایل JSON. ممکن است فایل وجود نداشته باشد یا خراب باشد."
-    );
+    console.error("Error loading wiki.json:", error);
+    alert("خطا در بارگذاری اولیه فایل JSON.");
     jsonData = [];
   } finally {
     renderItems();
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadInitialJson();
-});
+document.addEventListener("DOMContentLoaded", loadInitialJson);
