@@ -3,159 +3,219 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>جستجو</title>
+    <title>ویکی ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --bg-color: #f4fbf7;
+        --text-color: #222;
+        --text-secondary: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --border-radius: 0.75rem;
+        --border-radius-lg: 1.2rem;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --shadow-color-medium: rgba(0, 174, 112, 0.12);
+        --shadow-color-dark: rgba(0, 0, 0, 0.15);
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap;
       }
-      * {
-        font-family: "Vazirmatn", sans-serif !important;
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
-        min-height: 100vh;
       }
+
+      main {
+        flex-grow: 1;
+      }
+
+      /* == Main Layout & Typography == */
       .search-container {
         text-align: center;
         max-width: 800px;
         width: 100%;
-        padding: 2rem;
+        padding: 2rem 1.5rem;
         margin: auto;
       }
+
       h1 {
-        font-size: 2.7rem;
-        color: #00ae70;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary-color);
         margin-bottom: 2rem;
       }
+
+      /* == Search Form == */
       .search-form {
-        padding: 2rem;
-        border-radius: 1.2rem;
+        padding: 1rem;
         margin-bottom: 2rem;
       }
+
       .form-group {
         position: relative;
         margin-bottom: 1.5rem;
       }
-      .form-group span {
+
+      .form-group .icon {
         position: absolute;
-        right: 1rem;
+        inset-inline-start: 1.2rem;
         top: 50%;
         transform: translateY(-50%);
         font-size: 1.2rem;
         color: #888;
+        pointer-events: none;
       }
+
       input[type="text"],
       select {
         width: 100%;
-        padding: 0.9em 2.5em 0.9em 1em;
+        padding: 1rem;
+        padding-inline-start: 3rem; /* Space for icon */
         font-size: 1.1rem;
         border: 1.5px solid #ddd;
-        border-radius: 0.8em;
+        border-radius: var(--border-radius);
         outline: none;
         background-color: #f9f9f9;
-        transition: 0.3s;
+        transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
       }
-      select[multiple] {
-        min-height: 100px;
-        height: 120px;
+
+      select {
         cursor: pointer;
       }
+
       input[type="text"]:focus,
       select:focus {
-        border-color: #00ae70;
-        background-color: #fff;
-        box-shadow: 0 0 0 2px rgba(0, 174, 112, 0.1);
+        border-color: var(--primary-color);
+        background-color: var(--card-bg);
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.1);
       }
+
+      /* == Results == */
       .results {
-        margin-top: 2rem;
         text-align: right;
       }
+
       .result-item {
-        background: #ffffff;
-        border-right: 4px solid #00ae70;
-        border-radius: 0.75rem;
-        padding: 1.2rem;
+        background: var(--card-bg);
+        border-inline-start: 4px solid var(--primary-color);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        transition: 0.3s;
+        box-shadow: 0 2px 12px var(--shadow-color-light);
+        transition: transform 0.3s, box-shadow 0.3s,
+          border-inline-start-color 0.3s;
         cursor: pointer;
-        max-width: 100%;
       }
+
       .result-item:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
-        border-right-color: #089863;
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px var(--shadow-color-medium);
+        border-inline-start-color: var(--primary-dark);
       }
+
       .result-title {
-        font-size: 1.4rem;
-        font-weight: bold;
-        color: #00ae70;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary-color);
         margin-bottom: 0.5rem;
       }
-      .result-category {
-        font-size: 0.95rem;
-        color: #555;
-        margin-bottom: 0.5rem;
-      }
+
+      .result-category,
       .result-id {
-        font-size: 0.93rem;
-        color: #555;
-        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.75rem;
+        display: inline-block;
+        background-color: var(--bg-color);
+        padding: 0.2rem 0.6rem;
+        border-radius: 0.5rem;
       }
+
+      .result-id {
+        margin-right: 0.5rem;
+      }
+
       .result-desc {
-        font-size: 1.1rem;
-        line-height: 1.6;
+        font-size: 1.05rem;
+        line-height: 1.7;
       }
+
       .no-result {
         color: #999;
         margin-top: 2rem;
+        font-size: 1.1rem;
+        text-align: center;
       }
+
+      /* == Toast Notification == */
+      #toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--primary-dark);
+        color: var(--header-text);
+        padding: 0.8rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        box-shadow: 0 4px 16px var(--shadow-color-dark);
+        z-index: 9999;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-10px);
+      }
+
+      /* == Footer == */
       footer {
-        background: #00ae70;
-        color: #e0e7ff;
+        background: var(--primary-color);
+        color: var(--header-text);
         height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+        box-shadow: 0 -2px 8px var(--shadow-color-light);
       }
-      footer p {
-        margin: 0;
-      }
-      #toast {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background-color: #00ae70;
-        color: white;
-        padding: 0.8rem 1.2rem;
-        border-radius: 1rem;
-        font-size: 0.95rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-        z-index: 9999;
-        transition: opacity 0.4s ease;
-        opacity: 0;
-      }
-      #toast.show {
-        display: block;
-        opacity: 1;
-      }
-      @media (max-width: 900px) {
+
+      /* == Responsive Media Queries == */
+      @media (max-width: 600px) {
         .search-container {
-          max-width: 98vw;
-          padding: 1rem;
+          padding: 1.5rem 1rem;
+        }
+        h1 {
+          font-size: 2rem;
         }
         .search-form {
-          padding: 1rem;
+          padding: 0;
         }
       }
     </style>
@@ -163,22 +223,27 @@
   <body>
     <div id="header-placeholder"></div>
 
-    <div class="search-container">
+    <main class="search-container">
       <h1>ویکی ویپاد</h1>
       <div class="search-form">
         <div class="form-group">
-          <span>🔍</span>
-          <input type="text" id="search-input" />
+          <span class="icon">🔍</span>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="جستجو در ویکی..."
+            aria-label="جستجو در ویکی"
+          />
         </div>
         <div class="form-group">
-          <span>🗂️</span>
-          <select id="category-filter">
+          <span class="icon">🗂️</span>
+          <select id="category-filter" aria-label="فیلتر بر اساس دسته بندی">
             <option value="">همه دسته‌ها</option>
           </select>
         </div>
       </div>
       <div class="results" id="results-container"></div>
-    </div>
+    </main>
 
     <div id="toast">کپی شد!</div>
     <div id="footer-placeholder"></div>

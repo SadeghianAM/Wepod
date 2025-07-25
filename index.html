@@ -6,64 +6,91 @@
     <title>وی هاب</title>
     <meta name="robots" content="noindex, nofollow" />
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --bg-color: #f4fbf7;
+        --text-color: #222;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --shadow-color-medium: rgba(0, 174, 112, 0.12);
+        --danger-color: #ff0040;
+        --danger-bg: #fff0f3;
+        --highlight-bg: #e6f0ff;
+        --highlight-border: #1a73e8;
+        --border-radius: 0.75rem;
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap; /* Improves font loading performance */
       }
+
       *,
       *::before,
       *::after {
-        font-family: "Vazirmatn", sans-serif !important;
+        font-family: "Vazirmatn", sans-serif;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
-      header {
-        background: #00ae70;
-        color: white;
-        height: 70px;
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+      }
+
+      header {
+        height: 70px;
         position: relative;
       }
+
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+      }
+
       header h1 {
         font-size: 1.2rem;
         font-weight: 700;
-        margin: 0;
       }
-      #today-date {
-        position: absolute;
-        right: 1.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1rem;
-        color: #fff;
-        opacity: 0.85;
-        font-weight: 500;
-        white-space: nowrap;
-      }
+
+      #today-date,
       #current-time {
         position: absolute;
-        left: 1.5rem;
         top: 50%;
         transform: translateY(-50%);
         font-size: 1rem;
-        color: #fff;
         opacity: 0.85;
         font-weight: 500;
         white-space: nowrap;
       }
+
+      #today-date {
+        inset-inline-start: 1.5rem;
+      }
+
+      #current-time {
+        inset-inline-end: 1.5rem;
+      }
+
       main {
         flex-grow: 1;
         padding: 1.5rem;
@@ -72,74 +99,146 @@
         margin: 0 auto;
         overflow-y: auto;
       }
+
       .main-content {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
         align-items: start;
       }
-      .column {
-        background: transparent;
-      }
+
       h2 {
         font-size: 1.3rem;
         margin-bottom: 1.5rem;
-        color: #00ae70;
+        color: var(--primary-color);
         text-align: center;
         font-weight: 700;
       }
+
       ul {
         list-style: none;
-        padding: 0;
-        margin: 0;
       }
-      li {
-        background-color: #ffffff;
-        border-radius: 0.75rem;
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        border-right: 4px solid #00ae70;
-        transition: all 0.25s;
-      }
-      li:hover {
-        transform: translateY(-3px);
-        border-right-color: #089863;
-        box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
-      }
+
       a {
         text-decoration: none;
-        color: #00ae70;
+        color: var(--primary-color);
         font-weight: 600;
         font-size: 1.1rem;
         display: block;
-        transition: color 0.2s;
+        transition: color 0.2s ease-in-out;
       }
+
       a:hover {
-        color: #089863;
+        color: var(--primary-dark);
       }
-      footer {
-        background: #00ae70;
-        color: #e0e7ff;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+
+      li {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 2px 12px var(--shadow-color-light);
+        border-inline-start: 4px solid var(--primary-color);
+        transition: transform 0.25s, border-inline-start-color 0.25s,
+          box-shadow 0.25s;
       }
-      footer p {
-        margin: 0;
+
+      li:hover {
+        transform: translateY(-3px);
+        border-inline-start-color: var(--primary-dark);
+        box-shadow: 0 6px 20px var(--shadow-color-medium);
       }
+
+      /* Shared styles for info boxes */
+      .video-banking-box,
+      .news-alert-box {
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 0.5rem;
+        border-radius: var(--border-radius);
+        border-inline-start-width: 4px;
+        border-inline-start-style: solid;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+
+      .video-banking-box {
+        background: #eafff4;
+        border-inline-start-color: var(--primary-color);
+      }
+
+      .video-banking-box.closed {
+        background: var(--danger-bg);
+        border-inline-start-color: var(--danger-color);
+      }
+
+      .news-alert-box {
+        font-size: 1rem;
+      }
+
+      .news-alert-box.green {
+        background: #eafff4;
+        border-inline-start-color: var(--primary-color);
+      }
+      .news-alert-box.yellow {
+        background: #fffde0;
+        border-inline-start-color: #ffd600;
+      }
+      .news-alert-box.red {
+        background: var(--danger-bg);
+        border-inline-start-color: var(--danger-color);
+      }
+      .news-alert-box.orange {
+        background: #fff6e5;
+        border-inline-start-color: #ffa500;
+      }
+
+      .highlight-link {
+        text-align: center;
+        background-color: var(--highlight-bg);
+        border-inline-start-color: var(--highlight-border);
+      }
+
+      .highlight-link a {
+        color: #000000;
+      }
+
+      .highlight-link:hover {
+        border-inline-start-color: #174ea6;
+      }
+
+      #tools-search {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.7em 1em;
+        border-radius: 0.6em;
+        border: 1.5px solid #eee;
+        margin-bottom: 1em;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      #tools-search:focus {
+        border-color: var(--primary-color);
+      }
+
+      .tools-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
       @media (max-width: 900px) {
         .main-content {
           grid-template-columns: 1fr;
           gap: 1.5rem;
         }
-        .column {
-          width: 100%;
+      }
+
+      @media (max-width: 600px) {
+        .tools-list {
+          grid-template-columns: 1fr;
         }
       }
+
       @media (max-width: 480px) {
         main {
           padding: 1rem;
@@ -153,82 +252,6 @@
         #today-date,
         #current-time {
           display: none;
-        }
-      }
-      .video-banking-box {
-        background: #eafff4;
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 0.5rem;
-        border-radius: 0.75rem;
-        border-right: 4px solid #00ae70;
-      }
-      .video-banking-box.closed {
-        background: #fff0f3;
-        border-right-color: #ff0040;
-      }
-      .news-alert-box {
-        background: #eafff4;
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 0.5rem;
-        border-radius: 0.75rem;
-        border-right: 4px solid #00ae70;
-        transition: background 0.3s, border-color 0.3s;
-        font-size: 1rem;
-      }
-      .news-alert-box.green {
-        background: #eafff4;
-        border-right-color: #00ae70;
-      }
-      .news-alert-box.yellow {
-        background: #fffde0;
-        border-right-color: #ffd600;
-      }
-      .news-alert-box.red {
-        background: #fff0f3;
-        border-right-color: #ff0040;
-      }
-      .news-alert-box.orange {
-        background: #fff6e5;
-        border-right-color: #ffa500;
-      }
-      #tools-search {
-        width: 100%;
-        font-size: 1rem;
-        padding: 0.7em 1em;
-        border-radius: 0.6em;
-        border: 1.5px solid #eee;
-        margin-bottom: 1em;
-        box-sizing: border-box;
-        outline: none;
-        transition: border 0.2s;
-      }
-      #tools-search:focus {
-        border-color: #00ae70;
-      }
-      .highlight-link {
-        text-align: center;
-        background-color: #e6f0ff;
-        border-right-color: #1a73e8;
-        font-weight: bold;
-      }
-
-      .highlight-link a {
-        color: #000000;
-      }
-
-      .highlight-link:hover {
-        transform: translateY(-3px);
-        border-right-color: #174ea6;
-      }
-      #tools-list {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-      }
-
-      @media (max-width: 600px) {
-        #tools-list {
-          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -260,13 +283,13 @@
             type="text"
             id="tools-search"
             placeholder="جستجو در ابزارها..."
+            aria-label="جستجو در ابزارها"
           />
           <ul>
             <li><a href="/wiki.html">🔍 ویکی ویپاد</a></li>
-
-            <li><a href="/change-number.html">🔄 پیگیری تغییر شماره</a></li>
+            <li><a href="/change-number.html">🔄 تغییر شماره</a></li>
             <li>
-              <a href="/account-block.html">🚫 پیگیری مسدودی حساب</a>
+              <a href="/account-block.html">🚫 مسدودی حساب</a>
             </li>
             <li>
               <a href="/learn/index.html">📚 آموزش ها</a>
@@ -283,6 +306,7 @@
               <a
                 href="https://vbank.bpi.ir/public/inquiries/inquiry-paya"
                 target="_blank"
+                rel="noopener noreferrer"
                 >💸 پیگیری تراکنش پایا</a
               >
             </li>
@@ -290,6 +314,7 @@
               <a
                 href="https://vbank.bpi.ir/public/inquiries/inquiry-satna"
                 target="_blank"
+                rel="noopener noreferrer"
                 >💸 پیگیری تراکنش ساتنا</a
               >
             </li>
@@ -301,23 +326,44 @@
             </li>
           </ul>
           <h2>🔗 سامانه های داخلی</h2>
-          <ul id="tools-list">
+          <ul class="tools-list">
             <li>
-              <a href="https://172.29.1.82/" target="_blank">💼 پنل CRM</a>
+              <a
+                href="https://172.29.1.82/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >💼 پنل CRM</a
+              >
             </li>
             <li>
-              <a href="https://callcenter.pod.ir/" target="_blank"
+              <a
+                href="https://callcenter.pod.ir/"
+                target="_blank"
+                rel="noopener noreferrer"
                 >🧾 پنل پاد</a
               >
             </li>
             <li>
-              <a href="https://jira.dotin.ir" target="_blank">👨‍💻 جیرا</a>
+              <a
+                href="https://jira.dotin.ir"
+                target="_blank"
+                rel="noopener noreferrer"
+                >👨‍💻 جیرا</a
+              >
             </li>
             <li>
-              <a href="https://fams.pod.ir/TSK/" target="_blank">👨‍💻 فمس</a>
+              <a
+                href="https://fams.pod.ir/TSK/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >👨‍💻 فمس</a
+              >
             </li>
             <li>
-              <a href="https://pay.pod.ir/card/activate" target="_blank"
+              <a
+                href="https://pay.pod.ir/card/activate"
+                target="_blank"
+                rel="noopener noreferrer"
                 >💳 فعالسازی کارت</a
               >
             </li>
@@ -325,26 +371,34 @@
               <a
                 href="https://podform.ir/f/5y5Q7tmn4H2LwiH2MHlbgg=="
                 target="_blank"
+                rel="noopener noreferrer"
                 >🍔 فرم سفارش غذا</a
               >
             </li>
           </ul>
           <h2>📦 رهگیری مرسولات</h2>
-          <ul id="tools-list">
+          <ul class="tools-list">
             <li>
               <a
                 href="https://staging.wepod.ir/panel/delivery-request/tracking"
                 target="_blank"
+                rel="noopener noreferrer"
                 >📦 پنل مدیریت</a
               >
             </li>
             <li>
-              <a href="https://tracking.post.ir/" target="_blank"
+              <a
+                href="https://tracking.post.ir/"
+                target="_blank"
+                rel="noopener noreferrer"
                 >📮 رهگیری پست</a
               >
             </li>
             <li>
-              <a href="https://boxit.ir/tracking/" target="_blank"
+              <a
+                href="https://boxit.ir/tracking/"
+                target="_blank"
+                rel="noopener noreferrer"
                 >📬 رهگیری باکسیت</a
               >
             </li>
@@ -352,25 +406,44 @@
               <a
                 href="https://forward-co.com/%D8%B1%D9%87%DA%AF%DB%8C%D8%B1%DB%8C-%D9%85%D8%B1%D8%B3%D9%88%D9%84%D9%87-%D9%BE%D8%B3%D8%AA%DB%8C/"
                 target="_blank"
+                rel="noopener noreferrer"
                 >🚚 رهگیری فوروارد</a
               >
             </li>
           </ul>
           <h2>💻 سامانه‌های داتین</h2>
-          <ul id="tools-list">
+          <ul class="tools-list">
             <li>
-              <a href="https://karsu.dotin.ir" target="_blank">⏳ کارسو</a>
+              <a
+                href="https://karsu.dotin.ir"
+                target="_blank"
+                rel="noopener noreferrer"
+                >⏳ کارسو</a
+              >
             </li>
             <li>
-              <a href="https://divan.dotin.ir" target="_blank">⚖️ دیوان</a>
+              <a
+                href="https://divan.dotin.ir"
+                target="_blank"
+                rel="noopener noreferrer"
+                >⚖️ دیوان</a
+              >
             </li>
             <li>
-              <a href="https://hotspot.dotin.ir" target="_blank"
+              <a
+                href="https://hotspot.dotin.ir"
+                target="_blank"
+                rel="noopener noreferrer"
                 >📶 هات‌اسپات</a
               >
             </li>
             <li>
-              <a href="https://e.dotin.ir" target="_blank">🪟 پنجره داتین</a>
+              <a
+                href="https://e.dotin.ir"
+                target="_blank"
+                rel="noopener noreferrer"
+                >🪟 پنجره داتین</a
+              >
             </li>
           </ul>
         </div>

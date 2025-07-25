@@ -3,233 +3,272 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تغییر شماره مشتری</title>
+    <title>تغییر شماره</title>
     <meta name="robots" content="noindex, nofollow" />
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --bg-color: #f4fbf7;
+        --text-color: #222;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --border-radius: 0.75rem;
+        --border-radius-sm: 0.6rem;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+
+        /* State Colors */
+        --success-bg: #e6f7f0;
+        --success-text: #157347;
+        --success-border: #00ae70;
+        --error-bg: #fdeeee;
+        --error-text: #e74c3c;
+        --error-border: #e74c3c;
+
+        /* Button Colors */
+        --info-bg: #2563eb;
+        --info-dark: #1749b1;
+        --danger-bg: #e74c3c;
+        --danger-dark: #b92716;
+        --disabled-bg: #b4b4b4;
+        --disabled-text: #eeeeee;
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap;
       }
+
       *,
       *::before,
       *::after {
-        font-family: "Vazirmatn", sans-serif !important;
+        font-family: "Vazirmatn", sans-serif;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
+
+      /* == Main Layout == */
       main {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 1.2rem 0.5rem 0.5rem 0.5rem;
+        padding: 1.2rem 0.5rem;
       }
+
       .form-wrapper {
         width: 100%;
-        max-width: 45%;
-        background: #fff;
-        border: 1.5px solid #e6f7f0;
+        max-width: 900px; /* Increased max-width for better layout on larger screens */
+        background: var(--card-bg);
+        border: 1.5px solid var(--success-bg);
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        padding: 2rem 1.2rem 1.5rem 1.2rem;
+        box-shadow: 0 2px 12px var(--shadow-color-light);
+        padding: 2rem;
       }
+
+      /* == Form Elements == */
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
       label {
         display: block;
-        margin-bottom: 0.33rem;
+        margin-bottom: 0.5rem;
         font-weight: 700;
         font-size: 1.07rem;
-        color: #00ae70;
-        text-align: right;
+        color: var(--primary-color);
       }
+
       input,
       textarea {
         width: 100%;
-        padding: 0.88rem 0.9rem;
+        padding: 0.9rem 1rem;
         font-size: 1.08rem;
-        border: 2px solid #e6f7f0;
-        border-radius: 0.6rem;
-        background: #f4fbf7;
-        color: #222;
-        margin-bottom: 1.2rem;
-        transition: border-color 0.3s, background 0.3s;
-        letter-spacing: normal !important;
+        border: 2px solid var(--success-bg);
+        border-radius: var(--border-radius-sm);
+        background: var(--bg-color);
+        color: var(--text-color);
+        transition: border-color 0.3s, background-color 0.3s;
       }
-      #nameInput {
-        direction: rtl;
-        text-align: right;
-      }
+
       textarea {
-        direction: rtl;
-        text-align: right;
         height: 120px;
         resize: vertical;
       }
-      input[type="text"]:not(#nameInput):not([id^="desc"]) {
+
+      input:focus,
+      textarea:focus {
+        border-color: var(--primary-color);
+        background-color: var(--card-bg);
+        outline: none;
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: #b4b4b4;
+      }
+
+      /* LTR direction for numeric inputs */
+      input[inputmode="numeric"] {
         direction: ltr;
         text-align: left;
       }
-      input:focus,
-      textarea:focus {
-        border-color: #00ae70;
-        background: #fff;
-        outline: none;
-      }
-      input::placeholder,
-      textarea::placeholder {
-        text-align: right;
-        direction: rtl;
-        color: #b4b4b4;
-      }
-      .input-error {
-        border-color: #e74c3c !important;
-      }
-      .input-message {
-        font-size: 0.94rem;
-        margin-bottom: 1.05rem;
-        border-radius: 0.4rem;
-        padding: 0.75rem;
-        text-align: right;
-        display: none;
-      }
-      .input-message.error {
-        color: #e74c3c;
-        background: #fdeeee;
-        display: block;
-        border: 1px solid #e74c3c;
-      }
-      .input-message.success {
-        color: #157347;
-        background: #e6f7f0;
-        display: block;
-        border: 1px solid #00ae70;
-      }
-      .copy-button,
-      .clear-button,
-      .auto-fill-button {
+
+      /* == Buttons == */
+      .btn {
         width: 100%;
-        padding: 0.65rem;
+        padding: 0.8rem;
         border: none;
-        border-radius: 0.6rem;
+        border-radius: var(--border-radius-sm);
         font-size: 1.09rem;
+        font-weight: 600;
         color: white;
         cursor: pointer;
-        margin-top: 0.4rem;
-        margin-bottom: 0.4rem;
+        margin-top: 0.5rem;
         display: block;
-        transition: background 0.3s;
+        transition: background-color 0.3s;
       }
-      .copy-button {
-        background: #00ae70;
+
+      .btn-primary {
+        background-color: var(--primary-color);
       }
-      .copy-button:disabled {
-        background: #b4b4b4;
-        color: #eee;
+      .btn-primary:hover {
+        background-color: var(--primary-dark);
+      }
+
+      .btn-info {
+        background-color: var(--info-bg);
+      }
+      .btn-info:hover {
+        background-color: var(--info-dark);
+      }
+
+      .btn-danger {
+        background-color: var(--danger-bg);
+      }
+      .btn-danger:hover {
+        background-color: var(--danger-dark);
+      }
+
+      .btn:disabled {
+        background-color: var(--disabled-bg);
+        color: var(--disabled-text);
         cursor: not-allowed;
       }
-      .copy-button:hover:not(:disabled) {
-        background: #089863;
+
+      /* Specific margin for auto-fill button */
+      #autoFillBtn {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
       }
-      .auto-fill-button {
-        background: #2563eb;
-        margin-top: -10px;
-        margin-bottom: 25px;
-      }
-      .auto-fill-button:hover {
-        background: #1749b1;
-      }
-      .clear-button {
-        background: #e74c3c;
-      }
-      .clear-button:hover {
-        background: #b92716;
-      }
+
+      /* == Messages & Results == */
+      .input-message,
       .result {
-        margin-top: 0.9rem;
-        padding: 0.8rem 1rem;
-        border-radius: 0.6rem;
-        font-weight: bold;
-        font-size: 1.02rem;
-        text-align: center;
-        display: none;
-        transition: all 0.3s ease;
-        background-color: #e6f7f0;
-        color: #157347;
-        border: 1px solid #00ae70;
+        font-size: 0.94rem;
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        display: none; /* Controlled by JS */
+        border-width: 1px;
+        border-style: solid;
       }
+
+      .input-message.error,
+      .result.error {
+        color: var(--error-text);
+        background-color: var(--error-bg);
+        border-color: var(--error-border);
+        display: block;
+      }
+
+      .input-message.success,
+      .result.success {
+        color: var(--success-text);
+        background-color: var(--success-bg);
+        border-color: var(--success-border);
+        display: block;
+      }
+
+      .result {
+        text-align: center;
+        font-weight: bold;
+      }
+
+      /* == Links & Footer == */
       .back-link {
         display: block;
         margin-top: 1.7rem;
         text-align: center;
-        color: #00ae70;
+        color: var(--primary-color);
         text-decoration: none;
         font-size: 1rem;
         transition: color 0.2s;
       }
+
       .back-link:hover {
         text-decoration: underline;
-        color: #089863;
+        color: var(--primary-dark);
       }
-      .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem 1.5rem;
-        margin-bottom: 1rem;
-      }
-      .form-group {
-        display: flex;
-        flex-direction: column;
-      }
-      /* تک‌ستونه در موبایل و تبلت */
-      @media (max-width: 700px) {
-        .form-row {
-          grid-template-columns: 1fr;
-          gap: 0.5rem;
-        }
-      }
-      @media (max-width: 480px) {
-        .form-wrapper {
-          max-width: 98vw;
-          padding: 1rem 0.4rem 1rem 0.4rem;
-        }
-        input,
-        textarea,
-        .copy-button,
-        .clear-button,
-        .auto-fill-button {
-          font-size: 1rem;
-          padding: 0.8rem;
-        }
-        .result {
-          font-size: 0.97rem;
-          padding: 0.6rem 0.7rem;
-        }
-        .input-message {
-          font-size: 0.9rem;
-        }
-      }
+
       footer {
-        background: #00ae70;
-        color: #e0e7ff;
+        background: var(--primary-color);
+        color: var(--header-text);
         height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+        box-shadow: 0 -2px 8px var(--shadow-color-light);
       }
-      footer p {
-        margin: 0;
+
+      /* == Responsive Media Queries == */
+      @media (max-width: 768px) {
+        .form-wrapper {
+          max-width: 100%;
+          padding: 1.5rem;
+        }
+        .form-row {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .form-group {
+          margin-bottom: 1.2rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .form-wrapper {
+          padding: 1rem;
+        }
+        input,
+        textarea,
+        .btn {
+          font-size: 1rem;
+          padding: 0.8rem;
+        }
       }
     </style>
   </head>
@@ -237,19 +276,23 @@
     <div id="header-placeholder"></div>
     <main>
       <div class="form-wrapper">
-        <label for="autoFillInput">متن درخواست (جهت تکمیل خودکار):</label>
-        <textarea
-          id="autoFillInput"
-          placeholder="متن تیکت مشتری را وارد کنید (شامل کدملی و شماره جدید)"
-        ></textarea>
+        <div class="form-group">
+          <label for="autoFillInput">متن درخواست (جهت تکمیل خودکار):</label>
+          <textarea
+            id="autoFillInput"
+            placeholder="متن تیکت مشتری را وارد کنید (شامل کدملی و شماره جدید)"
+            aria-label="ورود متن تیکت برای تکمیل خودکار فرم"
+          ></textarea>
+        </div>
         <button
-          class="auto-fill-button"
+          class="btn btn-info"
           id="autoFillBtn"
           type="button"
           onclick="autoFillForm()"
         >
           تکمیل خودکار
         </button>
+
         <div class="form-row">
           <div class="form-group">
             <label for="nameInput">نام و نام خانوادگی:</label>
@@ -258,6 +301,7 @@
               id="nameInput"
               placeholder="نام کاربر"
               autocomplete="off"
+              aria-label="ورود نام و نام خانوادگی"
             />
           </div>
           <div class="form-group">
@@ -269,6 +313,7 @@
               autocomplete="off"
               maxlength="12"
               inputmode="numeric"
+              aria-label="ورود کدملی"
             />
             <div id="nationalIdMessage" class="input-message"></div>
             <div
@@ -288,6 +333,7 @@
               autocomplete="off"
               maxlength="13"
               inputmode="numeric"
+              aria-label="ورود شماره قبلی"
             />
             <div id="oldNumberMessage" class="input-message"></div>
           </div>
@@ -300,19 +346,20 @@
               autocomplete="off"
               maxlength="13"
               inputmode="numeric"
+              aria-label="ورود شماره جدید"
             />
             <div id="newNumberMessage" class="input-message"></div>
           </div>
         </div>
         <button
-          class="copy-button"
+          class="btn btn-primary"
           id="copyBtn"
           onclick="copyRequest()"
           disabled
         >
           کپی متن درخواست
         </button>
-        <button class="clear-button" type="button" onclick="clearForm()">
+        <button class="btn btn-danger" type="button" onclick="clearForm()">
           پاک کردن فرم
         </button>
         <div id="copyResult" class="result"></div>

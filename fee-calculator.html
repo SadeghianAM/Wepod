@@ -6,195 +6,218 @@
     <title>محاسبه کارمزد انتقال وجه</title>
     <meta name="robots" content="noindex, nofollow" />
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --bg-color: #f4fbf7;
+        --text-color: #222;
+        --text-secondary: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --border-radius: 0.75rem;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+
+        /* State Colors */
+        --success-bg: #e6f7f0;
+        --success-text: #157347;
+        --success-border: #00ae70;
+        --error-bg: #fdeeee;
+        --error-text: #e74c3c;
+        --error-border: #e74c3c;
+        --warning-bg: #fff9e6;
+        --warning-text: #b9770e;
+        --warning-border: #f39c12;
+        --disabled-bg: #f0f0f0;
+        --disabled-opacity: 0.6;
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap;
       }
+
       *,
       *::before,
       *::after {
-        font-family: "Vazirmatn", sans-serif !important;
+        font-family: "Vazirmatn", sans-serif;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
+
+      /* == Main Layout == */
       main {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 1.2rem 0.5rem 0.5rem 0.5rem;
+        padding: 1.5rem 1rem;
       }
+
       .form-wrapper {
         width: 100%;
-        max-width: 35%;
-        background: #fff;
-        border: 1.5px solid #e6f7f0;
+        max-width: 550px;
+        background: var(--card-bg);
+        border: 1.5px solid var(--success-bg);
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        padding: 2rem 1.2rem 1.5rem 1.2rem;
+        box-shadow: 0 2px 12px var(--shadow-color-light);
+        padding: 2rem;
       }
+
+      /* == Form & Input Styling == */
       label {
         display: block;
-        margin-bottom: 0.33rem;
+        margin-bottom: 0.5rem;
         font-weight: 700;
-        font-size: 1.07rem;
-        color: #00ae70;
-        text-align: right;
+        font-size: 1.1rem;
+        color: var(--primary-color);
       }
-      input,
-      textarea {
-        width: 100%;
-        padding: 0.88rem 0.9rem;
-        font-size: 1.08rem;
-        border: 2px solid #e6f7f0;
-        border-radius: 0.6rem;
-        background: #f4fbf7;
-        color: #222;
-        transition: border-color 0.3s, background 0.3s;
-        letter-spacing: normal !important;
-      }
+
       .input-with-currency {
         position: relative;
-        display: block;
-        width: 100%;
+        display: flex;
+        align-items: center;
       }
+
       .input-with-currency .currency-label {
         position: absolute;
-        top: 50%;
-        left: 12px;
-        transform: translateY(-50%);
-        font-size: 1.08rem;
-        color: #222;
+        left: 1rem;
+        font-size: 1rem;
+        color: var(--text-secondary);
         pointer-events: none;
-        user-select: none;
-        white-space: nowrap;
       }
-      .input-with-currency input[type="text"] {
-        padding-left: 60px;
-        padding-right: 0.9rem;
+
+      #amountInput {
+        width: 100%;
+        padding: 1rem;
+        padding-left: 5rem; /* Space for currency label */
+        font-size: 1.2rem;
+        border: 2px solid var(--success-bg);
+        border-radius: var(--border-radius);
+        background: var(--bg-color);
+        color: var(--text-color);
+        transition: border-color 0.3s, background-color 0.3s;
         direction: ltr;
         text-align: center;
-        height: 55px;
       }
-      .input-with-currency input[type="text"]:focus {
-        border-color: #00ae70;
-        background: #fff;
+
+      #amountInput:focus {
+        border-color: var(--primary-color);
+        background-color: var(--card-bg);
         outline: none;
       }
+
       .amount-words {
         margin-top: 0.5rem;
+        margin-bottom: 10px;
         font-size: 0.95rem;
-        color: #555;
+        color: var(--text-secondary);
         min-height: 1.5rem;
+        text-align: center;
       }
+
+      /* == Method Cards == */
       .method-cards-container {
-        margin-top: 12px;
         display: flex;
         flex-direction: column;
         gap: 1rem;
       }
+
       .method-card {
-        background-color: #fcfffc;
-        border: 1px solid #e6f7f0;
-        border-radius: 0.75rem;
-        padding: 0.8rem 1rem;
-        position: relative;
+        background-color: #fcfcfc;
+        border: 1px solid var(--success-bg);
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
         transition: background-color 0.3s, opacity 0.3s;
       }
+
       .method-card.disabled {
-        background-color: #f0f0f0;
-        opacity: 0.6;
+        background-color: var(--disabled-bg);
+        opacity: var(--disabled-opacity);
       }
+
       .method-title {
         font-size: 1.1rem;
         font-weight: 700;
-        color: #00ae70;
+        color: var(--primary-color);
         margin-bottom: 0.5rem;
       }
+
       .limits {
-        font-size: 0.95rem;
-        color: #555;
-        line-height: 1.4;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
         margin-bottom: 0.6rem;
-        padding-right: 1.8rem;
       }
+
+      .limits .separator {
+        margin: 0 0.5rem;
+      }
+
       .fee-display {
         font-size: 1rem;
         font-weight: bold;
-        text-align: right;
-        color: #157347;
+        color: var(--success-text);
       }
-      .fee-display.error {
-        color: #e74c3c;
+
+      .fee-display.error,
+      .fee-display.disabled-text {
+        color: var(--error-text);
       }
       .fee-display.warning {
-        color: #b9770e;
+        color: var(--warning-text);
       }
-      .fee-display.disabled-text {
-        color: #ff0000;
-      }
+
+      /* == Links & Footer == */
       .back-link {
         display: block;
-        margin-top: 1.7rem;
+        margin-top: 2rem;
         text-align: center;
-        color: #00ae70;
+        color: var(--primary-color);
         text-decoration: none;
         font-size: 1rem;
+        transition: color 0.3s;
       }
+
       .back-link:hover {
         text-decoration: underline;
-        color: #089863;
+        color: var(--primary-dark);
       }
+
       footer {
-        background: #00ae70;
-        color: #e0e7ff;
+        background: var(--primary-color);
+        color: var(--header-text);
         height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+        box-shadow: 0 -2px 8px var(--shadow-color-light);
       }
-      footer p {
-        margin: 0;
-      }
-      /* واکنش‌گرایی */
-      @media (max-width: 700px) {
+
+      /* == Responsive Media Queries == */
+      @media (max-width: 600px) {
         .form-wrapper {
-          max-width: 98vw;
-          padding: 1rem 0.4rem 1rem 0.4rem;
+          padding: 1.5rem 1rem;
         }
-        .form-wrapper,
-        input,
-        textarea,
-        .copy-button,
-        .clear-button,
-        .auto-fill-button {
-          font-size: 1rem;
-          padding: 0.8rem;
+        #amountInput {
+          font-size: 1.1rem;
+          padding: 0.9rem;
+          padding-left: 4.5rem;
         }
-        .result {
-          font-size: 0.97rem;
-          padding: 0.6rem 0.7rem;
-        }
-        .input-message {
-          font-size: 0.9rem;
-        }
-        .input-with-currency input[type="text"] {
-          font-size: 1rem;
-          padding-left: 50px;
-          padding-right: 0.9rem;
+        .method-card {
+          padding: 0.8rem 1rem;
         }
       }
     </style>
@@ -204,29 +227,36 @@
 
     <main>
       <div class="form-wrapper">
-        <label for="amountInput">مبلغ انتقال :</label>
+        <label for="amountInput">مبلغ انتقال</label>
         <div class="input-with-currency">
-          <span class="currency-label">تومان</span>
           <input
             type="text"
             id="amountInput"
-            placeholder="۵٬۰۰۰٬۰۰۰"
             autocomplete="off"
+            inputmode="numeric"
+            aria-label="مبلغ انتقال وجه"
           />
+          <span class="currency-label">تومان</span>
         </div>
         <div id="amountWords" class="amount-words"></div>
+
         <div class="method-cards-container">
           <div class="method-card" id="card-shetabi">
             <div class="method-title">کارت به کارت</div>
             <div class="limits" id="limitsShetabi">
-              کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۱۰٬۰۰۰٬۰۰۰ تومان
+              <span>کف: ۱,۰۰۰ تومان</span>
+              <span class="separator">|</span>
+              <span>سقف: ۱۰,۰۰۰,۰۰۰ تومان</span>
             </div>
             <div class="fee-display" id="feeShetabi"></div>
           </div>
+
           <div class="method-card" id="card-paya">
             <div class="method-title">پایا</div>
             <div class="limits" id="limitsPaya">
-              کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۲۰۰٬۰۰۰٬۰۰۰ تومان
+              <span>کف: ۱,۰۰۰ تومان</span>
+              <span class="separator">|</span>
+              <span>سقف: ۲۰۰,۰۰۰,۰۰۰ تومان</span>
             </div>
             <div class="fee-display" id="feePaya"></div>
           </div>
@@ -234,21 +264,28 @@
           <div class="method-card" id="card-satna">
             <div class="method-title">ساتنا</div>
             <div class="limits" id="limitsSatna">
-              کف: ۱۰۰٬۰۰۰٬۰۰۰ تومان &nbsp; | &nbsp; بدون سقف
+              <span>کف: ۱۰۰,۰۰۰,۰۰۰ تومان</span>
+              <span class="separator">|</span>
+              <span>بدون سقف</span>
             </div>
             <div class="fee-display" id="feeSatna"></div>
           </div>
+
           <div class="method-card" id="card-pol">
             <div class="method-title">پل</div>
             <div class="limits" id="limitsPol">
-              کف: ۱٬۰۰۰ تومان &nbsp; | &nbsp; سقف: ۵۰٬۰۰۰٬۰۰۰ تومان
+              <span>کف: ۱,۰۰۰ تومان</span>
+              <span class="separator">|</span>
+              <span>سقف: ۵۰,۰۰۰,۰۰۰ تومان</span>
             </div>
             <div class="fee-display" id="feePol"></div>
           </div>
         </div>
+
         <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
+
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script src="/js/common.js"></script>

@@ -4,28 +4,54 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>بررسی کد پستی</title>
+    <meta name="robots" content="noindex, nofollow" />
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --bg-color: #f4fbf7;
+        --text-color: #222;
+        --text-secondary: #666;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --border-radius: 0.75rem;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+
+        /* State Colors */
+        --success-bg: #e6f7f0;
+        --success-text: #157347;
+        --success-border: #00ae70;
+        --error-bg: #fdeeee;
+        --error-text: #e74c3c;
+        --error-border: #e74c3c;
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap;
       }
+
       *,
       *::before,
       *::after {
-        font-family: "Vazirmatn", sans-serif !important;
+        font-family: "Vazirmatn", sans-serif;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
+
+      /* == Main Layout == */
       main {
         flex-grow: 1;
         display: flex;
@@ -36,115 +62,140 @@
         max-width: 800px;
         width: 100%;
         margin: 0 auto;
-        overflow-y: auto;
-        background: none;
       }
+
+      /* == Form Styling == */
       .form-wrapper {
         width: 100%;
         max-width: 480px;
-        background: #fff;
-        border: 1.5px solid #e6f7f0;
+        background: var(--card-bg);
+        border: 1.5px solid var(--success-bg);
         border-radius: 1rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        padding: 2rem 1.2rem 1.5rem 1.2rem;
+        box-shadow: 0 2px 12px var(--shadow-color-light);
+        padding: 2rem 1.5rem;
         margin-top: 2rem;
       }
+
       label {
         display: block;
         margin-bottom: 0.7rem;
         font-weight: 700;
         font-size: 1.1rem;
-        color: #00ae70;
+        color: var(--primary-color);
       }
+
       input {
         width: 100%;
         padding: 1rem;
         font-size: 1.1rem;
-        border: 2px solid #e6f7f0;
-        border-radius: 0.75rem;
+        border: 2px solid var(--success-bg);
+        border-radius: var(--border-radius);
         direction: ltr;
         text-align: center;
-        letter-spacing: 1px;
-        background: #f4fbf7;
-        color: #222;
-        transition: border-color 0.3s, background 0.3s;
+        letter-spacing: 2px;
+        background: var(--bg-color);
+        color: var(--text-color);
+        transition: border-color 0.3s, background-color 0.3s;
       }
+
       input:focus {
-        border-color: #00ae70;
-        background: #fff;
+        border-color: var(--primary-color);
+        background-color: var(--card-bg);
         outline: none;
       }
+
+      /* == Result Box == */
       .result {
         margin-top: 1rem;
         padding: 1rem 1.5rem;
-        border-radius: 0.75rem;
+        border-radius: var(--border-radius);
         font-weight: bold;
-        font-size: 16px;
+        font-size: 1rem;
         text-align: center;
-        display: none;
-        transition: all 0.3s ease;
+        display: none; /* Controlled by JS */
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        border-width: 1px;
+        border-style: solid;
       }
+
       .result.success {
-        background-color: #e6f7f0;
-        color: #157347;
-        border: 1px solid #00ae70;
+        background-color: var(--success-bg);
+        color: var(--success-text);
+        border-color: var(--success-border);
       }
+
       .result.error {
-        background-color: #fdeeee;
-        color: #e74c3c;
-        border: 1px solid #e74c3c;
+        background-color: var(--error-bg);
+        color: var(--error-text);
+        border-color: var(--error-border);
       }
-      .clear-button {
-        margin-top: 1.5rem;
+
+      /* == Buttons & Links == */
+      .btn {
         width: 100%;
         padding: 1rem;
-        background-color: #00ae70;
         border: none;
-        border-radius: 0.75rem;
+        border-radius: var(--border-radius);
         font-size: 1.1rem;
+        font-weight: 600;
         color: white;
         cursor: pointer;
+        margin-top: 1.5rem;
+        display: block;
         transition: background-color 0.3s;
       }
-      .clear-button:hover {
-        background-color: #089863;
+
+      .btn-primary {
+        background-color: var(--primary-color);
       }
+      .btn-primary:hover {
+        background-color: var(--primary-dark);
+      }
+
+      .info-text {
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-top: 1.5rem;
+      }
+
       .back-link {
         display: block;
-        margin-top: 2rem;
+        margin-top: 1rem;
         text-align: center;
-        color: #00ae70;
+        color: var(--primary-color);
         text-decoration: none;
         font-size: 1rem;
+        transition: color 0.3s;
       }
+
       .back-link:hover {
         text-decoration: underline;
-        color: #089863;
+        color: var(--primary-dark);
       }
+
+      /* == Footer (Placeholder style) == */
       footer {
-        background: #00ae70;
-        color: #e0e7ff;
+        background: var(--primary-color);
+        color: var(--header-text);
         height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+        box-shadow: 0 -2px 8px var(--shadow-color-light);
       }
-      footer p {
-        margin: 0;
-      }
+
+      /* == Responsive Media Queries == */
       @media (max-width: 480px) {
-        input {
-          font-size: 1rem;
-          padding: 0.9rem;
-        }
-        .clear-button {
-          font-size: 1rem;
-          padding: 0.9rem;
-        }
         .form-wrapper {
-          padding: 1rem 0.4rem 1rem 0.4rem;
+          padding: 1.5rem 1rem;
+        }
+        input,
+        .btn {
+          font-size: 1rem;
+          padding: 0.9rem;
         }
       }
     </style>
@@ -160,15 +211,18 @@
           id="postalInput"
           inputmode="numeric"
           maxlength="11"
-          placeholder="19123 456789"
+          placeholder="----- -----"
+          aria-label="ورود کد پستی"
         />
         <div class="result" id="postalResult"></div>
-        <button class="clear-button" onclick="clearForm()">پاک کردن فرم</button>
-        <p style="text-align: center; font-size: 0.9rem; color: #666">
+        <button class="btn btn-primary" onclick="clearForm()">
+          پاک کردن فرم
+        </button>
+        <div class="info-text">
           توجه داشته باشید داده های این بخش به علت رنج بالای کدهای پستی کامل
           نیست و روزانه درحال به روزرسانی است.
           <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
-        </p>
+        </div>
       </div>
     </main>
 
