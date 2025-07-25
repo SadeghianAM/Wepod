@@ -191,13 +191,13 @@ function copyRequest() {
   const text =
     "با سلام\n" +
     "کاربر " +
-    (name ? name : "جای خالی") +
+    (name ? name : "نامشخص") +
     " با شماره موبایل " +
-    (oldNumber ? oldNumber : "جای خالی") +
+    (oldNumber ? oldNumber : "نامشخص") +
     " و کدملی " +
-    (nationalId ? nationalId : "جای خالی") +
+    (nationalId ? nationalId : "نامشخص") +
     " درخواست تغییر شماره به " +
-    (newNumber ? newNumber : "جای خالی") +
+    (newNumber ? newNumber : "نامشخص") +
     " را دارد.";
 
   navigator.clipboard.writeText(text).then(

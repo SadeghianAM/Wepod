@@ -157,7 +157,7 @@ function copyRequest() {
     )} در تاریخ : ${normalizeDigits(date)} به مبلغ : ${normalizeDigits(
       amount
     )} مسدود شده است\n` +
-    `توضیحات  ${desc}\n` +
+    `توضیحات:  ${desc}\n` +
     "باتشکر از همراهی شما";
 
   navigator.clipboard.writeText(text).then(
