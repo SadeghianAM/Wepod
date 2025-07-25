@@ -12,19 +12,17 @@ let triedSubmit = false;
 
 // ==== استخراج مبلغ مسدودی ====
 function extractAmount(text) {
-  let match = text.match(/مبلغ مسدودی[\s\-:]*([^\n\r]*)/i);
-  if (match && match[1] !== undefined) {
-    const rialRegex = /(.*?ریال)/;
-    const rialMatch = match[1].match(rialRegex);
-    let result = "";
-    if (rialMatch) {
-      result = rialMatch[1].trim();
-    } else {
-      result = match[1].trim();
+  const match = text.match(/مبلغ مسدودی[\s\-:]*?(.*?)(?=\s*تاریخ مسدودی|$)/i);
+  if (match && match[1]) {
+    const content = match[1].trim();
+    const amountMatch = content.match(/[\d,٬]+/);
+    if (amountMatch && amountMatch[0]) {
+      const amount = amountMatch[0];
+      if (content.includes("ریال")) {
+        return `${amount} ریال`;
+      }
+      return amount;
     }
-    const hasDigit = /[0-9۰-۹]/.test(result);
-    if (!hasDigit) return "-";
-    return result;
   }
   return "-";
 }
