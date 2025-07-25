@@ -7,7 +7,7 @@
     <style>
       @font-face {
         font-family: "Vazirmatn";
-        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype"); /* مسیر صحیح فونت بر اساس ساختار شما */
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
       }
       *,
@@ -62,7 +62,7 @@
         padding: 1.2rem 1.5rem;
         margin-bottom: 1.2rem;
         box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        border-right: 4px solid #00ae70; /* Default border color */
+        border-right: 4px solid #00ae70;
         transition: all 0.25s;
       }
       li:hover {
@@ -115,13 +115,12 @@
         li {
           padding: 1rem 1.2rem;
         }
-        /* Remove media queries for header elements if they are handled by main styles or removed */
         #today-date,
         #current-time {
           display: none;
         }
       }
-      /* استایل‌های مربوط به باکس‌های خبری و رنگ‌ها */
+
       .news-alert-box {
         background: #eafff4;
         padding: 1.2rem 1.5rem;
@@ -138,26 +137,23 @@
         transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
       }
-      /* Status-based colors */
       .news-alert-box.فعال {
         background-color: #eafff4;
-        border-right-color: #00ae70; /* Green */
+        border-right-color: #00ae70;
       }
       .news-alert-box.غیرفعال {
         background-color: #fff0f3;
-        border-right-color: #ff0040; /* Red */
+        border-right-color: #ff0040;
       }
       .news-alert-box.اختلال-در-عملکرد {
         background-color: #fff6e5;
-        border-right-color: #ffa500; /* Orange */
+        border-right-color: #ffa500;
       }
-      /* Fallback for unknown status */
       .news-alert-box.unknown-status {
         background-color: #f0f0f0;
         border-right-color: #999;
       }
 
-      /* Modal Styles */
       .modal {
         display: none;
         position: fixed;
@@ -268,7 +264,6 @@
         background-color: #5a6268;
       }
 
-      /* دکمه اضافه کردن جدید */
       #add-new-item-btn {
         background-color: #00ae70;
         color: white;
@@ -290,7 +285,6 @@
         transform: translateY(-2px);
       }
 
-      /* استایل دکمه‌های ویرایش و حذف در کارت‌ها */
       .item-card .actions {
         margin-top: 15px;
         display: flex;
@@ -323,7 +317,6 @@
         background-color: #c82333;
       }
 
-      /* دکمه‌های جدید برای بارگذاری و کپی */
       #file-input-label,
       #copy-json-btn {
         background-color: #007bff;
@@ -357,7 +350,6 @@
         margin-bottom: 25px;
       }
 
-      /* Toolbar برای ویرایشگر HTML */
       .editor-toolbar {
         display: flex;
         flex-wrap: wrap;
@@ -477,119 +469,102 @@
       const copyJsonBtn = document.getElementById("copy-json-btn");
       const modalTitle = document.getElementById("modalTitle");
 
-      // Elements for HTML editor
       const descriptionEditor = document.getElementById("description-editor");
       const editorToolbar = document.querySelector(".editor-toolbar");
 
-      // Functions to handle the modal
       function openModal() {
         itemModal.style.display = "block";
-        if (descriptionEditor) {
-          descriptionEditor.focus();
-        }
+        descriptionEditor && descriptionEditor.focus();
       }
 
       function closeModal() {
         itemModal.style.display = "none";
         itemForm.reset();
         currentItemIndex = -1;
-        if (descriptionEditor) {
-          descriptionEditor.innerHTML = "";
-        }
+        if (descriptionEditor) descriptionEditor.innerHTML = "";
       }
 
       closeButton.onclick = closeModal;
-      window.onclick = function (event) {
-        if (event.target == itemModal) {
-          closeModal();
-        }
+      window.onclick = (e) => {
+        if (e.target == itemModal) closeModal();
       };
       cancelEditBtn.onclick = closeModal;
 
-      // Function to render items
       function renderItems() {
         itemListDiv.innerHTML = "";
         if (jsonData.length === 0) {
           itemListDiv.innerHTML =
-            '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">اطلاعیه‌ای برای نمایش وجود ندارد. می‌توانید یک فایل JSON را بارگذاری یا اطلاعیه جدید اضافه کنید.</p>';
+            '<p style="text-align:center;margin-top:50px;font-size:1.2rem;color:#555;">اطلاعیه‌ای برای نمایش وجود ندارد. می‌توانید یک فایل JSON را بارگذاری یا اطلاعیه جدید اضافه کنید.</p>';
           return;
         }
         jsonData.forEach((item, index) => {
           const card = document.createElement("div");
-          // Add class based on status for styling
           const statusClass = item.status
             ? item.status.replace(/\s/g, "-")
             : "unknown-status";
           card.classList.add("news-alert-box", statusClass);
           card.innerHTML = `
-                        <h3>${item.name}</h3>
-                        <p><strong>وضعیت:</strong> ${item.status}</p>
-                        <p>${item.description || "بدون توضیحات"}</p>
-                        <div class="actions">
-                            <button class="edit-btn" data-index="${index}">ویرایش</button>
-                            <button class="delete-btn" data-index="${index}">حذف</button>
-                        </div>
-                    `;
+            <h3>${item.name}</h3>
+            <p><strong>وضعیت:</strong> ${item.status}</p>
+            <p>${item.description || "بدون توضیحات"}</p>
+            <div class="actions">
+              <button class="edit-btn" data-index="${index}">ویرایش</button>
+              <button class="delete-btn" data-index="${index}">حذف</button>
+            </div>
+          `;
           itemListDiv.appendChild(card);
         });
 
-        document.querySelectorAll(".edit-btn").forEach((button) => {
-          button.addEventListener("click", (e) => {
+        document.querySelectorAll(".edit-btn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
             e.stopPropagation();
-            const index = parseInt(e.target.dataset.index);
-            editItem(index);
-          });
-        });
-
-        document.querySelectorAll(".delete-btn").forEach((button) => {
-          button.addEventListener("click", (e) => {
+            editItem(+e.target.dataset.index);
+          })
+        );
+        document.querySelectorAll(".delete-btn").forEach((btn) =>
+          btn.addEventListener("click", (e) => {
             e.stopPropagation();
-            const index = parseInt(e.target.dataset.index);
-            deleteItem(index);
-          });
-        });
+            deleteItem(+e.target.dataset.index);
+          })
+        );
       }
 
-      // Function to populate the form for editing
       function editItem(index) {
         currentItemIndex = index;
         const item = jsonData[index];
         document.getElementById("itemId").value = index;
-        document.getElementById("name").value = item.name; // Changed from title to name
-
-        descriptionEditor.innerHTML = item.description;
-
-        document.getElementById("status").value = item.status; // Changed from color to status
-
-        modalTitle.textContent = "ویرایش سرویس"; // Changed modal title
+        document.getElementById("name").value = item.name;
+        document.getElementById("status").value = item.status;
+        descriptionEditor.innerHTML = item.description || "";
+        modalTitle.textContent = "ویرایش سرویس";
         openModal();
       }
 
-      // Function to add a new item
       addNewItemBtn.addEventListener("click", () => {
         currentItemIndex = -1;
         itemForm.reset();
         descriptionEditor.innerHTML = "";
-        modalTitle.textContent = "افزودن سرویس جدید"; // Changed modal title
+        modalTitle.textContent = "افزودن سرویس جدید";
         openModal();
       });
 
-      // Function to save/update item
       itemForm.addEventListener("submit", (e) => {
         e.preventDefault();
-
+        // پاک‌سازی <br> اضافه اگر توضیحات خالی باشند
+        let desc = descriptionEditor.innerHTML.trim();
+        if (!descriptionEditor.textContent.trim() || desc === "<br>") {
+          desc = "";
+        }
         const newItem = {
-          name: document.getElementById("name").value, // Changed from title to name
-          status: document.getElementById("status").value, // Changed from color to status
-          description: descriptionEditor.innerHTML,
+          name: document.getElementById("name").value,
+          status: document.getElementById("status").value,
+          description: desc,
         };
-
         if (currentItemIndex === -1) {
           jsonData.push(newItem);
         } else {
           jsonData[currentItemIndex] = newItem;
         }
-
         renderItems();
         closeModal();
         alert(
@@ -597,98 +572,91 @@
         );
       });
 
-      // Function to delete an item
       function deleteItem(index) {
         if (confirm("آیا مطمئن هستید که می‌خواهید این سرویس را حذف کنید؟")) {
-          // Changed confirmation message
           jsonData.splice(index, 1);
           renderItems();
           alert(
             'سرویس حذف شد. برای ذخیره نهایی، دکمه "کپی JSON در کلیپ‌بورد" را بزنید و در فایل اصلی خود جایگذاری کنید.'
-          ); // Changed alert message
+          );
         }
       }
 
-      // --- بارگذاری فایل JSON از ورودی کاربر ---
-      fileInput.addEventListener("change", (event) => {
-        const file = event.target.files[0];
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = (e) => {
+          reader.onload = (evt) => {
             try {
-              jsonData = JSON.parse(e.target.result);
+              jsonData = JSON.parse(evt.target.result);
               renderItems();
               alert(
                 "فایل JSON با موفقیت بارگذاری شد. حالا می‌توانید آن را ویرایش کنید."
               );
-            } catch (parseError) {
+            } catch (err) {
               alert(
                 "خطا در خواندن یا تجزیه فایل JSON. لطفا مطمئن شوید که فایل یک JSON معتبر است."
               );
-              console.error("Error parsing JSON:", parseError);
+              console.error(err);
             }
           };
           reader.readAsText(file);
         }
       });
 
-      // --- کپی JSON ویرایش شده به کلیپ‌بورد ---
       copyJsonBtn.addEventListener("click", () => {
         const jsonToCopy = JSON.stringify(jsonData, null, 2);
         navigator.clipboard
           .writeText(jsonToCopy)
-          .then(() => {
+          .then(() =>
             alert(
               "محتوای JSON به کلیپ‌بورد کپی شد. حالا می‌توانید آن را در فایل status.json خود جایگذاری کنید."
-            ); // Updated alert message
-          })
+            )
+          )
           .catch((err) => {
-            console.error("Failed to copy JSON to clipboard: ", err);
+            console.error(err);
             alert("خطا در کپی کردن به کلیپ‌بورد. لطفا به صورت دستی کپی کنید.");
           });
       });
 
-      // --- مدیریت دستورات ویرایشگر HTML ---
       editorToolbar.addEventListener("click", (event) => {
-        const command = event.target.dataset.command;
-        const value = event.target.dataset.value;
-
-        if (command) {
-          document.execCommand(command, false, value);
+        const cmd = event.target.dataset.command;
+        const val = event.target.dataset.value;
+        if (cmd) {
+          document.execCommand(cmd, false, val);
           descriptionEditor.focus();
         }
       });
 
-      // --- Load JSON automatically on page load ---
+      // حذف خودکار <br> وقتی ویرایشگر خالی می‌شود
+      descriptionEditor.addEventListener("input", () => {
+        if (!descriptionEditor.textContent.trim()) {
+          descriptionEditor.innerHTML = "";
+        }
+      });
+
       async function loadInitialJson() {
         try {
-          const response = await fetch("/data/service-status.json");
-          if (!response.ok) {
-            if (response.status === 404) {
-              console.warn(
-                "service-status.json not found. Starting with empty data."
-              );
-              jsonData = []; // Initialize with empty array if file not found
-            } else {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
+          const res = await fetch("/data/service-status.json");
+          if (res.ok) {
+            jsonData = await res.json();
+          } else if (res.status === 404) {
+            jsonData = [];
           } else {
-            jsonData = await response.json();
-            console.log("JSON loaded successfully on page load.");
+            throw new Error(`HTTP error! status: ${res.status}`);
           }
-        } catch (error) {
-          console.error("Error loading service-status.json:", error);
+        } catch (err) {
+          console.error(err);
           alert(
             "خطا در بارگذاری اولیه فایل JSON. ممکن است فایل وجود نداشته باشد یا خراب باشد."
           );
-          jsonData = []; // Ensure jsonData is an empty array on error
+          jsonData = [];
         } finally {
           renderItems();
         }
       }
-      document.addEventListener("DOMContentLoaded", () => {
-        loadInitialJson(); // Call the new function to load JSON automatically
-      });
+
+      document.addEventListener("DOMContentLoaded", loadInitialJson);
     </script>
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
