@@ -17,9 +17,7 @@ if (isset($_SESSION['login_attempts']) && $_SESSION['login_attempts'] >= MAX_LOG
     exit;
 }
 
-// ================== تغییر در این بخش ==================
-// مسیر فایل JSON (فرض شده فایل در پوشه امن data قرار دارد)
-$users_file_path = __DIR__ . '/data/users.json';
+$users_file_path = __DIR__ . '/../data/users.json';
 
 if (!file_exists($users_file_path)) {
     http_response_code(500);
@@ -35,7 +33,6 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     echo json_encode(['message' => 'خطای سرور: فایل اطلاعات کاربران معتبر نیست.']);
     exit;
 }
-// ================== پایان تغییرات ==================
 
 
 $data = json_decode(file_get_contents('php://input'), true);
