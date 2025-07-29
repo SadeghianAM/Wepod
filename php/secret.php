@@ -1,3 +1,2 @@
 <?php
-// کلید امضای JWT
-define('JWT_SECRET', 'your-very-secret-key');
+define('JWT_SECRET', 'mySuperSecretKey123456');

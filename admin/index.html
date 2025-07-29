@@ -3,8 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>سرویس‌های بخش پشتیبانی مشتریان</title>
+    <title>بخش مدیریت</title>
     <meta name="robots" content="noindex, nofollow" />
+    <script src="/js/auth.js"></script>
+    <script>
+      window.onload = function () {
+        protectPage(["ADMIN"]); // فقط ADMIN دسترسی دارد
+      };
+    </script>
     <style>
       @font-face {
         font-family: "Vazirmatn";
