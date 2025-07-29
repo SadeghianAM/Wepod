@@ -25,14 +25,17 @@ async function protectPage(allowedRoles = []) {
   const user = await getCurrentUser();
 
   if (!user) {
+    // اگر لاگین نشده بود
     alert("برای دسترسی به این صفحه، ابتدا وارد شوید.");
     window.location.href = "/admin/login.html";
     return;
   }
 
   if (allowedRoles.length && !allowedRoles.includes(user.role)) {
+    // اگر نقش کافی نبود
     alert("شما به این صفحه دسترسی ندارید.");
     window.location.href = "/admin/index.html";
+    return;
   }
 }
 
@@ -56,8 +59,10 @@ async function verifyToken(requiredRoles = []) {
   const { user } = await res.json();
 
   if (requiredRoles.length && !requiredRoles.includes(user.role)) {
+    // اگر نقش کافی نبود
     alert("دسترسی ندارید.");
     window.location.href = "/admin/index.html";
+    return;
   }
 
   return user;
