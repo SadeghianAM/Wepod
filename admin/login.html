@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ورود به پنل مدیریت</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: Vazirmatn, sans-serif;
+        background-color: #f4fbf7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .login-container {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        direction: rtl;
+      }
+      h2 {
+        text-align: center;
+        color: #00ae70;
+        margin-bottom: 1.5rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: #333;
+      }
+      input {
+        width: 100%;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        border: 1.5px solid #ccc;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+      input:focus {
+        border-color: #00ae70;
+        outline: none;
+      }
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #00ae70;
+        color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #089863;
+      }
+      .error-message {
+        color: red;
+        font-size: 0.9rem;
+        margin-top: -0.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>ورود به پنل مدیریت</h2>
+      <form id="loginForm">
+        <label for="username">نام کاربری:</label>
+        <input type="text" id="username" required />
+
+        <label for="password">رمز عبور:</label>
+        <input type="password" id="password" required />
+
+        <p class="error-message" id="error-message" style="display: none"></p>
+
+        <button type="submit">ورود</button>
+      </form>
+    </div>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value.trim();
+          const errorEl = document.getElementById("error-message");
+
+          try {
+            const res = await fetch("/data/users.json");
+            const users = await res.json();
+
+            const user = users.find(
+              (u) => u.username === username && u.password === password
+            );
+
+            if (user) {
+              localStorage.setItem("user", JSON.stringify(user));
+              window.location.href = "/admin/index.html";
+            } else {
+              errorEl.style.display = "block";
+              errorEl.textContent = "نام کاربری یا رمز عبور اشتباه است.";
+            }
+          } catch (err) {
+            console.error("Login error:", err);
+            errorEl.style.display = "block";
+            errorEl.textContent = "خطا در برقراری ارتباط با سرور.";
+          }
+        });
+    </script>
+  </body>
+</html>
