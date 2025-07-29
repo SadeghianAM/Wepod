@@ -1,4 +1,17 @@
 [
-  { "username": "admin", "password": "1234", "role": "ADMIN" },
-  { "username": "editor", "password": "5678", "role": "EDITOR" }
+  {
+    "username": "a.sadeghianmajd",
+    "password_hash": "$2y$12$aweRVm30RpK/PEpwu3240Orv3quK7wASSL5AUSdS7bIKq4IGN4e6a",
+    "role": "ADMIN"
+  },
+  {
+    "username": "h.alizade",
+    "password_hash": "$2y$10$lA1.z.ZqY4g7H.wR1i9T2uP/o.L5s.D6t.X.y.U8v.Z9a.b.c.d.e",
+    "role": "ADMIN"
+  },
+  {
+    "username": "a.jamshidvand",
+    "password_hash": "$2y$10$pQ2.r.S3t.U4v.W5x.Y6z.A7b.C8d.E9f.G0h.I1j.K2l.M3n.o",
+    "role": "ADMIN"
+  }
 ]
