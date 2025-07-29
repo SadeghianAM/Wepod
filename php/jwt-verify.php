@@ -21,7 +21,6 @@ if (!verify_jwt($token, JWT_SECRET)) {
 $payload = get_payload($token);
 echo json_encode(['message' => 'موفق', 'user' => $payload]);
 
-// ==== توابع =====
 
 function verify_jwt($token, $secret) {
   [$header, $payload, $signature] = explode('.', $token);

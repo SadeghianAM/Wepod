@@ -3,10 +3,10 @@ require 'secret.php';
 
 header('Content-Type: application/json');
 
-// کاربران تستی
 $users = [
-  ['username' => 'admin', 'password' => '1234', 'role' => 'ADMIN'],
-  ['username' => 'editor', 'password' => '5678', 'role' => 'EDITOR']
+  ['username' => 'a.sadeghian', 'password' => 'Abolfazl.1383', 'role' => 'ADMIN'],
+  ['username' => 'h.alizade', 'password' => '5678', 'role' => 'ADMIN'],
+  ['username' => 'a.jamshidvand', 'password' => '5678', 'role' => 'ADMIN']
 ];
 
 $data = json_decode(file_get_contents('php://input'), true);
@@ -29,7 +29,6 @@ foreach ($users as $user) {
 http_response_code(401);
 echo json_encode(['message' => 'نام کاربری یا رمز عبور اشتباه است.']);
 
-// ===== JWT ساخت =====
 function create_jwt($payload, $secret) {
   $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
   $body = base64url_encode(json_encode($payload));

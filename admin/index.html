@@ -58,16 +58,22 @@
         font-weight: 500;
         white-space: nowrap;
       }
-      #current-time {
+      #user-info {
         position: absolute;
         left: 1.5rem;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #fff;
-        opacity: 0.85;
         font-weight: 500;
         white-space: nowrap;
+        cursor: pointer;
+        padding: 0.5rem 0.8rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+      }
+      #user-info:hover {
+        background-color: rgba(255, 255, 255, 0.15);
       }
       main {
         flex-grow: 1;
@@ -78,15 +84,14 @@
         overflow-y: auto;
       }
       .main-content {
-        /* Changed to single column */
         display: block;
       }
       .column {
         background: transparent;
-        margin-bottom: 2rem; /* Add spacing between columns when stacked */
+        margin-bottom: 2rem;
       }
       .column:last-child {
-        margin-bottom: 0; /* No margin after the last column */
+        margin-bottom: 0;
       }
       h2 {
         font-size: 1.3rem;
@@ -138,28 +143,6 @@
       footer p {
         margin: 0;
       }
-      @media (max-width: 900px) {
-        .column {
-          width: 100%;
-        }
-      }
-      @media (max-width: 480px) {
-        main {
-          padding: 1rem;
-        }
-        a {
-          font-size: 1rem;
-        }
-        li {
-          padding: 1rem 1.2rem;
-        }
-        #today-date,
-        #current-time {
-          font-size: 0.9rem;
-          opacity: 1;
-        }
-      }
-      /* Removed specific styles for .video-banking-box and .news-alert-box */
       #tools-search {
         width: 100%;
         font-size: 1rem;
@@ -174,20 +157,20 @@
       #tools-search:focus {
         border-color: #00ae70;
       }
-      .highlight-link {
-        text-align: center;
-        background-color: #e6f0ff;
-        border-right-color: #1a73e8;
-        font-weight: bold;
-      }
-
-      .highlight-link a {
-        color: #000000;
-      }
-
-      .highlight-link:hover {
-        transform: translateY(-3px);
-        border-right-color: #174ea6;
+      @media (max-width: 480px) {
+        main {
+          padding: 1rem;
+        }
+        a {
+          font-size: 1rem;
+        }
+        li {
+          padding: 1rem 1.2rem;
+        }
+        #today-date,
+        #user-info {
+          font-size: 0.85rem;
+        }
       }
     </style>
   </head>
@@ -195,7 +178,7 @@
     <header>
       <span id="today-date"></span>
       <h1>بخش مدیریت</h1>
-      <span id="current-time"></span>
+      <div id="user-info"></div>
     </header>
     <main>
       <div class="main-content">
