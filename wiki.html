@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ویکی ویپاد</title>
-    <meta name="robots" content="noindex, nofollow" />
     <style>
       :root {
         --primary-color: #00ae70;
@@ -20,14 +19,12 @@
         --shadow-color-medium: rgba(0, 174, 112, 0.12);
         --shadow-color-dark: rgba(0, 0, 0, 0.15);
       }
-
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
-
       *,
       *::before,
       *::after {
@@ -36,7 +33,6 @@
         margin: 0;
         padding: 0;
       }
-
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -45,38 +41,40 @@
         display: flex;
         flex-direction: column;
       }
-
       main {
         flex-grow: 1;
-      }
-
-      /* == Main Layout & Typography == */
+      } /* == Main Layout & Typography == */
       .search-container {
         text-align: center;
         max-width: 800px;
         width: 100%;
         padding: 2rem 1.5rem;
-        margin: auto;
+        margin: 0 auto; /* Changed */
+        display: flex; /* Added */
+        flex-direction: column; /* Added */
+        justify-content: center; /* Added for vertical centering */
       }
-
       h1 {
         font-size: 2.5rem;
         font-weight: 800;
         color: var(--primary-color);
         margin-bottom: 2rem;
-      }
-
-      /* == Search Form == */
+      } /* ===== ADDED STYLE FOR SUBTITLE ===== */
+      .subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        font-weight: 400;
+        margin-top: -1.5rem;
+        margin-bottom: 2.5rem;
+      } /* == Search Form == */
       .search-form {
         padding: 1rem;
         margin-bottom: 2rem;
       }
-
       .form-group {
         position: relative;
         margin-bottom: 1.5rem;
       }
-
       .form-group .icon {
         position: absolute;
         inset-inline-start: 1.2rem;
@@ -86,7 +84,6 @@
         color: #888;
         pointer-events: none;
       }
-
       input[type="text"],
       select {
         width: 100%;
@@ -102,23 +99,18 @@
         -moz-appearance: none;
         appearance: none;
       }
-
       select {
         cursor: pointer;
       }
-
       input[type="text"]:focus,
       select:focus {
         border-color: var(--primary-color);
         background-color: var(--card-bg);
         box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.1);
-      }
-
-      /* == Results == */
+      } /* == Results == */
       .results {
         text-align: right;
       }
-
       .result-item {
         background: var(--card-bg);
         border-inline-start: 4px solid var(--primary-color);
@@ -130,20 +122,17 @@
           border-inline-start-color 0.3s;
         cursor: pointer;
       }
-
       .result-item:hover {
         transform: translateY(-4px);
         box-shadow: 0 6px 20px var(--shadow-color-medium);
         border-inline-start-color: var(--primary-dark);
       }
-
       .result-title {
         font-size: 1.3rem;
         font-weight: 700;
         color: var(--primary-color);
         margin-bottom: 0.5rem;
       }
-
       .result-category,
       .result-id {
         font-size: 0.9rem;
@@ -154,24 +143,19 @@
         padding: 0.2rem 0.6rem;
         border-radius: 0.5rem;
       }
-
       .result-id {
         margin-right: 0.5rem;
       }
-
       .result-desc {
         font-size: 1.05rem;
         line-height: 1.7;
       }
-
       .no-result {
         color: #999;
         margin-top: 2rem;
         font-size: 1.1rem;
         text-align: center;
-      }
-
-      /* == Toast Notification == */
+      } /* == Toast Notification == */
       #toast {
         position: fixed;
         bottom: 2rem;
@@ -188,13 +172,10 @@
         opacity: 0;
         pointer-events: none;
       }
-
       #toast.show {
         opacity: 1;
         transform: translateX(-50%) translateY(-10px);
-      }
-
-      /* == Footer == */
+      } /* == Footer == */
       footer {
         background: var(--primary-color);
         color: var(--header-text);
@@ -204,9 +185,7 @@
         justify-content: center;
         font-size: 0.85rem;
         box-shadow: 0 -2px 8px var(--shadow-color-light);
-      }
-
-      /* == Responsive Media Queries == */
+      } /* == Responsive Media Queries == */
       @media (max-width: 600px) {
         .search-container {
           padding: 1.5rem 1rem;
@@ -222,9 +201,9 @@
   </head>
   <body>
     <div id="header-placeholder"></div>
-
     <main class="search-container">
       <h1>ویکی ویپاد</h1>
+      <p class="subtitle">دسترسی مستقیم به تمامی مطالب موجود در درخت دانش</p>
       <div class="search-form">
         <div class="form-group">
           <span class="icon">🔍</span>
@@ -244,10 +223,8 @@
       </div>
       <div class="results" id="results-container"></div>
     </main>
-
     <div id="toast">کپی شد!</div>
     <div id="footer-placeholder"></div>
-
     <script src="/js/header.js"></script>
     <script src="/js/common.js"></script>
     <script src="/js/wiki.js"></script>

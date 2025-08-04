@@ -1,4 +1,3 @@
-// ===== تاریخ شمسی با اعداد فارسی =====
 const weekdays = [
   "یک‌شنبه",
   "دوشنبه",
@@ -23,7 +22,6 @@ const persianMonths = [
   "اسفند",
 ];
 
-// تبدیل تاریخ میلادی به شمسی
 function toJalali(gy, gm, gd) {
   var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
   var jy = gy > 1600 ? 979 : 0;
@@ -51,7 +49,6 @@ function toJalali(gy, gm, gd) {
   return [jy, jm, jd];
 }
 
-// تبدیل اعداد لاتین به فارسی
 function toPersianDigits(str) {
   return str.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
@@ -59,7 +56,6 @@ function toPersianDigitsText(num) {
   return num.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
 
-// گرفتن و نمایش تاریخ امروز شمسی با اعداد فارسی
 function getTodayPersianDate() {
   var today = new Date();
   var weekday = weekdays[today.getDay()];
@@ -71,7 +67,6 @@ function getTodayPersianDate() {
   return toPersianDigits(`امروز ${weekday} ${jd} ${pMonth} ${jy}`);
 }
 
-// نمایش ساعت فعلی به صورت فارسی
 function getCurrentTimePersian() {
   const now = new Date();
   const h = now.getHours();
@@ -81,9 +76,7 @@ function getCurrentTimePersian() {
   return `ساعت ${persianH}:${persianM}`;
 }
 
-// درج تاریخ و ساعت در هدر و سایر عملیات اولیه
 document.addEventListener("DOMContentLoaded", function () {
-  // درج تاریخ و ساعت
   document.getElementById("today-date").innerText = getTodayPersianDate();
   const timeElem = document.getElementById("current-time");
   function updateTime() {
@@ -92,33 +85,27 @@ document.addEventListener("DOMContentLoaded", function () {
   updateTime();
   setInterval(updateTime, 60 * 1000);
 
-  // به‌روزرسانی وضعیت بانکداری ویدیویی (فقط اگر عناصر مربوطه در صفحه وجود داشته باشند)
   if (document.getElementById("video-banking-status")) {
     updateVideoBankingStatus();
   }
 
-  // فراخوانی تابع برای بارگذاری وضعیت سرویس‌ها (فقط اگر عناصر مربوطه در صفحه وجود داشته باشند)
   if (document.getElementById("service-status")) {
     loadAndDisplayServiceStatus();
   }
 
-  // فراخوانی تابع جدید برای بارگذاری اطلاع‌رسانی‌ها (اخبار) در صفحه news.html
   if (document.getElementById("news-alerts-page")) {
     loadAndDisplayNewsAlerts();
   }
 
-  // تنظیمات جستجو (فقط اگر عناصر مربوطه در صفحه وجود داشته باشند)
   if (document.getElementById("tools-search")) {
     setupToolsSearch();
   }
 
-  // تنظیمات وضعیت پایا (فقط اگر عناصر مربوطه در صفحه وجود داشته باشند)
   if (document.getElementById("payaa-cycle-status")) {
     setupPayaaCycleStatus();
   }
 });
 
-// ===== اسکریپت بانکداری ویدیویی (نسخه اصلاح‌شده با کنترل ساعت) =====
 function pad(num) {
   return num.toString().padStart(2, "0");
 }
@@ -127,7 +114,6 @@ async function updateVideoBankingStatus() {
   const statusDiv = document.getElementById("video-banking-status");
   statusDiv.innerHTML = "در حال بررسی وضعیت بانکداری ویدیویی...";
 
-  // تاریخ امروز شمسی و اطلاعات زمانی
   const today = new Date();
   const gYear = today.getFullYear();
   const gMonth = today.getMonth() + 1;
@@ -135,7 +121,6 @@ async function updateVideoBankingStatus() {
   const [jy, jm, jd] = toJalali(gYear, gMonth, gDay);
   const todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
 
-  // خواندن تعطیلات رسمی
   let holidays = [];
   try {
     const res = await fetch("data/holidays-1404.json");
@@ -146,10 +131,8 @@ async function updateVideoBankingStatus() {
     return;
   }
 
-  // آیا امروز تعطیل رسمی است؟
   const isHoliday = holidays.some((h) => h.date === todayStr);
 
-  // تعیین روز هفته (0=یک‌شنبه ... 6=شنبه)
   const weekday = today.getDay();
   const currentHour = today.getHours();
   const currentMinute = today.getMinutes();
@@ -220,7 +203,7 @@ async function updateVideoBankingStatus() {
       statusHTML = activeMessage;
     } else if (
       currentHour < startHour ||
-      (currentHour === startHour && currentMinute < 0) // Before 7:00
+      (currentHour === startHour && currentMinute < 0)
     ) {
       statusHTML = beforeHoursMessage;
     } else {
@@ -230,20 +213,15 @@ async function updateVideoBankingStatus() {
   statusDiv.innerHTML = statusHTML;
 }
 
-// ======= نمایش زمان‌بندی پایا و شمارش معکوس =======
-
-// لیست سیکل‌های پایا (روز غیر تعطیل)
 const payaaCycles = [
   { hour: 3, min: 45, endH: 4, endM: 50 },
-  { hour: 9, min: 45, endH: 10, endM: 50 }, // ← چرخه دوم
-  { hour: 12, min: 45, endH: 13, endM: 50 }, // ← چرخه سوم
+  { hour: 9, min: 45, endH: 10, endM: 50 },
+  { hour: 12, min: 45, endH: 13, endM: 50 },
   { hour: 18, min: 45, endH: 19, endM: 50 },
 ];
 
-// سیکل مخصوص تعطیلات رسمی
 const holidayCycle = [{ hour: 12, min: 45, endH: 13, endM: 50 }];
 
-// تابع بررسی تعطیلی رسمی بودن یک تاریخ شمسی
 function isHolidayJalali(jy, jm, jd, holidays) {
   const dateStr = `${jy}-${pad(jm)}-${pad(jd)}`;
   return holidays.some((h) => h.date === dateStr);
@@ -261,18 +239,19 @@ function toPersianTimeStr(totalMin) {
   }
 }
 
-// تابع یافتن چرخه بعدی پایا با در نظر گرفتن تعطیلی امروز و فردا
 function getNextPayaaCycle(now, holidays) {
-  // تاریخ امروز شمسی
   const [jy, jm, jd] = toJalali(
     now.getFullYear(),
     now.getMonth() + 1,
     now.getDate()
   );
+
+  const weekday = now.getDay();
+
   const isHolidayToday = isHolidayJalali(jy, jm, jd, holidays);
 
-  // سیکل‌های امروز (با توجه به تعطیلی)
-  let todayCycles = isHolidayToday ? holidayCycle : payaaCycles;
+  let todayCycles =
+    isHolidayToday || weekday === 5 ? holidayCycle : payaaCycles;
 
   for (let cycle of todayCycles) {
     const cycleTime = new Date(now);
@@ -288,7 +267,7 @@ function getNextPayaaCycle(now, holidays) {
         ),
       };
     }
-    // اگر داخل بازه تسویه باشیم
+
     const endTime = new Date(now);
     endTime.setHours(cycle.endH, cycle.endM, 0, 0);
     if (now >= cycleTime && now < endTime) {
@@ -296,7 +275,6 @@ function getNextPayaaCycle(now, holidays) {
     }
   }
 
-  // اگر همه سیکل‌های امروز تمام شده، اولین سیکل فردا با توجه به تعطیلی فردا
   const tomorrow = new Date(now);
   tomorrow.setDate(now.getDate() + 1);
   const [ty, tm, td] = toJalali(
@@ -304,7 +282,11 @@ function getNextPayaaCycle(now, holidays) {
     tomorrow.getMonth() + 1,
     tomorrow.getDate()
   );
-  const isHolidayTomorrow = isHolidayJalali(ty, tm, td, holidays);
+
+  const tomorrowWeekday = tomorrow.getDay();
+  const isHolidayTomorrow =
+    isHolidayJalali(ty, tm, td, holidays) || tomorrowWeekday === 5;
+
   const tomorrowCycles = isHolidayTomorrow ? holidayCycle : payaaCycles;
   const firstCycle = tomorrowCycles[0];
   tomorrow.setHours(firstCycle.hour, firstCycle.min, 0, 0);
@@ -321,7 +303,6 @@ function getNextPayaaCycle(now, holidays) {
   };
 }
 
-// تابع رندر وضعیت چرخه
 function renderPayaaCycleStatus(holidays) {
   const statusDiv = document.getElementById("payaa-cycle-status");
   if (!statusDiv) return;
@@ -330,17 +311,15 @@ function renderPayaaCycleStatus(holidays) {
     const now = new Date();
     const cycle = getNextPayaaCycle(now, holidays);
 
-    // ساخت رشته تاریخ و ساعت چرخه بعدی
     const nextDate = cycle.start;
 
-    // تاریخ امروز به شمسی
     const today = new Date();
     const [jy, jm, jd] = toJalali(
       today.getFullYear(),
       today.getMonth() + 1,
       today.getDate()
     );
-    // تاریخ چرخه بعدی به شمسی
+
     const [cy, cm, cd] = toJalali(
       nextDate.getFullYear(),
       nextDate.getMonth() + 1,
@@ -351,7 +330,6 @@ function renderPayaaCycleStatus(holidays) {
     if (jy === cy && jm === cm && jd === cd) {
       dayLabel = "امروز";
     } else {
-      // یک روز بعد؟
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
       const [ty, tm, td] = toJalali(
@@ -408,12 +386,10 @@ async function setupPayaaCycleStatus() {
   renderPayaaCycleStatus(holidays);
 }
 
-// ====================== جستجوی ابزارهای پشتیبانی =======================
 function setupToolsSearch() {
   const searchInput = document.getElementById("tools-search");
   if (!searchInput) return;
 
-  // همه عناوین و لیست‌ها را جدا می‌کنیم
   const column = document.querySelector(".column-tools");
   const sections = [];
   let curTitle = null,
@@ -439,14 +415,13 @@ function setupToolsSearch() {
         li.style.display = matched ? "" : "none";
         if (matched) hasVisible = true;
       });
-      // فقط تیترهایی که آیتم نمایش داده شده دارند نشان بده
+
       title.style.display = hasVisible ? "" : "none";
       list.style.display = hasVisible ? "" : "none";
     });
   });
 }
 
-// ====== وضعیت سرویس ها =====
 async function loadAndDisplayServiceStatus() {
   const serviceStatusDiv = document.getElementById("service-status");
   if (!serviceStatusDiv) return;
@@ -465,7 +440,7 @@ async function loadAndDisplayServiceStatus() {
       html = `<div class="news-alert-box green">همه سرویس‌ها فعال هستند.</div>`;
     } else {
       services.forEach((service) => {
-        let colorClass = "green"; // Default to green
+        let colorClass = "green";
         if (service.status === "غیرفعال") {
           colorClass = "red";
         } else if (service.status === "در حال بررسی") {
@@ -493,15 +468,14 @@ async function loadAndDisplayServiceStatus() {
   }
 }
 
-// ====== تابع جدید برای نمایش اطلاعیه‌ها (اخبار) در صفحه news.html =====
 async function loadAndDisplayNewsAlerts() {
-  const newsAlertsDiv = document.getElementById("news-alerts-page"); // تغییر ID به news-alerts-page
+  const newsAlertsDiv = document.getElementById("news-alerts-page");
   if (!newsAlertsDiv) return;
 
   newsAlertsDiv.innerHTML = "در حال بارگذاری اطلاعیه‌ها...";
 
   try {
-    const response = await fetch("data/news-alerts.json"); // مسیر صحیح فایل JSON
+    const response = await fetch("data/news-alerts.json");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -512,19 +486,17 @@ async function loadAndDisplayNewsAlerts() {
       html = `<div class="news-alert-box green">در حال حاضر اطلاعیه جدیدی وجود ندارد.</div>`;
     } else {
       alerts.forEach((alert) => {
-        const colorClass = alert.color; // استفاده از رنگ تعریف شده در JSON
+        const colorClass = alert.color;
         let startDateTimeInfo = "";
         let endDateTimeInfo = "";
-        let durationInfo = ""; // برای نمایش مدت زمان
+        let durationInfo = "";
 
-        // اطلاعات تاریخ و ساعت شروع
         if (alert.startDate && alert.startTime) {
           const persianStartDate = toPersianDigits(alert.startDate);
           const persianStartTime = toPersianDigits(alert.startTime);
           startDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">شروع: ${persianStartDate} ساعت ${persianStartTime}</p>`;
         }
 
-        // اطلاعات تاریخ و ساعت پایان
         if (alert.endDate && alert.endTime) {
           const persianEndDate = toPersianDigits(alert.endDate);
           const persianEndTime = toPersianDigits(alert.endTime);

@@ -38,12 +38,15 @@ function populateCategories(data) {
 
 function filterResults() {
   const term = searchInput.value.trim().toLowerCase();
-  // گرفتن دسته‌بندی‌های انتخاب‌شده (چندگانه)
+
+  if (term === "") {
+    resultsContainer.innerHTML = "";
+    return;
+  }
+
   const selectedCategories = Array.from(categoryFilter.selectedOptions)
     .map((opt) => opt.value)
     .filter((v) => v); // فقط گزینه‌های پر شده
-
-  resultsContainer.innerHTML = "";
 
   const filtered = data.filter((item) => {
     const matchesTerm =
@@ -56,6 +59,7 @@ function filterResults() {
         item.categories.some((cat) => selectedCategories.includes(cat)));
     return matchesTerm && matchesCategory;
   });
+  resultsContainer.innerHTML = "";
 
   if (filtered.length === 0) {
     resultsContainer.innerHTML =
