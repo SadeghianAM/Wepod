@@ -47,8 +47,7 @@ foreach ($users as $user) {
 
             $payload = [
                 'username' => $username,
-                'role' => $user['role'],
-                'exp' => time() + (60 * 60 * 8)
+                'exp' => time() + (60 * 60 * 12)
             ];
             $token = create_jwt($payload, JWT_SECRET);
             echo json_encode(['token' => $token]);

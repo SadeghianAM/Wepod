@@ -13,7 +13,7 @@ async function getCurrentUser() {
 
     if (res.ok) {
       const { user } = await res.json();
-      return user;
+      return user; // { username: '...', ... }
     } else {
       localStorage.removeItem("jwt");
       return null;
@@ -38,7 +38,8 @@ function displayUserAndLogout(user) {
   }
 }
 
-async function protectPage(allowedRoles = []) {
+async function protectPage(allowedUsernames = []) {
+  // پارامتر به allowedUsernames تغییر کرد
   const user = await getCurrentUser();
 
   if (!user) {
@@ -49,9 +50,9 @@ async function protectPage(allowedRoles = []) {
 
   displayUserAndLogout(user);
 
-  if (allowedRoles.length && !allowedRoles.includes(user.role)) {
+  if (allowedUsernames.length && !allowedUsernames.includes(user.username)) {
     alert("شما به این صفحه دسترسی ندارید.");
-    window.location.href = "/admin/index.html";
+    window.location.href = "/admin/index.html"; // یا هر صفحه دیگری که مد نظر دارید
     return;
   }
 }
@@ -61,7 +62,8 @@ function logout() {
   window.location.href = "/admin/login.html";
 }
 
-async function verifyToken(requiredRoles = []) {
+async function verifyToken(requiredUsernames = []) {
+  // پارامتر به requiredUsernames تغییر کرد
   const token = localStorage.getItem("jwt");
   if (!token) return redirectToLogin();
 
@@ -73,7 +75,7 @@ async function verifyToken(requiredRoles = []) {
 
   const { user } = await res.json();
 
-  if (requiredRoles.length && !requiredRoles.includes(user.role)) {
+  if (requiredUsernames.length && !requiredUsernames.includes(user.username)) {
     alert("دسترسی ندارید.");
     window.location.href = "/admin/index.html";
     return;
