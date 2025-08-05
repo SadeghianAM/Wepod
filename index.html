@@ -21,12 +21,14 @@
         --highlight-border: #1a73e8;
         --border-radius: 0.75rem;
       }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
+
       *,
       *::before,
       *::after {
@@ -35,6 +37,7 @@
         margin: 0;
         padding: 0;
       }
+
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -43,6 +46,51 @@
         display: flex;
         flex-direction: column;
       }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+      }
+
+      header {
+        height: 70px;
+        position: relative;
+      }
+
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+      }
+
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      #today-date,
+      #current-time {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        opacity: 0.85;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      #today-date {
+        inset-inline-start: 1.5rem;
+      }
+
+      #current-time {
+        inset-inline-end: 1.5rem;
+      }
+
       main {
         flex-grow: 1;
         padding: 1.5rem;
@@ -51,12 +99,14 @@
         margin: 0 auto;
         overflow-y: auto;
       }
+
       .main-content {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
         align-items: start;
       }
+
       h2 {
         font-size: 1.3rem;
         margin-bottom: 1.5rem;
@@ -64,9 +114,11 @@
         text-align: center;
         font-weight: 700;
       }
+
       ul {
         list-style: none;
       }
+
       a {
         text-decoration: none;
         color: var(--primary-color);
@@ -75,9 +127,11 @@
         display: block;
         transition: color 0.2s ease-in-out;
       }
+
       a:hover {
         color: var(--primary-dark);
       }
+
       li {
         background-color: var(--card-bg);
         border-radius: var(--border-radius);
@@ -88,11 +142,13 @@
         transition: transform 0.25s, border-inline-start-color 0.25s,
           box-shadow 0.25s;
       }
+
       li:hover {
         transform: translateY(-3px);
         border-inline-start-color: var(--primary-dark);
         box-shadow: 0 6px 20px var(--shadow-color-medium);
       }
+
       .video-banking-box,
       .news-alert-box {
         padding: 1.2rem 1.5rem;
@@ -102,17 +158,21 @@
         border-inline-start-style: solid;
         transition: background-color 0.3s, border-color 0.3s;
       }
+
       .video-banking-box {
         background: #eafff4;
         border-inline-start-color: var(--primary-color);
       }
+
       .video-banking-box.closed {
         background: var(--danger-bg);
         border-inline-start-color: var(--danger-color);
       }
+
       .news-alert-box {
         font-size: 1rem;
       }
+
       .news-alert-box.green {
         background: #eafff4;
         border-inline-start-color: var(--primary-color);
@@ -129,17 +189,21 @@
         background: #fff6e5;
         border-inline-start-color: #ffa500;
       }
+
       .highlight-link {
         text-align: center;
         background-color: var(--highlight-bg);
         border-inline-start-color: var(--highlight-border);
       }
+
       .highlight-link a {
         color: #000000;
       }
+
       .highlight-link:hover {
         border-inline-start-color: #174ea6;
       }
+
       #tools-search {
         width: 100%;
         font-size: 1rem;
@@ -150,25 +214,30 @@
         outline: none;
         transition: border-color 0.2s;
       }
+
       #tools-search:focus {
         border-color: var(--primary-color);
       }
+
       .tools-list {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
       }
+
       @media (max-width: 900px) {
         .main-content {
           grid-template-columns: 1fr;
           gap: 1.5rem;
         }
       }
+
       @media (max-width: 600px) {
         .tools-list {
           grid-template-columns: 1fr;
         }
       }
+
       @media (max-width: 480px) {
         main {
           padding: 1rem;
@@ -179,11 +248,19 @@
         li {
           padding: 1rem 1.2rem;
         }
+        #today-date,
+        #current-time {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <div id="header-placeholder"></div>
+    <header>
+      <span id="today-date"></span>
+      <h1>وی هاب</h1>
+      <span id="current-time"></span>
+    </header>
     <main>
       <div class="main-content">
         <div class="column column-info">
@@ -379,252 +456,7 @@
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script src="/js/app.js"></script>
-
-    <script>
-      // منطق بانکداری ویدیویی
-      async function updateVideoBankingStatus() {
-        const statusDiv = document.getElementById("video-banking-status");
-        statusDiv.innerHTML = "در حال بررسی وضعیت بانکداری ویدیویی...";
-        const today = new Date();
-        const [jy, jm, jd] = toJalali(
-          today.getFullYear(),
-          today.getMonth() + 1,
-          today.getDate()
-        );
-        const todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
-        let holidays = [];
-        try {
-          const res = await fetch("data/holidays-1404.json");
-          holidays = await res.json();
-        } catch (e) {
-          statusDiv.innerHTML =
-            "<div class='video-banking-box closed'>خطا در دریافت لیست تعطیلات رسمی.</div>";
-          return;
-        }
-        const isHoliday = holidays.some((h) => h.date === todayStr);
-        const weekday = today.getDay();
-        const currentHour = today.getHours();
-        const currentMinute = today.getMinutes();
-        let statusHTML = "";
-        const workingHours = {
-          "weekday-sat-wed": { startHour: 7, endHour: 17, endMinute: 0 },
-          "weekday-thu": { startHour: 7, endHour: 17, endMinute: 0 },
-        };
-        if (isHoliday || weekday === 5) {
-          statusHTML = `<div class="video-banking-box closed"><b>بانکداری ویدیویی : <span style="font-size:1.2em;">❌ غیرفعال</span></b><br>امروز تعطیل است و خدمات بانکداری ویدیویی ارائه نمی‌شود.</div>`;
-        } else {
-          let startHour, endHour, endMinute, activeMessage;
-          let beforeHoursMessage = `<div class="video-banking-box closed"><b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b><br>ساعات کاری هنوز شروع نشده است (۷ صبح)</div>`;
-          let afterHoursMessage = `<div class="video-banking-box closed"><b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b><br>ساعات کاری امروز به پایان رسیده است.</div>`;
-          if (weekday >= 6 || weekday <= 3) {
-            startHour = workingHours["weekday-sat-wed"].startHour;
-            endHour = workingHours["weekday-sat-wed"].endHour;
-            endMinute = workingHours["weekday-sat-wed"].endMinute;
-            activeMessage = `<div class="video-banking-box"><b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b><br>بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b><br>بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۳:۰۰</b></div>`;
-          } else if (weekday === 4) {
-            startHour = workingHours["weekday-thu"].startHour;
-            endHour = workingHours["weekday-thu"].endHour;
-            endMinute = workingHours["weekday-thu"].endMinute;
-            activeMessage = `<div class="video-banking-box"><b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b><br>بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b><br>بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۲:۳۰</b></div>`;
-          }
-          if (
-            currentHour > startHour &&
-            (currentHour < endHour ||
-              (currentHour === endHour && currentMinute < endMinute))
-          ) {
-            statusHTML = activeMessage;
-          } else if (
-            currentHour < startHour ||
-            (currentHour === startHour && currentMinute < 0)
-          ) {
-            statusHTML = beforeHoursMessage;
-          } else {
-            statusHTML = afterHoursMessage;
-          }
-        }
-        statusDiv.innerHTML = statusHTML;
-      }
-
-      // منطق سیکل پایا
-      const payaaCycles = [
-        { hour: 3, min: 45, endH: 4, endM: 50 },
-        { hour: 9, min: 45, endH: 10, endM: 50 },
-        { hour: 12, min: 45, endH: 13, endM: 50 },
-        { hour: 18, min: 45, endH: 19, endM: 50 },
-      ];
-      const holidayCycle = [{ hour: 12, min: 45, endH: 13, endM: 50 }];
-      function isHolidayJalali(jy, jm, jd, holidays) {
-        const dateStr = `${jy}-${pad(jm)}-${pad(jd)}`;
-        return holidays.some((h) => h.date === dateStr);
-      }
-      function getNextPayaaCycle(now, holidays) {
-        const [jy, jm, jd] = toJalali(
-          now.getFullYear(),
-          now.getMonth() + 1,
-          now.getDate()
-        );
-        const weekday = now.getDay();
-        const isHolidayToday = isHolidayJalali(jy, jm, jd, holidays);
-        let todayCycles =
-          isHolidayToday || weekday === 5 ? holidayCycle : payaaCycles;
-        for (let cycle of todayCycles) {
-          const cycleTime = new Date(now);
-          cycleTime.setHours(cycle.hour, cycle.min, 0, 0);
-          if (now < cycleTime)
-            return {
-              ...cycle,
-              start: cycleTime,
-              end: new Date(
-                cycleTime.getTime() +
-                  (cycle.endH * 60 +
-                    cycle.endM -
-                    (cycle.hour * 60 + cycle.min)) *
-                    60000
-              ),
-            };
-          const endTime = new Date(now);
-          endTime.setHours(cycle.endH, cycle.endM, 0, 0);
-          if (now >= cycleTime && now < endTime)
-            return {
-              ...cycle,
-              start: cycleTime,
-              end: endTime,
-              inProgress: true,
-            };
-        }
-        const tomorrow = new Date(now);
-        tomorrow.setDate(now.getDate() + 1);
-        const [ty, tm, td] = toJalali(
-          tomorrow.getFullYear(),
-          tomorrow.getMonth() + 1,
-          tomorrow.getDate()
-        );
-        const isHolidayTomorrow =
-          isHolidayJalali(ty, tm, td, holidays) || tomorrow.getDay() === 5;
-        const firstCycle = (isHolidayTomorrow ? holidayCycle : payaaCycles)[0];
-        tomorrow.setHours(firstCycle.hour, firstCycle.min, 0, 0);
-        return {
-          ...firstCycle,
-          start: tomorrow,
-          end: new Date(
-            tomorrow.getTime() +
-              (firstCycle.endH * 60 +
-                firstCycle.endM -
-                (firstCycle.hour * 60 + firstCycle.min)) *
-                60000
-          ),
-        };
-      }
-      function renderPayaaCycleStatus(holidays) {
-        const statusDiv = document.getElementById("payaa-cycle-status");
-        if (!statusDiv) return;
-        function updateStatus() {
-          const now = new Date();
-          const cycle = getNextPayaaCycle(now, holidays);
-          const nextDate = cycle.start;
-          const [jy, jm, jd] = toJalali(
-            new Date().getFullYear(),
-            new Date().getMonth() + 1,
-            new Date().getDate()
-          );
-          const [cy, cm, cd] = toJalali(
-            nextDate.getFullYear(),
-            nextDate.getMonth() + 1,
-            nextDate.getDate()
-          );
-          let dayLabel = "";
-          if (jy === cy && jm === cm && jd === cd) dayLabel = "امروز";
-          else {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const [ty, tm, td] = toJalali(
-              tomorrow.getFullYear(),
-              tomorrow.getMonth() + 1,
-              tomorrow.getDate()
-            );
-            if (cy === ty && cm === tm && cd === td) dayLabel = "فردا";
-            else dayLabel = weekdays[nextDate.getDay()];
-          }
-          const pMonth = persianMonths[cm - 1];
-          const nextCycleText = `چرخه بعدی : ${dayLabel} ${toPersianDigits(
-            cd
-          )} ${pMonth} ساعت ${toPersianDigits(cycle.hour)}:${toPersianDigits(
-            cycle.min.toString().padStart(2, "0")
-          )}`;
-          if (cycle.inProgress) {
-            statusDiv.innerHTML = `<div class="news-alert-box yellow" style="font-weight:bold;"><span>درحال تسویه درخواست‌های ثبت‌شده پایا</span><div style="color:#888; font-size:0.95em; margin-top:0.5em;">${nextCycleText}</div></div>`;
-          } else {
-            const diffMs = cycle.start - now;
-            let diffMin = Math.ceil(diffMs / 60000);
-            if (diffMin < 1) diffMin = 1;
-            statusDiv.innerHTML = `<div class="news-alert-box green" style="font-weight:bold;"><span>${toPersianTimeStr(
-              diffMin
-            )} تا چرخه بعدی پایا </span><div style="color:#888; font-size:0.95em; margin-top:0.5em;">${nextCycleText}</div></div>`;
-          }
-        }
-        updateStatus();
-        setInterval(updateStatus, 60000);
-      }
-      async function setupPayaaCycleStatus() {
-        let holidays = [];
-        try {
-          const res = await fetch("data/holidays-1404.json");
-          holidays = await res.json();
-        } catch (e) {
-          console.error("Could not fetch holidays data", e);
-        }
-        renderPayaaCycleStatus(holidays);
-      }
-
-      // منطق وضعیت سرویس‌ها
-      async function loadAndDisplayServiceStatus() {
-        const serviceStatusDiv = document.getElementById("service-status");
-        if (!serviceStatusDiv) return;
-        serviceStatusDiv.innerHTML = "در حال بارگذاری وضعیت سرویس‌ها...";
-        try {
-          const response = await fetch("data/service-status.json");
-          if (!response.ok)
-            throw new Error(`HTTP error! status: ${response.status}`);
-          const services = await response.json();
-          let html = "";
-          if (services.length === 0) {
-            html = `<div class="news-alert-box green">همه سرویس‌ها فعال هستند.</div>`;
-          } else {
-            services.forEach((service) => {
-              let colorClass = "green";
-              if (service.status === "غیرفعال") colorClass = "red";
-              else if (service.status === "در حال بررسی") colorClass = "yellow";
-              else if (service.status === "اختلال در عملکرد")
-                colorClass = "orange";
-              html += `<div class="news-alert-box ${colorClass}"><b>${
-                service.name
-              }:</b> ${service.status}${
-                service.description
-                  ? `<p style="margin-top: 8px; margin-bottom: 0;">${service.description}</p>`
-                  : ""
-              }</div>`;
-            });
-          }
-          serviceStatusDiv.innerHTML = html;
-        } catch (error) {
-          console.error("Could not fetch service status:", error);
-          serviceStatusDiv.innerHTML = `<div class="news-alert-box red">خطا در بارگذاری وضعیت سرویس‌ها.</div>`;
-        }
-      }
-
-      // اجرای توابع پس از بارگذاری کامل صفحه
-      document.addEventListener("DOMContentLoaded", function () {
-        if (document.getElementById("payaa-cycle-status")) {
-          setupPayaaCycleStatus();
-        }
-        if (document.getElementById("video-banking-status")) {
-          updateVideoBankingStatus();
-        }
-        if (document.getElementById("service-status")) {
-          loadAndDisplayServiceStatus();
-        }
-      });
-    </script>
+    <script src="/js/main.js"></script>
+    <script src="/js/common.js"></script>
   </body>
 </html>

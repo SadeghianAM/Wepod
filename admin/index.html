@@ -7,7 +7,7 @@
     <script src="/js/auth.js"></script>
     <script>
       window.onload = function () {
-        protectPage(["abolfazl", "ali", "morteza"]);
+        protectPage(["a.sadeghianmajd", "ali", "morteza"]);
       };
     </script>
     <style>
@@ -31,6 +31,49 @@
         min-height: 100vh;
         display: flex;
         flex-direction: column;
+      }
+      header {
+        background: #00ae70;
+        color: white;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
+        position: relative;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+      }
+      #today-date {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        color: #fff;
+        opacity: 0.85;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      #user-info {
+        position: absolute;
+        left: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.95rem;
+        color: #fff;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        padding: 0.5rem 0.8rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+      }
+      #user-info:hover {
+        background-color: rgba(255, 255, 255, 0.15);
       }
       main {
         flex-grow: 1;
@@ -87,6 +130,19 @@
       a:hover {
         color: #089863;
       }
+      footer {
+        background: #00ae70;
+        color: #e0e7ff;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+      }
+      footer p {
+        margin: 0;
+      }
       #tools-search {
         width: 100%;
         font-size: 1rem;
@@ -111,11 +167,19 @@
         li {
           padding: 1rem 1.2rem;
         }
+        #today-date,
+        #user-info {
+          font-size: 0.85rem;
+        }
       }
     </style>
   </head>
   <body>
-    <div id="header-placeholder"></div>
+    <header>
+      <span id="today-date"></span>
+      <h1>بخش مدیریت</h1>
+      <div id="user-info"></div>
+    </header>
     <main>
       <div class="main-content">
         <div class="column column-info"></div>
@@ -136,6 +200,7 @@
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script src="/js/app.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/common.js"></script>
   </body>
 </html>

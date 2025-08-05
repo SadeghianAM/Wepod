@@ -1,30 +1,52 @@
+<!-- header.html -->
+<header>
+  <span id="today-date"></span>
+  <h1 id="page-title">سرویس‌های بخش پشتیبانی مشتریان</h1>
+  <span id="current-time"></span>
+</header>
+
 <style>
   header {
-    background-color: var(--primary-color);
-    color: var(--header-text);
-    padding: 1rem 1.5rem;
+    background: #00ae70;
+    color: #fff;
+    height: 70px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 8px var(--shadow-color-light);
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
+    position: relative;
   }
-
-  header #today-date,
-  header #current-time {
-    font-size: 0.9rem;
-    color: var(--bg-color);
-  }
-
-  header #page-title {
-    font-size: 1.4rem;
+  header h1 {
+    font-size: 1.2rem;
     font-weight: 700;
     margin: 0;
-    color: white;
+  }
+  #today-date {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: #fff;
+    opacity: 0.85;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  #current-time {
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: #fff;
+    opacity: 0.85;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  @media (max-width: 480px) {
+    #today-date,
+    #current-time {
+      display: none;
+    }
   }
 </style>
-
-<header>
-  <div id="today-date"></div>
-  <h1 id="page-title"></h1>
-  <div id="current-time"></div>
-</header>

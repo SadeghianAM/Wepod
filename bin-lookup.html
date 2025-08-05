@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>اعتبارسنجی کارت</title>
+    <meta name="robots" content="noindex, nofollow" />
     <style>
       :root {
         --primary-color: #00ae70;
@@ -14,6 +15,8 @@
         --header-text: #ffffff;
         --border-radius: 0.75rem;
         --shadow-color-light: rgba(0, 174, 112, 0.07);
+
+        /* Result Box States */
         --success-bg: #e6f7f0;
         --success-text: #157347;
         --success-border: #00ae70;
@@ -24,12 +27,14 @@
         --warning-text: #b9770e;
         --warning-border: #f39c12;
       }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
+
       *,
       *::before,
       *::after {
@@ -38,6 +43,7 @@
         margin: 0;
         padding: 0;
       }
+
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -46,6 +52,8 @@
         display: flex;
         flex-direction: column;
       }
+
+      /* == Main Layout == */
       main {
         flex-grow: 1;
         display: flex;
@@ -57,6 +65,8 @@
         width: 100%;
         margin: 0 auto;
       }
+
+      /* == Form Styling == */
       .form-wrapper {
         width: 100%;
         max-width: 480px;
@@ -67,6 +77,7 @@
         padding: 2rem 1.5rem;
         margin-top: 2rem;
       }
+
       label {
         display: block;
         margin-bottom: 0.7rem;
@@ -74,6 +85,7 @@
         font-size: 1.1rem;
         color: var(--primary-color);
       }
+
       input {
         width: 100%;
         padding: 1rem;
@@ -81,17 +93,20 @@
         border: 2px solid var(--success-bg);
         border-radius: var(--border-radius);
         direction: ltr;
-        text-align: center;
-        letter-spacing: 2px;
+        text-align: center; /* Changed from left to center */
+        letter-spacing: 2px; /* Increased letter-spacing for better appearance */
         background: var(--bg-color);
         color: var(--text-color);
         transition: border-color 0.3s, background-color 0.3s;
       }
+
       input:focus {
         border-color: var(--primary-color);
         background-color: var(--card-bg);
         outline: none;
       }
+
+      /* == Result Boxes == */
       .result {
         margin-top: 1rem;
         padding: 1rem 1.5rem;
@@ -99,33 +114,39 @@
         font-weight: bold;
         font-size: 1rem;
         text-align: center;
-        display: none;
+        display: none; /* Controlled by JS */
         transition: background-color 0.3s ease, color 0.3s ease,
           border-color 0.3s ease;
         border-width: 1px;
         border-style: solid;
       }
+
       .result.success {
         background-color: var(--success-bg);
         color: var(--success-text);
         border-color: var(--success-border);
       }
+
       .result.error {
         background-color: var(--error-bg);
         color: var(--error-text);
         border-color: var(--error-border);
       }
+
       .result.warning {
         background-color: var(--warning-bg);
         color: var(--warning-text);
         border-color: var(--warning-border);
       }
+
       .result img {
         vertical-align: middle;
         width: 24px;
         height: 24px;
         margin-left: 4px;
       }
+
+      /* == Buttons & Links == */
       .btn {
         width: 100%;
         padding: 1rem;
@@ -139,12 +160,14 @@
         display: block;
         transition: background-color 0.3s;
       }
+
       .btn-primary {
         background-color: var(--primary-color);
       }
       .btn-primary:hover {
         background-color: var(--primary-dark);
       }
+
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -154,10 +177,25 @@
         font-size: 1rem;
         transition: color 0.3s;
       }
+
       .back-link:hover {
         text-decoration: underline;
         color: var(--primary-dark);
       }
+
+      /* == Footer (Placeholder style) == */
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        box-shadow: 0 -2px 8px var(--shadow-color-light);
+      }
+
+      /* == Responsive Media Queries == */
       @media (max-width: 480px) {
         .form-wrapper {
           padding: 1.5rem 1rem;
@@ -192,178 +230,8 @@
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script src="/js/app.js"></script>
-    <script>
-      const resultBox = document.getElementById("resultBox");
-      const validationBox = document.getElementById("validationBox");
-
-      let binData = [];
-      const requireFullBin = ["502229", "621986"];
-
-      fetch("./data/bin-data.json")
-        .then((res) => res.json())
-        .then((data) => {
-          binData = data.sort((a, b) => b.bin.length - a.bin.length);
-        })
-        .catch((err) => {
-          showResult("خطا در بارگذاری اطلاعات بانکی", "error");
-          console.error(err);
-        });
-
-      function validateLuhn(number) {
-        let sum = 0;
-        for (let i = 0; i < number.length; i++) {
-          let digit = parseInt(number[i], 10);
-          if (i % 2 === 0) {
-            digit *= 2;
-            if (digit > 9) digit -= 9;
-          }
-          sum += digit;
-        }
-        return sum % 10 === 0;
-      }
-
-      function clearResult() {
-        resultBox.textContent = "";
-        resultBox.className = "result";
-        resultBox.style.display = "none";
-      }
-
-      function clearValidation() {
-        validationBox.textContent = "";
-        validationBox.className = "result";
-        validationBox.style.display = "none";
-      }
-
-      function showResult(message, type, logoName = null, bankName = null) {
-        resultBox.className = `result ${type}`;
-        resultBox.style.display = "block";
-        resultBox.innerHTML = "";
-
-        if (
-          logoName &&
-          bankName &&
-          type === "success" &&
-          message.includes("متعلق")
-        ) {
-          const img = document.createElement("img");
-          img.src = `./assets/logo/${logoName}.svg`;
-          img.alt = "لوگوی بانک";
-          img.onerror = () => (img.style.display = "none");
-          resultBox.appendChild(document.createTextNode("این کارت متعلق به "));
-          resultBox.appendChild(img);
-          resultBox.appendChild(document.createTextNode(`${bankName} است.`));
-        } else {
-          resultBox.textContent = message;
-        }
-      }
-
-      function clearForm() {
-        const input = document.getElementById("binInput");
-        input.value = "";
-        input.focus();
-        clearResult();
-        clearValidation();
-      }
-
-      window.addEventListener("clear-both", () => {
-        clearResult();
-        clearValidation();
-      });
-
-      window.addEventListener("bin-check", (e) => {
-        const cleaned = e.detail;
-        const length = cleaned.length;
-
-        clearValidation();
-
-        let bankMatched = false;
-
-        if (length >= 6) {
-          const bin6 = cleaned.substring(0, 6);
-          const bin8 = cleaned.substring(0, 8);
-          const requires8 = requireFullBin.includes(bin6);
-
-          if (requires8) {
-            if (length === 6) {
-              showResult(
-                "برای تشخیص دقیق‌تر، لطفاً دو رقم دیگر وارد کنید.",
-                "warning"
-              );
-            } else if (length === 7) {
-              showResult(
-                "برای تشخیص دقیق‌تر، لطفاً یک رقم دیگر وارد کنید.",
-                "warning"
-              );
-            } else {
-              const match = binData.find((entry) => bin8.startsWith(entry.bin));
-              if (match) {
-                bankMatched = true;
-                showResult(
-                  `این کارت متعلق به ${match.name} است.`,
-                  "success",
-                  match.logo,
-                  match.name
-                );
-              } else {
-                showResult("بانکی با این شماره پیدا نشد.", "warning");
-              }
-            }
-          } else {
-            const match = binData.find((entry) => bin6.startsWith(entry.bin));
-            if (match) {
-              bankMatched = true;
-              showResult(
-                `این کارت متعلق به ${match.name} است.`,
-                "success",
-                match.logo,
-                match.name
-              );
-            } else {
-              showResult("بانکی با این شماره پیدا نشد.", "warning");
-            }
-          }
-        }
-
-        if (!bankMatched) {
-          return;
-        }
-
-        if (length < 16) {
-          validationBox.className = "result warning";
-          validationBox.style.display = "block";
-          validationBox.textContent =
-            "برای اعتبارسنجی شماره کارت را کامل وارد کنید";
-        } else {
-          const isValid = validateLuhn(cleaned);
-          if (isValid) {
-            validationBox.className = "result success";
-            validationBox.style.display = "block";
-            validationBox.textContent = "✅ شماره کارت معتبر است.";
-          } else {
-            validationBox.className = "result error";
-            validationBox.style.display = "block";
-            validationBox.textContent = "❌ شماره کارت نامعتبر است.";
-          }
-        }
-      });
-
-      const input = document.getElementById("binInput");
-
-      input.addEventListener("input", (e) => {
-        const rawValue = e.target.value.replace(/\D/g, "").substring(0, 16);
-        const groups = rawValue.match(/.{1,4}/g) || [];
-        e.target.value = groups.join(" ");
-        const cleaned = rawValue;
-
-        if (cleaned.length >= 6) {
-          const event = new CustomEvent("bin-check", { detail: cleaned });
-          window.dispatchEvent(event);
-        } else {
-          const clearEvent = new CustomEvent("clear-both");
-          window.dispatchEvent(clearEvent);
-        }
-      });
-    </script>
+    <script src="/js/header.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/binService.js"></script>
   </body>
 </html>
