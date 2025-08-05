@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 $data = file_get_contents('php://input');
 
 // ❗️ آدرس فایل JSON شما که قرار است بازنویسی شود
-$file_path = 'wiki.json';
+$file_path = '/data/wiki.json';
 
 // داده‌های جدید را در فایل می‌نویسیم
 if (file_put_contents($file_path, $data) !== false) {
