@@ -3,19 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>وی هاب</title>
+    <title>وی هاب - داشبورد پشتیبانی</title>
+    <meta name="robots" content="noindex, nofollow" />
     <style>
       :root {
-        --primary-color: #00a068;
-        --primary-dark: #007d52;
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
         --bg-color: #f7fafc;
-        --card-bg: #ffffff;
         --text-color: #2d3748;
-        --text-light: #718096;
-        --header-bg: #ffffff;
-        --header-text: var(--primary-dark);
-        --border-color: #e2e8f0;
-        --shadow-color: rgba(0, 0, 0, 0.05);
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.06);
+        --shadow-color-medium: rgba(0, 174, 112, 0.12);
         --danger-color: #e53e3e;
         --danger-bg: #fff5f5;
         --warning-color: #dd6b20;
@@ -28,20 +27,6 @@
         --transition-speed: 0.3s;
       }
 
-      .dark-mode {
-        --bg-color: #1a202c;
-        --card-bg: #2d3748;
-        --text-color: #e2e8f0;
-        --text-light: #a0aec0;
-        --header-bg: #2d3748;
-        --header-text: #68d391;
-        --border-color: #4a5568;
-        --danger-bg: #2d2323;
-        --warning-bg: #312921;
-        --info-bg: #212c3b;
-        --success-bg: #202d29;
-      }
-
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
@@ -49,381 +34,248 @@
         font-display: swap;
       }
 
-      *,
-      *::before,
-      *::after {
+      * {
         font-family: "Vazirmatn", sans-serif;
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
 
-      html {
-        scroll-behavior: smooth;
-      }
-
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
         direction: rtl;
-        min-height: 100vh;
         display: flex;
         flex-direction: column;
-        font-weight: 400;
-        transition: background-color var(--transition-speed),
-          color var(--transition-speed);
+        min-height: 100vh;
+      }
+
+      header,
+      footer {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       }
 
       header {
-        background-color: var(--header-bg);
-        color: var(--header-text);
-        box-shadow: 0 4px 6px -1px var(--shadow-color);
-        padding: 1rem 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        transition: background-color var(--transition-speed);
-      }
-
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-      header h1 {
-        font-size: 1.5rem;
-        font-weight: 800;
-      }
-      .header-info {
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: var(--text-light);
-        display: flex;
-        gap: 1.5rem;
+        height: 75px;
+        position: relative;
       }
 
       footer {
         height: 60px;
-        background: var(--primary-color);
-        color: #ffffff;
-        font-size: 0.85rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: auto;
+        font-size: 0.9rem;
+        border-top: 1px solid var(--primary-dark);
       }
 
-      .theme-switch-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
       }
-      .theme-switch {
-        display: inline-block;
-        height: 26px;
-        position: relative;
-        width: 50px;
-      }
-      .theme-switch input {
-        display: none;
-      }
-      .slider {
-        background-color: #ccc;
-        bottom: 0;
-        cursor: pointer;
-        left: 0;
+
+      #today-date,
+      #current-time {
         position: absolute;
-        right: 0;
-        top: 0;
-        transition: 0.4s;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        font-weight: 500;
+        opacity: 0.9;
       }
-      .slider:before {
-        background-color: #fff;
-        bottom: 4px;
-        content: "";
-        height: 18px;
-        left: 4px;
-        position: absolute;
-        transition: 0.4s;
-        width: 18px;
+
+      #today-date {
+        inset-inline-start: 2rem;
       }
-      input:checked + .slider {
-        background-color: var(--primary-color);
-      }
-      input:checked + .slider:before {
-        transform: translateX(24px);
-      }
-      .slider.round {
-        border-radius: 34px;
-      }
-      .slider.round:before {
-        border-radius: 50%;
-        content: "☀️";
-        font-size: 12px;
-        text-align: center;
-        line-height: 18px;
-      }
-      input:checked + .slider.round:before {
-        content: "🌙";
+      #current-time {
+        inset-inline-end: 2rem;
       }
 
       main {
         flex-grow: 1;
-        padding: 2rem 1.5rem;
+        padding: 2rem;
         max-width: 1200px;
         width: 100%;
         margin: 0 auto;
       }
-      .main-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        gap: 2rem;
-        align-items: start;
-      }
-      .column-left {
-        grid-column: span 12;
-      }
-      .column-right {
-        grid-column: span 12;
-      }
-      @media (min-width: 1024px) {
-        .column-left {
-          grid-column: span 5;
-        }
-        .column-right {
-          grid-column: span 7;
-        }
+
+      .main-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2.5rem;
+        align-items: flex-start;
       }
 
-      .card {
-        background: var(--card-bg);
-        border-radius: var(--border-radius);
-        box-shadow: 0 4px 6px -1px var(--shadow-color),
-          0 2px 4px -1px rgba(0, 0, 0, 0.04);
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        border-top: 4px solid var(--primary-color);
-        transition: background-color var(--transition-speed);
+      .column {
+        flex: 1;
+        min-width: 320px;
       }
-      .card h2 {
-        font-size: 1.4rem;
-        font-weight: 700;
+
+      h2 {
+        font-size: 1.5rem;
         margin-bottom: 1.5rem;
-        color: var(--text-color);
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .status-box,
-      .news-alert-box {
-        padding: 1rem 1.25rem;
-        margin-bottom: 1rem;
-        border-radius: calc(var(--border-radius) / 1.5);
-        border: 1px solid;
-        border-right-width: 5px;
-        font-size: 1rem;
-        line-height: 1.6;
-        transition: background-color var(--transition-speed),
-          border-color var(--transition-speed);
-      }
-      .status-box b,
-      .news-alert-box b {
+        color: var(--primary-dark);
+        text-align: center;
         font-weight: 700;
-      }
-      .payaa-subtext {
-        color: var(--text-light);
-        font-size: 0.9em;
-        margin-top: 0.5em;
-        font-weight: 500;
-      }
-      .green {
-        background-color: var(--success-bg);
-        border-color: var(--success-color);
-        color: var(--success-color);
-      }
-      .yellow {
-        background-color: var(--warning-bg);
-        border-color: var(--warning-color);
-        color: var(--warning-color);
-      }
-      .red {
-        background-color: var(--danger-bg);
-        border-color: var(--danger-color);
-        color: var(--danger-color);
-      }
-      .orange {
-        background: #fffaf0;
-        border-color: #ed8936;
-        color: #9c4221;
-      }
-      .dark-mode .orange {
-        background: #312b21;
-        border-color: #c05621;
-        color: #fbd38d;
-      }
-      .blue {
-        background: var(--info-bg);
-        border-color: var(--info-color);
-        color: var(--info-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
       }
 
-      #payaa-cycle-status .status-box.green,
-      #video-banking-status .status-box.green {
-        background-color: #eafff4;
-        border-color: #00ae70;
-        color: #089863;
-      }
-      #payaa-cycle-status .status-box.yellow {
-        background-color: #fffde0;
-        border-color: #ffd600;
-        color: #b39500;
-      }
-      #video-banking-status .status-box.red,
-      #video-banking-status .status-box.yellow {
-        background-color: #fff0f3;
-        border-color: #ff0040;
-        color: #c50030;
-      }
-
-      .dark-mode #payaa-cycle-status .status-box.green,
-      .dark-mode #video-banking-status .status-box.green {
-        background-color: #1a2b25;
-        color: #7fdec2;
-        border-color: #00ae70;
-      }
-      .dark-mode #payaa-cycle-status .status-box.yellow {
-        background-color: #2b2a1f;
-        color: #f2e58a;
-        border-color: #ffd600;
-      }
-      .dark-mode #video-banking-status .status-box.red,
-      .dark-mode #video-banking-status .status-box.yellow {
-        background-color: #2b2123;
-        color: #ffb3c4;
-        border-color: #ff0040;
+      h3 {
+        font-size: 1.2rem;
+        color: var(--text-color);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
 
       ul {
         list-style: none;
       }
-      .column-right h2 {
-        margin-top: 2.5rem;
-      }
-      .column-right h2:first-of-type {
-        margin-top: 0;
-      }
-      .column-right ul {
+
+      li {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
         margin-bottom: 1rem;
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        transition: all var(--transition-speed) ease;
+        border-inline-start: 5px solid transparent;
       }
 
-      .column-right li a {
-        display: flex;
-        align-items: center;
+      li:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px var(--shadow-color-medium);
+        border-inline-start-color: var(--primary-color);
+      }
+
+      a {
         text-decoration: none;
         color: var(--text-color);
         font-weight: 600;
-        font-size: 1.05rem;
-        padding: 1rem 1.25rem;
-        margin-bottom: 0.75rem;
-        border-radius: calc(var(--border-radius) / 1.5);
-        background-color: var(--bg-color);
-        border: 1px solid var(--border-color);
-        transition: all var(--transition-speed) ease;
-      }
-      .column-right li a:hover {
-        color: var(--primary-dark);
-        background-color: var(--card-bg);
-        border-color: var(--primary-color);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px -2px var(--shadow-color);
-      }
-      .tools-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        padding: 1.3rem 1.5rem;
         gap: 1rem;
+        transition: color var(--transition-speed);
       }
-      .tools-list li {
-        margin-bottom: 0;
+
+      li:hover a {
+        color: var(--primary-color);
+      }
+
+      .news-alert-box {
+        /* Adjusted to use a more generic name */
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid;
+        border-inline-start-width: 5px;
+        border-inline-start-style: solid;
+        font-weight: 500;
+      }
+
+      .news-alert-box.green {
+        background-color: var(--success-bg);
+        border-color: var(--success-color);
+      }
+      .news-alert-box.red {
+        background-color: var(--danger-bg);
+        border-color: var(--danger-color);
+      }
+      .news-alert-box.yellow {
+        background-color: var(--warning-bg);
+        border-color: var(--warning-color);
+      }
+      .news-alert-box.orange {
+        background: #fff6e5;
+        border-color: #ffa500;
+      }
+      .video-banking-box {
+        /* Ensure this class from JS also benefits */
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: var(--border-radius);
+        border-inline-start-width: 5px;
+        border-inline-start-style: solid;
+      }
+      .video-banking-box {
+        background: var(--success-bg);
+        border-inline-start-color: var(--success-color);
+      }
+      .video-banking-box.closed {
+        background: var(--danger-bg);
+        border-inline-start-color: var(--danger-color);
       }
 
       #tools-search {
         width: 100%;
         font-size: 1rem;
-        padding: 0.8rem 1rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--border-color);
-        background-color: var(--bg-color);
-        color: var(--text-color);
+        padding: 0.8rem 1.2rem;
+        border-radius: var(--border-radius);
+        border: 2px solid #e2e8f0;
         margin-bottom: 1.5rem;
         outline: none;
         transition: all var(--transition-speed);
       }
+
       #tools-search:focus {
         border-color: var(--primary-color);
-        background-color: var(--card-bg);
-        box-shadow: 0 0 0 3px rgba(0, 160, 104, 0.2);
+        box-shadow: 0 0 0 4px var(--shadow-color-light);
       }
 
-      @media (max-width: 768px) {
-        header {
+      @media (max-width: 900px) {
+        .main-content {
           flex-direction: column;
-          gap: 1rem;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
         }
         header h1 {
-          font-size: 1.3rem;
+          font-size: 1.2rem;
         }
-        .header-info {
+        #today-date,
+        #current-time {
           display: none;
-        }
-        main {
-          padding: 1.5rem 1rem;
-        }
-        .card {
-          padding: 1.2rem;
-        }
-        .card h2 {
-          font-size: 1.25rem;
         }
       }
     </style>
   </head>
   <body>
     <header>
-      <div class="header-left">
-        <h1>وی هاب</h1>
-        <div class="theme-switch-wrapper">
-          <label class="theme-switch" for="theme-toggle">
-            <input type="checkbox" id="theme-toggle" />
-            <span class="slider round"></span>
-          </label>
-        </div>
-      </div>
-      <div class="header-info">
-        <span id="today-date"></span>
-        <span id="current-time"></span>
-      </div>
+      <h1>💎 وی هاب</h1>
+      <span id="today-date"></span>
+      <span id="current-time"></span>
     </header>
-
     <main>
-      <div class="main-grid">
-        <div class="column-left">
-          <div class="card">
-            <h2>📣 اطلاع رسانی</h2>
-            <div id="payaa-cycle-status"></div>
-            <div id="video-banking-status"></div>
-            <div id="news-alerts-page"></div>
-          </div>
-
-          <div class="card">
-            <h2>🚦 وضعیت کلی سرویس‌ها</h2>
-            <div id="service-status"></div>
-          </div>
+      <div class="main-content">
+        <div class="column column-info">
+          <h2>📣 اطلاع رسانی و وضعیت</h2>
+          <div id="payaa-cycle-status"></div>
+          <div id="video-banking-status"></div>
+          <div id="service-status"></div>
+          <div id="news-alerts-page"></div>
+          <ul>
+            <li><a href="/status.html">🖥️ نمایش وضعیت تمامی سرویس‌ها</a></li>
+          </ul>
         </div>
-
-        <div class="column-right card">
+        <div class="column column-tools">
+          <h2>🛠️ ابزارها و سامانه‌ها</h2>
           <input
             type="text"
             id="tools-search"
@@ -431,19 +283,19 @@
             aria-label="جستجو در ابزارها"
           />
 
-          <h2>🛠️ ابزارهای پشتیبانی</h2>
+          <h3>📚 عمومی</h3>
           <ul>
-            <li><a href="/wiki.html">🔍 ویکی ویپاد</a></li>
+            <li><a href="/wiki.html">📖 ویکی ویپاد</a></li>
+            <li><a href="/learn/index.html">🎓 آموزش‌ها</a></li>
             <li><a href="/change-number.html">🔄 تغییر شماره</a></li>
             <li><a href="/account-block.html">🚫 مسدودی حساب</a></li>
-            <li><a href="/learn/index.html">📚 آموزش ها</a></li>
+            <li><a href="/fee-calculator.html">💸 محاسبه کارمزد</a></li>
           </ul>
 
-          <h2>🔍 سرویس‌های استعلامی</h2>
+          <h3>🔍 استعلام</h3>
           <ul>
-            <li><a href="/iban-lookup.html">✔️ اعتبارسنجی شبا</a></li>
-            <li><a href="/bin-lookup.html">💳 اعتبارسنجی کارت</a></li>
-            <li><a href="#">🏦 استعلام نوع حساب و شعب | بزودی</a></li>
+            <li><a href="/iban-lookup.html">💳 اعتبارسنجی شبا</a></li>
+            <li><a href="/bin-lookup.html">🏧 اعتبارسنجی کارت</a></li>
             <li>
               <a
                 href="https://vbank.bpi.ir/public/inquiries/inquiry-paya"
@@ -452,24 +304,11 @@
                 >💸 پیگیری تراکنش پایا</a
               >
             </li>
-            <li>
-              <a
-                href="https://vbank.bpi.ir/public/inquiries/inquiry-satna"
-                target="_blank"
-                rel="noopener noreferrer"
-                >💸 پیگیری تراکنش ساتنا</a
-              >
-            </li>
-            <li>
-              <a href="/postal-lookup.html">📮 استعلام منطقه پستی | آزمایشی</a>
-            </li>
-            <li>
-              <a href="/fee-calculator.html">💰 محاسبه کارمزد انتقال وجه</a>
-            </li>
+            <li><a href="/postal-lookup.html">📮 استعلام منطقه پستی</a></li>
           </ul>
 
-          <h2>🔗 سامانه های داخلی</h2>
-          <ul class="tools-list">
+          <h3>🏢 سامانه‌های داخلی</h3>
+          <ul>
             <li>
               <a
                 href="https://172.29.1.82/"
@@ -483,7 +322,7 @@
                 href="https://callcenter.pod.ir/"
                 target="_blank"
                 rel="noopener noreferrer"
-                >🧾 پنل پاد</a
+                >📞 پنل پاد</a
               >
             </li>
             <li>
@@ -491,15 +330,7 @@
                 href="https://jira.dotin.ir"
                 target="_blank"
                 rel="noopener noreferrer"
-                >👨‍💻 جیرا</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://fams.pod.ir/TSK/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >👨‍💻 فمس</a
+                >📋 جیرا</a
               >
             </li>
             <li>
@@ -507,35 +338,19 @@
                 href="https://pay.pod.ir/card/activate"
                 target="_blank"
                 rel="noopener noreferrer"
-                >💳 فعالسازی کارت</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://podform.ir/f/5y5Q7tmn4H2LwiH2MHlbgg=="
-                target="_blank"
-                rel="noopener noreferrer"
-                >🍔 فرم سفارش غذا</a
+                >✅ فعالسازی کارت</a
               >
             </li>
           </ul>
 
-          <h2>📦 رهگیری مرسولات</h2>
-          <ul class="tools-list">
-            <li>
-              <a
-                href="https://staging.wepod.ir/panel/delivery-request/tracking"
-                target="_blank"
-                rel="noopener noreferrer"
-                >📦 پنل مدیریت</a
-              >
-            </li>
+          <h3>📦 رهگیری مرسولات</h3>
+          <ul>
             <li>
               <a
                 href="https://tracking.post.ir/"
                 target="_blank"
                 rel="noopener noreferrer"
-                >📮 رهگیری پست</a
+                >✉️ رهگیری پست</a
               >
             </li>
             <li>
@@ -543,7 +358,7 @@
                 href="https://boxit.ir/tracking/"
                 target="_blank"
                 rel="noopener noreferrer"
-                >📬 رهگیری باکسیت</a
+                >📦 رهگیری باکسیت</a
               >
             </li>
             <li>
@@ -555,59 +370,13 @@
               >
             </li>
           </ul>
-
-          <h2>💻 سامانه‌های داتین</h2>
-          <ul class="tools-list">
-            <li>
-              <a
-                href="https://karsu.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >⏳ کارسو</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://divan.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >⚖️ دیوان</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://hotspot.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >📶 هات‌اسپات</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://e.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >🪟 پنجره داتین</a
-              >
-            </li>
-          </ul>
-
-          <h2>🔑 مدیریت</h2>
           <ul>
-            <li>
-              <a href="/admin/" target="_blank" rel="noopener noreferrer"
-                >ورود به پنل مدیریت وی هاب</a
-              >
-            </li>
+            <li><a href="/admin/">🔑 ورود به پنل مدیریت</a></li>
           </ul>
         </div>
       </div>
     </main>
-
-    <footer id="footer-placeholder">
-      <p>وی هاب</p>
-    </footer>
-
+    <div id="footer-placeholder"></div>
     <script src="/js/main.js"></script>
     <script src="/js/common.js"></script>
   </body>
