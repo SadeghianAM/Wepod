@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>محاسبه کارمزد انتقال وجه</title>
-    <meta name="robots" content="noindex, nofollow" />
     <style>
       :root {
         --primary-color: #00ae70;
@@ -16,8 +15,6 @@
         --header-text: #ffffff;
         --border-radius: 0.75rem;
         --shadow-color-light: rgba(0, 174, 112, 0.07);
-
-        /* State Colors */
         --success-bg: #e6f7f0;
         --success-text: #157347;
         --success-border: #00ae70;
@@ -30,14 +27,12 @@
         --disabled-bg: #f0f0f0;
         --disabled-opacity: 0.6;
       }
-
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
-
       *,
       *::before,
       *::after {
@@ -46,7 +41,6 @@
         margin: 0;
         padding: 0;
       }
-
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -55,8 +49,6 @@
         display: flex;
         flex-direction: column;
       }
-
-      /* == Main Layout == */
       main {
         flex-grow: 1;
         display: flex;
@@ -65,7 +57,6 @@
         justify-content: center;
         padding: 1.5rem 1rem;
       }
-
       .form-wrapper {
         width: 100%;
         max-width: 550px;
@@ -75,8 +66,6 @@
         box-shadow: 0 2px 12px var(--shadow-color-light);
         padding: 2rem;
       }
-
-      /* == Form & Input Styling == */
       label {
         display: block;
         margin-bottom: 0.5rem;
@@ -84,13 +73,11 @@
         font-size: 1.1rem;
         color: var(--primary-color);
       }
-
       .input-with-currency {
         position: relative;
         display: flex;
         align-items: center;
       }
-
       .input-with-currency .currency-label {
         position: absolute;
         left: 1rem;
@@ -98,11 +85,10 @@
         color: var(--text-secondary);
         pointer-events: none;
       }
-
       #amountInput {
         width: 100%;
         padding: 1rem;
-        padding-left: 5rem; /* Space for currency label */
+        padding-left: 5rem;
         font-size: 1.2rem;
         border: 2px solid var(--success-bg);
         border-radius: var(--border-radius);
@@ -112,13 +98,11 @@
         direction: ltr;
         text-align: center;
       }
-
       #amountInput:focus {
         border-color: var(--primary-color);
         background-color: var(--card-bg);
         outline: none;
       }
-
       .amount-words {
         margin-top: 0.5rem;
         margin-bottom: 10px;
@@ -127,14 +111,11 @@
         min-height: 1.5rem;
         text-align: center;
       }
-
-      /* == Method Cards == */
       .method-cards-container {
         display: flex;
         flex-direction: column;
         gap: 1rem;
       }
-
       .method-card {
         background-color: #fcfcfc;
         border: 1px solid var(--success-bg);
@@ -142,35 +123,29 @@
         padding: 1rem 1.2rem;
         transition: background-color 0.3s, opacity 0.3s;
       }
-
       .method-card.disabled {
         background-color: var(--disabled-bg);
         opacity: var(--disabled-opacity);
       }
-
       .method-title {
         font-size: 1.1rem;
         font-weight: 700;
         color: var(--primary-color);
         margin-bottom: 0.5rem;
       }
-
       .limits {
         font-size: 0.9rem;
         color: var(--text-secondary);
         margin-bottom: 0.6rem;
       }
-
       .limits .separator {
         margin: 0 0.5rem;
       }
-
       .fee-display {
         font-size: 1rem;
         font-weight: bold;
         color: var(--success-text);
       }
-
       .fee-display.error,
       .fee-display.disabled-text {
         color: var(--error-text);
@@ -178,8 +153,6 @@
       .fee-display.warning {
         color: var(--warning-text);
       }
-
-      /* == Links & Footer == */
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -189,24 +162,10 @@
         font-size: 1rem;
         transition: color 0.3s;
       }
-
       .back-link:hover {
         text-decoration: underline;
         color: var(--primary-dark);
       }
-
-      footer {
-        background: var(--primary-color);
-        color: var(--header-text);
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px var(--shadow-color-light);
-      }
-
-      /* == Responsive Media Queries == */
       @media (max-width: 600px) {
         .form-wrapper {
           padding: 1.5rem 1rem;
@@ -224,7 +183,6 @@
   </head>
   <body>
     <div id="header-placeholder"></div>
-
     <main>
       <div class="form-wrapper">
         <label for="amountInput">مبلغ انتقال</label>
@@ -287,8 +245,310 @@
     </main>
 
     <div id="footer-placeholder"></div>
-    <script src="/js/header.js"></script>
-    <script src="/js/common.js"></script>
-    <script src="/js/feeCalculator.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      const amountInput = document.getElementById("amountInput");
+      const amountWordsDiv = document.getElementById("amountWords");
+
+      const cardShetabi = document.getElementById("card-shetabi");
+      const cardPaya = document.getElementById("card-paya");
+      const cardSatna = document.getElementById("card-satna");
+      const cardPol = document.getElementById("card-pol");
+
+      const feeShetabi = document.getElementById("feeShetabi");
+      const feePaya = document.getElementById("feePaya");
+      const feeSatna = document.getElementById("feeSatna");
+      const feePol = document.getElementById("feePol");
+
+      const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+      function toPersianNumber(str) {
+        return str.replace(/\d/g, (d) => persianDigits[d]);
+      }
+
+      function formatWithSeparators(num) {
+        let str = num.toString().replace(/^0+/, "");
+        if (str === "") str = "0";
+        let parts = [];
+        while (str.length > 3) {
+          parts.unshift(str.slice(-3));
+          str = str.slice(0, -3);
+        }
+        parts.unshift(str);
+        const joined = parts.join("٫");
+        return toPersianNumber(joined);
+      }
+
+      const config = {
+        shetabi: { min: 1000, max: 10_000_000 },
+        paya: { min: 1000, max: 200_000_000 },
+        satna: { min: 100_000_000 },
+        pol: { min: 1000, max: 50_000_000 },
+      };
+
+      function calculateFee(method, amount) {
+        switch (method) {
+          case "shetabi": {
+            if (amount < config.shetabi.min) {
+              return {
+                error: `حداقل مبلغ برای شتابی ${formatWithSeparators(
+                  config.shetabi.min
+                )} تومان است.`,
+              };
+            }
+            if (amount > config.shetabi.max) {
+              return {
+                error: `حداکثر مبلغ برای شتابی ${formatWithSeparators(
+                  config.shetabi.max
+                )} تومان است.`,
+              };
+            }
+            if (amount <= 1_000_000) return { fee: 900 };
+            if (amount <= 2_000_000) return { fee: 1220 };
+            if (amount <= 3_000_000) return { fee: 1540 };
+            if (amount <= 4_000_000) return { fee: 1860 };
+            if (amount <= 5_000_000) return { fee: 2180 };
+            if (amount <= 6_000_000) return { fee: 2500 };
+            if (amount <= 7_000_000) return { fee: 2820 };
+            if (amount <= 8_000_000) return { fee: 3140 };
+            if (amount <= 9_000_000) return { fee: 3460 };
+            if (amount <= 10_000_000) return { fee: 3780 };
+          }
+
+          case "paya": {
+            if (amount < config.paya.min) {
+              return {
+                error: `حداقل مبلغ برای پایا ${formatWithSeparators(
+                  config.paya.min
+                )} تومان است.`,
+              };
+            }
+            if (amount > config.paya.max) {
+              return {
+                error: `حداکثر مبلغ برای پایا ${formatWithSeparators(
+                  config.paya.max
+                )} تومان است.`,
+              };
+            }
+            let rawFee = amount * 0.0001;
+            let fee = Math.ceil(rawFee);
+            if (fee < 300) fee = 300;
+            if (fee > 7500) fee = 7500;
+            return { fee };
+          }
+
+          case "satna": {
+            if (amount < config.satna.min) {
+              return {
+                error: `حداقل مبلغ برای ساتنا ${formatWithSeparators(
+                  config.satna.min
+                )} تومان است.`,
+              };
+            }
+            let rawFee = amount * 0.0002;
+            let fee = Math.ceil(rawFee);
+            if (fee > 35000) fee = 35000;
+            return { fee };
+          }
+
+          case "pol": {
+            if (amount < config.pol.min) {
+              return {
+                error: `حداقل مبلغ برای پل ${formatWithSeparators(
+                  config.pol.min
+                )} تومان است.`,
+              };
+            }
+            if (amount > config.pol.max) {
+              return {
+                error: `حداکثر مبلغ برای پل ${formatWithSeparators(
+                  config.pol.max
+                )} تومان است.`,
+              };
+            }
+            let rawFee = amount * 0.0002;
+            let fee = Math.ceil(rawFee);
+            if (fee < 500) fee = 500;
+            return { fee };
+          }
+
+          default:
+            return { error: "روش انتقال نامعتبر است." };
+        }
+      }
+
+      const persianNums = {
+        0: "صفر",
+        1: "یک",
+        2: "دو",
+        3: "سه",
+        4: "چهار",
+        5: "پنج",
+        6: "شش",
+        7: "هفت",
+        8: "هشت",
+        9: "نه",
+        10: "ده",
+        11: "یازده",
+        12: "دوازده",
+        13: "سیزده",
+        14: "چهارده",
+        15: "پانزده",
+        16: "شانزده",
+        17: "هفده",
+        18: "هجده",
+        19: "نوزده",
+      };
+      const persianTens = {
+        20: "بیست",
+        30: "سی",
+        40: "چهل",
+        50: "پنجاه",
+        60: "شصت",
+        70: "هفتاد",
+        80: "هشتاد",
+        90: "نود",
+      };
+      const persianHundreds = {
+        100: "صد",
+        200: "دویست",
+        300: "سیصد",
+        400: "چهارصد",
+        500: "پانصد",
+        600: "ششصد",
+        700: "هفتصد",
+        800: "هشتصد",
+        900: "نهصد",
+      };
+
+      function threeDigitToWords(n) {
+        let str = "";
+        if (n >= 100) {
+          const h = Math.floor(n / 100) * 100;
+          str += persianHundreds[h];
+          n %= 100;
+          if (n) str += " و ";
+        }
+        if (n >= 20) {
+          const t = Math.floor(n / 10) * 10;
+          str += persianTens[t];
+          n %= 10;
+          if (n) str += " و ";
+        }
+        if (n > 0 && n < 20) {
+          str += persianNums[n];
+        }
+        return str;
+      }
+
+      const scales = ["", "هزار", "میلیون", "میلیارد", "تریلیون", "کوادریلیون"];
+      function convertNumberToPersianWords(num) {
+        if (num === 0) return persianNums[0] + " ریال";
+        let result = "";
+        let scaleIdx = 0;
+        while (num > 0) {
+          const chunk = num % 1000;
+          if (chunk) {
+            const chunkWords = threeDigitToWords(chunk);
+            const scaleWord = scales[scaleIdx];
+            const section = chunkWords + (scaleWord ? " " + scaleWord : "");
+            if (result) {
+              result = section + " و " + result;
+            } else {
+              result = section;
+            }
+          }
+          num = Math.floor(num / 1000);
+          scaleIdx++;
+        }
+        return result + " ریال";
+      }
+
+      function updateCardStatus(cardElement, feeElement, methodKey, amount) {
+        const result = calculateFee(methodKey, amount);
+        if (result.error) {
+          cardElement.classList.add("disabled");
+          feeElement.classList.remove("error", "warning");
+          feeElement.classList.add("disabled-text");
+          feeElement.textContent = "غیرقابل انتقال";
+        } else {
+          cardElement.classList.remove("disabled");
+          feeElement.classList.remove("disabled-text");
+          feeElement.classList.remove("warning");
+          feeElement.classList.add("success");
+          const feeStr = formatWithSeparators(result.fee);
+          feeElement.textContent = `کارمزد: ${feeStr} تومان`;
+        }
+      }
+
+      function updateAmountInWords(rialAmount) {
+        if (isNaN(rialAmount) || rialAmount <= 0) {
+          amountWordsDiv.textContent = "";
+          return;
+        }
+        const words = convertNumberToPersianWords(rialAmount);
+        amountWordsDiv.textContent = words;
+      }
+
+      function handleInputChange() {
+        const raw = amountInput.value;
+        let latinDigitsOnly = raw
+          .replace(/[۰-۹]/g, (d) => persianDigits.indexOf(d))
+          .replace(/٫/g, "");
+
+        if (latinDigitsOnly.length > 11) {
+          latinDigitsOnly = latinDigitsOnly.slice(0, 11);
+        }
+
+        const numeric = parseInt(latinDigitsOnly, 10);
+        const isValidNumber = !isNaN(numeric);
+
+        if (latinDigitsOnly === "" || !isValidNumber) {
+          if (latinDigitsOnly === "") {
+            [cardShetabi, cardPaya, cardSatna, cardPol].forEach((card) =>
+              card.classList.remove("disabled")
+            );
+            [feeShetabi, feePaya, feeSatna, feePol].forEach(
+              (feeEl) => (feeEl.textContent = "")
+            );
+            amountInput.value = "";
+            updateAmountInWords(NaN);
+          } else {
+            [cardShetabi, cardPaya, cardSatna, cardPol].forEach((card) => {
+              card.classList.add("disabled");
+            });
+            [feeShetabi, feePaya, feeSatna, feePol].forEach((feeEl) => {
+              feeEl.textContent = "مبلغ نامعتبر است";
+              feeEl.classList.add("disabled-text");
+            });
+            amountInput.value = "";
+            updateAmountInWords(NaN);
+          }
+          return;
+        }
+
+        amountInput.value = formatWithSeparators(numeric);
+        const rialAmount = numeric * 10;
+        updateAmountInWords(rialAmount);
+        updateCardStatus(cardShetabi, feeShetabi, "shetabi", numeric);
+        updateCardStatus(cardPaya, feePaya, "paya", numeric);
+        updateCardStatus(cardSatna, feeSatna, "satna", numeric);
+        updateCardStatus(cardPol, feePol, "pol", numeric);
+      }
+
+      amountInput.addEventListener("input", () => {
+        handleInputChange();
+      });
+
+      window.addEventListener("DOMContentLoaded", () => {
+        amountInput.value = "";
+        [cardShetabi, cardPaya, cardSatna, cardPol].forEach((card) =>
+          card.classList.remove("disabled")
+        );
+        [feeShetabi, feePaya, feeSatna, feePol].forEach(
+          (feeEl) => (feeEl.textContent = "")
+        );
+        updateAmountInWords(NaN);
+      });
+    </script>
   </body>
 </html>

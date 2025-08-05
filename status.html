@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>اخبار و اطلاعیه‌ها</title>
-    <meta name="robots" content="noindex, nofollow" />
     <style>
       :root {
         --primary-color: #00ae70;
@@ -50,51 +49,6 @@
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-      }
-
-      /* == Header & Footer == */
-      header,
-      footer {
-        background: var(--primary-color);
-        color: var(--header-text);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px var(--shadow-color-light);
-      }
-
-      header {
-        height: 70px;
-        position: relative;
-      }
-
-      footer {
-        height: 60px;
-        font-size: 0.85rem;
-      }
-
-      header h1 {
-        font-size: 1.2rem;
-        font-weight: 700;
-      }
-
-      #today-date,
-      #current-time {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1rem;
-        opacity: 0.85;
-        font-weight: 500;
-        white-space: nowrap;
-      }
-
-      #today-date {
-        inset-inline-start: 1.5rem;
-      }
-
-      #current-time {
-        inset-inline-end: 1.5rem;
       }
 
       /* == Main Layout & Typography == */
@@ -193,19 +147,11 @@
         .news-alert-box {
           padding: 1rem 1.2rem;
         }
-        #today-date,
-        #current-time {
-          display: none;
-        }
       }
     </style>
   </head>
   <body>
-    <header>
-      <span id="today-date"></span>
-      <h1>اخبار و اطلاعیه‌ها</h1>
-      <span id="current-time"></span>
-    </header>
+    <div id="header-placeholder"></div>
     <main>
       <div class="main-content">
         <div class="column column-info">
@@ -215,7 +161,59 @@
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script src="/js/main.js"></script>
-    <script src="/js/common.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      async function loadAndDisplayNewsAlerts() {
+        const newsAlertsDiv = document.getElementById("news-alerts-page");
+        if (!newsAlertsDiv) return;
+        newsAlertsDiv.innerHTML = "در حال بارگذاری اطلاعیه‌ها...";
+
+        try {
+          const response = await fetch("data/news-alerts.json");
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+          const alerts = await response.json();
+          let html = "";
+          if (alerts.length === 0) {
+            html = `<div class="news-alert-box green">در حال حاضر اطلاعیه جدیدی وجود ندارد.</div>`;
+          } else {
+            alerts.forEach((alert) => {
+              const colorClass = alert.color;
+              let startDateTimeInfo = "";
+              if (alert.startDate && alert.startTime) {
+                startDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">شروع: ${toPersianDigits(
+                  alert.startDate
+                )} ساعت ${toPersianDigits(alert.startTime)}</p>`;
+              }
+              let endDateTimeInfo = "";
+              if (alert.endDate && alert.endTime) {
+                endDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">پایان: ${toPersianDigits(
+                  alert.endDate
+                )} ساعت ${toPersianDigits(alert.endTime)}</p>`;
+              }
+              html += `
+                    <div class="news-alert-box ${colorClass}">
+                        <b>${alert.title}</b>
+                        ${
+                          alert.description
+                            ? `<p style="margin-top: 8px; margin-bottom: 0;">${alert.description}</p>`
+                            : ""
+                        }
+                        ${startDateTimeInfo}
+                        ${endDateTimeInfo}
+                    </div>
+                `;
+            });
+          }
+          newsAlertsDiv.innerHTML = html;
+        } catch (error) {
+          console.error("Could not fetch news alerts:", error);
+          newsAlertsDiv.innerHTML = `<div class="news-alert-box red">خطا در بارگذاری اطلاعیه‌ها.</div>`;
+        }
+      }
+      if (document.getElementById("news-alerts-page")) {
+        loadAndDisplayNewsAlerts();
+      }
+    </script>
   </body>
 </html>

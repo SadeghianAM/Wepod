@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>پیگیری مسدودی حساب</title>
-    <meta name="robots" content="noindex, nofollow" />
     <style>
       :root {
         --primary-color: #00ae70;
@@ -16,16 +15,12 @@
         --border-radius: 0.75rem;
         --border-radius-sm: 0.6rem;
         --shadow-color-light: rgba(0, 174, 112, 0.07);
-
-        /* State Colors */
         --success-bg: #e6f7f0;
         --success-text: #157347;
         --success-border: #00ae70;
         --error-bg: #fdeeee;
         --error-text: #e74c3c;
         --error-border: #e74c3c;
-
-        /* Button Colors */
         --info-bg: #2563eb;
         --info-dark: #1749b1;
         --danger-bg: #e74c3c;
@@ -33,14 +28,12 @@
         --disabled-bg: #b4b4b4;
         --disabled-text: #eeeeee;
       }
-
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
-
       *,
       *::before,
       *::after {
@@ -49,7 +42,6 @@
         margin: 0;
         padding: 0;
       }
-
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -58,8 +50,6 @@
         display: flex;
         flex-direction: column;
       }
-
-      /* == Main Layout == */
       main {
         flex-grow: 1;
         display: flex;
@@ -68,31 +58,26 @@
         justify-content: center;
         padding: 1.5rem 1rem;
       }
-
       .form-wrapper {
         width: 100%;
-        max-width: 900px; /* Consistent width for multi-column forms */
+        max-width: 900px;
         background: var(--card-bg);
         border: 1.5px solid var(--success-bg);
         border-radius: 1rem;
         box-shadow: 0 2px 12px var(--shadow-color-light);
         padding: 2rem;
       }
-
-      /* == Form Elements == */
       .form-group {
         display: flex;
         flex-direction: column;
         margin-bottom: 1rem;
       }
-
       .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
         margin-bottom: 1rem;
       }
-
       label {
         display: block;
         margin-bottom: 0.5rem;
@@ -100,7 +85,6 @@
         font-size: 1.07rem;
         color: var(--primary-color);
       }
-
       input,
       textarea {
         width: 100%;
@@ -112,25 +96,20 @@
         color: var(--text-color);
         transition: border-color 0.3s, background-color 0.3s;
       }
-
       textarea {
         height: 120px;
         resize: vertical;
       }
-
       input:focus,
       textarea:focus {
         border-color: var(--primary-color);
         background-color: var(--card-bg);
         outline: none;
       }
-
       input::placeholder,
       textarea::placeholder {
         color: #b4b4b4;
       }
-
-      /* == Buttons == */
       .btn {
         width: 100%;
         padding: 0.8rem;
@@ -144,56 +123,47 @@
         display: block;
         transition: background-color 0.3s;
       }
-
       .btn-primary {
         background-color: var(--primary-color);
       }
       .btn-primary:hover:not(:disabled) {
         background-color: var(--primary-dark);
       }
-
       .btn-info {
         background-color: var(--info-bg);
       }
       .btn-info:hover {
         background-color: var(--info-dark);
       }
-
       .btn-danger {
         background-color: var(--danger-bg);
       }
       .btn-danger:hover {
         background-color: var(--danger-dark);
       }
-
       .btn:disabled {
         background-color: var(--disabled-bg);
         color: var(--disabled-text);
         cursor: not-allowed;
       }
-
       #autoFillBtn {
         margin-top: 0;
         margin-bottom: 1.5rem;
       }
-
-      /* == Messages & Results == */
       .input-message,
       .result {
         font-size: 0.94rem;
         border-radius: var(--border-radius-sm);
         padding: 0.75rem;
         margin-top: 0.5rem;
-        display: none; /* Controlled by JS */
+        display: none;
         border-width: 1px;
         border-style: solid;
         text-align: center;
       }
-
       .result {
         font-weight: bold;
       }
-
       .input-message.error,
       .result.error {
         color: var(--error-text);
@@ -201,7 +171,6 @@
         border-color: var(--error-border);
         display: block;
       }
-
       .input-message.success,
       .result.success {
         color: var(--success-text);
@@ -209,8 +178,6 @@
         border-color: var(--success-border);
         display: block;
       }
-
-      /* == Links & Footer == */
       .back-link {
         display: block;
         margin-top: 1.7rem;
@@ -220,24 +187,11 @@
         font-size: 1rem;
         transition: color 0.2s;
       }
-
       .back-link:hover {
         text-decoration: underline;
         color: var(--primary-dark);
       }
 
-      footer {
-        background: var(--primary-color);
-        color: var(--header-text);
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px var(--shadow-color-light);
-      }
-
-      /* == Responsive Media Queries == */
       @media (max-width: 768px) {
         .form-wrapper {
           max-width: 100%;
@@ -251,7 +205,6 @@
           margin-bottom: 1.2rem;
         }
       }
-
       @media (max-width: 480px) {
         .form-wrapper {
           padding: 1rem;
@@ -370,8 +323,181 @@
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script src="/js/header.js"></script>
-    <script src="/js/common.js"></script>
-    <script src="/js/account-block.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      function normalizeDigits(text) {
+        return text.replace(/[۰-۹]/g, (d) =>
+          "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString()
+        );
+      }
+
+      let triedSubmit = false;
+
+      function extractAmount(text) {
+        const match = text.match(
+          /مبلغ مسدودی[\s\-:]*?(.*?)(?=\s*تاریخ مسدودی|$)/i
+        );
+        if (match && match[1]) {
+          const content = match[1].trim();
+          const amountMatch = content.match(/[\d,٬]+/);
+          if (amountMatch && amountMatch[0]) {
+            const amount = amountMatch[0];
+            if (content.includes("ریال")) {
+              return `${amount} ریال`;
+            }
+            return amount;
+          }
+        }
+        return "-";
+      }
+
+      function validateFields() {
+        let ok = true;
+        const blockType = document.getElementById("blockTypeInput");
+        const reason = document.getElementById("reasonInput");
+        const letterNo = document.getElementById("letterNoInput");
+        const date = document.getElementById("dateInput");
+        const amount = document.getElementById("amountInput");
+
+        [blockType, reason, letterNo, date, amount].forEach((field) => {
+          field.classList.remove("input-error");
+          if (triedSubmit && !field.value.trim()) {
+            field.classList.add("input-error");
+            ok = false;
+          }
+          if (!field.value.trim()) ok = false;
+        });
+
+        if (
+          date.value &&
+          !/^14\d{2}\/\d{1,2}\/\d{1,2}$/.test(
+            normalizeDigits(date.value.trim())
+          )
+        ) {
+          ok = false;
+          if (triedSubmit) date.classList.add("input-error");
+        }
+
+        document.getElementById("copyBtn").disabled = !ok;
+        return ok;
+      }
+
+      function autoFillForm() {
+        const rawText = document.getElementById("autoFillInput").value.trim();
+        if (!rawText) {
+          alert("لطفاً ابتدا متن مسدودی را وارد کنید.");
+          return;
+        }
+        const text = normalizeDigits(rawText);
+
+        const blockTypeMatch = text.match(/^(مسدودی[^\n]*)/m);
+        document.getElementById("blockTypeInput").value = blockTypeMatch
+          ? blockTypeMatch[1].replace("مسدودی", "").trim()
+          : "";
+
+        const reasonMatch = text.match(/علت مسدودی *: *([^\n]*)/);
+        let reason = reasonMatch ? reasonMatch[1].trim() : "";
+        reason = reason.replace(/(عنوان نامه|شماره نامه)[\s\S]*/g, "").trim();
+        document.getElementById("reasonInput").value = reason;
+
+        const letterNoMatch = text.match(/شماره نامه مسدودی *: *([^\n]*)/);
+        document.getElementById("letterNoInput").value = normalizeDigits(
+          letterNoMatch ? letterNoMatch[1].trim() : ""
+        );
+
+        const dateMatch = text.match(/تاریخ مسدودی *: *([^\n]*)/);
+        document.getElementById("dateInput").value = normalizeDigits(
+          dateMatch ? dateMatch[1].trim() : ""
+        );
+
+        const amount = extractAmount(text);
+        document.getElementById("amountInput").value = normalizeDigits(amount);
+
+        const descMatch = text.match(/توضیحات *: *([\s\S]*)/);
+        document.getElementById("descInput").value = descMatch
+          ? descMatch[1].trim()
+          : "";
+
+        validateFields();
+      }
+
+      [
+        "blockTypeInput",
+        "reasonInput",
+        "letterNoInput",
+        "dateInput",
+        "amountInput",
+        "descInput",
+      ].forEach((id) => {
+        document.getElementById(id).addEventListener("input", function () {
+          validateFields();
+        });
+      });
+
+      function clearForm() {
+        triedSubmit = false;
+        [
+          "autoFillInput",
+          "blockTypeInput",
+          "reasonInput",
+          "letterNoInput",
+          "dateInput",
+          "amountInput",
+          "descInput",
+        ].forEach((id) => {
+          document.getElementById(id).value = "";
+          document.getElementById(id).classList.remove("input-error");
+        });
+        document.getElementById("copyResult").innerText = "";
+        document.getElementById("copyResult").style.display = "none";
+        validateFields();
+      }
+
+      function copyRequest() {
+        triedSubmit = true;
+        if (!validateFields()) return;
+
+        const blockType =
+          document.getElementById("blockTypeInput").value.trim() || "نامشخص";
+        const reason =
+          document.getElementById("reasonInput").value.trim() || "نامشخص";
+        const letterNo =
+          document.getElementById("letterNoInput").value.trim() || "نامشخص";
+        const date =
+          document.getElementById("dateInput").value.trim() || "نامشخص";
+        const amount =
+          document.getElementById("amountInput").value.trim() || "نامشخص";
+        const desc = document.getElementById("descInput").value.trim() || "-";
+
+        const text =
+          "باسلام و احترام\n" +
+          `کاربرگرامی، طی بررسی انجام شده حساب شما دارای مسدودی ${blockType} است\n` +
+          `حساب شما به علت : ${reason} و طی شماره نامه : ${normalizeDigits(
+            letterNo
+          )} در تاریخ : ${normalizeDigits(date)} به مبلغ : ${normalizeDigits(
+            amount
+          )} مسدود شده است\n` +
+          `توضیحات: 	${desc}\n` +
+          "باتشکر از همراهی شما";
+
+        navigator.clipboard.writeText(text).then(
+          () => {
+            const res = document.getElementById("copyResult");
+            res.innerText = "✅ متن گزارش با موفقیت کپی شد!";
+            res.style.display = "block";
+            setTimeout(() => {
+              res.style.display = "none";
+            }, 2000);
+          },
+          () => {
+            const res = document.getElementById("copyResult");
+            res.innerText = "❌ مشکلی در کپی کردن متن رخ داد.";
+            res.style.display = "block";
+          }
+        );
+      }
+
+      validateFields();
+    </script>
   </body>
 </html>

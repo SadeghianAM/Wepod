@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>اعتبارسنجی شماره شبا</title>
-    <meta name="robots" content="noindex, nofollow" />
     <style>
       :root {
         --primary-color: #00ae70;
@@ -15,8 +14,6 @@
         --header-text: #ffffff;
         --border-radius: 0.75rem;
         --shadow-color-light: rgba(0, 174, 112, 0.07);
-
-        /* Result Box States */
         --success-bg: #e6f7f0;
         --success-text: #157347;
         --success-border: #00ae70;
@@ -27,14 +24,12 @@
         --warning-text: #b9770e;
         --warning-border: #f39c12;
       }
-
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
-
       *,
       *::before,
       *::after {
@@ -43,7 +38,6 @@
         margin: 0;
         padding: 0;
       }
-
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -52,7 +46,6 @@
         display: flex;
         flex-direction: column;
       }
-
       main {
         flex-grow: 1;
         display: flex;
@@ -64,7 +57,6 @@
         width: 100%;
         margin: 0 auto;
       }
-
       .form-wrapper {
         width: 100%;
         max-width: 480px;
@@ -75,7 +67,6 @@
         padding: 2rem 1.5rem;
         margin-top: 2rem;
       }
-
       label {
         display: block;
         margin-bottom: 0.7rem;
@@ -83,7 +74,6 @@
         font-size: 1.1rem;
         color: var(--primary-color);
       }
-
       input {
         width: 100%;
         padding: 1rem;
@@ -97,13 +87,11 @@
         color: var(--text-color);
         transition: border-color 0.3s, background-color 0.3s;
       }
-
       input:focus {
         border-color: var(--primary-color);
         background-color: var(--card-bg);
         outline: none;
       }
-
       .result {
         margin-top: 1rem;
         padding: 1rem 1.5rem;
@@ -111,38 +99,33 @@
         font-weight: bold;
         font-size: 1rem;
         text-align: center;
-        display: none; /* Controlled by JS */
+        display: none;
         transition: background-color 0.3s ease, color 0.3s ease,
           border-color 0.3s ease;
         border-width: 1px;
         border-style: solid;
       }
-
       .result.success {
         background-color: var(--success-bg);
         color: var(--success-text);
         border-color: var(--success-border);
       }
-
       .result.error {
         background-color: var(--error-bg);
         color: var(--error-text);
         border-color: var(--error-border);
       }
-
       .result.warning {
         background-color: var(--warning-bg);
         color: var(--warning-text);
         border-color: var(--warning-border);
       }
-
       .result img {
         vertical-align: middle;
         width: 24px;
         height: 24px;
         margin-inline-end: 8px;
       }
-
       .clear-button {
         margin-top: 1.5rem;
         width: 100%;
@@ -155,11 +138,9 @@
         cursor: pointer;
         transition: background-color 0.3s;
       }
-
       .clear-button:hover {
         background-color: var(--primary-dark);
       }
-
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -169,23 +150,10 @@
         font-size: 1rem;
         transition: color 0.3s;
       }
-
       .back-link:hover {
         text-decoration: underline;
         color: var(--primary-dark);
       }
-
-      footer {
-        background: var(--primary-color);
-        color: var(--header-text);
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
-      }
-
       @media (max-width: 480px) {
         .form-wrapper {
           padding: 1.5rem 1rem;
@@ -219,8 +187,142 @@
       </div>
     </main>
     <div id="footer-placeholder"></div>
-    <script src="/js/header.js"></script>
-    <script src="/js/common.js"></script>
-    <script src="/js/ibanService.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+      const input = document.getElementById("ibanInput");
+      const resultBox = document.getElementById("resultBox");
+      const validationBox = document.getElementById("ibanValidationBox");
+      let ibanData = [];
+      fetch("./data/iban-data.json")
+        .then((res) => res.json())
+        .then((data) => {
+          ibanData = data;
+        })
+        .catch((err) => {
+          showResult("خطا در بارگذاری اطلاعات بانکی", "error");
+          console.error(err);
+        });
+      input.addEventListener("input", (e) => {
+        let rawValue = e.target.value.replace(/\s+/g, "").toUpperCase();
+        if (!rawValue.startsWith("IR")) {
+          rawValue = "IR" + rawValue.replace(/[^0-9]/g, "");
+        } else {
+          rawValue = "IR" + rawValue.slice(2).replace(/[^0-9]/g, "");
+        }
+        const currentIban = rawValue.substring(0, 26);
+        const numericPart = currentIban.slice(2);
+        const parts = [];
+        if (numericPart.length > 0) parts.push(numericPart.substring(0, 2));
+        if (numericPart.length > 2) parts.push(numericPart.substring(2, 6));
+        if (numericPart.length > 6) parts.push(numericPart.substring(6, 10));
+        if (numericPart.length > 10) parts.push(numericPart.substring(10, 14));
+        if (numericPart.length > 14) parts.push(numericPart.substring(14, 18));
+        if (numericPart.length > 18) parts.push(numericPart.substring(18, 22));
+        if (numericPart.length > 22) parts.push(numericPart.substring(22, 24));
+        e.target.value = "IR" + parts.join(" ");
+        clearValidation();
+        let bankMatched = false;
+        if (currentIban.length >= 7) {
+          const bankCode = currentIban.substring(4, 7);
+          const match = ibanData.find((entry) => entry.code === bankCode);
+          if (match) {
+            bankMatched = true;
+            showResult(
+              `این شماره شبا متعلق به ${match.name} است.`,
+              "success",
+              match.logo,
+              match.name
+            );
+          } else {
+            showResult("بانکی با این شماره شبا پیدا نشد.", "warning");
+          }
+        } else {
+          clearResult();
+          return;
+        }
+        if (!bankMatched) {
+          return;
+        }
+        if (currentIban.length === 26 && /^IR\d{24}$/.test(currentIban)) {
+          validateIban(currentIban);
+        } else if (currentIban.length > 2) {
+          showValidation(
+            "برای اعتبارسنجی شماره شبا را کامل وارد کنید",
+            "warning"
+          );
+        } else {
+          clearValidation();
+        }
+      });
+      input.addEventListener("paste", (e) => {
+        e.preventDefault();
+        let pastedValue = e.clipboardData
+          .getData("text")
+          .toUpperCase()
+          .replace(/\s+/g, "")
+          .replace(/[^A-Z0-9]/g, "");
+        if (pastedValue.startsWith("IR")) {
+          pastedValue = pastedValue.slice(2);
+        }
+        pastedValue = pastedValue.replace(/[^0-9]/g, "");
+        input.value = "IR" + pastedValue;
+        input.dispatchEvent(new Event("input"));
+      });
+      function showResult(message, type, logoName = null, bankName = null) {
+        resultBox.className = `result ${type}`;
+        resultBox.style.display = "block";
+        resultBox.innerHTML = "";
+        if (logoName && bankName) {
+          const img = document.createElement("img");
+          img.src = `./assets/logo/${logoName}.svg`;
+          img.alt = "لوگوی بانک";
+          img.style.width = "24px";
+          img.style.height = "24px";
+          img.style.marginLeft = "0.5rem";
+          img.onerror = () => (img.style.display = "none");
+          resultBox.appendChild(
+            document.createTextNode("این شماره شبا متعلق به ")
+          );
+          resultBox.appendChild(img);
+          resultBox.appendChild(document.createTextNode(`${bankName} است.`));
+        } else {
+          resultBox.textContent = message;
+        }
+      }
+      function validateIban(iban) {
+        const rearranged = iban.slice(4) + iban.slice(0, 4);
+        const converted = rearranged.replace(
+          /[A-Z]/g,
+          (char) => char.charCodeAt(0) - 55
+        );
+        const remainder = BigInt(converted) % 97n;
+        if (remainder === 1n) {
+          showValidation("✅ فرمت شماره شبا صحیح است.", "success");
+        } else {
+          showValidation("❌ شماره شبا معتبر نیست.", "error");
+        }
+      }
+      function showValidation(message, type) {
+        validationBox.className = `result ${type}`;
+        validationBox.style.display = "block";
+        validationBox.textContent = message;
+      }
+      function clearResult() {
+        resultBox.textContent = "";
+        resultBox.className = "result";
+        resultBox.style.display = "none";
+      }
+      function clearValidation() {
+        validationBox.textContent = "";
+        validationBox.className = "result";
+        validationBox.style.display = "none";
+      }
+      function clearForm() {
+        input.value = "IR";
+        input.focus();
+        clearResult();
+        clearValidation();
+      }
+    </script>
   </body>
 </html>
