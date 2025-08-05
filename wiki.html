@@ -19,14 +19,12 @@
         --border-radius: 0.75rem;
         --border-color: #e9e9e9;
       }
-
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
-
       *,
       *::before,
       *::after {
@@ -35,7 +33,6 @@
         margin: 0;
         padding: 0;
       }
-
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -44,13 +41,10 @@
         display: flex;
         flex-direction: column;
       }
-
       a {
         text-decoration: none;
         transition: all 0.2s ease-in-out;
       }
-
-      /* --- HEADER & FOOTER --- */
       header,
       footer {
         background: var(--primary-color);
@@ -75,7 +69,6 @@
         font-size: 0.85rem;
         margin-top: auto;
       }
-
       main {
         flex-grow: 1;
         padding: 2rem;
@@ -83,8 +76,6 @@
         width: 100%;
         margin: 0 auto;
       }
-
-      /* --- Hero Section --- */
       .hero-section {
         text-align: center;
         margin-bottom: 2rem;
@@ -99,8 +90,6 @@
         font-size: 1.1rem;
         color: var(--secondary-text-color);
       }
-
-      /* --- Search Card (Tool Card Style) --- */
       .search-card {
         background: var(--card-bg);
         border-radius: var(--border-radius);
@@ -111,8 +100,6 @@
       .search-card .card-content {
         padding: 1.5rem;
       }
-
-      /* --- Search Form --- */
       .search-form {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -159,8 +146,6 @@
         border-color: var(--primary-color);
         box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
       }
-
-      /* --- Results --- */
       .results {
         text-align: right;
       }
@@ -215,8 +200,6 @@
         padding: 2rem;
         color: var(--secondary-text-color);
       }
-
-      /* --- Back Link (Corrected) --- */
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -230,8 +213,6 @@
         color: var(--primary-color);
         text-decoration: underline;
       }
-
-      /* --- Toast Notification --- */
       #toast {
         position: fixed;
         bottom: -100px;
@@ -251,8 +232,6 @@
       #toast.show {
         bottom: 2rem;
       }
-
-      /* --- Responsive --- */
       @media (max-width: 768px) {
         main {
           padding: 1.5rem 1rem;
@@ -268,13 +247,11 @@
   </head>
   <body>
     <div id="header-placeholder"></div>
-
     <main>
       <div class="hero-section">
         <h1 class="title">ویکی ویپاد</h1>
         <p class="subtitle">دسترسی مستقیم به تمامی مطالب موجود در درخت دانش</p>
       </div>
-
       <div class="search-card">
         <div class="card-content">
           <div class="search-form">
@@ -294,19 +271,121 @@
               </select>
             </div>
           </div>
-
           <div class="results" id="results-container"></div>
         </div>
       </div>
-
       <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
     </main>
-
     <div id="toast">کپی شد!</div>
     <div id="footer-placeholder"></div>
-
     <script src="/js/header.js"></script>
-    <script src="/js/common.js"></script>
-    <script src="/js/wiki.js"></script>
+    <script>
+      function toPersianDigits(num) {
+        return num.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+      }
+
+      let data = [];
+      const searchInput = document.getElementById("search-input");
+      const categoryFilter = document.getElementById("category-filter");
+      const resultsContainer = document.getElementById("results-container");
+
+      fetch("/data/wiki.json")
+        .then((res) => res.json())
+        .then((json) => {
+          data = json;
+          populateCategories(json);
+          searchInput.placeholder = `جستجو از میان ${toPersianDigits(
+            data.length
+          )} متن آماده`;
+        });
+
+      searchInput.addEventListener("input", filterResults);
+      categoryFilter.addEventListener("change", filterResults);
+
+      function populateCategories(data) {
+        const categoriesSet = new Set();
+        data.forEach((item) => {
+          (item.categories || []).forEach((cat) => categoriesSet.add(cat));
+        });
+        const categories = Array.from(categoriesSet);
+        categories.forEach((cat) => {
+          const option = document.createElement("option");
+          option.value = cat;
+          option.textContent = cat;
+          categoryFilter.appendChild(option);
+        });
+      }
+
+      function filterResults() {
+        const term = searchInput.value.trim().toLowerCase();
+        const category = categoryFilter.value;
+        if (term === "" && category === "") {
+          resultsContainer.innerHTML = "";
+          return;
+        }
+
+        const filtered = data.filter((item) => {
+          const matchesTerm =
+            term === "" ||
+            item.title.toLowerCase().includes(term) ||
+            item.description.toLowerCase().includes(term) ||
+            (item.id && item.id.toString().includes(term));
+          const matchesCategory =
+            category === "" ||
+            (item.categories && item.categories.includes(category));
+          return matchesTerm && matchesCategory;
+        });
+
+        resultsContainer.innerHTML = "";
+
+        if (filtered.length === 0) {
+          resultsContainer.innerHTML =
+            '<div class="no-result">نتیجه‌ای یافت نشد.</div>';
+          return;
+        }
+
+        filtered.forEach((item) => {
+          const box = document.createElement("div");
+          box.className = "result-item";
+          box.innerHTML = `
+      <div class="result-title">${item.title}</div>
+      <div class="result-category">دسته‌ها: ${(item.categories || []).join(
+        "، "
+      )}</div>
+      <div class="result-id">آیدی: ${toPersianDigits(item.id)}</div>
+      <div class="result-desc">${item.description.replace(/\n/g, "<br>")}</div>
+      `;
+          box.addEventListener("click", () => {
+            navigator.clipboard
+              .writeText(item.description)
+              .then(() => {
+                showToast("محتوا کپی شد!");
+                box.style.backgroundColor = "#e6fff4";
+                setTimeout(() => {
+                  box.style.backgroundColor = "#ffffff";
+                }, 800);
+              })
+              .catch((err) => {
+                console.error("خطا در کپی:", err);
+                showToast("کپی نشد!");
+              });
+          });
+          resultsContainer.appendChild(box);
+        });
+      }
+
+      function showToast(message = "کپی شد!") {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        toast.style.display = "block";
+        setTimeout(() => {
+          toast.classList.remove("show");
+          setTimeout(() => {
+            toast.style.display = "none";
+          }, 400);
+        }, 2000);
+      }
+    </script>
   </body>
 </html>

@@ -1,10 +1,17 @@
 [
   {
+    "name": "ابوالفضل  صادقیان",
     "username": "abolfazl",
     "password_hash": "$2y$12$aweRVm30RpK/PEpwu3240Orv3quK7wASSL5AUSdS7bIKq4IGN4e6a"
   },
   {
+    "name": "مرتضی عبداللهی",
     "username": "morteza",
     "password_hash": "$2y$10$XPT/B4u8bPfPTYtMgI.vcOMPkHwSJjL8imq9mRLC6aTBBTsXSM.HS"
+  },
+  {
+    "name": "رضا جمشیدوند",
+    "username": "a.jamshidvand",
+    "password_hash": "$2y$10$QYltI7vlFufmPpXk7KUWY.ZoUhUPUKOOXf941ZwzZzwL9YFkzoZE."
   }
 ]

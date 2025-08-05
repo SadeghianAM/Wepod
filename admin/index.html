@@ -3,70 +3,101 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>بخش مدیریت</title>
+    <title>بخش مدیریت - وی هاب</title>
+
     <script src="/js/auth.js"></script>
     <script>
       window.onload = function () {
-        protectPage(["abolfazl", "morteza"]);
+        // Protect page for specific users
+        protectPage(["abolfazl", "morteza", "a.jamshidvand"]);
       };
     </script>
+
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --shadow-color-medium: rgba(0, 174, 112, 0.12);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00; /* A more pleasant orange */
+        --orange-bg: #feefc3;
+        --yellow-color: #f9ab00; /* For Paya Cycle */
+        --yellow-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap;
       }
+
       *,
       *::before,
       *::after {
-        font-family: "Vazirmatn", sans-serif !important;
+        font-family: "Vazirmatn", sans-serif;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
-      header {
-        background: #00ae70;
-        color: white;
-        height: 70px;
+
+      /* --- HEADER & FOOTER (Shared) --- */
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
+        box-shadow: 0 2px 6px var(--shadow-color-light);
         position: relative;
+        z-index: 10;
+      }
+      header {
+        height: 70px;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
       }
       header h1 {
         font-size: 1.2rem;
         font-weight: 700;
-        margin: 0;
       }
-      #today-date {
+      #today-date,
+      #user-info {
         position: absolute;
-        right: 1.5rem;
         top: 50%;
         transform: translateY(-50%);
         font-size: 1rem;
-        color: #fff;
         opacity: 0.85;
         font-weight: 500;
         white-space: nowrap;
       }
+      #today-date {
+        inset-inline-start: 1.5rem;
+      }
       #user-info {
-        position: absolute;
-        left: 1.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 0.95rem;
-        color: #fff;
-        font-weight: 500;
-        white-space: nowrap;
+        inset-inline-end: 1.5rem;
         cursor: pointer;
         padding: 0.5rem 0.8rem;
         border-radius: 0.5rem;
@@ -75,101 +106,113 @@
       #user-info:hover {
         background-color: rgba(255, 255, 255, 0.15);
       }
+
       main {
         flex-grow: 1;
-        padding: 1.5rem;
-        max-width: 1100px;
+        padding: 2rem;
+        max-width: 1200px;
         width: 100%;
         margin: 0 auto;
-        overflow-y: auto;
       }
+
+      /* --- Layout for Admin page (single column) --- */
       .main-content {
-        display: block;
+        max-width: 900px;
+        margin: 0 auto;
       }
-      .column {
-        background: transparent;
-        margin-bottom: 2rem;
-      }
-      .column:last-child {
-        margin-bottom: 0;
-      }
-      h2 {
-        font-size: 1.3rem;
-        margin-bottom: 1.5rem;
-        color: #00ae70;
-        text-align: center;
-        font-weight: 700;
-      }
+
       ul {
         list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-      li {
-        background-color: #ffffff;
-        border-radius: 0.75rem;
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        border-right: 4px solid #00ae70;
-        transition: all 0.25s;
-      }
-      li:hover {
-        transform: translateY(-3px);
-        border-right-color: #089863;
-        box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
       }
       a {
         text-decoration: none;
-        color: #00ae70;
-        font-weight: 600;
+        transition: all 0.2s ease-in-out;
+      }
+
+      /* === Tools Column Structure (from base file) === */
+      .tool-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+      .tool-card h2 {
         font-size: 1.1rem;
-        display: block;
-        transition: color 0.2s;
+        font-weight: 700;
+        padding: 0.9rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
       }
-      a:hover {
-        color: #089863;
+      .tool-card .card-content {
+        padding: 1.5rem;
       }
-      footer {
-        background: #00ae70;
-        color: #e0e7ff;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
-      }
-      footer p {
-        margin: 0;
-      }
+
       #tools-search {
         width: 100%;
         font-size: 1rem;
         padding: 0.7em 1em;
         border-radius: 0.6em;
-        border: 1.5px solid #eee;
-        margin-bottom: 1em;
-        box-sizing: border-box;
+        border: 1.5px solid #ddd;
+        margin-bottom: 1.5rem;
         outline: none;
-        transition: border 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
       }
       #tools-search:focus {
-        border-color: #00ae70;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+      }
+
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+      }
+      .tools-grid li a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1.2rem;
+        background-color: var(--card-bg);
+        border-radius: 0.6rem;
+        color: var(--text-color);
+        font-weight: 600;
+        font-size: 1rem;
+        border: 1px solid var(--border-color);
+      }
+      .tools-grid li a:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+      }
+
+      /* --- Responsive Design --- */
+      @media (max-width: 600px) {
+        main {
+          padding: 1.5rem;
+        }
+        .tools-grid {
+          grid-template-columns: 1fr;
+        }
       }
       @media (max-width: 480px) {
         main {
           padding: 1rem;
         }
-        a {
-          font-size: 1rem;
-        }
-        li {
-          padding: 1rem 1.2rem;
-        }
         #today-date,
         #user-info {
-          font-size: 0.85rem;
+          display: none;
+        }
+        .tool-card h2 {
+          padding: 0.8rem 1rem;
+          font-size: 1rem;
+        }
+        .tool-card .card-content {
+          padding: 1rem;
         }
       }
     </style>
@@ -180,26 +223,33 @@
       <h1>بخش مدیریت</h1>
       <div id="user-info"></div>
     </header>
+
     <main>
       <div class="main-content">
-        <div class="column column-info"></div>
         <div class="column column-tools">
-          <h2>🛠️ ابزارها</h2>
           <input
             type="text"
             id="tools-search"
             placeholder="جستجو در ابزارها..."
+            aria-label="جستجو در ابزارها"
           />
-          <ul id="tools-list">
-            <li><a href="/admin/status.html">ویرایش وضعیت سرویس ها</a></li>
-            <li><a href="/admin/news.html">ویرایش اطلاعیه ها</a></li>
-            <li><a href="/admin/wiki.html">ویرایش ویکی</a></li>
-            <li><a href="/admin/hash-tool.html">ابزار تولید هش</a></li>
-          </ul>
+          <div class="tool-card">
+            <h2>🛠️ ابزارها</h2>
+            <div class="card-content">
+              <ul class="tools-grid" id="tools-list">
+                <li><a href="/admin/status.html">ویرایش وضعیت سرویس ها</a></li>
+                <li><a href="/admin/news.html">ویرایش اطلاعیه ها</a></li>
+                <li><a href="/admin/wiki.html">ویرایش ویکی</a></li>
+                <li><a href="/admin/hash-tool.html">ابزار تولید هش</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </main>
+
     <div id="footer-placeholder"></div>
+
     <script src="/js/main.js"></script>
     <script src="/js/common.js"></script>
   </body>
