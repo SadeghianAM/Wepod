@@ -3,129 +3,189 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>آموزش‌های پشتیبانی - راهنمای ثبت‌نام و احراز هویت ویپاد</title>
+    <title>آموزش: ثبت‌نام و احراز هویت - وی هاب</title>
+    <meta name="robots" content="noindex, nofollow" />
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap;
       }
-      * {
+
+      *,
+      *::before,
+      *::after {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
-      main {
-        flex-grow: 1;
-        max-width: 900px;
-        width: 100%;
-        margin: 0 auto;
-        padding: 2rem 1.2rem;
-      }
-      h2 {
-        color: #00ae70;
-        font-size: 1.6rem;
-        margin-bottom: 1.5rem;
-        font-weight: 700;
-        border-bottom: 2px solid #00ae70;
-        padding-bottom: 0.5rem;
-      }
-      h3 {
-        color: #089863;
-        font-size: 1.3rem;
-        margin-top: 2.5rem;
-        margin-bottom: 1rem;
-        font-weight: 700;
-      }
-      .intro-text {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        background-color: #e6f7f1;
-        padding: 1rem;
-        border-radius: 0.75rem;
-        border-right: 4px solid #00ae70;
-        margin-bottom: 2rem;
-      }
-      .info-box {
-        background: #ffffff;
-        border-right: 4px solid #00ae70;
-        border-radius: 0.75rem;
-        padding: 1.5rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-      }
-      .info-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 0.6rem;
-        color: #00ae70;
-      }
-      .error-title {
-        font-size: 1.1rem;
-        font-weight: bold;
-        margin: 1.5rem 0 0.8rem 0;
-        color: #d9480f;
-        padding-bottom: 0.4rem;
-        border-bottom: 1px solid #ffe8cc;
-      }
-      .info-content,
-      ul,
-      ol {
-        font-size: 1rem;
-        line-height: 1.8;
-      }
-      ul li,
-      ol li {
-        margin-bottom: 0.75rem;
-      }
+
       a {
-        color: #007bff;
+        color: var(--primary-dark);
         text-decoration: none;
+        font-weight: 600;
       }
       a:hover {
         text-decoration: underline;
       }
-      .back-link {
-        display: block;
-        margin-top: 2.5rem;
-        text-align: center;
-        color: #00ae70;
-        text-decoration: none;
-        font-size: 1.1rem;
-        font-weight: bold;
-      }
-      .back-link:hover {
-        color: #089863;
-        text-decoration: underline;
-      }
-      .highlight {
-        background-color: #fffbeb;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-right: 4px solid #f9bf00;
-        margin-top: 1rem;
-      }
+
+      /* --- HEADER & FOOTER --- */
+      header,
       footer {
-        background: #00ae70;
-        color: #e0e7ff;
-        height: 60px;
+        background: var(--primary-color);
+        color: var(--header-text);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
       }
-      footer p {
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      /* --- Article Card --- */
+      .article-card {
+        width: 100%;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      /* --- Article Typography --- */
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 0 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+
+      /* --- Alert Box Component --- */
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Back Link --- */
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+        }
       }
     </style>
   </head>
@@ -133,19 +193,22 @@
     <div id="header-placeholder"></div>
 
     <main>
-      <h2>⚙️ راهنمای ثبت‌نام، احراز هویت و خطاهای رایج</h2>
-      <p class="intro-text">
-        در این راهنما، مراحل گام‌به‌گام ثبت‌نام و ارتقای سطح در ویپاد به همراه
-        خطاهای احتمالی و روش رفع آن‌ها توضیح داده شده است.
-        <br />
-        <strong>نکته کلیدی:</strong> در تمام مراحل، زبان کیبورد خود را
-        <strong>انگلیسی</strong> قرار داده و از فونت استاندارد گوشی استفاده
-        نمایید.
-      </p>
+      <div class="article-card">
+        <h2>⚙️ راهنمای ثبت‌نام و احراز هویت</h2>
+        <div class="card-content">
+          <div class="alert-box green">
+            <p>
+              در این راهنما، مراحل گام‌به‌گام ثبت‌نام و ارتقای سطح در ویپاد به
+              همراه خطاهای احتمالی و روش رفع آن‌ها توضیح داده شده است.
+            </p>
+            <p>
+              <strong>نکته کلیدی:</strong> در تمام مراحل، زبان کیبورد خود را
+              <strong>انگلیسی</strong> قرار داده و از فونت استاندارد گوشی
+              استفاده نمایید.
+            </p>
+          </div>
 
-      <h3>مراحل کلی ثبت‌نام و ارتقای سطح</h3>
-      <div class="info-box">
-        <div class="info-content">
+          <h3>مراحل کلی ثبت‌نام</h3>
           <ol>
             <li><strong>سطح ۱ به ۲:</strong> ثبت شماره موبایل و کد ملی.</li>
             <li>
@@ -156,197 +219,139 @@
               <strong>سطح ۳ به ۴:</strong> آپلود فیلم چهره برای احراز هویت
               تصویری.
             </li>
-            <li>
-              <strong>سطح ۴ به ۵:</strong> احراز هویت فیزیکی (در صورت نیاز).
-            </li>
           </ol>
           <p>
             در ابتدای فرآیند، برای تأیید شماره همراه، یک کد فعال‌سازی ۶ رقمی
             برای شما پیامک می‌شود.
           </p>
-        </div>
-      </div>
 
-      <h3>سطح ۲: ثبت موبایل و کد ملی</h3>
-      <div class="info-box">
-        <div class="error-title">
-          خطا: شماره همراه باید متعلق به کد ملی باشد
-        </div>
-        <p>
-          <strong>علت:</strong> این خطا زمانی رخ می‌دهد که شماره موبایل وارد شده
-          به نام صاحب کد ملی نباشد.
-        </p>
-        <p><strong>راه‌حل:</strong></p>
-        <ul>
-          <li>ابتدا از تطابق مالکیت سیم‌کارت و کد ملی اطمینان حاصل کنید.</li>
-          <li>
-            اگر سیم‌کارت به نام شماست ولی همچنان خطا را دریافت می‌کنید، از طریق
-            بخش "ثبت مشکل" در اپلیکیشن، موارد زیر را ارسال کنید تا پیگیری شود:
+          <h3>سطح ۲: ثبت موبایل و کد ملی</h3>
+          <div class="alert-box yellow">
+            <h4>خطا: شماره همراه باید متعلق به کد ملی باشد</h4>
+            <p>
+              <strong>علت:</strong> شماره موبایل وارد شده به نام صاحب کد ملی
+              نیست.
+            </p>
+            <p><strong>راه‌حل:</strong></p>
             <ul>
               <li>
-                تصویر سند سیم‌کارت (قابل دریافت از اپلیکیشن‌های ایرانسل من،
-                همراه من و...)
+                ابتدا از تطابق مالکیت سیم‌کارت و کد ملی اطمینان حاصل کنید.
               </li>
-              <li>تصویر کارت ملی</li>
-              <li>اسکرین‌شات از پیام خطا</li>
+              <li>
+                اگر سیم‌کارت به نام شماست ولی همچنان خطا را دریافت می‌کنید، از
+                طریق بخش "ثبت مشکل" در اپلیکیشن، تصویر سند سیم‌کارت، تصویر کارت
+                ملی و اسکرین‌شات از پیام خطا را ارسال کنید.
+              </li>
             </ul>
-          </li>
-        </ul>
+          </div>
+          <div class="alert-box yellow">
+            <h4>خطا: درخواست شما به دلیل تلاش‌های مکرر محدود شده است</h4>
+            <p><strong>علت:</strong> تکرار بیش از حد یک عملیات.</p>
+            <p>
+              <strong>راه‌حل:</strong> <strong>۲۴ ساعت</strong> صبر کرده و سپس
+              مجدداً تلاش کنید یا از یک دستگاه و اینترنت دیگر استفاده کنید.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>خطا: کد ملی تکراری می‌باشد</h4>
+            <p>
+              <strong>علت:</strong> این کد ملی قبلاً با یک شماره موبایل دیگر در
+              سیستم ثبت شده است.
+            </p>
+            <p>
+              <strong>راه‌حل:</strong> اگر به شماره قبلی دسترسی ندارید، برای ثبت
+              پیگیری با موضوع "خطای کد ملی تکراری" اقدام کنید تا شماره موبایل
+              جدید شما روی پروفایل ثبت شود.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>خطا: شناسه (شماره تماس) قبلاً مسدود شده است</h4>
+            <p>
+              <strong>علت:</strong> درخواست مسدودی قبلی یا ورود چندباره اطلاعات
+              اشتباه.
+            </p>
+            <p>
+              <strong>راه‌حل:</strong> <strong>۴۸ ساعت</strong> صبر کنید. اگر
+              مشکل حل نشد، ساعت و تاریخ دقیق مشاهده خطا را یادداشت کرده و برای
+              ثبت پیگیری به پشتیبانی اعلام کنید.
+            </p>
+          </div>
 
-        <div class="error-title">
-          خطا: درخواست شما به دلیل تلاش‌های مکرر محدود شده است
+          <h3>سطح ۳: ثبت اطلاعات فردی</h3>
+          <div class="alert-box yellow">
+            <h4>خطا: تاریخ تولد باید متعلق به کد ملی باشد</h4>
+            <p>
+              <strong>راه‌حل:</strong> تاریخ تولد را با کارت ملی مطابقت دهید.
+              اگر صحیح بود، از طریق پشتیبانی پیگیری ثبت کنید.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>خطا: نام کاربری تکراری می‌باشد</h4>
+            <p>
+              <strong>راه‌حل:</strong> برای ثبت پیگیری، تصویر کارت ملی، تصویر
+              سند سیم‌کارت و لاگ اطلاعات کاربری خود را برای پشتیبانی ارسال
+              نمایید.
+            </p>
+          </div>
+
+          <h4>ثبت سریال کارت ملی هوشمند</h4>
+          <p>
+            سریال کارت ملی هوشمند در پشت کارت قرار دارد و ترکیبی از حرف انگلیسی
+            و عدد است (مانند: 0G12345678).
+          </p>
+          <div class="alert-box green">
+            <p>
+              <strong>توجه:</strong> اگر هنوز کارت ملی هوشمند خود را دریافت
+              نکرده‌اید، از <strong>کد رهگیری ۱۰ رقمی</strong> رسید ثبت‌نام کارت
+              ملی استفاده کنید.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>خطا: مشکلی پیش آمده است، لطفاً سریال را مجدداً وارد نمائید</h4>
+            <p>
+              <strong>راه‌حل:</strong> از صحت سریال مطمئن شوید (مثلاً O با 0
+              اشتباه نشود). اگر مشکل ادامه داشت، به
+              <strong>بانکداری ویدئویی</strong> مراجعه کنید.
+            </p>
+          </div>
+
+          <h3>سطح ۴: آپلود فیلم چهره</h3>
+          <h4>دستورالعمل ضبط ویدئوی احراز هویت</h4>
+          <p>
+            این ویدئو توسط هوش مصنوعی ثبت احوال بررسی می‌شود، لطفاً موارد زیر را
+            با دقت رعایت کنید:
+          </p>
+          <ul>
+            <li>از عینک، لنز و سمعک استفاده نکنید.</li>
+            <li>پس‌زمینه ترجیحاً سفید و نور محیط کافی باشد.</li>
+            <li>دوربین گوشی را به صورت <strong>افقی</strong> نگه دارید.</li>
+            <li>
+              گوشی را در بیشترین فاصله ممکن از صورت بگیرید و یک بار به آرامی به
+              راست و چپ بچرخانید.
+            </li>
+            <li>مدت زمان فیلم نباید از ۱۰ ثانیه بیشتر شود.</li>
+          </ul>
+          <div class="alert-box yellow">
+            <h4>خطا: خطای اتصال به سرور</h4>
+            <p><strong>علت:</strong> اختلالات لحظه‌ای شبکه یا اینترنت ضعیف.</p>
+            <p>
+              <strong>راه‌حل:</strong> در ساعات دیگری مجدداً تلاش کنید و از
+              خاموش بودن VPN اطمینان حاصل کنید.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>خطا: سیستم در حال پردازش فیلم چهره...</h4>
+            <p>
+              <strong>راه‌حل:</strong> این فرآیند ممکن است تا ۲ ساعت طول بکشد.
+              اگر پس از <strong>۲۴ ساعت</strong> نتیجه اعلام نشد، تصویر پشت کارت
+              ملی خود را برای پشتیبانی ارسال کنید تا به
+              <strong>بانکداری ویدئویی</strong> ارجاع داده شوید.
+            </p>
+          </div>
         </div>
-        <p>
-          <strong>علت:</strong> تکرار بیش از حد یک عملیات باعث قفل شدن موقت حساب
-          می‌شود.
-        </p>
-        <p><strong>راه‌حل:</strong></p>
-        <ul>
-          <li><strong>۲۴ ساعت</strong> صبر کرده و سپس مجدداً تلاش کنید.</li>
-          <li>
-            یا از یک دستگاه دیگر با یک اینترنت متفاوت (مثلاً از اینترنت همراه به
-            Wi-Fi یا برعکس) برای ورود استفاده کنید.
-          </li>
-        </ul>
-
-        <div class="error-title">خطا: کد ملی تکراری می‌باشد</div>
-        <p>
-          <strong>علت:</strong> این کد ملی قبلاً با یک شماره موبایل دیگر در
-          سیستم ثبت و احراز هویت شده است.
-        </p>
-        <p><strong>راه‌حل:</strong></p>
-        <ul>
-          <li>
-            اگر به شماره قبلی دسترسی دارید، با همان شماره وارد برنامه شوید.
-          </li>
-          <li>
-            اگر به شماره قبلی دسترسی ندارید، برای ثبت پیگیری با موضوع "خطای کد
-            ملی تکراری" اقدام کنید تا شماره موبایل جدید شما روی پروفایل ثبت شود.
-          </li>
-        </ul>
-
-        <div class="error-title">
-          خطا: شناسه (شماره تماس) قبلاً مسدود شده است
-        </div>
-        <p><strong>راه‌حل:</strong></p>
-        <ul>
-          <li>
-            بررسی کنید آیا قبلاً درخواست مسدودی حساب را ثبت کرده‌اید یا خیر.
-          </li>
-          <li>
-            اگر چندین بار رمز یا اطلاعات را اشتباه وارد کرده‌اید،
-            <strong>۴۸ ساعت</strong> صبر کنید و سپس برای ورود مجدد اقدام نمایید.
-          </li>
-          <li>
-            اگر موارد فوق مشکل را حل نکرد، از آنجایی که امکان ورود به برنامه و
-            ارسال اسکرین‌شات وجود ندارد، ساعت و تاریخ دقیق مشاهده خطا را یادداشت
-            کرده و برای ثبت پیگیری به پشتیبانی اعلام کنید.
-          </li>
-        </ul>
       </div>
 
-      <h3>سطح ۳: ثبت اطلاعات فردی</h3>
-      <div class="info-box">
-        <div class="info-title">ثبت تاریخ تولد</div>
-        <div class="error-title">
-          خطا: تاریخ تولد باید متعلق به کد ملی وارد شده باشد
-        </div>
-        <p>
-          <strong>راه‌حل:</strong> ابتدا تاریخ تولد وارد شده را با اطلاعات روی
-          کارت ملی خود مطابقت دهید. اگر اطلاعات صحیح بود، برای رفع مشکل از طریق
-          پشتیبانی پیگیری ثبت کنید.
-        </p>
-
-        <div class="error-title">خطا: نام کاربری تکراری می‌باشد</div>
-        <p><strong>توجه:</strong> این خطا با "کد ملی تکراری" متفاوت است.</p>
-        <p>
-          <strong>راه‌حل:</strong> برای ثبت پیگیری، تصویر کارت ملی، تصویر سند
-          سیم‌کارت و لاگ اطلاعات کاربری خود را برای پشتیبانی ارسال نمایید.
-        </p>
-
-        <hr style="border: 1px solid #eee; margin: 2rem 0" />
-
-        <div class="info-title">ثبت سریال کارت ملی هوشمند</div>
-        <p>
-          سریال کارت ملی هوشمند در پشت کارت قرار دارد و ترکیبی از حرف انگلیسی و
-          عدد است (مانند: 0G12345678).
-        </p>
-        <div class="highlight">
-          <strong>توجه:</strong> اگر هنوز کارت ملی هوشمند خود را دریافت
-          نکرده‌اید، از <strong>کد رهگیری ۱۰ رقمی</strong> که تماماً عدد است و
-          روی رسید ثبت‌نام کارت ملی درج شده، استفاده کنید.
-        </div>
-
-        <div class="error-title">
-          خطا: مشکلی پیش آمده است، لطفاً سریال را مجدداً وارد نمائید
-        </div>
-        <p><strong>راه‌حل:</strong></p>
-        <ul>
-          <li>
-            ابتدا از صحت سریال وارد شده مطمئن شوید. (مثلاً به جای حرف O عدد 0 یا
-            به جای G عدد 6 وارد نشده باشد).
-          </li>
-          <li>
-            اگر از کد رهگیری رسید استفاده می‌کنید و بیش از ۲۴ ساعت است که این
-            خطا را دریافت می‌کنید، به <strong>بانکداری ویدئویی</strong> مراجعه
-            کنید.
-          </li>
-          <li>
-            اگر با وجود اطمینان از صحت سریال کارت ملی، مشکل پابرجا بود، به
-            <strong>بانکداری ویدئویی</strong> مراجعه کنید.
-          </li>
-        </ul>
-      </div>
-
-      <h3>سطح ۴: آپلود فیلم چهره</h3>
-      <div class="info-box">
-        <div class="info-title">دستورالعمل ضبط ویدئوی احراز هویت</div>
-        <p>
-          این ویدئو توسط هوش مصنوعی سازمان ثبت احوال بررسی می‌شود، لطفاً موارد
-          زیر را با دقت رعایت کنید:
-        </p>
-        <ul>
-          <li>از عینک، لنز و سمعک استفاده نکنید.</li>
-          <li>
-            پس‌زمینه ترجیحاً سفید و نور محیط کافی باشد (مراقب ایجاد سایه روی
-            صورت باشید).
-          </li>
-          <li>
-            دوربین گوشی را به صورت <strong>افقی</strong> و در حالت سلفی نگه
-            دارید.
-          </li>
-          <li>گوشی را در بیشترین فاصله ممکن از صورت خود بگیرید.</li>
-          <li>یک بار به آرامی صورت خود را به راست و یک بار به چپ بچرخانید.</li>
-          <li>مدت زمان فیلم نباید از ۱۰ ثانیه بیشتر شود.</li>
-          <li>
-            چهره شما باید با تصویر ثبت شده در ثبت احوال مطابقت داشته باشد.
-          </li>
-        </ul>
-        <div class="error-title">خطای اتصال به سرور</div>
-        <p><strong>علت:</strong> اختلالات لحظه‌ای شبکه یا اینترنت ضعیف.</p>
-        <p>
-          <strong>راه‌حل:</strong> در ساعات دیگری مجدداً تلاش کنید و اطمینان
-          حاصل کنید که از هیچ‌گونه فیلترشکن (VPN) یا پروکسی استفاده نمی‌کنید.
-        </p>
-        <div class="error-title">خطا: سیستم در حال پردازش فیلم چهره...</div>
-        <p>
-          <strong>راه‌حل:</strong> این فرآیند ممکن است تا ۲ ساعت طول بکشد. اگر
-          پس از گذشت <strong>۲۴ ساعت</strong> نتیجه از طریق پیامک اعلام نشد و
-          مشکل برطرف نگردید، تصویر پشت کارت ملی خود را برای پشتیبانی ارسال کنید
-          تا پس از بررسی صحت سریال، به <strong>بانکداری ویدئویی</strong> ارجاع
-          داده شوید.
-        </p>
-        <div class="error-title">
-          خطا: سطح مالی شما با اطلاعات پروفایل تطابق ندارد
-        </div>
-        <p>
-          <strong>راه‌حل:</strong> در صورت مشاهده این خطا، امکان ورود به برنامه
-          وجود ندارد. لطفاً ساعت و تاریخ دقیق دریافت خطا را به پشتیبانی اعلام
-          کنید تا برایتان پیگیری ثبت شود.
-        </p>
-      </div>
-
-      <a href="/learn/index.html" class="back-link" style="margin-top: 2.5rem">
+      <a href="/learn/index.html" class="back-link">
         ➡️ بازگشت به لیست آموزش‌ها
       </a>
     </main>

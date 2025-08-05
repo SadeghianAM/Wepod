@@ -3,32 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>محاسبه کارمزد انتقال وجه</title>
-    <meta name="robots" content="noindex, nofollow" />
+    <title>محاسبه کارمزد - وی هاب</title>
     <style>
       :root {
         --primary-color: #00ae70;
         --primary-dark: #089863;
-        --bg-color: #f4fbf7;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
         --text-color: #222;
-        --text-secondary: #555;
+        --secondary-text-color: #555;
         --card-bg: #ffffff;
         --header-text: #ffffff;
-        --border-radius: 0.75rem;
         --shadow-color-light: rgba(0, 174, 112, 0.07);
-
-        /* State Colors */
-        --success-bg: #e6f7f0;
-        --success-text: #157347;
-        --success-border: #00ae70;
-        --error-bg: #fdeeee;
-        --error-text: #e74c3c;
-        --error-border: #e74c3c;
-        --warning-bg: #fff9e6;
-        --warning-text: #b9770e;
-        --warning-border: #f39c12;
-        --disabled-bg: #f0f0f0;
-        --disabled-opacity: 0.6;
+        --danger-color: #d93025;
+        --warning-color: #f9ab00;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+        --disabled-bg: #f5f5f5;
+        --disabled-text: #b0b0b0;
+        --disabled-opacity: 0.7;
       }
 
       @font-face {
@@ -56,168 +49,208 @@
         flex-direction: column;
       }
 
-      /* == Main Layout == */
-      main {
-        flex-grow: 1;
+      /* --- HEADER & FOOTER --- */
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 1.5rem 1rem;
-      }
-
-      .form-wrapper {
-        width: 100%;
-        max-width: 550px;
-        background: var(--card-bg);
-        border: 1.5px solid var(--success-bg);
-        border-radius: 1rem;
-        box-shadow: 0 2px 12px var(--shadow-color-light);
-        padding: 2rem;
-      }
-
-      /* == Form & Input Styling == */
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: var(--primary-color);
-      }
-
-      .input-with-currency {
+        box-shadow: 0 2px 6px var(--shadow-color-light);
         position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 700px;
+        width: 100%;
+        margin: 0 auto;
         display: flex;
         align-items: center;
+        justify-content: center;
       }
 
+      a {
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+      }
+
+      /* --- Tool Card --- */
+      .tool-card {
+        width: 100%;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .tool-card h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .tool-card .card-content {
+        padding: 1.5rem;
+      }
+
+      /* --- Input Area --- */
+      label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .input-with-currency {
+        position: relative;
+      }
       .input-with-currency .currency-label {
         position: absolute;
         left: 1rem;
-        font-size: 1rem;
-        color: var(--text-secondary);
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        color: var(--secondary-text-color);
         pointer-events: none;
       }
-
       #amountInput {
         width: 100%;
-        padding: 1rem;
-        padding-left: 5rem; /* Space for currency label */
         font-size: 1.2rem;
-        border: 2px solid var(--success-bg);
-        border-radius: var(--border-radius);
-        background: var(--bg-color);
-        color: var(--text-color);
-        transition: border-color 0.3s, background-color 0.3s;
+        padding: 0.8em 1em;
+        padding-left: 5rem; /* Space for currency label */
+        border-radius: 0.6em;
+        border: 1.5px solid #ddd;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: #fff;
         direction: ltr;
-        text-align: center;
+        text-align: left;
       }
-
       #amountInput:focus {
         border-color: var(--primary-color);
-        background-color: var(--card-bg);
-        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
       }
-
       .amount-words {
-        margin-top: 0.5rem;
-        margin-bottom: 10px;
-        font-size: 0.95rem;
-        color: var(--text-secondary);
+        margin-top: 0.75rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--secondary-text-color);
         min-height: 1.5rem;
         text-align: center;
+        font-weight: 500;
+        background-color: var(--bg-color);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
       }
 
-      /* == Method Cards == */
+      /* --- Method Cards (Redesigned) --- */
       .method-cards-container {
         display: flex;
         flex-direction: column;
         gap: 1rem;
       }
-
       .method-card {
-        background-color: #fcfcfc;
-        border: 1px solid var(--success-bg);
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
         padding: 1rem 1.2rem;
-        transition: background-color 0.3s, opacity 0.3s;
+        transition: background-color 0.2s, opacity 0.2s, border-color 0.2s;
       }
-
       .method-card.disabled {
         background-color: var(--disabled-bg);
         opacity: var(--disabled-opacity);
+        border-color: #e0e0e0;
       }
-
+      .method-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.25rem;
+      }
       .method-title {
         font-size: 1.1rem;
         font-weight: 700;
-        color: var(--primary-color);
-        margin-bottom: 0.5rem;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
-
+      .fee-display {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        direction: ltr;
+        text-align: left;
+      }
       .limits {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin-bottom: 0.6rem;
+        font-size: 0.85rem;
+        color: var(--secondary-text-color);
+        padding-right: 2rem; /* Align with title text */
       }
-
       .limits .separator {
         margin: 0 0.5rem;
       }
 
-      .fee-display {
-        font-size: 1rem;
-        font-weight: bold;
-        color: var(--success-text);
-      }
-
-      .fee-display.error,
+      .method-card.disabled .fee-display,
       .fee-display.disabled-text {
-        color: var(--error-text);
+        color: var(--disabled-text);
+        font-weight: 500;
+      }
+      .fee-display.error {
+        color: var(--danger-color);
       }
       .fee-display.warning {
-        color: var(--warning-text);
+        color: var(--warning-color);
       }
 
-      /* == Links & Footer == */
+      /* --- Back Link --- */
       .back-link {
         display: block;
         margin-top: 2rem;
-        text-align: center;
-        color: var(--primary-color);
-        text-decoration: none;
-        font-size: 1rem;
-        transition: color 0.3s;
-      }
-
-      .back-link:hover {
-        text-decoration: underline;
         color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+      }
+      .back-link:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
       }
 
-      footer {
-        background: var(--primary-color);
-        color: var(--header-text);
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px var(--shadow-color-light);
-      }
-
-      /* == Responsive Media Queries == */
       @media (max-width: 600px) {
-        .form-wrapper {
-          padding: 1.5rem 1rem;
+        main {
+          padding: 1rem;
         }
-        #amountInput {
-          font-size: 1.1rem;
-          padding: 0.9rem;
-          padding-left: 4.5rem;
-        }
-        .method-card {
+        .tool-card h2 {
           padding: 0.8rem 1rem;
+          font-size: 1.1rem;
+        }
+        .tool-card .card-content {
+          padding: 1.2rem 1rem;
         }
       }
     </style>
@@ -226,63 +259,68 @@
     <div id="header-placeholder"></div>
 
     <main>
-      <div class="form-wrapper">
-        <label for="amountInput">مبلغ انتقال</label>
-        <div class="input-with-currency">
-          <input
-            type="text"
-            id="amountInput"
-            autocomplete="off"
-            inputmode="numeric"
-            aria-label="مبلغ انتقال وجه"
-          />
-          <span class="currency-label">تومان</span>
+      <div class="tool-card">
+        <h2>💸 محاسبه‌گر کارمزد انتقال</h2>
+        <div class="card-content">
+          <div>
+            <label for="amountInput">💰 مبلغ انتقال</label>
+            <div class="input-with-currency">
+              <input
+                type="text"
+                id="amountInput"
+                autocomplete="off"
+                inputmode="numeric"
+                aria-label="مبلغ انتقال وجه"
+              />
+              <span class="currency-label">تومان</span>
+            </div>
+            <div id="amountWords" class="amount-words"></div>
+
+            <div class="method-cards-container">
+              <div class="method-card" id="card-shetabi">
+                <div class="method-header">
+                  <span class="method-title">💳 کارت به کارت</span>
+                  <span class="fee-display" id="feeShetabi"></span>
+                </div>
+                <div class="limits" id="limitsShetabi">
+                  <span>تا سقف : ۱۰,۰۰۰,۰۰۰ تومان</span>
+                </div>
+              </div>
+
+              <div class="method-card" id="card-paya">
+                <div class="method-header">
+                  <span class="method-title">🔄 پایا</span>
+                  <span class="fee-display" id="feePaya"></span>
+                </div>
+                <div class="limits" id="limitsPaya">
+                  <span>تا سقف : ۲۰۰,۰۰۰,۰۰۰ تومان</span>
+                </div>
+              </div>
+
+              <div class="method-card" id="card-satna">
+                <div class="method-header">
+                  <span class="method-title">🏦 ساتنا</span>
+                  <span class="fee-display" id="feeSatna"></span>
+                </div>
+                <div class="limits" id="limitsSatna">
+                  <span>از : ۱۰۰,۰۰۰,۰۰۰ تومان</span>
+                </div>
+              </div>
+
+              <div class="method-card" id="card-pol">
+                <div class="method-header">
+                  <span class="method-title">🌉 پل</span>
+                  <span class="fee-display" id="feePol"></span>
+                </div>
+                <div class="limits" id="limitsPol">
+                  <span>تا سقف : ۱۵,۰۰۰,۰۰۰ تومان</span>
+                </div>
+              </div>
+            </div>
+
+            <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+          </div>
         </div>
-        <div id="amountWords" class="amount-words"></div>
-
-        <div class="method-cards-container">
-          <div class="method-card" id="card-shetabi">
-            <div class="method-title">کارت به کارت</div>
-            <div class="limits" id="limitsShetabi">
-              <span>کف: ۱,۰۰۰ تومان</span>
-              <span class="separator">|</span>
-              <span>سقف: ۱۰,۰۰۰,۰۰۰ تومان</span>
-            </div>
-            <div class="fee-display" id="feeShetabi"></div>
-          </div>
-
-          <div class="method-card" id="card-paya">
-            <div class="method-title">پایا</div>
-            <div class="limits" id="limitsPaya">
-              <span>کف: ۱,۰۰۰ تومان</span>
-              <span class="separator">|</span>
-              <span>سقف: ۲۰۰,۰۰۰,۰۰۰ تومان</span>
-            </div>
-            <div class="fee-display" id="feePaya"></div>
-          </div>
-
-          <div class="method-card" id="card-satna">
-            <div class="method-title">ساتنا</div>
-            <div class="limits" id="limitsSatna">
-              <span>کف: ۱۰۰,۰۰۰,۰۰۰ تومان</span>
-              <span class="separator">|</span>
-              <span>بدون سقف</span>
-            </div>
-            <div class="fee-display" id="feeSatna"></div>
-          </div>
-
-          <div class="method-card" id="card-pol">
-            <div class="method-title">پل</div>
-            <div class="limits" id="limitsPol">
-              <span>کف: ۱,۰۰۰ تومان</span>
-              <span class="separator">|</span>
-              <span>سقف: ۵۰,۰۰۰,۰۰۰ تومان</span>
-            </div>
-            <div class="fee-display" id="feePol"></div>
-          </div>
-        </div>
-
-        <a href="index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
       </div>
     </main>
 

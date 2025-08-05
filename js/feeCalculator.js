@@ -44,8 +44,7 @@ function parseToNumber(persianStr) {
 // ===== تعریف حداقل و حداکثر هر روش =====
 const config = {
   shetabi: { min: 1000, max: 10_000_000 },
-  paya: { min: 1000, max: 200_000_000 },
-  // برای ساتنا فقط حداقل تعریف شده؛ سقف حذف شده
+  paya: { min: 1000, max: 200_000_000 }, // برای ساتنا فقط حداقل تعریف شده؛ سقف حذف شده
   satna: { min: 100_000_000 },
   pol: { min: 1000, max: 50_000_000 },
 };
@@ -53,36 +52,34 @@ const config = {
 // ===== تابع محاسبه کارمزد بر اساس قوانین =====
 function calculateFee(method, amount) {
   switch (method) {
-    case "shetabi": {
-      if (amount < config.shetabi.min) {
-        return {
-          error: `حداقل مبلغ برای شتابی ${formatWithSeparators(
-            config.shetabi.min
-          )} تومان است.`,
-        };
+    case "shetabi":
+      {
+        if (amount < config.shetabi.min) {
+          return {
+            error: `حداقل مبلغ برای شتابی ${formatWithSeparators(
+              config.shetabi.min
+            )} تومان است.`,
+          };
+        }
+        if (amount > config.shetabi.max) {
+          return {
+            error: `حداکثر مبلغ برای شتابی ${formatWithSeparators(
+              config.shetabi.max
+            )} تومان است.`,
+          };
+        } // UPDATED: منطق جدید و پلکانی برای سال ۱۴۰۴
+        if (amount <= 1_000_000) return { fee: 900 };
+        if (amount <= 2_000_000) return { fee: 1220 };
+        if (amount <= 3_000_000) return { fee: 1540 };
+        if (amount <= 4_000_000) return { fee: 1860 };
+        if (amount <= 5_000_000) return { fee: 2180 };
+        if (amount <= 6_000_000) return { fee: 2500 };
+        if (amount <= 7_000_000) return { fee: 2820 };
+        if (amount <= 8_000_000) return { fee: 3140 };
+        if (amount <= 9_000_000) return { fee: 3460 };
+        if (amount <= 10_000_000) return { fee: 3780 };
       }
-      if (amount > config.shetabi.max) {
-        return {
-          error: `حداکثر مبلغ برای شتابی ${formatWithSeparators(
-            config.shetabi.max
-          )} تومان است.`,
-        };
-      }
-      // UPDATED: منطق جدید و پلکانی برای سال ۱۴۰۴
-      if (amount <= 1_000_000) return { fee: 900 };
-      if (amount <= 2_000_000) return { fee: 1220 };
-      if (amount <= 3_000_000) return { fee: 1540 };
-      if (amount <= 4_000_000) return { fee: 1860 };
-      if (amount <= 5_000_000) return { fee: 2180 };
-      if (amount <= 6_000_000) return { fee: 2500 };
-      if (amount <= 7_000_000) return { fee: 2820 };
-      if (amount <= 8_000_000) return { fee: 3140 };
-      if (amount <= 9_000_000) return { fee: 3460 };
-      if (amount <= 10_000_000) return { fee: 3780 };
-
-      // این بخش در عمل اجرا نمی‌شود چون توسط محدودیت سقف پوشش داده شده است
-      return { fee: 3800 };
-    }
+      break; // break اضافه شد تا از fall-through جلوگیری شود
 
     case "paya": {
       if (amount < config.paya.min) {
@@ -98,11 +95,9 @@ function calculateFee(method, amount) {
             config.paya.max
           )} تومان است.`,
         };
-      }
-      // کارمزد = 0.01٪ مبلغ تراکنش (۰.۰۱ درصد)
+      } // کارمزد = 0.01٪ مبلغ تراکنش (۰.۰۱ درصد)
       let rawFee = amount * 0.0001;
-      let fee = Math.ceil(rawFee);
-      // حداقل 300 تومان (3,000 ریال) و حداکثر 7,500 تومان (75,000 ریال)
+      let fee = Math.ceil(rawFee); // حداقل 300 تومان (3,000 ریال) و حداکثر 7,500 تومان (75,000 ریال)
       if (fee < 300) fee = 300;
       if (fee > 7500) fee = 7500;
       return { fee };
@@ -115,8 +110,7 @@ function calculateFee(method, amount) {
             config.satna.min
           )} تومان است.`,
         };
-      }
-      // کارمزد = 0.02٪ مبلغ تراکنش (۰.۰۲ درصد)، سقف 35,000 تومان (350,000 ریال)
+      } // کارمزد = 0.02٪ مبلغ تراکنش (۰.۰۲ درصد)، سقف 35,000 تومان (350,000 ریال)
       let rawFee = amount * 0.0002;
       let fee = Math.ceil(rawFee);
       if (fee > 35000) fee = 35000;
@@ -137,16 +131,12 @@ function calculateFee(method, amount) {
             config.pol.max
           )} تومان است.`,
         };
-      }
-      // کارمزد = 0.02٪ مبلغ تراکنش، حداقل 500
+      } // کارمزد = 0.02٪ مبلغ تراکنش، حداقل 500
       let rawFee = amount * 0.0002;
       let fee = Math.ceil(rawFee);
       if (fee < 500) fee = 500;
       return { fee };
     }
-
-    default:
-      return { error: "روش انتقال نامعتبر است." };
   }
 }
 
@@ -281,24 +271,20 @@ function updateAmountInWords(rialAmount) {
 
 // ===== رویداد تغییر ورودی =====
 function handleInputChange() {
-  const raw = amountInput.value;
+  const raw = amountInput.value; // تبدیل ورودی به رشتهٔ لاتین بدون جداکننده
 
-  // تبدیل ورودی به رشتهٔ لاتین بدون جداکننده
   let latinDigitsOnly = raw
     .replace(/[۰-۹]/g, (d) => persianDigits.indexOf(d))
-    .replace(/٫/g, "");
+    .replace(/٫/g, ""); // ===== محدودیت: حداکثر 11 رقم =====
 
-  // ===== محدودیت: حداکثر 11 رقم =====
-  if (latinDigitsOnly.length > 11) {
+  if (latinDigitsOnly.length > 9) {
     // برش تا 11 رقم
-    latinDigitsOnly = latinDigitsOnly.slice(0, 11);
-  }
+    latinDigitsOnly = latinDigitsOnly.slice(0, 9);
+  } // تبدیل رشتهٔ برش‌خورده به عدد (یا NaN)
 
-  // تبدیل رشتهٔ برش‌خورده به عدد (یا NaN)
   const numeric = parseInt(latinDigitsOnly, 10);
-  const isValidNumber = !isNaN(numeric);
+  const isValidNumber = !isNaN(numeric); // اگر خالی یا غیرعددی باشد
 
-  // اگر خالی یا غیرعددی باشد
   if (latinDigitsOnly === "" || !isValidNumber) {
     if (latinDigitsOnly === "") {
       // وقتی کاملاً خالی باشد، همهٔ کارت‌ها بدون متن و بدون غیرفعال شدن
@@ -323,17 +309,13 @@ function handleInputChange() {
       updateAmountInWords(NaN);
     }
     return;
-  }
+  } // در غیر این صورت، numeric یک عدد معتبر با حداکثر 11 رقم است // فرمت با جداکننده و ارقام فارسی و جایگزینی در input
 
-  // در غیر این صورت، numeric یک عدد معتبر با حداکثر 11 رقم است
-  // فرمت با جداکننده و ارقام فارسی و جایگزینی در input
-  amountInput.value = formatWithSeparators(numeric);
+  amountInput.value = formatWithSeparators(numeric); // به‌روزکردن مبلغ به حروف (ریال): هر «تومان» = ۱۰ ریال
 
-  // به‌روزکردن مبلغ به حروف (ریال): هر «تومان» = ۱۰ ریال
   const rialAmount = numeric * 10;
-  updateAmountInWords(rialAmount);
+  updateAmountInWords(rialAmount); // به‌روزرسانی وضعیت هر کارت
 
-  // به‌روزرسانی وضعیت هر کارت
   updateCardStatus(cardShetabi, feeShetabi, "shetabi", numeric);
   updateCardStatus(cardPaya, feePaya, "paya", numeric);
   updateCardStatus(cardSatna, feeSatna, "satna", numeric);

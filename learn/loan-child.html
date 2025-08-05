@@ -3,140 +3,211 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>آموزش‌های پشتیبانی - وام فرزندآوری بانک پاسارگاد</title>
+    <title>آموزش: وام فرزندآوری - وی هاب</title>
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap;
       }
-      * {
+
+      *,
+      *::before,
+      *::after {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
-      main {
-        flex-grow: 1;
-        max-width: 900px;
-        width: 100%;
-        margin: 0 auto;
-        padding: 2rem 1.2rem;
-      }
-      h2 {
-        color: #00ae70;
-        font-size: 1.6rem;
-        margin-bottom: 1.5rem;
-        font-weight: 700;
-        border-bottom: 2px solid #00ae70;
-        padding-bottom: 0.5rem;
-      }
-      h3 {
-        color: #089863;
-        font-size: 1.3rem;
-        margin-top: 2.5rem;
-        margin-bottom: 1rem;
-        font-weight: 700;
-      }
-      .intro-text {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        background-color: #e6f7f1;
-        padding: 1rem;
-        border-radius: 0.75rem;
-        border-right: 4px solid #00ae70;
-        margin-bottom: 2rem;
-      }
-      .info-box {
-        background: #ffffff;
-        border-right: 4px solid #00ae70;
-        border-radius: 0.75rem;
-        padding: 1.5rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-      }
-      .info-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 0.6rem;
-        color: #00ae70;
-      }
-      .info-content,
-      ul {
-        font-size: 1rem;
-        line-height: 1.8;
-      }
-      ul li {
-        margin-bottom: 0.75rem;
-      }
+
       a {
-        color: #007bff;
+        color: var(--primary-dark);
         text-decoration: none;
+        font-weight: 600;
       }
       a:hover {
         text-decoration: underline;
       }
-      .loan-amount-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-      }
-      .loan-amount-card {
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-top: 4px solid #00ae70;
-        border-radius: 0.75rem;
-        padding: 1rem;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
-      .loan-amount-card h4 {
-        margin: 0.5rem 0;
-        color: #089863;
-      }
-      .loan-amount-card p {
-        margin: 0.2rem 0;
-      }
-      .back-link {
-        display: block;
-        margin-top: 2.5rem;
-        text-align: center;
-        color: #00ae70;
-        text-decoration: none;
-        font-size: 1.1rem;
-        font-weight: bold;
-      }
-      .back-link:hover {
-        color: #089863;
-        text-decoration: underline;
-      }
-      .highlight {
-        background-color: #e6f7f1;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-right: 4px solid #00ae70;
-        margin-top: 1rem;
-      }
+
+      /* --- HEADER & FOOTER --- */
+      header,
       footer {
-        background: #00ae70;
-        color: #e0e7ff;
-        height: 60px;
+        background: var(--primary-color);
+        color: var(--header-text);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
       }
-      footer p {
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      /* --- Article Card --- */
+      .article-card {
+        width: 100%;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      /* --- Article Typography --- */
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+
+      /* --- Alert Box Component --- */
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Loan Amount Grid (Redesigned) --- */
+      .loan-amount-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .loan-amount-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 8px var(--shadow-color-light);
+      }
+      .loan-amount-card h4 {
+        margin: 0 0 0.75rem 0;
+        color: var(--primary-dark);
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+      .loan-amount-card p {
+        font-size: 0.95rem;
+        margin: 0.25rem 0;
+        color: var(--secondary-text-color);
+      }
+      .loan-amount-card p strong {
+        color: var(--text-color);
+      }
+
+      /* --- Back Link --- */
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+        }
       }
     </style>
   </head>
@@ -144,54 +215,58 @@
     <div id="header-placeholder"></div>
 
     <main>
-      <h2>📜 شرایط اعطای تسهیلات قرض‌الحسنه فرزند در بانک پاسارگاد</h2>
+      <div class="article-card">
+        <h2>📜 شرایط تسهیلات قرض‌الحسنه فرزند</h2>
+        <div class="card-content">
+          <div class="alert-box green">
+            <p>
+              این تسهیلات در راستای اجرای قانون حمایت از خانواده و جوانی جمعیت
+              به پدران دارای فرزند متولد ۱۴۰۰/۰۱/۰۱ به بعد تعلق می‌گیرد. ثبت‌نام
+              اولیه از طریق سامانه بانک مرکزی به آدرس
+              <a
+                href="https://ve.cbi.ir"
+                target="_blank"
+                rel="noopener noreferrer"
+                >ve.cbi.ir</a
+              >
+              انجام می‌شود.
+            </p>
+          </div>
 
-      <p class="intro-text">
-        این تسهیلات در راستای اجرای قانون حمایت از خانواده و جوانی جمعیت به
-        پدران دارای فرزند متولد ۱۴۰۰/۰۱/۰۱ به بعد تعلق می‌گیرد. ثبت‌نام اولیه از
-        طریق سامانه بانک مرکزی به آدرس
-        <a href="https://ve.cbi.ir" target="_blank" rel="noopener noreferrer"
-          >ve.cbi.ir</a
-        >
-        انجام می‌شود.
-      </p>
+          <h3>💰 مبالغ و بازپرداخت وام</h3>
+          <div class="loan-amount-grid">
+            <div class="loan-amount-card">
+              <h4>🥇 فرزند اول</h4>
+              <p><strong>مبلغ وام:</strong> ۴۰ میلیون تومان</p>
+              <p><strong>بازپرداخت:</strong> ۳۶ ماهه</p>
+            </div>
+            <div class="loan-amount-card">
+              <h4>🥈 فرزند دوم</h4>
+              <p><strong>مبلغ وام:</strong> ۸۰ میلیون تومان</p>
+              <p><strong>بازپرداخت:</strong> ۴۸ ماهه</p>
+            </div>
+            <div class="loan-amount-card">
+              <h4>🥉 فرزند سوم</h4>
+              <p><strong>مبلغ وام:</strong> ۱۲۰ میلیون تومان</p>
+              <p><strong>بازپرداخت:</strong> ۶۰ ماهه</p>
+            </div>
+            <div class="loan-amount-card">
+              <h4>🏅 فرزند چهارم</h4>
+              <p><strong>مبلغ وام:</strong> ۱۵۰ میلیون تومان</p>
+              <p><strong>بازپرداخت:</strong> ۷۲ ماهه</p>
+            </div>
+            <div class="loan-amount-card">
+              <h4>🏅 فرزند پنجم به بعد</h4>
+              <p><strong>مبلغ وام:</strong> ۲۰۰ میلیون تومان</p>
+              <p><strong>بازپرداخت:</strong> ۸۴ ماهه</p>
+            </div>
+          </div>
+          <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem">
+            * این تسهیلات با <strong>کارمزد ۴٪</strong> و با
+            <strong>دوره تنفس ۶ ماهه</strong> برای شروع اقساط ارائه می‌شود.
+          </p>
 
-      <h3>💰 مبالغ و بازپرداخت وام</h3>
-      <div class="loan-amount-grid">
-        <div class="loan-amount-card">
-          <h4>فرزند اول</h4>
-          <p><strong>مبلغ وام:</strong> ۴۰ میلیون تومان</p>
-          <p><strong>بازپرداخت:</strong> ۳۶ ماه (۳ سال)</p>
-        </div>
-        <div class="loan-amount-card">
-          <h4>فرزند دوم</h4>
-          <p><strong>مبلغ وام:</strong> ۸۰ میلیون تومان</p>
-          <p><strong>بازپرداخت:</strong> ۴۸ ماه (۴ سال)</p>
-        </div>
-        <div class="loan-amount-card">
-          <h4>فرزند سوم</h4>
-          <p><strong>مبلغ وام:</strong> ۱۲۰ میلیون تومان</p>
-          <p><strong>بازپرداخت:</strong> ۶۰ ماه (۵ سال)</p>
-        </div>
-        <div class="loan-amount-card">
-          <h4>فرزند چهارم</h4>
-          <p><strong>مبلغ وام:</strong> ۱۵۰ میلیون تومان</p>
-          <p><strong>بازپرداخت:</strong> ۷۲ ماه (۶ سال)</p>
-        </div>
-        <div class="loan-amount-card">
-          <h4>فرزند پنجم به بعد</h4>
-          <p><strong>مبلغ وام:</strong> ۲۰۰ میلیون تومان</p>
-          <p><strong>بازپرداخت:</strong> ۸۴ ماه (۷ سال)</p>
-        </div>
-      </div>
-      <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem">
-        * این تسهیلات با <strong>کارمزد ۴٪</strong> و با
-        <strong>دوره تنفس ۶ ماهه</strong> برای شروع اقساط ارائه می‌شود.
-      </p>
-
-      <h3>📋 شرایط عمومی متقاضیان</h3>
-      <div class="info-box">
-        <div class="info-content">
+          <h3>📋 شرایط عمومی متقاضیان</h3>
           <ul>
             <li>متقاضی باید تابعیت ایران داشته باشد.</li>
             <li>
@@ -211,15 +286,9 @@
               اضافه می‌گردد.
             </li>
           </ul>
-        </div>
-      </div>
 
-      <h3>📑 شرایط وثیقه و ضمانت</h3>
-      <div class="info-box">
-        <div class="info-title">
-          ضمانت این تسهیلات بر اساس اعتبارسنجی متقاضی تعیین می‌شود:
-        </div>
-        <div class="info-content">
+          <h3>📑 شرایط وثیقه و ضمانت</h3>
+          <p>ضمانت این تسهیلات بر اساس اعتبارسنجی متقاضی تعیین می‌شود:</p>
           <ul>
             <li>
               <strong>با رتبه اعتباری بالا:</strong> در صورت کسب حد نصاب رتبه
@@ -235,12 +304,8 @@
               ملک) به عنوان وثیقه وجود دارد.
             </li>
           </ul>
-        </div>
-      </div>
 
-      <h3>📄 مدارک مورد نیاز جهت ارائه به شعبه</h3>
-      <div class="info-box">
-        <div class="info-content">
+          <h3>📄 مدارک مورد نیاز جهت ارائه به شعبه</h3>
           <ul>
             <li>اصل شناسنامه پدر و فرزند</li>
             <li>اصل کارت ملی هوشمند پدر</li>
@@ -251,12 +316,8 @@
             <li>کد پستی ده رقمی و آدرس کامل محل سکونت</li>
             <li>ارائه حکم دادگاه برای حضانت فرزند (فقط در صورت لزوم)</li>
           </ul>
-        </div>
-      </div>
 
-      <h3>👣 مراحل ثبت‌نام و دریافت</h3>
-      <div class="info-box">
-        <div class="info-content">
+          <h3>👣 مراحل ثبت‌نام و دریافت</h3>
           <ul>
             <li>
               <strong>ثبت نام در سامانه بانک مرکزی:</strong> در سایت
@@ -283,17 +344,15 @@
               تکمیل نمایید.
             </li>
           </ul>
-          <div class="highlight">
-            <strong>فرآیند تمام دیجیتال:</strong> بانک پاسارگاد امکان اعطای این
-            تسهیلات را در بستر دیجیتالی (ویپاد) بدون نیاز به حضور متقاضی و ضامن
-            در شعبه، در کمترین زمان ممکن فراهم کرده است.
+          <div class="alert-box yellow">
+            <p>
+              <strong>فرآیند تمام دیجیتال:</strong> بانک پاسارگاد امکان اعطای
+              این تسهیلات را در بستر دیجیتالی (ویپاد) بدون نیاز به حضور متقاضی و
+              ضامن در شعبه، در کمترین زمان ممکن فراهم کرده است.
+            </p>
           </div>
-        </div>
-      </div>
 
-      <h3>📚 منابع</h3>
-      <div class="info-box">
-        <div class="info-content">
+          <h3>📚 منابع</h3>
           <ul>
             <li>
               <a

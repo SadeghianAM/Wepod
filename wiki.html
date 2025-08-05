@@ -3,28 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ویکی ویپاد</title>
+    <title>ویکی ویپاد - وی هاب</title>
     <style>
       :root {
         --primary-color: #00ae70;
         --primary-dark: #089863;
-        --bg-color: #f4fbf7;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
         --text-color: #222;
-        --text-secondary: #555;
+        --secondary-text-color: #555;
         --card-bg: #ffffff;
         --header-text: #ffffff;
-        --border-radius: 0.75rem;
-        --border-radius-lg: 1.2rem;
         --shadow-color-light: rgba(0, 174, 112, 0.07);
         --shadow-color-medium: rgba(0, 174, 112, 0.12);
-        --shadow-color-dark: rgba(0, 0, 0, 0.15);
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
       }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
+
       *,
       *::before,
       *::after {
@@ -33,6 +35,7 @@
         margin: 0;
         padding: 0;
       }
+
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -41,190 +44,267 @@
         display: flex;
         flex-direction: column;
       }
+
+      a {
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+      }
+
+      /* --- HEADER & FOOTER --- */
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
       main {
         flex-grow: 1;
-      } /* == Main Layout & Typography == */
-      .search-container {
-        text-align: center;
-        max-width: 800px;
+        padding: 2rem;
+        max-width: 900px;
         width: 100%;
-        padding: 2rem 1.5rem;
-        margin: 0 auto; /* Changed */
-        display: flex; /* Added */
-        flex-direction: column; /* Added */
-        justify-content: center; /* Added for vertical centering */
+        margin: 0 auto;
       }
-      h1 {
+
+      /* --- Hero Section --- */
+      .hero-section {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .hero-section .title {
         font-size: 2.5rem;
         font-weight: 800;
-        color: var(--primary-color);
-        margin-bottom: 2rem;
-      } /* ===== ADDED STYLE FOR SUBTITLE ===== */
-      .subtitle {
-        color: var(--text-secondary);
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+      }
+      .hero-section .subtitle {
         font-size: 1.1rem;
-        font-weight: 400;
-        margin-top: -1.5rem;
-        margin-bottom: 2.5rem;
-      } /* == Search Form == */
+        color: var(--secondary-text-color);
+      }
+
+      /* --- Search Card (Tool Card Style) --- */
+      .search-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .search-card .card-content {
+        padding: 1.5rem;
+      }
+
+      /* --- Search Form --- */
       .search-form {
-        padding: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
         margin-bottom: 2rem;
       }
       .form-group {
         position: relative;
-        margin-bottom: 1.5rem;
       }
       .form-group .icon {
         position: absolute;
-        inset-inline-start: 1.2rem;
+        inset-inline-start: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 1.2rem;
-        color: #888;
+        font-size: 1.1rem;
+        color: #999;
         pointer-events: none;
       }
       input[type="text"],
       select {
         width: 100%;
-        padding: 1rem;
-        padding-inline-start: 3rem; /* Space for icon */
-        font-size: 1.1rem;
+        font-size: 1rem;
+        padding: 0.8em 1em;
+        padding-inline-start: 2.8rem;
+        border-radius: 0.6em;
         border: 1.5px solid #ddd;
-        border-radius: var(--border-radius);
         outline: none;
-        background-color: #f9f9f9;
-        transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: #fff;
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
       }
       select {
         cursor: pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: left 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-left: 2.5rem;
       }
       input[type="text"]:focus,
       select:focus {
         border-color: var(--primary-color);
-        background-color: var(--card-bg);
-        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.1);
-      } /* == Results == */
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+      }
+
+      /* --- Results --- */
       .results {
         text-align: right;
       }
       .result-item {
         background: var(--card-bg);
-        border-inline-start: 4px solid var(--primary-color);
         border-radius: var(--border-radius);
-        padding: 1.5rem;
+        padding: 1.2rem 1.5rem;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 12px var(--shadow-color-light);
-        transition: transform 0.3s, box-shadow 0.3s,
-          border-inline-start-color 0.3s;
+        box-shadow: 0 3px 8px var(--shadow-color-light);
+        border: 1px solid var(--border-color);
+        border-inline-start: 5px solid var(--primary-color);
+        transition: transform 0.2s ease, box-shadow 0.2s ease,
+          background-color 0.4s ease;
         cursor: pointer;
       }
       .result-item:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 20px var(--shadow-color-medium);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px var(--shadow-color-medium);
         border-inline-start-color: var(--primary-dark);
       }
       .result-title {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         font-weight: 700;
-        color: var(--primary-color);
-        margin-bottom: 0.5rem;
+        color: var(--text-color);
+        margin-bottom: 0.75rem;
       }
       .result-category,
       .result-id {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin-bottom: 0.75rem;
         display: inline-block;
-        background-color: var(--bg-color);
-        padding: 0.2rem 0.6rem;
-        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        margin-inline-end: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .result-category {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
       }
       .result-id {
-        margin-right: 0.5rem;
+        background-color: #f3f4f6;
+        color: #4b5563;
       }
       .result-desc {
-        font-size: 1.05rem;
-        line-height: 1.7;
+        font-size: 1rem;
+        line-height: 1.8;
+        color: var(--secondary-text-color);
       }
       .no-result {
-        color: #999;
-        margin-top: 2rem;
-        font-size: 1.1rem;
         text-align: center;
-      } /* == Toast Notification == */
+        padding: 2rem;
+        color: var(--secondary-text-color);
+      }
+
+      /* --- Back Link (Corrected) --- */
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+      .back-link:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+      }
+
+      /* --- Toast Notification --- */
       #toast {
         position: fixed;
-        bottom: 2rem;
+        bottom: -100px;
         left: 50%;
         transform: translateX(-50%);
-        background-color: var(--primary-dark);
-        color: var(--header-text);
+        background-color: var(--text-color);
+        color: var(--card-bg);
         padding: 0.8rem 1.5rem;
         border-radius: var(--border-radius);
         font-size: 1rem;
-        box-shadow: 0 4px 16px var(--shadow-color-dark);
-        z-index: 9999;
-        transition: opacity 0.4s ease, transform 0.4s ease;
-        opacity: 0;
-        pointer-events: none;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transition: bottom 0.4s ease-in-out;
+        display: none;
       }
       #toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(-10px);
-      } /* == Footer == */
-      footer {
-        background: var(--primary-color);
-        color: var(--header-text);
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px var(--shadow-color-light);
-      } /* == Responsive Media Queries == */
-      @media (max-width: 600px) {
-        .search-container {
+        bottom: 2rem;
+      }
+
+      /* --- Responsive --- */
+      @media (max-width: 768px) {
+        main {
           padding: 1.5rem 1rem;
         }
-        h1 {
+        .hero-section .title {
           font-size: 2rem;
         }
         .search-form {
-          padding: 0;
+          grid-template-columns: 1fr;
         }
       }
     </style>
   </head>
   <body>
     <div id="header-placeholder"></div>
-    <main class="search-container">
-      <h1>ویکی ویپاد</h1>
-      <p class="subtitle">دسترسی مستقیم به تمامی مطالب موجود در درخت دانش</p>
-      <div class="search-form">
-        <div class="form-group">
-          <span class="icon">🔍</span>
-          <input
-            type="text"
-            id="search-input"
-            placeholder="جستجو در ویکی..."
-            aria-label="جستجو در ویکی"
-          />
-        </div>
-        <div class="form-group">
-          <span class="icon">🗂️</span>
-          <select id="category-filter" aria-label="فیلتر بر اساس دسته بندی">
-            <option value="">همه دسته‌ها</option>
-          </select>
+
+    <main>
+      <div class="hero-section">
+        <h1 class="title">ویکی ویپاد</h1>
+        <p class="subtitle">دسترسی مستقیم به تمامی مطالب موجود در درخت دانش</p>
+      </div>
+
+      <div class="search-card">
+        <div class="card-content">
+          <div class="search-form">
+            <div class="form-group">
+              <span class="icon">🔍</span>
+              <input
+                type="text"
+                id="search-input"
+                placeholder="جستجو در عنوان یا توضیحات..."
+                aria-label="جستجو در ویکی"
+              />
+            </div>
+            <div class="form-group">
+              <span class="icon">🗂️</span>
+              <select id="category-filter" aria-label="فیلتر بر اساس دسته بندی">
+                <option value="">همه دسته‌ها</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="results" id="results-container"></div>
         </div>
       </div>
-      <div class="results" id="results-container"></div>
+
+      <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
     </main>
+
     <div id="toast">کپی شد!</div>
     <div id="footer-placeholder"></div>
+
     <script src="/js/header.js"></script>
     <script src="/js/common.js"></script>
     <script src="/js/wiki.js"></script>

@@ -3,27 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>بررسی کد پستی</title>
-    <meta name="robots" content="noindex, nofollow" />
+    <title>بررسی کد پستی - وی هاب</title>
     <style>
       :root {
         --primary-color: #00ae70;
         --primary-dark: #089863;
-        --bg-color: #f4fbf7;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
         --text-color: #222;
-        --text-secondary: #666;
+        --secondary-text-color: #555;
         --card-bg: #ffffff;
         --header-text: #ffffff;
-        --border-radius: 0.75rem;
         --shadow-color-light: rgba(0, 174, 112, 0.07);
-
-        /* State Colors */
-        --success-bg: #e6f7f0;
-        --success-text: #157347;
-        --success-border: #00ae70;
-        --error-bg: #fdeeee;
-        --error-text: #e74c3c;
-        --error-border: #e74c3c;
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --warning-color: #f9ab00;
+        --warning-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
       }
 
       @font-face {
@@ -51,151 +48,201 @@
         flex-direction: column;
       }
 
-      /* == Main Layout == */
-      main {
-        flex-grow: 1;
+      /* --- HEADER & FOOTER --- */
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 1rem;
-        max-width: 800px;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 600px;
         width: 100%;
         margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
-      /* == Form Styling == */
-      .form-wrapper {
+      a {
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+      }
+
+      /* --- Tool Card --- */
+      .tool-card {
         width: 100%;
-        max-width: 480px;
         background: var(--card-bg);
-        border: 1.5px solid var(--success-bg);
-        border-radius: 1rem;
-        box-shadow: 0 2px 12px var(--shadow-color-light);
-        padding: 2rem 1.5rem;
-        margin-top: 2rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .tool-card h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .tool-card .card-content {
+        padding: 1.5rem;
       }
 
+      /* --- Form Elements --- */
       label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--secondary-text-color);
+      }
+      label + small {
         display: block;
-        margin-bottom: 0.7rem;
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: var(--primary-color);
+        color: #888;
+        font-size: 0.85rem;
+        margin-top: -0.4rem;
+        margin-bottom: 0.8rem;
       }
 
       input {
         width: 100%;
-        padding: 1rem;
         font-size: 1.1rem;
-        border: 2px solid var(--success-bg);
-        border-radius: var(--border-radius);
+        padding: 0.8em 1em;
+        border-radius: 0.6em;
+        border: 1.5px solid #ddd;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: #fff;
         direction: ltr;
         text-align: center;
         letter-spacing: 2px;
-        background: var(--bg-color);
-        color: var(--text-color);
-        transition: border-color 0.3s, background-color 0.3s;
       }
-
       input:focus {
         border-color: var(--primary-color);
-        background-color: var(--card-bg);
-        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+      }
+      input::placeholder {
+        color: #ccc;
       }
 
-      /* == Result Box == */
-      .result {
-        margin-top: 1rem;
-        padding: 1rem 1.5rem;
-        border-radius: var(--border-radius);
-        font-weight: bold;
-        font-size: 1rem;
-        text-align: center;
-        display: none; /* Controlled by JS */
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        border-width: 1px;
-        border-style: solid;
-      }
-
-      .result.success {
-        background-color: var(--success-bg);
-        color: var(--success-text);
-        border-color: var(--success-border);
-      }
-
-      .result.error {
-        background-color: var(--error-bg);
-        color: var(--error-text);
-        border-color: var(--error-border);
-      }
-
-      /* == Buttons & Links == */
+      /* --- Buttons --- */
       .btn {
-        width: 100%;
-        padding: 1rem;
-        border: none;
-        border-radius: var(--border-radius);
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: white;
-        cursor: pointer;
-        margin-top: 1.5rem;
-        display: block;
-        transition: background-color 0.3s;
-      }
-
-      .btn-primary {
-        background-color: var(--primary-color);
-      }
-      .btn-primary:hover {
-        background-color: var(--primary-dark);
-      }
-
-      .info-text {
-        text-align: center;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        line-height: 1.7;
-        margin-top: 1.5rem;
-      }
-
-      .back-link {
-        display: block;
-        margin-top: 1rem;
-        text-align: center;
-        color: var(--primary-color);
-        text-decoration: none;
-        font-size: 1rem;
-        transition: color 0.3s;
-      }
-
-      .back-link:hover {
-        text-decoration: underline;
-        color: var(--primary-dark);
-      }
-
-      /* == Footer (Placeholder style) == */
-      footer {
-        background: var(--primary-color);
-        color: var(--header-text);
-        height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px var(--shadow-color-light);
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--header-text);
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        margin-top: 1.5rem;
+      }
+      .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .btn-danger {
+        background-color: var(--danger-color);
+      }
+      .btn-danger:hover:not(:disabled) {
+        background-color: #c02717;
       }
 
-      /* == Responsive Media Queries == */
+      /* --- Result & Info Boxes --- */
+      .result,
+      .info-box {
+        border-radius: var(--border-radius);
+        padding: 0.8rem 1.2rem;
+        line-height: 1.6;
+        border: 1px solid transparent;
+        border-inline-start-width: 4px;
+        margin-top: 1rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+      .result.success,
+      .result.error {
+        display: flex !important;
+      }
+      .result.success {
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-dark);
+      }
+      .result.error {
+        background-color: var(--danger-bg);
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+      }
+      .info-box {
+        display: block; /* Info box is always visible */
+        background-color: var(--warning-bg);
+        border-color: var(--warning-color);
+        color: var(--secondary-text-color);
+        text-align: center;
+      }
+
+      /* --- Back Link --- */
+      .back-link {
+        display: block;
+        margin-top: 1.5rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+      }
+      .back-link:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+      }
+
       @media (max-width: 480px) {
-        .form-wrapper {
-          padding: 1.5rem 1rem;
+        main {
+          padding: 1rem;
         }
-        input,
-        .btn {
-          font-size: 1rem;
-          padding: 0.9rem;
+        .tool-card h2 {
+          padding: 0.8rem 1rem;
+          font-size: 1.1rem;
+        }
+        .tool-card .card-content {
+          padding: 1.2rem 1rem;
         }
       }
     </style>
@@ -204,23 +251,33 @@
     <div id="header-placeholder"></div>
 
     <main>
-      <div class="form-wrapper">
-        <label for="postalInput">کد پستی (حداقل ۵ رقم اول):</label>
-        <input
-          type="text"
-          id="postalInput"
-          inputmode="numeric"
-          maxlength="11"
-          placeholder="----- -----"
-          aria-label="ورود کد پستی"
-        />
-        <div class="result" id="postalResult"></div>
-        <button class="btn btn-primary" onclick="clearForm()">
-          پاک کردن فرم
-        </button>
-        <div class="info-text">
-          توجه داشته باشید داده های این بخش به علت رنج بالای کدهای پستی کامل
-          نیست و روزانه درحال به روزرسانی است.
+      <div class="tool-card">
+        <h2>📮 استعلام منطقه پستی</h2>
+        <div class="card-content">
+          <div>
+            <label for="postalInput">کد پستی</label>
+            <small>کد پستی ۱۰ رقمی را وارد کنید.</small>
+            <input
+              type="text"
+              id="postalInput"
+              inputmode="numeric"
+              maxlength="11"
+              placeholder="----- -----"
+              aria-label="ورود کد پستی"
+            />
+
+            <div class="result" id="postalResult"></div>
+
+            <button class="btn btn-danger" onclick="clearForm()">
+              🗑️ پاک کردن
+            </button>
+          </div>
+
+          <div class="info-box">
+            توجه: داده‌های این بخش به علت گستردگی کدهای پستی ممکن است کامل نباشد
+            و به مرور تکمیل می‌گردد.
+          </div>
+
           <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
         </div>
       </div>

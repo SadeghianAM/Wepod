@@ -3,106 +3,195 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>آموزش‌های بخش پشتیانی مشتریان</title>
+    <title>آموزش‌ها - وی هاب</title>
     <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --shadow-color-medium: rgba(0, 174, 112, 0.12);
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
+        font-display: swap;
       }
-      * {
+
+      *,
+      *::before,
+      *::after {
         font-family: "Vazirmatn", sans-serif !important;
         box-sizing: border-box;
-      }
-      body {
-        background-color: #f4fbf7;
-        color: #222;
         margin: 0;
         padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
         direction: rtl;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* --- HEADER & FOOTER --- */
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
       main {
         flex-grow: 1;
+        padding: 2rem;
         max-width: 900px;
         width: 100%;
         margin: 0 auto;
-        padding: 2rem 1.2rem;
       }
-      h2 {
-        color: #00ae70;
-        font-size: 1.4rem;
-        margin-bottom: 1.5rem;
+
+      /* --- Tool Card --- */
+      .tool-card {
+        width: 100%;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .tool-card h2 {
+        font-size: 1.2rem;
         font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .tool-card .card-content {
+        padding: 1.5rem;
+      }
+
+      /* --- Search Input --- */
+      .search-group {
+        position: relative;
+        margin-bottom: 2rem;
+      }
+      .search-group .icon {
+        position: absolute;
+        inset-inline-start: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.1rem;
+        color: #999;
+        pointer-events: none;
       }
       #lesson-search {
         width: 100%;
         font-size: 1rem;
-        padding: 0.7em 1em;
+        padding: 0.8em 1em;
+        padding-inline-start: 2.8rem;
         border-radius: 0.6em;
         border: 1.5px solid #ddd;
-        margin-bottom: 2rem; /* فاصله از لیست آموزش‌ها */
-        box-sizing: border-box;
         outline: none;
-        transition: border-color 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
       }
       #lesson-search:focus {
-        border-color: #00ae70;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
       }
+
+      /* --- Lesson Box --- */
       .lesson-link {
-        text-decoration: none;
-        color: inherit;
         display: block;
       }
       .lesson-box {
-        background: #ffffff;
-        border-right: 4px solid #00ae70;
-        border-radius: 0.75rem;
-        padding: 1.5rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-        transition: 0.3s;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 3px 8px var(--shadow-color-light);
+        border: 1px solid var(--border-color);
+        border-inline-start: 5px solid var(--primary-color);
+        transition: transform 0.2s ease, box-shadow 0.2s ease,
+          border-inline-start-color 0.2s ease;
       }
-      .lesson-box:hover {
+      .lesson-link:hover .lesson-box {
         transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
-        border-right-color: #089863;
+        box-shadow: 0 6px 16px var(--shadow-color-medium);
+        border-inline-start-color: var(--primary-dark);
       }
       .lesson-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 0.6rem;
-        color: #00ae70;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
       .lesson-content {
-        font-size: 1rem;
+        font-size: 0.95rem;
         line-height: 1.8;
+        color: var(--secondary-text-color);
       }
+
+      /* --- Back Link --- */
       .back-link {
         display: block;
         margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
         text-align: center;
-        color: #00ae70;
+        width: 100%;
+        font-size: 1rem;
         text-decoration: none;
       }
       .back-link:hover {
-        color: #089863;
+        color: var(--primary-color);
         text-decoration: underline;
       }
-      footer {
-        background: #00ae70;
-        color: #e0e7ff;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
-      }
-      footer p {
-        margin: 0;
+
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+        }
       }
     </style>
   </head>
@@ -110,62 +199,76 @@
     <div id="header-placeholder"></div>
 
     <main>
-      <h2>📚 لیست آموزش‌ها</h2>
+      <div class="tool-card">
+        <h2>📚 لیست آموزش‌ها</h2>
+        <div class="card-content">
+          <div class="search-group">
+            <span class="icon">🔍</span>
+            <input
+              type="text"
+              id="lesson-search"
+              placeholder="جستجو در عنوان و محتوای آموزش‌ها..."
+            />
+          </div>
 
-      <input
-        type="text"
-        id="lesson-search"
-        placeholder="جستجو در عنوان و محتوای آموزش‌ها..."
-      />
-      <div id="lessons-container">
-        <a href="/learn/about-wepod.html" class="lesson-link">
-          <div class="lesson-box">
-            <div class="lesson-title">درباره ویپاد</div>
-            <div class="lesson-content">
-              ویپاد چیست؟ پشتیبانی ویپاد، دعوت از دوستان (کد معرف) و...
-            </div>
+          <div id="lessons-container">
+            <a href="/learn/about-wepod.html" class="lesson-link">
+              <div class="lesson-box">
+                <div class="lesson-title">ℹ️ درباره ویپاد</div>
+                <div class="lesson-content">
+                  ویپاد چیست؟ پشتیبانی ویپاد، دعوت از دوستان (کد معرف) و...
+                </div>
+              </div>
+            </a>
+            <a href="/learn/signup.html" class="lesson-link">
+              <div class="lesson-box">
+                <div class="lesson-title">📝 ثبت نام ویپاد</div>
+                <div class="lesson-content">
+                  توضیحاتی در مورد نحوه ثبت نام، ارتقا سطح کاربری
+                </div>
+              </div>
+            </a>
+            <a href="/learn/profile.html" class="lesson-link">
+              <div class="lesson-box">
+                <div class="lesson-title">👤 پروفایل کاربری</div>
+                <div class="lesson-content">
+                  اطلاعات پروفایل کاربری، ثبت و تأیید ایمیل، تغییر شماره همراه،
+                  ثبت و تغییر رمز دو مرحله‌ای
+                </div>
+              </div>
+            </a>
+            <a href="/learn/videobank.html" class="lesson-link">
+              <div class="lesson-box">
+                <div class="lesson-title">📽️ بانکداری ویدیویی</div>
+              </div>
+            </a>
+            <a href="/learn/loan-marriage.html" class="lesson-link">
+              <div class="lesson-box">
+                <div class="lesson-title">
+                  💍 نحوه و شرایط دریافت وام ازدواج
+                </div>
+                <div class="lesson-content">
+                  برای دریافت وام ازدواج، باید ازدواج رسمی شما در سامانه ثبت
+                  احوال ثبت شده باشد. پس از ثبت‌نام در سامانه وام ازدواج و
+                  دریافت کد رهگیری، به بانک معرفی خواهید شد...
+                </div>
+              </div>
+            </a>
+            <a href="/learn/loan-child.html" class="lesson-link">
+              <div class="lesson-box">
+                <div class="lesson-title">
+                  👶 نحوه و شرایط دریافت وام فرزندآوری
+                </div>
+                <div class="lesson-content">
+                  این وام به والدینی که پس از سال ۱۴۰۰ صاحب فرزند شده‌اند، تعلق
+                  می‌گیرد. متقاضیان باید از طریق سامانه تسهیلات فرزندآوری اقدام
+                  کرده و اطلاعات فرزند خود را ثبت نمایند...
+                </div>
+              </div>
+            </a>
           </div>
-        </a>
-        <a href="/learn/signup.html" class="lesson-link">
-          <div class="lesson-box">
-            <div class="lesson-title">ثبت نام ویپاد</div>
-            <div class="lesson-content">
-              توضیحاتی در مورد نحوه ثبت نام، ارتقا سطح کاربری
-            </div>
-          </div>
-        </a>
-        <a href="/learn/profile.html" class="lesson-link">
-          <div class="lesson-box">
-            <div class="lesson-title">پروفایل کاربری</div>
-            <div class="lesson-content">
-              اطلاعات پروفایل کاربری، ثبت و تأیید ایمیل، تغییر شماره همراه، ثبت
-              و تغییر رمز دو مرحله‌ای
-            </div>
-          </div>
-        </a>
-        <a href="/learn/loan-marriage.html" class="lesson-link">
-          <div class="lesson-box">
-            <div class="lesson-title">نحوه و شرایط دریافت وام ازدواج</div>
-            <div class="lesson-content">
-              برای دریافت وام ازدواج، باید ازدواج رسمی شما در سامانه ثبت احوال
-              ثبت شده باشد. پس از ثبت‌نام در سامانه وام ازدواج و دریافت کد
-              رهگیری، به بانک معرفی خواهید شد...
-            </div>
-          </div>
-        </a>
-
-        <a href="/learn/loan-child.html" class="lesson-link">
-          <div class="lesson-box">
-            <div class="lesson-title">نحوه و شرایط دریافت وام فرزندآوری</div>
-            <div class="lesson-content">
-              این وام به والدینی که پس از سال ۱۴۰۰ صاحب فرزند شده‌اند، تعلق
-              می‌گیرد. متقاضیان باید از طریق سامانه تسهیلات فرزندآوری اقدام کرده
-              و اطلاعات فرزند خود را ثبت نمایند...
-            </div>
-          </div>
-        </a>
+        </div>
       </div>
-
       <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
     </main>
 
