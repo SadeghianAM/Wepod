@@ -18,8 +18,8 @@
         --shadow-color-medium: rgba(0, 174, 112, 0.12);
         --danger-color: #d93025;
         --danger-bg: #fce8e6;
-        --orange-color: #f9ab00; /* A more pleasant orange */
-        --orange-bg: #feefc3;
+        --red-color: #f90000; /* A more pleasant orange */
+        --red-bg: #fec3c3;
         --yellow-color: #f9ab00; /* For Paya Cycle */
         --yellow-bg: #feefc3;
         --border-radius: 0.75rem;
@@ -214,6 +214,33 @@
         box-shadow: 0 4px 12px var(--shadow-color-medium);
       }
 
+      /* === START: ADDED FOR BLINKING NOTICE === */
+      .refresh-notice {
+        text-align: center;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem; /* Matches spacing of other info-wrappers */
+        background-color: var(--red-bg);
+        border: 1px solid var(--red-color);
+        color: #c20000; /* Darker orange for better contrast */
+        font-size: 0.9em;
+        font-weight: 600;
+        border-radius: var(--border-radius);
+        animation: blinker 2s ease-in-out infinite;
+      }
+
+      @keyframes blinker {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      /* === END: ADDED FOR BLINKING NOTICE === */
+
       /* === Right Column: Tools & Links === */
       .tool-card {
         background: var(--card-bg);
@@ -345,6 +372,11 @@
             <div id="video-banking-status"></div>
             <div id="card-tracking-info"></div>
             <div id="news-alerts-page"></div>
+          </div>
+
+          <div class="refresh-notice">
+            برای بروزرسانی سامانه، هر چند ساعت یکبار با Ctrl + F5 صفحات رو
+            بارگذاری کنید
           </div>
           <div class="info-wrapper">
             <h2>⚙️ وضعیت کلی سرویس‌ها</h2>
@@ -596,9 +628,7 @@
         </div>
       </div>
     </main>
-
     <div id="footer-placeholder"></div>
-
     <script src="/js/main.js"></script>
     <script src="/js/header.js"></script>
   </body>
