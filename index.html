@@ -4,22 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>وی هاب</title>
-    <meta name="robots" content="noindex, nofollow" />
     <style>
       :root {
         --primary-color: #00ae70;
         --primary-dark: #089863;
-        --bg-color: #f4fbf7;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
         --text-color: #222;
+        --secondary-text-color: #555;
         --card-bg: #ffffff;
         --header-text: #ffffff;
         --shadow-color-light: rgba(0, 174, 112, 0.07);
         --shadow-color-medium: rgba(0, 174, 112, 0.12);
-        --danger-color: #ff0040;
-        --danger-bg: #fff0f3;
-        --highlight-bg: #e6f0ff;
-        --highlight-border: #1a73e8;
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00; /* A more pleasant orange */
+        --orange-bg: #feefc3;
+        --yellow-color: #f9ab00; /* For Paya Cycle */
+        --yellow-bg: #feefc3;
         --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
       }
 
       @font-face {
@@ -47,6 +51,7 @@
         flex-direction: column;
       }
 
+      /* --- HEADER & FOOTER (Unchanged) --- */
       header,
       footer {
         background: var(--primary-color);
@@ -55,23 +60,20 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
       }
-
       header {
         height: 70px;
-        position: relative;
       }
-
       footer {
         height: 60px;
         font-size: 0.85rem;
       }
-
       header h1 {
         font-size: 1.2rem;
         font-weight: 700;
       }
-
       #today-date,
       #current-time {
         position: absolute;
@@ -82,126 +84,156 @@
         font-weight: 500;
         white-space: nowrap;
       }
-
       #today-date {
         inset-inline-start: 1.5rem;
       }
-
       #current-time {
         inset-inline-end: 1.5rem;
       }
 
       main {
         flex-grow: 1;
-        padding: 1.5rem;
-        max-width: 1100px;
+        padding: 2rem;
+        max-width: 1200px;
         width: 100%;
         margin: 0 auto;
-        overflow-y: auto;
       }
 
       .main-content {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 380px 1fr;
         gap: 2rem;
         align-items: start;
-      }
-
-      h2 {
-        font-size: 1.3rem;
-        margin-bottom: 1.5rem;
-        color: var(--primary-color);
-        text-align: center;
-        font-weight: 700;
       }
 
       ul {
         list-style: none;
       }
-
       a {
         text-decoration: none;
-        color: var(--primary-color);
-        font-weight: 600;
-        font-size: 1.1rem;
-        display: block;
-        transition: color 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out;
       }
 
-      a:hover {
+      /* === Left Column: Info & Status === */
+      .column-info h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
         color: var(--primary-dark);
+        font-weight: 700;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-light);
       }
 
-      li {
-        background-color: var(--card-bg);
-        border-radius: var(--border-radius);
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 2px 12px var(--shadow-color-light);
-        border-inline-start: 4px solid var(--primary-color);
-        transition: transform 0.25s, border-inline-start-color 0.25s,
-          box-shadow 0.25s;
+      .info-wrapper {
+        margin-bottom: 1.5rem;
       }
 
-      li:hover {
-        transform: translateY(-3px);
-        border-inline-start-color: var(--primary-dark);
-        box-shadow: 0 6px 20px var(--shadow-color-medium);
+      .info-wrapper > div:not(:last-child) {
+        margin-bottom: 1rem;
       }
 
+      /* === NEW, SIMPLER & CLEANER DESIGN for Status Boxes === */
       .video-banking-box,
       .news-alert-box {
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 0.5rem;
         border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        line-height: 1.7;
+        border: 1px solid transparent;
         border-inline-start-width: 4px;
-        border-inline-start-style: solid;
-        transition: background-color 0.3s, border-color 0.3s;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-bottom: 10px;
+      }
+      .news-alert-box:hover,
+      .video-banking-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
       }
 
+      /* Color mapping for each state */
+      .news-alert-box.green,
       .video-banking-box {
-        background: #eafff4;
-        border-inline-start-color: var(--primary-color);
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+        border-right-color: var(--primary-color);
       }
-
+      .news-alert-box.red,
       .video-banking-box.closed {
-        background: var(--danger-bg);
-        border-inline-start-color: var(--danger-color);
-      }
-
-      .news-alert-box {
-        font-size: 1rem;
-      }
-
-      .news-alert-box.green {
-        background: #eafff4;
-        border-inline-start-color: var(--primary-color);
-      }
-      .news-alert-box.yellow {
-        background: #fffde0;
-        border-inline-start-color: #ffd600;
-      }
-      .news-alert-box.red {
-        background: var(--danger-bg);
-        border-inline-start-color: var(--danger-color);
+        background-color: var(--danger-bg);
+        border-color: var(--danger-color);
+        border-right-color: var(--danger-color);
       }
       .news-alert-box.orange {
-        background: #fff6e5;
-        border-inline-start-color: #ffa500;
+        background-color: var(--orange-bg);
+        border-color: var(--orange-color);
+        border-right-color: var(--orange-color);
+      }
+      .news-alert-box.yellow {
+        /* For Paya Cycle status */
+        background-color: var(--yellow-bg);
+        border-color: var(--yellow-color);
+        border-right-color: var(--yellow-color);
       }
 
-      .highlight-link {
+      /* Typography inside boxes */
+      .news-alert-box b,
+      .video-banking-box b {
+        font-weight: 700;
+        color: var(--text-color);
+      }
+      .news-alert-box > div {
+        color: var(--secondary-text-color);
+        font-size: 0.9em;
+        margin-top: 0.5em;
+        font-weight: 400;
+      }
+      .news-alert-box p,
+      .video-banking-box p {
+        margin-top: 8px;
+        margin-bottom: 0;
+        font-size: 0.95em;
+        color: var(--secondary-text-color);
+      }
+
+      .full-status-link {
+        display: block;
+        width: 100%;
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--primary-dark);
+        padding: 0.9rem;
         text-align: center;
-        background-color: var(--highlight-bg);
-        border-inline-start-color: var(--highlight-border);
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px var(--shadow-color-light);
+      }
+      .full-status-link:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow-color-medium);
       }
 
-      .highlight-link a {
-        color: #000000;
+      /* === Right Column: Tools & Links === */
+      .tool-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: opacity 0.2s ease-in-out;
       }
-
-      .highlight-link:hover {
-        border-inline-start-color: #174ea6;
+      .tool-card h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        padding: 0.9rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+      }
+      .tool-card .card-content {
+        padding: 1.5rem;
       }
 
       #tools-search {
@@ -209,48 +241,90 @@
         font-size: 1rem;
         padding: 0.7em 1em;
         border-radius: 0.6em;
-        border: 1.5px solid #eee;
-        margin-bottom: 1em;
+        border: 1.5px solid #ddd;
+        margin-bottom: 1.5rem;
         outline: none;
-        transition: border-color 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
       }
-
       #tools-search:focus {
         border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
       }
 
-      .tools-list {
+      .tools-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
       }
+      .tools-grid li {
+        transition: opacity 0.2s ease-in-out;
+      }
+      .tools-grid li a {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.2rem;
+        background-color: var(--bg-color);
+        border-radius: 0.6rem;
+        color: var(--text-color);
+        font-weight: 500;
+        font-size: 0.95rem;
+        border: 1px solid #eee;
+      }
+      /* This rule now excludes the special button from the generic hover effect */
+      .tools-grid li:not(.single-link-li) a:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+      .single-link-li {
+        grid-column: 1 / -1;
+      }
+      .single-link-li a {
+        padding: 1rem;
+        background-color: var(--primary-color);
+        color: var(--header-text);
+        font-weight: 600;
+        text-align: center;
+        justify-content: center;
+      }
+      .single-link-li a:hover {
+        background-color: var(--primary-dark);
+        color: var(--header-text);
+        box-shadow: 0 4px 10px var(--shadow-color-medium);
+      }
 
+      /* --- Responsive Design --- */
       @media (max-width: 900px) {
         .main-content {
           grid-template-columns: 1fr;
-          gap: 1.5rem;
+        }
+        main {
+          padding: 1.5rem;
         }
       }
-
       @media (max-width: 600px) {
-        .tools-list {
+        .tools-grid {
           grid-template-columns: 1fr;
         }
       }
-
       @media (max-width: 480px) {
         main {
           padding: 1rem;
         }
-        a {
-          font-size: 1rem;
-        }
-        li {
-          padding: 1rem 1.2rem;
+        .main-content {
+          gap: 1.5rem;
         }
         #today-date,
         #current-time {
           display: none;
+        }
+        .tool-card h2 {
+          padding: 0.8rem 1rem;
+          font-size: 1rem;
+        }
+        .tool-card .card-content {
+          padding: 1rem;
         }
       }
     </style>
@@ -261,201 +335,223 @@
       <h1>وی هاب</h1>
       <span id="current-time"></span>
     </header>
+
     <main>
       <div class="main-content">
         <div class="column column-info">
-          <h2>📣 اطلاع رسانی</h2>
-          <div id="payaa-cycle-status"></div>
-          <div id="video-banking-status" class="video-banking-status"></div>
-          <div id="news-alerts"></div>
-          <h2>🛠️ وضعیت کلی سرویس‌ها</h2>
-          <div id="service-status"></div>
-          <ul>
-            <li class="highlight-link">
-              <a href="/status.html">نمایش وضعیت تمامی سرویس ها</a>
-            </li>
-          </ul>
+          <div class="info-wrapper">
+            <h2>📣 اطلاع رسانی</h2>
+            <div id="payaa-cycle-status"></div>
+            <div id="video-banking-status"></div>
+            <div id="news-alerts-page"></div>
+          </div>
+          <div class="info-wrapper">
+            <h2>⚙️ وضعیت کلی سرویس‌ها</h2>
+            <div id="service-status"></div>
+          </div>
+          <a href="/status.html" class="full-status-link"
+            >نمایش وضعیت تمامی سرویس ها</a
+          >
         </div>
+
         <div class="column column-tools">
-          <h2>🛠️ ابزارهای پشتیبانی</h2>
           <input
             type="text"
             id="tools-search"
-            placeholder="جستجو در ابزارها..."
+            placeholder="جستجو در همه ابزارها..."
             aria-label="جستجو در ابزارها"
           />
-          <ul>
-            <li><a href="/wiki.html">🔍 ویکی ویپاد</a></li>
-            <li><a href="/change-number.html">🔄 تغییر شماره</a></li>
-            <li>
-              <a href="/account-block.html">🚫 مسدودی حساب</a>
-            </li>
-            <li>
-              <a href="/learn/index.html">📚 آموزش ها</a>
-            </li>
-          </ul>
-          <h2>🔍 سرویس‌های استعلامی</h2>
-          <ul>
-            <li><a href="/iban-lookup.html">🔍 اعتبارسنجی شبا</a></li>
-            <li><a href="/bin-lookup.html">🔍 اعتبارسنجی کارت</a></li>
-            <li>
-              <a href="#">🏦 استعلام نوع حساب و اطلاعات شعب | بزودی</a>
-            </li>
-            <li>
-              <a
-                href="https://vbank.bpi.ir/public/inquiries/inquiry-paya"
-                target="_blank"
-                rel="noopener noreferrer"
-                >💸 پیگیری تراکنش پایا</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://vbank.bpi.ir/public/inquiries/inquiry-satna"
-                target="_blank"
-                rel="noopener noreferrer"
-                >💸 پیگیری تراکنش ساتنا</a
-              >
-            </li>
-            <li>
-              <a href="/postal-lookup.html">📮 استعلام منطقه پستی | آزمایشی</a>
-            </li>
-            <li>
-              <a href="/fee-calculator.html">💸 محاسبه کارمزد انتقال وجه</a>
-            </li>
-          </ul>
-          <h2>🔗 سامانه های داخلی</h2>
-          <ul class="tools-list">
-            <li>
-              <a
-                href="https://172.29.1.82/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >💼 پنل CRM</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://callcenter.pod.ir/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >🧾 پنل پاد</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://jira.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >👨‍💻 جیرا</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://fams.pod.ir/TSK/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >👨‍💻 فمس</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://pay.pod.ir/card/activate"
-                target="_blank"
-                rel="noopener noreferrer"
-                >💳 فعالسازی کارت</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://podform.ir/f/5y5Q7tmn4H2LwiH2MHlbgg=="
-                target="_blank"
-                rel="noopener noreferrer"
-                >🍔 فرم سفارش غذا</a
-              >
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <a href="/admin/" target="_blank" rel="noopener noreferrer"
-                >🔑 ورود به پنل مدیریت وی هاب</a
-              >
-            </li>
-          </ul>
-          <h2>📦 رهگیری مرسولات</h2>
-          <ul class="tools-list">
-            <li>
-              <a
-                href="https://staging.wepod.ir/panel/delivery-request/tracking"
-                target="_blank"
-                rel="noopener noreferrer"
-                >📦 پنل مدیریت</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://tracking.post.ir/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >📮 رهگیری پست</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://boxit.ir/tracking/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >📬 رهگیری باکسیت</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://forward-co.com/%D8%B1%D9%87%DA%AF%DB%8C%D8%B1%DB%8C-%D9%85%D8%B1%D8%B3%D9%88%D9%84%D9%87-%D9%BE%D8%B3%D8%AA%DB%8C/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >🚚 رهگیری فوروارد</a
-              >
-            </li>
-          </ul>
-          <h2>💻 سامانه‌های داتین</h2>
-          <ul class="tools-list">
-            <li>
-              <a
-                href="https://karsu.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >⏳ کارسو</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://divan.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >⚖️ دیوان</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://hotspot.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >📶 هات‌اسپات</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://e.dotin.ir"
-                target="_blank"
-                rel="noopener noreferrer"
-                >🪟 پنجره داتین</a
-              >
-            </li>
-          </ul>
+          <div class="tool-card">
+            <h2>🛠️ ابزارهای اصلی پشتیبانی</h2>
+            <div class="card-content">
+              <ul class="tools-grid">
+                <li><a href="/wiki.html">🔍 ویکی ویپاد</a></li>
+                <li><a href="/change-number.html">🔄 تغییر شماره</a></li>
+                <li><a href="/account-block.html">🚫 مسدودی حساب</a></li>
+                <li><a href="/learn/index.html">📚 آموزش ها</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="tool-card">
+            <h2>🔍 سرویس‌های استعلامی</h2>
+            <div class="card-content">
+              <ul class="tools-grid">
+                <li><a href="/iban-lookup.html">✔️ اعتبارسنجی شبا</a></li>
+                <li><a href="/bin-lookup.html">✔️ اعتبارسنجی کارت</a></li>
+                <li><a href="/postal-lookup.html">📮 استعلام منطقه پستی</a></li>
+                <li>
+                  <a href="/fee-calculator.html">💸 محاسبه کارمزد انتقال</a>
+                </li>
+                <li>
+                  <a
+                    href="https://vbank.bpi.ir/public/inquiries/inquiry-paya"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >💸 پیگیری تراکنش پایا</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://vbank.bpi.ir/public/inquiries/inquiry-satna"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >💸 پیگیری تراکنش ساتنا</a
+                  >
+                </li>
+                <li><a href="#">🏦 استعلام نوع حساب</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="tool-card">
+            <h2>🔗 سامانه های داخلی</h2>
+            <div class="card-content">
+              <ul class="tools-grid">
+                <li>
+                  <a
+                    href="https://172.29.1.82/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >💼 پنل CRM</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://callcenter.pod.ir/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >🧾 پنل پاد</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://jira.dotin.ir"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >👨‍💻 جیرا</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://fams.pod.ir/TSK/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >👨‍💻 فمس</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://pay.pod.ir/card/activate"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >💳 فعالسازی کارت</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://podform.ir/f/5y5Q7tmn4H2LwiH2MHlbgg=="
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >🍔 فرم سفارش غذا</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="tool-card">
+            <h2>📦 رهگیری مرسولات</h2>
+            <div class="card-content">
+              <ul class="tools-grid">
+                <li>
+                  <a
+                    href="https://staging.wepod.ir/panel/delivery-request/tracking"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >📦 پنل مدیریت</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://tracking.post.ir/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >📮 رهگیری پست</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://boxit.ir/tracking/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >📬 رهگیری باکسیت</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://forward-co.com/%D8%B1%D9%87%DA%AF%DB%8C%D8%B1%DB%8C-%D9%85%D8%B1%D8%B3%D9%88%D9%84%D9%87-%D9%BE%D8%B3%D8%AA%DB%8C/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >🚚 رهگیری فوروارد</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="tool-card">
+            <h2>💻 سامانه‌های داتین</h2>
+            <div class="card-content">
+              <ul class="tools-grid">
+                <li>
+                  <a
+                    href="https://karsu.dotin.ir"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >⏳ کارسو</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://divan.dotin.ir"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >⚖️ دیوان</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://hotspot.dotin.ir"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >📶 هات‌اسپات</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://e.dotin.ir"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >🪟 پنجره داتین</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="tool-card">
+            <div class="card-content" style="padding: 1rem">
+              <ul class="tools-grid">
+                <li class="single-link-li">
+                  <a href="/admin/" target="_blank" rel="noopener noreferrer"
+                    >🔑 ورود به پنل مدیریت وی هاب</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </main>
+
     <div id="footer-placeholder"></div>
+
     <script src="/js/main.js"></script>
     <script src="/js/common.js"></script>
   </body>

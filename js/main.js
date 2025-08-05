@@ -388,36 +388,63 @@ async function setupPayaaCycleStatus() {
 
 function setupToolsSearch() {
   const searchInput = document.getElementById("tools-search");
-  if (!searchInput) return;
+  // Select all the cards that contain tools
+  const toolCards = document.querySelectorAll(".column-tools .tool-card");
 
-  const column = document.querySelector(".column-tools");
-  const sections = [];
-  let curTitle = null,
-    curList = null;
-
-  Array.from(column.children).forEach((el) => {
-    if (el.tagName === "H2") curTitle = el;
-    if (el.tagName === "UL" && curTitle) {
-      sections.push({ title: curTitle, list: el });
-      curTitle = null;
-    }
-  });
+  if (!searchInput || !toolCards.length) return;
 
   searchInput.addEventListener("input", function () {
-    const value = searchInput.value.trim().toLowerCase();
-    const showAll = !value;
+    const query = searchInput.value.trim().toLowerCase();
+    const showAll = !query;
 
-    sections.forEach(({ title, list }) => {
-      let hasVisible = false;
-      Array.from(list.querySelectorAll("li")).forEach((li) => {
-        const text = li.innerText.replace(/\s+/g, " ").toLowerCase();
-        const matched = showAll || text.includes(value);
-        li.style.display = matched ? "" : "none";
-        if (matched) hasVisible = true;
+    toolCards.forEach((card) => {
+      const titleElement = card.querySelector("h2");
+      const listItems = card.querySelectorAll("li");
+
+      // The first card containing the search input is special.
+      // It should always be visible, but its internal items are filtered.
+      if (card.contains(searchInput)) {
+        listItems.forEach((li) => {
+          const itemText = li.innerText.toLowerCase();
+          // Hide or show the item based on the query
+          li.style.display = showAll || itemText.includes(query) ? "" : "none";
+        });
+        return; // Go to the next card
+      }
+
+      // For all other cards:
+      const titleText = titleElement
+        ? titleElement.innerText.toLowerCase()
+        : "";
+      let hasVisibleItem = false;
+
+      // Filter list items inside the card
+      listItems.forEach((li) => {
+        const itemText = li.innerText.toLowerCase();
+        if (showAll || itemText.includes(query)) {
+          li.style.display = "";
+          hasVisibleItem = true;
+        } else {
+          li.style.display = "none";
+        }
       });
 
-      title.style.display = hasVisible ? "" : "none";
-      list.style.display = hasVisible ? "" : "none";
+      // Now, decide if the entire card should be visible
+      const titleMatches = titleText.includes(query);
+
+      if (hasVisibleItem || titleMatches) {
+        card.style.display = ""; // Show the card
+
+        // If the card is visible ONLY because the title matched (but no items did),
+        // then we should show all of its items.
+        if (titleMatches && !hasVisibleItem) {
+          listItems.forEach((li) => {
+            li.style.display = "";
+          });
+        }
+      } else {
+        card.style.display = "none"; // Hide the card
+      }
     });
   });
 }
