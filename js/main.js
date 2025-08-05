@@ -52,61 +52,58 @@ function toJalali(gy, gm, gd) {
 function toPersianDigits(str) {
   return str.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
+function toPersianDigitsText(num) {
+  return num.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+}
 
 function getTodayPersianDate() {
-  const today = new Date();
-  const weekday = weekdays[today.getDay()];
-  const [jy, jm, jd] = toJalali(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    today.getDate()
-  );
-  return toPersianDigits(`${weekday}، ${jd} ${persianMonths[jm - 1]} ${jy}`);
+  var today = new Date();
+  var weekday = weekdays[today.getDay()];
+  var gYear = today.getFullYear();
+  var gMonth = today.getMonth() + 1;
+  var gDay = today.getDate();
+  var [jy, jm, jd] = toJalali(gYear, gMonth, gDay);
+  var pMonth = persianMonths[jm - 1];
+  return toPersianDigits(`امروز ${weekday} ${jd} ${pMonth} ${jy}`);
 }
 
 function getCurrentTimePersian() {
   const now = new Date();
-  const h = now.getHours().toString().padStart(2, "0");
-  const m = now.getMinutes().toString().padStart(2, "0");
-  return `ساعت ${toPersianDigits(h)}:${toPersianDigits(m)}`;
-}
-
-function setupThemeToggle() {
-  const themeToggle = document.getElementById("theme-toggle");
-  const currentTheme = localStorage.getItem("theme");
-  if (currentTheme) {
-    document.body.classList.add(currentTheme);
-    if (currentTheme === "dark-mode") {
-      themeToggle.checked = true;
-    }
-  }
-  themeToggle.addEventListener("change", function () {
-    if (this.checked) {
-      document.body.classList.add("dark-mode");
-      localStorage.setItem("theme", "dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-      localStorage.setItem("theme", "light-mode");
-    }
-  });
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const persianH = toPersianDigitsText(h.toString().padStart(2, "0"));
+  const persianM = toPersianDigitsText(m.toString().padStart(2, "0"));
+  return `ساعت ${persianH}:${persianM}`;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  const todayDateElem = document.getElementById("today-date");
+  document.getElementById("today-date").innerText = getTodayPersianDate();
   const timeElem = document.getElementById("current-time");
-  if (todayDateElem) todayDateElem.innerText = getTodayPersianDate();
-  if (timeElem) {
-    const updateTime = () => (timeElem.innerText = getCurrentTimePersian());
-    updateTime();
-    setInterval(updateTime, 60 * 1000);
+  function updateTime() {
+    timeElem.innerText = getCurrentTimePersian();
   }
-  setupThemeToggle();
-  if (document.getElementById("video-banking-status"))
+  updateTime();
+  setInterval(updateTime, 60 * 1000);
+
+  if (document.getElementById("video-banking-status")) {
     updateVideoBankingStatus();
-  if (document.getElementById("service-status")) loadAndDisplayServiceStatus();
-  if (document.getElementById("news-alerts-page")) loadAndDisplayNewsAlerts();
-  if (document.getElementById("tools-search")) setupToolsSearch();
-  if (document.getElementById("payaa-cycle-status")) setupPayaaCycleStatus();
+  }
+
+  if (document.getElementById("service-status")) {
+    loadAndDisplayServiceStatus();
+  }
+
+  if (document.getElementById("news-alerts-page")) {
+    loadAndDisplayNewsAlerts();
+  }
+
+  if (document.getElementById("tools-search")) {
+    setupToolsSearch();
+  }
+
+  if (document.getElementById("payaa-cycle-status")) {
+    setupPayaaCycleStatus();
+  }
 });
 
 function pad(num) {
@@ -115,50 +112,102 @@ function pad(num) {
 
 async function updateVideoBankingStatus() {
   const statusDiv = document.getElementById("video-banking-status");
-  statusDiv.innerHTML = `<div class="status-box blue">در حال بررسی وضعیت بانکداری ویدیویی...</div>`;
+  statusDiv.innerHTML = "در حال بررسی وضعیت بانکداری ویدیویی...";
+
   const today = new Date();
-  const [jy, jm, jd] = toJalali(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    today.getDate()
-  );
+  const gYear = today.getFullYear();
+  const gMonth = today.getMonth() + 1;
+  const gDay = today.getDate();
+  const [jy, jm, jd] = toJalali(gYear, gMonth, gDay);
   const todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
+
   let holidays = [];
   try {
     const res = await fetch("data/holidays-1404.json");
     holidays = await res.json();
   } catch (e) {
-    statusDiv.innerHTML = `<div class="status-box red"><b>خطا:</b> عدم دسترسی به لیست تعطیلات.</div>`;
+    statusDiv.innerHTML =
+      "<div class='video-banking-box closed'>خطا در دریافت لیست تعطیلات رسمی.</div>";
     return;
   }
+
   const isHoliday = holidays.some((h) => h.date === todayStr);
+
   const weekday = today.getDay();
   const currentHour = today.getHours();
   const currentMinute = today.getMinutes();
   let statusHTML = "";
+
   const workingHours = {
     "weekday-sat-wed": { startHour: 7, endHour: 17, endMinute: 0 },
     "weekday-thu": { startHour: 7, endHour: 17, endMinute: 0 },
   };
   if (isHoliday || weekday === 5) {
-    statusHTML = `<div class="status-box red"><b>بانکداری ویدیویی: ❌ غیرفعال</b><p style="margin: 0.5rem 0 0; font-size: 0.9em;">امروز تعطیل است و این سرویس ارائه نمی‌شود.</p></div>`;
+    statusHTML = `
+      <div class="video-banking-box closed">
+        <b>بانکداری ویدیویی : <span style="font-size:1.2em;">❌ غیرفعال</span></b>
+        <br>
+        امروز تعطیل است و خدمات بانکداری ویدیویی ارائه نمی‌شود.
+      </div>
+    `;
   } else {
-    let wh =
-      weekday >= 6 || weekday <= 3
-        ? workingHours["weekday-sat-wed"]
-        : workingHours["weekday-thu"];
-    let nowInMinutes = currentHour * 60 + currentMinute;
-    let startInMinutes = wh.startHour * 60;
-    let endInMinutes = wh.endHour * 60 + wh.endMinute;
-    let transferEndTime = weekday === 4 ? "۱۲:۳۰" : "۱۳:۰۰";
-    if (nowInMinutes >= startInMinutes && nowInMinutes < endInMinutes) {
-      statusHTML = `<div class="status-box green"><b>بانکداری ویدیویی: ✅ فعال</b><p style="margin: 0.5rem 0 0; font-size: 0.9em;">احراز هویت: ۷ صبح تا ۵ عصر <br> انتقال وجه: ۷ صبح تا ${toPersianDigits(
-        transferEndTime
-      )}</p></div>`;
-    } else if (nowInMinutes < startInMinutes) {
-      statusHTML = `<div class="status-box yellow"><b>بانکداری ویدیویی: ❌ خارج از ساعت کاری</b><p style="margin: 0.5rem 0 0; font-size: 0.9em;">ساعت کاری از ۷ صبح شروع می‌شود.</p></div>`;
+    let startHour, endHour, endMinute;
+    let activeMessage = "";
+    let beforeHoursMessage = `
+        <div class="video-banking-box closed">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
+          <br>
+          ساعات کاری هنوز شروع نشده است (۷ صبح)
+        </div>
+      `;
+    let afterHoursMessage = `
+        <div class="video-banking-box closed">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
+          <br>
+          ساعات کاری امروز به پایان رسیده است.
+        </div>
+      `;
+
+    if (weekday >= 6 || weekday <= 3) {
+      startHour = workingHours["weekday-sat-wed"].startHour;
+      endHour = workingHours["weekday-sat-wed"].endHour;
+      endMinute = workingHours["weekday-sat-wed"].endMinute;
+      activeMessage = `
+        <div class="video-banking-box">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
+          <br>
+          بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b>
+          <br>
+          بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۳:۰۰</b>
+        </div>
+      `;
+    } else if (weekday === 4) {
+      startHour = workingHours["weekday-thu"].startHour;
+      endHour = workingHours["weekday-thu"].endHour;
+      endMinute = workingHours["weekday-thu"].endMinute;
+      activeMessage = `
+        <div class="video-banking-box">
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
+          <br>
+          بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b>
+          <br>
+          بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۲:۳۰</b>
+        </div>
+      `;
+    }
+    if (
+      currentHour > startHour &&
+      (currentHour < endHour ||
+        (currentHour === endHour && currentMinute < endMinute))
+    ) {
+      statusHTML = activeMessage;
+    } else if (
+      currentHour < startHour ||
+      (currentHour === startHour && currentMinute < 0)
+    ) {
+      statusHTML = beforeHoursMessage;
     } else {
-      statusHTML = `<div class="status-box red"><b>بانکداری ویدیویی: ❌ خارج از ساعت کاری</b><p style="margin: 0.5rem 0 0; font-size: 0.9em;">ساعت کاری امروز به پایان رسیده است.</p></div>`;
+      statusHTML = afterHoursMessage;
     }
   }
   statusDiv.innerHTML = statusHTML;
@@ -170,6 +219,7 @@ const payaaCycles = [
   { hour: 12, min: 45, endH: 13, endM: 50 },
   { hour: 18, min: 45, endH: 19, endM: 50 },
 ];
+
 const holidayCycle = [{ hour: 12, min: 45, endH: 13, endM: 50 }];
 
 function isHolidayJalali(jy, jm, jd, holidays) {
@@ -180,10 +230,13 @@ function isHolidayJalali(jy, jm, jd, holidays) {
 function toPersianTimeStr(totalMin) {
   let h = Math.floor(totalMin / 60);
   let m = totalMin % 60;
-  if (h > 0 && m > 0)
-    return `${toPersianDigits(h)} ساعت و ${toPersianDigits(m)} دقیقه`;
-  if (h > 0) return `${toPersianDigits(h)} ساعت`;
-  return `${toPersianDigits(m)} دقیقه`;
+  if (h > 0 && m > 0) {
+    return `${toPersianDigitsText(h)} ساعت و ${toPersianDigitsText(m)} دقیقه`;
+  } else if (h > 0) {
+    return `${toPersianDigitsText(h)} ساعت`;
+  } else {
+    return `${toPersianDigitsText(m)} دقیقه`;
+  }
 }
 
 function getNextPayaaCycle(now, holidays) {
@@ -192,20 +245,36 @@ function getNextPayaaCycle(now, holidays) {
     now.getMonth() + 1,
     now.getDate()
   );
+
   const weekday = now.getDay();
+
   const isHolidayToday = isHolidayJalali(jy, jm, jd, holidays);
+
   let todayCycles =
     isHolidayToday || weekday === 5 ? holidayCycle : payaaCycles;
+
   for (let cycle of todayCycles) {
     const cycleTime = new Date(now);
     cycleTime.setHours(cycle.hour, cycle.min, 0, 0);
-    if (now < cycleTime)
-      return { ...cycle, start: cycleTime, inProgress: false };
+    if (now < cycleTime) {
+      return {
+        ...cycle,
+        start: cycleTime,
+        end: new Date(
+          cycleTime.getTime() +
+            (cycle.endH * 60 + cycle.endM - (cycle.hour * 60 + cycle.min)) *
+              60000
+        ),
+      };
+    }
+
     const endTime = new Date(now);
     endTime.setHours(cycle.endH, cycle.endM, 0, 0);
-    if (now >= cycleTime && now < endTime)
-      return { ...cycle, start: cycleTime, inProgress: true };
+    if (now >= cycleTime && now < endTime) {
+      return { ...cycle, start: cycleTime, end: endTime, inProgress: true };
+    }
   }
+
   const tomorrow = new Date(now);
   tomorrow.setDate(now.getDate() + 1);
   const [ty, tm, td] = toJalali(
@@ -213,46 +282,96 @@ function getNextPayaaCycle(now, holidays) {
     tomorrow.getMonth() + 1,
     tomorrow.getDate()
   );
+
+  const tomorrowWeekday = tomorrow.getDay();
   const isHolidayTomorrow =
-    isHolidayJalali(ty, tm, td, holidays) || tomorrow.getDay() === 5;
+    isHolidayJalali(ty, tm, td, holidays) || tomorrowWeekday === 5;
+
   const tomorrowCycles = isHolidayTomorrow ? holidayCycle : payaaCycles;
   const firstCycle = tomorrowCycles[0];
   tomorrow.setHours(firstCycle.hour, firstCycle.min, 0, 0);
-  return { ...firstCycle, start: tomorrow, inProgress: false };
+  return {
+    ...firstCycle,
+    start: tomorrow,
+    end: new Date(
+      tomorrow.getTime() +
+        (firstCycle.endH * 60 +
+          firstCycle.endM -
+          (firstCycle.hour * 60 + firstCycle.min)) *
+          60000
+    ),
+  };
 }
 
 function renderPayaaCycleStatus(holidays) {
   const statusDiv = document.getElementById("payaa-cycle-status");
   if (!statusDiv) return;
+
   function updateStatus() {
     const now = new Date();
     const cycle = getNextPayaaCycle(now, holidays);
+
+    const nextDate = cycle.start;
+
+    const today = new Date();
+    const [jy, jm, jd] = toJalali(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      today.getDate()
+    );
+
     const [cy, cm, cd] = toJalali(
-      cycle.start.getFullYear(),
-      cycle.start.getMonth() + 1,
-      cycle.start.getDate()
+      nextDate.getFullYear(),
+      nextDate.getMonth() + 1,
+      nextDate.getDate()
     );
+
     let dayLabel = "";
-    const todayJalali = toJalali(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      now.getDate()
-    );
-    if (todayJalali[0] === cy && todayJalali[1] === cm && todayJalali[2] === cd)
+    if (jy === cy && jm === cm && jd === cd) {
       dayLabel = "امروز";
-    else dayLabel = "فردا";
-    const nextCycleText = `چرخه بعدی: ${dayLabel} ساعت ${toPersianDigits(
-      cycle.hour.toString().padStart(2, "0")
-    )}:${toPersianDigits(cycle.min.toString().padStart(2, "0"))}`;
-    if (cycle.inProgress) {
-      statusDiv.innerHTML = `<div class="status-box yellow"><b>چرخه پایا در حال انجام است</b><div class="payaa-subtext">درحال تسویه درخواست‌های ثبت‌شده...</div><div class="payaa-subtext" style="opacity: 0.7;">${nextCycleText}</div></div>`;
     } else {
-      const diffMin = Math.ceil((cycle.start - now) / 60000);
-      statusDiv.innerHTML = `<div class="status-box green"><b>${toPersianTimeStr(
-        diffMin
-      )} تا چرخه بعدی پایا</b><div class="payaa-subtext">${nextCycleText}</div></div>`;
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const [ty, tm, td] = toJalali(
+        tomorrow.getFullYear(),
+        tomorrow.getMonth() + 1,
+        tomorrow.getDate()
+      );
+      if (cy === ty && cm === tm && cd === td) {
+        dayLabel = "فردا";
+      } else {
+        dayLabel = weekdays[nextDate.getDay()];
+      }
+    }
+
+    const pMonth = persianMonths[cm - 1];
+    const persianDay = toPersianDigitsText(cd);
+    const persianHour = toPersianDigitsText(cycle.hour);
+    const persianMin = toPersianDigitsText(
+      cycle.min.toString().padStart(2, "0")
+    );
+    const nextCycleText = `چرخه بعدی : ${dayLabel} ${persianDay} ${pMonth} ساعت ${persianHour}:${persianMin}`;
+
+    if (cycle.inProgress) {
+      statusDiv.innerHTML = `
+        <div class="news-alert-box yellow" style="font-weight:bold;">
+          <span>درحال تسویه درخواست‌های ثبت‌شده پایا</span>
+          <div style="color:#888; font-size:0.95em; margin-top:0.5em;">${nextCycleText}</div>
+        </div>
+      `;
+    } else {
+      const diffMs = cycle.start - now;
+      let diffMin = Math.ceil(diffMs / (60 * 1000));
+      if (diffMin < 1) diffMin = 1;
+      statusDiv.innerHTML = `
+        <div class="news-alert-box green" style="font-weight:bold;">
+          <span>${toPersianTimeStr(diffMin)} تا چرخه بعدی پایا </span>
+          <div style="color:#888; font-size:0.95em; margin-top:0.5em;">${nextCycleText}</div>
+        </div>
+      `;
     }
   }
+
   updateStatus();
   setInterval(updateStatus, 60 * 1000);
 }
@@ -263,27 +382,31 @@ async function setupPayaaCycleStatus() {
     const res = await fetch("data/holidays-1404.json");
     holidays = await res.json();
   } catch (e) {}
+
   renderPayaaCycleStatus(holidays);
 }
 
 function setupToolsSearch() {
   const searchInput = document.getElementById("tools-search");
   if (!searchInput) return;
-  const column = document.querySelector(".column-right");
+
+  const column = document.querySelector(".column-tools");
   const sections = [];
-  let curTitle = null;
+  let curTitle = null,
+    curList = null;
+
   Array.from(column.children).forEach((el) => {
-    if (el.tagName === "H2") {
-      curTitle = el;
-    }
+    if (el.tagName === "H2") curTitle = el;
     if (el.tagName === "UL" && curTitle) {
       sections.push({ title: curTitle, list: el });
       curTitle = null;
     }
   });
+
   searchInput.addEventListener("input", function () {
     const value = searchInput.value.trim().toLowerCase();
     const showAll = !value;
+
     sections.forEach(({ title, list }) => {
       let hasVisible = false;
       Array.from(list.querySelectorAll("li")).forEach((li) => {
@@ -292,8 +415,9 @@ function setupToolsSearch() {
         li.style.display = matched ? "" : "none";
         if (matched) hasVisible = true;
       });
-      title.style.display = hasVisible || showAll ? "" : "none";
-      list.style.display = hasVisible || showAll ? "" : "none";
+
+      title.style.display = hasVisible ? "" : "none";
+      list.style.display = hasVisible ? "" : "none";
     });
   });
 }
@@ -301,70 +425,111 @@ function setupToolsSearch() {
 async function loadAndDisplayServiceStatus() {
   const serviceStatusDiv = document.getElementById("service-status");
   if (!serviceStatusDiv) return;
-  serviceStatusDiv.innerHTML = `<div class="status-box blue">در حال بارگذاری وضعیت سرویس‌ها...</div>`;
+
+  serviceStatusDiv.innerHTML = "در حال بارگذاری وضعیت سرویس‌ها...";
+
   try {
     const response = await fetch("data/service-status.json");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const services = await response.json();
+
     let html = "";
     if (services.length === 0) {
-      html = `<div class="status-box green"><b>وضعیت پایدار:</b> همه سرویس‌ها فعال هستند.</div>`;
+      html = `<div class="news-alert-box green">همه سرویس‌ها فعال هستند.</div>`;
     } else {
       services.forEach((service) => {
         let colorClass = "green";
-        if (service.status === "غیرفعال") colorClass = "red";
-        else if (service.status === "در حال بررسی") colorClass = "yellow";
-        else if (service.status === "اختلال در عملکرد") colorClass = "orange";
-        html += `<div class="status-box ${colorClass}"><b>${
-          service.name
-        }:</b> ${service.status}${
-          service.description
-            ? `<p style="margin: 0.5rem 0 0; font-size: 0.9em;">${service.description}</p>`
-            : ""
-        }</div>`;
+        if (service.status === "غیرفعال") {
+          colorClass = "red";
+        } else if (service.status === "در حال بررسی") {
+          colorClass = "yellow";
+        } else if (service.status === "اختلال در عملکرد") {
+          colorClass = "orange";
+        }
+
+        html += `
+          <div class="news-alert-box ${colorClass}">
+            <b>${service.name}:</b> ${service.status}
+            ${
+              service.description
+                ? `<p style="margin-top: 8px; margin-bottom: 0;">${service.description}</p>`
+                : ""
+            }
+          </div>
+        `;
       });
     }
     serviceStatusDiv.innerHTML = html;
   } catch (error) {
-    serviceStatusDiv.innerHTML = `<div class="status-box red"><b>خطا:</b> در بارگذاری وضعیت سرویس‌ها مشکلی پیش آمد.</div>`;
+    console.error("Could not fetch service status:", error);
+    serviceStatusDiv.innerHTML = `<div class="news-alert-box red">خطا در بارگذاری وضعیت سرویس‌ها.</div>`;
   }
 }
 
 async function loadAndDisplayNewsAlerts() {
   const newsAlertsDiv = document.getElementById("news-alerts-page");
   if (!newsAlertsDiv) return;
-  newsAlertsDiv.innerHTML = `<div class="status-box blue">در حال بارگذاری اطلاعیه‌ها...</div>`;
+
+  newsAlertsDiv.innerHTML = "در حال بارگذاری اطلاعیه‌ها...";
+
   try {
     const response = await fetch("data/news-alerts.json");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const alerts = await response.json();
+
     let html = "";
     if (alerts.length === 0) {
-      html = `<div class="status-box green">در حال حاضر اطلاعیه جدیدی وجود ندارد.</div>`;
+      html = `<div class="news-alert-box green">در حال حاضر اطلاعیه جدیدی وجود ندارد.</div>`;
     } else {
       alerts.forEach((alert) => {
-        const colorClass = alert.color || "blue";
-        html += `<div class="news-alert-box ${colorClass}"><b>${
-          alert.title
-        }</b>${
-          alert.description
-            ? `<p style="margin: 0.5rem 0 0;">${alert.description}</p>`
-            : ""
-        }${
-          alert.startDate
-            ? `<p style="margin: 0.75rem 0 0; font-size: 0.85em; opacity: 0.8;">${toPersianDigits(
-                `شروع: ${alert.startDate} ${alert.startTime}`
-              )}${
-                alert.endDate
-                  ? ` | ${toPersianDigits(
-                      `پایان: ${alert.endDate} ${alert.endTime}`
-                    )}`
-                  : ""
-              }</p>`
-            : ""
-        }</div>`;
+        const colorClass = alert.color;
+        let startDateTimeInfo = "";
+        let endDateTimeInfo = "";
+        let durationInfo = "";
+
+        if (alert.startDate && alert.startTime) {
+          const persianStartDate = toPersianDigits(alert.startDate);
+          const persianStartTime = toPersianDigits(alert.startTime);
+          startDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">شروع: ${persianStartDate} ساعت ${persianStartTime}</p>`;
+        }
+
+        if (alert.endDate && alert.endTime) {
+          const persianEndDate = toPersianDigits(alert.endDate);
+          const persianEndTime = toPersianDigits(alert.endTime);
+          endDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">پایان: ${persianEndDate} ساعت ${persianEndTime}</p>`;
+          try {
+            const [sYear, sMonth, sDay] = alert.startDate
+              .split("-")
+              .map(Number);
+            const [eYear, eMonth, eDay] = alert.endDate.split("-").map(Number);
+            const [sHour, sMin] = alert.startTime.split(":").map(Number);
+            const [eHour, eMin] = alert.endTime.split(":").map(Number);
+          } catch (e) {
+            console.error("خطا در محاسبه مدت زمان:", e);
+          }
+        }
+
+        html += `
+          <div class="news-alert-box ${colorClass}">
+            <b>${alert.title}</b>
+            ${
+              alert.description
+                ? `<p style="margin-top: 8px; margin-bottom: 0;">${alert.description}</p>`
+                : ""
+            }
+            ${startDateTimeInfo}
+            ${endDateTimeInfo}
+          </div>
+        `;
       });
     }
     newsAlertsDiv.innerHTML = html;
   } catch (error) {
-    newsAlertsDiv.innerHTML = `<div class="news-alert-box red"><b>خطا:</b> در بارگذاری اطلاعیه‌ها مشکلی پیش آمد.</div>`;
+    console.error("Could not fetch news alerts:", error);
+    newsAlertsDiv.innerHTML = `<div class="news-alert-box red">خطا در بارگذاری اطلاعیه‌ها.</div>`;
   }
 }
