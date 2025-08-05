@@ -25,7 +25,12 @@
     "description": ""
   },
   {
-    "name": "مدیریت چک (صیاد و چکاد)",
+    "name": "خدمات چکاد",
+    "status": "فعال",
+    "description": ""
+  },
+  {
+    "name": "اعتبارسنجی",
     "status": "فعال",
     "description": ""
   },

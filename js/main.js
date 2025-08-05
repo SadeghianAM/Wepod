@@ -76,7 +76,12 @@ function getCurrentTimePersian() {
   return `ساعت ${persianH}:${persianM}`;
 }
 
+function pad(num) {
+  return num.toString().padStart(2, "0");
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+  // --- بخش هدر: نمایش تاریخ و ساعت ---
   document.getElementById("today-date").innerText = getTodayPersianDate();
   const timeElem = document.getElementById("current-time");
   function updateTime() {
@@ -84,6 +89,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   updateTime();
   setInterval(updateTime, 60 * 1000);
+
+  // --- فراخوانی توابع برای بارگذاری بخش‌های مختلف ---
+
+  if (document.getElementById("card-tracking-info")) {
+    updateCardTrackingInfo();
+  }
 
   if (document.getElementById("video-banking-status")) {
     updateVideoBankingStatus();
@@ -97,18 +108,73 @@ document.addEventListener("DOMContentLoaded", function () {
     loadAndDisplayNewsAlerts();
   }
 
-  if (document.getElementById("tools-search")) {
-    setupToolsSearch();
-  }
-
   if (document.getElementById("payaa-cycle-status")) {
     setupPayaaCycleStatus();
   }
+
+  if (document.getElementById("tools-search")) {
+    setupToolsSearch();
+  }
 });
 
-function pad(num) {
-  return num.toString().padStart(2, "0");
+async function updateCardTrackingInfo() {
+  const container = document.getElementById("card-tracking-info");
+  if (!container) return;
+
+  container.innerHTML = "در حال محاسبه تاریخ پیگیری کارت...";
+
+  try {
+    const response = await fetch("data/holidays-1404.json");
+    const holidays = await response.json();
+    const holidayDates = new Set(holidays.map((h) => h.date));
+
+    let businessDaysToCount = 14;
+    let targetDate = new Date();
+
+    while (businessDaysToCount > 0) {
+      targetDate.setDate(targetDate.getDate() - 1);
+      const dayOfWeek = targetDate.getDay();
+
+      const [jy, jm, jd] = toJalali(
+        targetDate.getFullYear(),
+        targetDate.getMonth() + 1,
+        targetDate.getDate()
+      );
+      const jalaliDateStr = `${jy}-${pad(jm)}-${pad(jd)}`;
+      const isHoliday = holidayDates.has(jalaliDateStr);
+
+      if (dayOfWeek !== 4 && dayOfWeek !== 5 && !isHoliday) {
+        businessDaysToCount--;
+      }
+    }
+
+    const [finalJy, finalJm, finalJd] = toJalali(
+      targetDate.getFullYear(),
+      targetDate.getMonth() + 1,
+      targetDate.getDate()
+    );
+    const formattedDate = `${toPersianDigits(finalJy)}/${toPersianDigits(
+      pad(finalJm)
+    )}/${toPersianDigits(pad(finalJd))}`;
+
+    const html = `
+      <div class="news-alert-box yellow">
+        <b>پیگیری کارت فیزیکی</b>
+        <p style="margin-top: 8px; margin-bottom: 0;">
+          برای درخواست‌های کارت قبل از تاریخ <b>${formattedDate}</b> تیکت ثبت کنید.
+        </p>
+      </div>
+    `;
+    container.innerHTML = html;
+  } catch (error) {
+    console.error("Could not calculate card tracking date:", error);
+    container.innerHTML = `<div class="news-alert-box red">خطا در محاسبه تاریخ پیگیری کارت.</div>`;
+  }
 }
+
+// =======================================================
+//  توابع اصلی برنامه (بخش‌های موجود از قبل)
+// =======================================================
 
 async function updateVideoBankingStatus() {
   const statusDiv = document.getElementById("video-banking-status");
@@ -132,7 +198,6 @@ async function updateVideoBankingStatus() {
   }
 
   const isHoliday = holidays.some((h) => h.date === todayStr);
-
   const weekday = today.getDay();
   const currentHour = today.getHours();
   const currentMinute = today.getMinutes();
@@ -142,7 +207,9 @@ async function updateVideoBankingStatus() {
     "weekday-sat-wed": { startHour: 7, endHour: 17, endMinute: 0 },
     "weekday-thu": { startHour: 7, endHour: 17, endMinute: 0 },
   };
+
   if (isHoliday || weekday === 5) {
+    // 5 is Friday
     statusHTML = `
       <div class="video-banking-box closed">
         <b>بانکداری ویدیویی : <span style="font-size:1.2em;">❌ غیرفعال</span></b>
@@ -152,59 +219,57 @@ async function updateVideoBankingStatus() {
     `;
   } else {
     let startHour, endHour, endMinute;
-    let activeMessage = "";
-    let beforeHoursMessage = `
-        <div class="video-banking-box closed">
-          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
-          <br>
-          ساعات کاری هنوز شروع نشده است (۷ صبح)
-        </div>
-      `;
-    let afterHoursMessage = `
-        <div class="video-banking-box closed">
-          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b>
-          <br>
-          ساعات کاری امروز به پایان رسیده است.
-        </div>
-      `;
+    let activeMessage, beforeHoursMessage, afterHoursMessage;
 
     if (weekday >= 6 || weekday <= 3) {
+      // Saturday to Wednesday
       startHour = workingHours["weekday-sat-wed"].startHour;
       endHour = workingHours["weekday-sat-wed"].endHour;
       endMinute = workingHours["weekday-sat-wed"].endMinute;
       activeMessage = `
         <div class="video-banking-box">
-          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
-          <br>
-          بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b>
-          <br>
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b><br>
+          بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b><br>
           بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۳:۰۰</b>
         </div>
       `;
-    } else if (weekday === 4) {
+    } else {
+      // Thursday
       startHour = workingHours["weekday-thu"].startHour;
       endHour = workingHours["weekday-thu"].endHour;
       endMinute = workingHours["weekday-thu"].endMinute;
       activeMessage = `
         <div class="video-banking-box">
-          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b>
-          <br>
-          بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b>
-          <br>
+          <b>بانکداری ویدیویی: <span style="font-size:1.2em;">✅ فعال</span></b><br>
+          بخش احراز هویت از ساعت <b>۷:۰۰ تا ۱۷:۰۰</b><br>
           بخش انتقال وجه از ساعت <b>۷:۰۰ تا ۱۲:۳۰</b>
         </div>
       `;
     }
+
+    beforeHoursMessage = `
+      <div class="video-banking-box closed">
+        <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b><br>
+        ساعات کاری هنوز شروع نشده است (۷ صبح)
+      </div>
+    `;
+    afterHoursMessage = `
+      <div class="video-banking-box closed">
+        <b>بانکداری ویدیویی: <span style="font-size:1.2em;">❌ خارج از ساعت کاری</span></b><br>
+        ساعات کاری امروز به پایان رسیده است.
+      </div>
+    `;
+
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+    const startTimeInMinutes = startHour * 60;
+    const endTimeInMinutes = endHour * 60 + endMinute;
+
     if (
-      currentHour > startHour &&
-      (currentHour < endHour ||
-        (currentHour === endHour && currentMinute < endMinute))
+      currentTimeInMinutes >= startTimeInMinutes &&
+      currentTimeInMinutes < endTimeInMinutes
     ) {
       statusHTML = activeMessage;
-    } else if (
-      currentHour < startHour ||
-      (currentHour === startHour && currentMinute < 0)
-    ) {
+    } else if (currentTimeInMinutes < startTimeInMinutes) {
       statusHTML = beforeHoursMessage;
     } else {
       statusHTML = afterHoursMessage;
@@ -219,7 +284,6 @@ const payaaCycles = [
   { hour: 12, min: 45, endH: 13, endM: 50 },
   { hour: 18, min: 45, endH: 19, endM: 50 },
 ];
-
 const holidayCycle = [{ hour: 12, min: 45, endH: 13, endM: 50 }];
 
 function isHolidayJalali(jy, jm, jd, holidays) {
@@ -245,31 +309,20 @@ function getNextPayaaCycle(now, holidays) {
     now.getMonth() + 1,
     now.getDate()
   );
-
   const weekday = now.getDay();
-
   const isHolidayToday = isHolidayJalali(jy, jm, jd, holidays);
-
   let todayCycles =
     isHolidayToday || weekday === 5 ? holidayCycle : payaaCycles;
 
   for (let cycle of todayCycles) {
     const cycleTime = new Date(now);
     cycleTime.setHours(cycle.hour, cycle.min, 0, 0);
-    if (now < cycleTime) {
-      return {
-        ...cycle,
-        start: cycleTime,
-        end: new Date(
-          cycleTime.getTime() +
-            (cycle.endH * 60 + cycle.endM - (cycle.hour * 60 + cycle.min)) *
-              60000
-        ),
-      };
-    }
-
     const endTime = new Date(now);
     endTime.setHours(cycle.endH, cycle.endM, 0, 0);
+
+    if (now < cycleTime) {
+      return { ...cycle, start: cycleTime, end: endTime };
+    }
     if (now >= cycleTime && now < endTime) {
       return { ...cycle, start: cycleTime, end: endTime, inProgress: true };
     }
@@ -282,25 +335,16 @@ function getNextPayaaCycle(now, holidays) {
     tomorrow.getMonth() + 1,
     tomorrow.getDate()
   );
-
   const tomorrowWeekday = tomorrow.getDay();
   const isHolidayTomorrow =
     isHolidayJalali(ty, tm, td, holidays) || tomorrowWeekday === 5;
+  const firstCycle = (isHolidayTomorrow ? holidayCycle : payaaCycles)[0];
 
-  const tomorrowCycles = isHolidayTomorrow ? holidayCycle : payaaCycles;
-  const firstCycle = tomorrowCycles[0];
   tomorrow.setHours(firstCycle.hour, firstCycle.min, 0, 0);
-  return {
-    ...firstCycle,
-    start: tomorrow,
-    end: new Date(
-      tomorrow.getTime() +
-        (firstCycle.endH * 60 +
-          firstCycle.endM -
-          (firstCycle.hour * 60 + firstCycle.min)) *
-          60000
-    ),
-  };
+  const endOfTomorrowCycle = new Date(tomorrow);
+  endOfTomorrowCycle.setHours(firstCycle.endH, firstCycle.endM, 0, 0);
+
+  return { ...firstCycle, start: tomorrow, end: endOfTomorrowCycle };
 }
 
 function renderPayaaCycleStatus(holidays) {
@@ -310,39 +354,30 @@ function renderPayaaCycleStatus(holidays) {
   function updateStatus() {
     const now = new Date();
     const cycle = getNextPayaaCycle(now, holidays);
-
     const nextDate = cycle.start;
-
-    const today = new Date();
-    const [jy, jm, jd] = toJalali(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      today.getDate()
-    );
 
     const [cy, cm, cd] = toJalali(
       nextDate.getFullYear(),
       nextDate.getMonth() + 1,
       nextDate.getDate()
     );
+    const today = new Date();
+    const isToday =
+      today.getFullYear() === nextDate.getFullYear() &&
+      today.getMonth() === nextDate.getMonth() &&
+      today.getDate() === nextDate.getDate();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+    const isTomorrow =
+      tomorrow.getFullYear() === nextDate.getFullYear() &&
+      tomorrow.getMonth() === nextDate.getMonth() &&
+      tomorrow.getDate() === nextDate.getDate();
 
-    let dayLabel = "";
-    if (jy === cy && jm === cm && jd === cd) {
-      dayLabel = "امروز";
-    } else {
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      const [ty, tm, td] = toJalali(
-        tomorrow.getFullYear(),
-        tomorrow.getMonth() + 1,
-        tomorrow.getDate()
-      );
-      if (cy === ty && cm === tm && cd === td) {
-        dayLabel = "فردا";
-      } else {
-        dayLabel = weekdays[nextDate.getDay()];
-      }
-    }
+    let dayLabel = isToday
+      ? "امروز"
+      : isTomorrow
+      ? "فردا"
+      : weekdays[nextDate.getDay()];
 
     const pMonth = persianMonths[cm - 1];
     const persianDay = toPersianDigitsText(cd);
@@ -381,47 +416,29 @@ async function setupPayaaCycleStatus() {
   try {
     const res = await fetch("data/holidays-1404.json");
     holidays = await res.json();
-  } catch (e) {}
-
+  } catch (e) {
+    console.error("Failed to load holidays for Payaa cycle:", e);
+  }
   renderPayaaCycleStatus(holidays);
 }
 
 function setupToolsSearch() {
   const searchInput = document.getElementById("tools-search");
-  // Select all the cards that contain tools
   const toolCards = document.querySelectorAll(".column-tools .tool-card");
 
   if (!searchInput || !toolCards.length) return;
 
   searchInput.addEventListener("input", function () {
     const query = searchInput.value.trim().toLowerCase();
-    const showAll = !query;
 
     toolCards.forEach((card) => {
       const titleElement = card.querySelector("h2");
-      const listItems = card.querySelectorAll("li");
-
-      // The first card containing the search input is special.
-      // It should always be visible, but its internal items are filtered.
-      if (card.contains(searchInput)) {
-        listItems.forEach((li) => {
-          const itemText = li.innerText.toLowerCase();
-          // Hide or show the item based on the query
-          li.style.display = showAll || itemText.includes(query) ? "" : "none";
-        });
-        return; // Go to the next card
-      }
-
-      // For all other cards:
-      const titleText = titleElement
-        ? titleElement.innerText.toLowerCase()
-        : "";
+      const listItems = card.querySelectorAll(".tools-grid li");
       let hasVisibleItem = false;
 
-      // Filter list items inside the card
       listItems.forEach((li) => {
         const itemText = li.innerText.toLowerCase();
-        if (showAll || itemText.includes(query)) {
+        if (itemText.includes(query)) {
           li.style.display = "";
           hasVisibleItem = true;
         } else {
@@ -429,21 +446,17 @@ function setupToolsSearch() {
         }
       });
 
-      // Now, decide if the entire card should be visible
-      const titleMatches = titleText.includes(query);
-
-      if (hasVisibleItem || titleMatches) {
-        card.style.display = ""; // Show the card
-
-        // If the card is visible ONLY because the title matched (but no items did),
-        // then we should show all of its items.
-        if (titleMatches && !hasVisibleItem) {
-          listItems.forEach((li) => {
-            li.style.display = "";
-          });
+      const titleText = titleElement
+        ? titleElement.innerText.toLowerCase()
+        : "";
+      if (hasVisibleItem || titleText.includes(query)) {
+        card.style.display = "";
+        // If the card is shown only due to title match, show all its items
+        if (!hasVisibleItem && titleText.includes(query)) {
+          listItems.forEach((li) => (li.style.display = ""));
         }
       } else {
-        card.style.display = "none"; // Hide the card
+        card.style.display = "none";
       }
     });
   });
@@ -516,7 +529,6 @@ async function loadAndDisplayNewsAlerts() {
         const colorClass = alert.color;
         let startDateTimeInfo = "";
         let endDateTimeInfo = "";
-        let durationInfo = "";
 
         if (alert.startDate && alert.startTime) {
           const persianStartDate = toPersianDigits(alert.startDate);
@@ -528,16 +540,6 @@ async function loadAndDisplayNewsAlerts() {
           const persianEndDate = toPersianDigits(alert.endDate);
           const persianEndTime = toPersianDigits(alert.endTime);
           endDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">پایان: ${persianEndDate} ساعت ${persianEndTime}</p>`;
-          try {
-            const [sYear, sMonth, sDay] = alert.startDate
-              .split("-")
-              .map(Number);
-            const [eYear, eMonth, eDay] = alert.endDate.split("-").map(Number);
-            const [sHour, sMin] = alert.startTime.split(":").map(Number);
-            const [eHour, eMin] = alert.endTime.split(":").map(Number);
-          } catch (e) {
-            console.error("خطا در محاسبه مدت زمان:", e);
-          }
         }
 
         html += `
