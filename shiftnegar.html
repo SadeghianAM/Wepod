@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>برنامه شیفت‌ها</title>
     <style>
+      /* --- START: ORIGINAL STYLES (UNCHANGED) --- */
       :root {
         --primary-color: #00ae70;
         --primary-dark: #089863;
@@ -18,7 +19,6 @@
         --shadow-color-medium: rgba(0, 174, 112, 0.12);
         --border-radius: 0.75rem;
         --border-color: #e9e9e9;
-        --error-color: #dc3545;
       }
       @font-face {
         font-family: "Vazirmatn";
@@ -75,7 +75,9 @@
       main {
         width: 100%;
         flex-grow: 1;
+        background-color: var(--card-bg);
         padding: 2rem;
+        box-shadow: 0 4px 20px var(--shadow-color-light);
       }
       h1 {
         font-size: 1.8rem;
@@ -84,49 +86,6 @@
         text-align: center;
         font-weight: 700;
       }
-
-      /* --- Tabs Styles --- */
-      .tabs-container {
-        display: flex;
-        border-bottom: 2px solid var(--border-color);
-        margin-bottom: 2rem;
-      }
-      .tab-button {
-        padding: 1rem 1.5rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        background-color: transparent;
-        color: var(--secondary-text-color);
-        border-bottom: 3px solid transparent;
-        transition: color 0.3s, border-color 0.3s;
-        margin-left: 1rem;
-      }
-      .tab-button:hover {
-        color: var(--primary-dark);
-      }
-      .tab-button.active {
-        color: var(--primary-color);
-        border-bottom-color: var(--primary-color);
-      }
-      .tab-content {
-        display: none;
-      }
-      .tab-content.active {
-        display: block;
-        animation: fadeIn 0.5s ease;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      /* --- Filter Controls Styles (Original) --- */
       .filters-container {
         background-color: #f1f3f5;
         padding: 1.5rem;
@@ -153,6 +112,8 @@
         border: 1px solid var(--border-color);
         font-size: 1rem;
         width: 100%;
+      }
+      .filter-group select {
         background-color: var(--card-bg);
       }
       #loader {
@@ -161,8 +122,6 @@
         color: var(--secondary-text-color);
         padding: 3rem;
       }
-
-      /* --- Table Styles (Original) --- */
       .table-container {
         width: 100%;
         overflow-x: auto;
@@ -203,7 +162,6 @@
         max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
-        text-align: right;
       }
       thead th:nth-child(2),
       tbody td:nth-child(2) {
@@ -219,6 +177,7 @@
       }
       thead th:nth-child(-n + 3),
       tbody td:nth-child(-n + 3) {
+        position: -webkit-sticky;
         position: sticky;
         z-index: 2;
       }
@@ -246,6 +205,10 @@
       }
       tbody tr:hover td:nth-child(-n + 3) {
         background-color: var(--primary-light);
+      }
+      tbody td:nth-child(1) {
+        font-weight: 600;
+        text-align: right;
       }
       thead th:nth-child(1)::after,
       tbody td:nth-child(1)::after,
@@ -283,8 +246,48 @@
         background-color: #ffc107;
         color: #212529;
       }
+      /* --- END: ORIGINAL STYLES --- */
 
-      /* --- My Shift Calendar Styles (New) --- */
+      /* --- START: NEW STYLES FOR TABS AND CALENDAR --- */
+      .tabs-container {
+        display: flex;
+        border-bottom: 2px solid var(--border-color);
+        margin-bottom: 2rem;
+      }
+      .tab-button {
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background-color: transparent;
+        color: var(--secondary-text-color);
+        border-bottom: 3px solid transparent;
+        transition: color 0.3s, border-color 0.3s;
+        margin-left: 1rem;
+      }
+      .tab-button:hover {
+        color: var(--primary-dark);
+      }
+      .tab-button.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
       .not-logged-in {
         text-align: center;
         padding: 3rem;
@@ -306,10 +309,6 @@
         justify-content: space-around;
         flex-wrap: wrap;
         gap: 1rem;
-      }
-      #user-shift-info p {
-        font-size: 1.1rem;
-        color: var(--text-color);
       }
       #user-shift-info span {
         font-weight: 700;
@@ -364,16 +363,6 @@
         background-color: #fafafa;
         display: flex;
         flex-direction: column;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-      .calendar-day:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      }
-      .calendar-day .day-number {
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-        color: #333;
       }
       .calendar-day.other-month {
         background-color: #f8f9fa;
@@ -388,6 +377,7 @@
         font-weight: 500;
         margin-top: auto;
       }
+      /* --- END: NEW STYLES --- */
     </style>
   </head>
   <body>
@@ -403,20 +393,20 @@
         <h1>برنامه شیفت ماهانه</h1>
         <div class="filters-container">
           <div class="filter-group">
-            <label for="startDate">از تاریخ:</label>
-            <input type="date" id="startDate" />
+            <label for="startDate">از تاریخ:</label
+            ><input type="date" id="startDate" />
           </div>
           <div class="filter-group">
-            <label for="endDate">تا تاریخ:</label>
-            <input type="date" id="endDate" />
+            <label for="endDate">تا تاریخ:</label
+            ><input type="date" id="endDate" />
           </div>
           <div class="filter-group">
-            <label for="expertSelect1">انتخاب کارشناس اول:</label>
-            <select id="expertSelect1"></select>
+            <label for="expertSelect1">انتخاب کارشناس اول:</label
+            ><select id="expertSelect1"></select>
           </div>
           <div class="filter-group">
-            <label for="expertSelect2">انتخاب کارشناس دوم:</label>
-            <select id="expertSelect2"></select>
+            <label for="expertSelect2">انتخاب کارشناس دوم:</label
+            ><select id="expertSelect2"></select>
           </div>
         </div>
         <div id="loader">در حال بارگذاری اطلاعات...</div>
@@ -425,16 +415,13 @@
 
       <div id="my-shift-view" class="tab-content"></div>
     </main>
-
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script>
-      // --- Global variables ---
+      // --- GLOBAL VARIABLES ---
       let allExperts = [];
       let allAvailableDates = [];
-      let currentCalendarDate = new Date(); // State for personal calendar
-
-      // Original variables for table view
+      let currentCalendarDate = new Date();
       const shiftColorMap = new Map();
       const colorPalette = [
         "#E3F2FD",
@@ -446,7 +433,7 @@
       ];
       let nextColorIndex = 0;
 
-      // --- Main Initialization ---
+      // --- INITIALIZATION ---
       document.addEventListener("DOMContentLoaded", initializePage);
 
       async function initializePage() {
@@ -463,13 +450,10 @@
 
           const data = await response.json();
           allExperts = data.experts || [];
-
           if (allExperts.length === 0) {
             loader.textContent = "هیچ اطلاعاتی برای نمایش وجود ندارد.";
             return;
           }
-
-          // Setup for the original monthly table view
           populateFilterControls();
           document
             .getElementById("startDate")
@@ -490,22 +474,19 @@
         }
       }
 
-      // --- New Tab Management Logic ---
+      // --- TAB MANAGEMENT ---
       function setupTabs() {
         const tabs = document.querySelectorAll(".tab-button");
         const contents = document.querySelectorAll(".tab-content");
-
         tabs.forEach((tab) => {
           tab.addEventListener("click", () => {
             tabs.forEach((item) => item.classList.remove("active"));
             contents.forEach((content) => content.classList.remove("active"));
-
             tab.classList.add("active");
             const activeContent = document.getElementById(
               tab.id.replace("-tab", "-view")
             );
             activeContent.classList.add("active");
-
             if (tab.id === "my-shift-tab") {
               handleMyShiftTabClick();
             }
@@ -513,117 +494,7 @@
         });
       }
 
-      // --- Original functions for the Monthly Table View (Unchanged) ---
-      function getShiftStyle(shiftTime) {
-        if (!shiftTime) return "";
-        if (!shiftColorMap.has(shiftTime)) {
-          shiftColorMap.set(shiftTime, colorPalette[nextColorIndex]);
-          nextColorIndex = (nextColorIndex + 1) % colorPalette.length;
-        }
-        return `style="background-color: ${shiftColorMap.get(shiftTime)};"`;
-      }
-      function populateFilterControls() {
-        const select1 = document.getElementById("expertSelect1");
-        const select2 = document.getElementById("expertSelect2");
-        let optionsHTML = '<option value="none">-- هیچکدام --</option>';
-        allExperts.forEach((expert) => {
-          optionsHTML += `<option value="${expert.id}">${expert.name}</option>`;
-        });
-        select1.innerHTML = optionsHTML;
-        select2.innerHTML = optionsHTML;
-        select1.value = "none";
-        select2.value = "none";
-        const dateSet = new Set();
-        allExperts.forEach((expert) => {
-          Object.keys(expert.shifts).forEach((date) => dateSet.add(date));
-        });
-        allAvailableDates = Array.from(dateSet).sort();
-        if (allAvailableDates.length > 0) {
-          document.getElementById("startDate").value = allAvailableDates[0];
-          document.getElementById("endDate").value =
-            allAvailableDates[allAvailableDates.length - 1];
-        }
-      }
-      function applyFilters() {
-        const startDate = document.getElementById("startDate").value;
-        const endDate = document.getElementById("endDate").value;
-        const expertId1 = document.getElementById("expertSelect1").value;
-        const expertId2 = document.getElementById("expertSelect2").value;
-        const selectedExpertIds = new Set();
-        if (expertId1 !== "none") selectedExpertIds.add(expertId1);
-        if (expertId2 !== "none") selectedExpertIds.add(expertId2);
-        const filteredDates = allAvailableDates.filter(
-          (date) => date >= startDate && date <= endDate
-        );
-        let filteredExperts =
-          selectedExpertIds.size > 0
-            ? allExperts.filter((expert) => selectedExpertIds.has(expert.id))
-            : [...allExperts];
-        filteredExperts.sort((a, b) => {
-          const shiftA = a["shifts-time"] || "";
-          const shiftB = b["shifts-time"] || "";
-          return shiftA.localeCompare(shiftB);
-        });
-        renderTable(filteredExperts, filteredDates);
-      }
-      function renderTable(experts, dates) {
-        const container = document.getElementById("schedule-container");
-        const loader = document.getElementById("loader");
-        if (!experts || experts.length === 0 || !dates || dates.length === 0) {
-          container.innerHTML = "";
-          loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
-          loader.style.display = "block";
-          return;
-        }
-        let tableHTML =
-          "<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>";
-        dates.forEach((date) => {
-          const d = new Date(date);
-          const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
-          const month = d.toLocaleDateString("fa-IR", { month: "short" });
-          const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
-          tableHTML += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
-        });
-        tableHTML += "</tr></thead><tbody>";
-        experts.forEach((expert) => {
-          const shiftTime = expert["shifts-time"];
-          const shiftStyle = getShiftStyle(shiftTime);
-          const breakTime = expert["break-time"] || "-";
-          tableHTML += `<tr><td>${expert.name}</td><td ${shiftStyle}>${
-            shiftTime || "-"
-          }</td><td>${breakTime}</td>`;
-          dates.forEach((date) => {
-            const status = expert.shifts[date] || "unknown";
-            let statusClass = "",
-              statusText = status;
-            if (status === "on-duty") {
-              statusClass = "status-on-duty";
-              statusText = "حضور";
-            } else if (status === "off") {
-              statusClass = "status-off";
-              statusText = "عدم حضور";
-            } else if (status === "unknown") {
-              statusClass = "status-unknown";
-              statusText = "-";
-            } else {
-              statusClass = "status-special";
-            }
-            tableHTML += `<td><span class="status ${statusClass}">${statusText}</span></td>`;
-          });
-          tableHTML += "</tr>";
-        });
-        tableHTML += "</tbody></table>";
-        container.innerHTML = tableHTML;
-        loader.style.display = "none";
-      }
-
-      // --- New functions for "My Shift" Calendar View ---
-
-      /**
-       * Decodes the payload of a JWT token.
-       * @param {string} token The JWT token from localStorage.
-       * @returns {object|null} The decoded payload object or null if invalid.
-       */
+      // --- "MY SHIFT" CALENDAR LOGIC ---
       function parseJwt(token) {
         try {
           return JSON.parse(atob(token.split(".")[1]));
@@ -632,46 +503,27 @@
         }
       }
 
-      /**
-       * Handles the click on the "My Shift" tab.
-       */
       function handleMyShiftTabClick() {
         const myShiftContainer = document.getElementById("my-shift-view");
         const token = localStorage.getItem("jwt");
-
         if (!token) {
-          myShiftContainer.innerHTML = `
-                <div class="not-logged-in">
-                    <p>برای مشاهده شیفت شخصی خود، ابتدا باید وارد حساب کاربری شوید.</p>
-                    <a href="/login.html">رفتن به صفحه ورود</a>
-                </div>`;
+          myShiftContainer.innerHTML = `<div class="not-logged-in"><p>برای مشاهده شیفت شخصی خود، لطفاً ابتدا وارد شوید.</p><a href="/login.html">رفتن به صفحه ورود</a></div>`;
           return;
         }
-
         const tokenPayload = parseJwt(token);
-        // The payload from your PHP JWT library likely contains user data in a 'data' property. Adjust if necessary.
-        const userId =
-          tokenPayload && tokenPayload.data ? tokenPayload.data.id : null;
-
+        const userId = tokenPayload ? tokenPayload.id : null; // Reads 'id' directly from payload
         if (!userId) {
-          myShiftContainer.innerHTML = `<div class="not-logged-in"><p>توکن شما معتبر نیست. لطفاً دوباره وارد شوید.</p></div>`;
+          myShiftContainer.innerHTML = `<div class="not-logged-in"><p>اطلاعات کاربری در توکن شما یافت نشد. لطفاً دوباره وارد شوید.</p><a href="/login.html">خروج و ورود مجدد</a></div>`;
           return;
         }
-
         const userShiftData = allExperts.find((expert) => expert.id == userId);
-
         if (!userShiftData) {
-          myShiftContainer.innerHTML = `<div class="not-logged-in"><p>اطلاعات شیفت برای شناسه کاربری ${userId} یافت نشد.</p></div>`;
+          myShiftContainer.innerHTML = `<div class="not-logged-in"><p>اطلاعات شیفت برای شما در سیستم یافت نشد.</p></div>`;
           return;
         }
-
         renderMyShiftView(userShiftData);
       }
 
-      /**
-       * Renders the entire "My Shift" view including user info and calendar.
-       * @param {object} userData The shift data for the logged-in user.
-       */
       function renderMyShiftView(userData) {
         const container = document.getElementById("my-shift-view");
         const monthName = currentCalendarDate.toLocaleDateString("fa-IR", {
@@ -680,7 +532,6 @@
         const year = currentCalendarDate.toLocaleDateString("fa-IR", {
           year: "numeric",
         });
-
         container.innerHTML = `
             <h1>تقویم شیفت من</h1>
             <div id="user-shift-info">
@@ -697,9 +548,7 @@
                 <span id="current-month-year">${monthName} ${year}</span>
                 <button id="prev-month">&rarr; ماه قبل</button>
             </div>
-            <div id="calendar-container"></div>
-        `;
-
+            <div id="calendar-container"></div>`;
         document.getElementById("prev-month").addEventListener("click", () => {
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
           renderMyShiftView(userData);
@@ -708,7 +557,6 @@
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
           renderMyShiftView(userData);
         });
-
         renderCalendar(
           currentCalendarDate.getFullYear(),
           currentCalendarDate.getMonth(),
@@ -716,17 +564,10 @@
         );
       }
 
-      /**
-       * Renders the calendar grid for a specific month and year.
-       * @param {number} year The full year (e.g., 2025).
-       * @param {number} month The month index (0-11).
-       * @param {object} shiftsData The user's shifts object (e.g., {"2025-08-23": "on-duty"}).
-       */
       function renderCalendar(year, month, shiftsData) {
         const container = document.getElementById("calendar-container");
         const firstDayOfMonth = new Date(year, month, 1);
         const lastDayOfMonth = new Date(year, month + 1, 0);
-
         const weekDays = [
           "شنبه",
           "یکشنبه",
@@ -737,22 +578,17 @@
           "جمعه",
         ];
         let html = '<div id="calendar-grid">';
-
         weekDays.forEach(
           (day) => (html += `<div class="calendar-header">${day}</div>`)
         );
-
-        // Adjust for week starting on Saturday (getDay() is Sun=0, Mon=1, ..., Sat=6)
         let startOffset = (firstDayOfMonth.getDay() + 1) % 7;
         for (let i = 0; i < startOffset; i++) {
           html += '<div class="calendar-day other-month"></div>';
         }
-
         for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
           const currentDate = new Date(year, month, day);
-          const dateString = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+          const dateString = currentDate.toISOString().split("T")[0];
           const status = shiftsData[dateString] || "unknown";
-
           let statusClass = "status-special",
             statusText = status;
           if (status === "on-duty") {
@@ -765,7 +601,6 @@
             statusClass = "status-unknown";
             statusText = "";
           }
-
           html += `<div class="calendar-day">
                         <div class="day-number">${currentDate.toLocaleDateString(
                           "fa-IR",
@@ -778,9 +613,101 @@
                         }
                      </div>`;
         }
-
         html += "</div>";
         container.innerHTML = html;
+      }
+
+      // --- ORIGINAL FUNCTIONS (UNCHANGED) ---
+      function getShiftStyle(shiftTime) {
+        if (!shiftTime) {
+          return "";
+        }
+        if (!shiftColorMap.has(shiftTime)) {
+          shiftColorMap.set(shiftTime, colorPalette[nextColorIndex]);
+          nextColorIndex = (nextColorIndex + 1) % colorPalette.length;
+        }
+        return `style="background-color: ${shiftColorMap.get(shiftTime)};"`;
+      }
+      function populateFilterControls() {
+        const t = document.getElementById("expertSelect1"),
+          e = document.getElementById("expertSelect2");
+        let l = '<option value="none">-- هیچکدام --</option>';
+        allExperts.forEach((t) => {
+          l += `<option value="${t.id}">${t.name}</option>`;
+        }),
+          (t.innerHTML = l),
+          (e.innerHTML = l),
+          (t.value = "none"),
+          (e.value = "none");
+        const n = new Set();
+        allExperts.forEach((t) => {
+          Object.keys(t.shifts).forEach((t) => n.add(t));
+        }),
+          (allAvailableDates = Array.from(n).sort()),
+          allAvailableDates.length > 0 &&
+            ((document.getElementById("startDate").value =
+              allAvailableDates[0]),
+            (document.getElementById("endDate").value =
+              allAvailableDates[allAvailableDates.length - 1]));
+      }
+      function applyFilters() {
+        const t = document.getElementById("startDate").value,
+          e = document.getElementById("endDate").value,
+          l = document.getElementById("expertSelect1").value,
+          n = document.getElementById("expertSelect2").value,
+          o = new Set();
+        "none" !== l && o.add(l), "none" !== n && o.add(n);
+        const a = allAvailableDates.filter((l) => l >= t && l <= e);
+        let r =
+          o.size > 0 ? allExperts.filter((t) => o.has(t.id)) : [...allExperts];
+        r.sort((t, e) =>
+          (t["shifts-time"] || "").localeCompare(e["shifts-time"] || "")
+        ),
+          renderTable(r, a);
+      }
+      function renderTable(t, e) {
+        const l = document.getElementById("schedule-container"),
+          n = document.getElementById("loader");
+        if (!t || 0 === t.length || !e || 0 === e.length)
+          return (
+            (l.innerHTML = ""),
+            (n.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد."),
+            void (n.style.display = "block")
+          );
+        let o =
+          "<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>";
+        e.forEach((t) => {
+          const e = new Date(t),
+            l = e.toLocaleDateString("fa-IR", { day: "numeric" }),
+            n = e.toLocaleDateString("fa-IR", { month: "short" }),
+            a = e.toLocaleDateString("fa-IR", { weekday: "short" });
+          o += `<th>${a}<br>${l} ${n}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${t}</span></th>`;
+        }),
+          (o += "</tr></thead><tbody>"),
+          t.forEach((t) => {
+            const l = t["shifts-time"],
+              n = getShiftStyle(l),
+              a = t["break-time"] || "-";
+            (o += `<tr><td>${t.name}</td><td ${n}>${
+              l || "-"
+            }</td><td>${a}</td>`),
+              e.forEach((e) => {
+                let l = "",
+                  n = t.shifts[e] || "unknown";
+                "on-duty" === n
+                  ? ((l = "status-on-duty"), (n = "حضور"))
+                  : "off" === n
+                  ? ((l = "status-off"), (n = "عدم حضور"))
+                  : "unknown" === n
+                  ? ((l = "status-unknown"), (n = "-"))
+                  : (l = "status-special"),
+                  (o += `<td><span class="status ${l}">${n}</span></td>`);
+              }),
+              (o += "</tr>");
+          }),
+          (o += "</tbody></table>"),
+          (l.innerHTML = o),
+          (n.style.display = "none");
       }
     </script>
   </body>

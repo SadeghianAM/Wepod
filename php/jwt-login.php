@@ -46,8 +46,9 @@ foreach ($users as $user) {
             unset($_SESSION['last_attempt_time']);
 
             $payload = [
+                'id'       => $user['id'],
                 'username' => $username,
-                'exp' => time() + (60 * 60 * 12)
+                'exp'      => time() + (60 * 60 * 12)
             ];
             $token = create_jwt($payload, JWT_SECRET);
             echo json_encode(['token' => $token]);
