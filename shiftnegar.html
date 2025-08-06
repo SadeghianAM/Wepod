@@ -527,6 +527,7 @@
         renderMyShiftView(userShiftData);
       }
 
+      // --- START: MODIFIED FUNCTION ---
       function renderMyShiftView(userData) {
         const container = document.getElementById("my-shift-view");
         const monthName = currentCalendarDate.toLocaleDateString("fa-IR", {
@@ -544,16 +545,31 @@
         const hasPrevShifts = hasShiftsInMonth(prevMonthDate, userData.shifts);
         const hasNextShifts = hasShiftsInMonth(nextMonthDate, userData.shifts);
 
+        // --- Logic to determine break label ---
+        const breakTime = userData["break-time"];
+        let breakLabel = "ساعت استراحت";
+        let breakValue = breakTime || "تعیین نشده";
+
+        if (breakTime && breakTime.includes(" - ")) {
+          const endTime = breakTime.split(" - ")[1].trim();
+          if (endTime) {
+            if (endTime <= "17:00") {
+              breakLabel = "تایم ناهار";
+            } else {
+              breakLabel = "تایم شام";
+            }
+          }
+        }
+        // --- End of break label logic ---
+
         container.innerHTML = `
             <h1>تقویم شیفت من</h1>
             <div id="user-shift-info">
                 <p>کارشناس: <span>${userData.name}</span></p>
-                <p>ساعت حضور: <span>${
+                <p>ساعت شیفت: <span>${
                   userData["shifts-time"] || "تعیین نشده"
                 }</span></p>
-                <p>ساعت استراحت: <span>${
-                  userData["break-time"] || "تعیین نشده"
-                }</span></p>
+                <p>${breakLabel}: <span>${breakValue}</span></p>
             </div>
             <div id="calendar-controls">
                 <button id="prev-month" ${
@@ -576,12 +592,8 @@
         });
         renderCalendar(currentCalendarDate, userData.shifts);
       }
+      // --- END: MODIFIED FUNCTION ---
 
-      // --- START: FINAL AND CORRECTED CALENDAR LOGIC ---
-
-      /**
-       * A robust and self-contained Jalali to Gregorian converter.
-       */
       function jalaliToGregorian(jy, jm, jd) {
         var sal_a, gy, gm, gd, days;
         jy += 1595;
@@ -625,17 +637,11 @@
         return new Date(gy, gm - 1, gd);
       }
 
-      /**
-       * A robust and self-contained Gregorian to Jalali converter.
-       */
       function toPersian(date) {
         const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
         return parts.map((part) => parseInt(part, 10));
       }
 
-      /**
-       * Renders a calendar grid that is fully aware of the Persian calendar months.
-       */
       function renderCalendar(date, shiftsData) {
         const container = document.getElementById("calendar-container");
         const weekDays = [
@@ -651,51 +657,35 @@
         weekDays.forEach(
           (day) => (html += `<div class="calendar-header">${day}</div>`)
         );
-
         const [pYear, pMonth] = toPersian(date);
-
-        // 1. Get the Gregorian date for the first day of the Persian month.
         const firstDayOfPersianMonth = jalaliToGregorian(pYear, pMonth, 1);
-
-        // 2. Find the number of days in the Persian month.
         const isLeap =
           toPersian(jalaliToGregorian(pYear + 1, 1, 1)).slice(0, 1) - pYear > 1;
         const daysInMonth =
           pMonth < 7 ? 31 : pMonth < 12 ? 30 : isLeap ? 30 : 29;
-
-        // 3. Get the Gregorian date for the last day of the Persian month.
         const lastDayOfPersianMonth = jalaliToGregorian(
           pYear,
           pMonth,
           daysInMonth
         );
-
-        // 4. Calculate the calendar's start date (the first Saturday of the week).
         const calendarStartDate = new Date(firstDayOfPersianMonth);
-        const startDayOfWeek = firstDayOfPersianMonth.getDay(); // Sunday: 0, ..., Saturday: 6
+        const startDayOfWeek = firstDayOfPersianMonth.getDay();
         const offsetToSaturday = (startDayOfWeek + 1) % 7;
         calendarStartDate.setDate(
           calendarStartDate.getDate() - offsetToSaturday
         );
-
-        // 5. Calculate the calendar's end date (the last Friday of the week).
         const calendarEndDate = new Date(lastDayOfPersianMonth);
         const endDayOfWeek = lastDayOfPersianMonth.getDay();
         const offsetToFriday = (5 - endDayOfWeek + 7) % 7;
         calendarEndDate.setDate(calendarEndDate.getDate() + offsetToFriday);
-
-        // 6. Loop from the calculated start date to the end date and build the grid.
         let loopDate = new Date(calendarStartDate);
         while (loopDate <= calendarEndDate) {
           const [currentPYear, currentPMonth] = toPersian(loopDate);
           const isOtherMonth = currentPMonth !== pMonth;
-
-          // Timezone-safe way to create the date string 'YYYY-MM-DD'
           const y = loopDate.getFullYear();
           const m = String(loopDate.getMonth() + 1).padStart(2, "0");
           const d = String(loopDate.getDate()).padStart(2, "0");
           const dateString = `${y}-${m}-${d}`;
-
           const status = shiftsData[dateString] || "unknown";
           let statusClass = "",
             statusText = "";
@@ -709,7 +699,6 @@
             statusClass = "status-special";
             statusText = status;
           }
-
           html += `<div class="calendar-day ${
             isOtherMonth ? "other-month" : ""
           }">
@@ -723,14 +712,11 @@
                             : ""
                         }
                      </div>`;
-
           loopDate.setDate(loopDate.getDate() + 1);
         }
-
         html += "</div>";
         container.innerHTML = html;
       }
-      // --- END: FINAL AND CORRECTED CALENDAR LOGIC ---
 
       // Original functions are collapsed here for brevity. They are unchanged.
       function getShiftStyle(shiftTime) {
