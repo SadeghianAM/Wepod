@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ورود به حساب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+      }
+
+      :root {
+        --primary-color: #079863;
+        --primary-hover: #068456;
+        --background-color: #f8f9fa;
+        --form-bg: #ffffff;
+        --text-color: #343a40;
+        --border-color: #dee2e6;
+        --error-color: #dc3545;
+      }
+
+      body {
+        font-family: "Vazirmatn", sans-serif;
+        background-color: var(--background-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        color: var(--text-color);
+      }
+
+      .login-container {
+        background-color: var(--form-bg);
+        padding: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 420px;
+        direction: rtl;
+        animation: fadeIn 0.8s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .login-header h2 {
+        text-align: center;
+        color: var(--primary-color);
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+      }
+
+      .login-header p {
+        text-align: center;
+        color: #6c757d;
+        margin-bottom: 2rem;
+      }
+
+      .input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+
+      .input-emoji {
+        position: absolute;
+        right: 1rem;
+        top: 70%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+        opacity: 0.6;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: var(--text-color);
+        font-size: 0.9rem;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.85rem 3.2rem 0.85rem 1rem;
+        font-family: "Vazirmatn", sans-serif;
+        border-radius: 0.5rem;
+        border: 1.5px solid var(--border-color);
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+      }
+
+      input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(7, 152, 99, 0.2);
+        outline: none;
+      }
+
+      .password-toggle {
+        position: absolute;
+        left: 1rem;
+        top: 70%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 1.5rem;
+        user-select: none;
+      }
+
+      button {
+        width: 100%;
+        padding: 0.85rem;
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: "Vazirmatn", sans-serif;
+        transition: background-color 0.3s, transform 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 50px;
+      }
+
+      button:hover:not(:disabled) {
+        background-color: var(--primary-hover);
+      }
+
+      button:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+
+      button:disabled {
+        background-color: #a5d8d1;
+        cursor: not-allowed;
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        display: none;
+      }
+
+      button.loading .spinner {
+        display: block;
+      }
+      button.loading .button-text {
+        display: none;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        color: var(--error-color);
+        text-align: center;
+        margin-top: 1rem;
+        min-height: 1.2rem;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-header">
+        <h2>ورود به پنل وی هاب</h2>
+        <p>برای دسترسی به پنل کاربری خود، وارد شوید</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="username">نام کاربری:</label>
+          <input type="text" id="username" required />
+          <span class="input-emoji">👤</span>
+        </div>
+
+        <div class="input-group">
+          <label for="password">رمز عبور:</label>
+          <input type="password" id="password" required />
+          <span class="input-emoji">🔒</span>
+          <span class="password-toggle" id="passwordToggle">👀</span>
+        </div>
+
+        <p id="errorMessage" class="error-message"></p>
+
+        <button type="submit" id="submitButton">
+          <span class="button-text">ورود</span>
+          <div class="spinner"></div>
+        </button>
+      </form>
+    </div>
+
+    <script>
+      const loginForm = document.getElementById("loginForm");
+      const submitButton = document.getElementById("submitButton");
+      const errorMessage = document.getElementById("errorMessage");
+      const passwordInput = document.getElementById("password");
+      const passwordToggle = document.getElementById("passwordToggle");
+
+      passwordToggle.addEventListener("click", () => {
+        const isPassword = passwordInput.type === "password";
+        passwordInput.type = isPassword ? "text" : "password";
+        passwordToggle.textContent = isPassword ? "🙈" : "👀";
+      });
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        errorMessage.textContent = "";
+        submitButton.disabled = true;
+        submitButton.classList.add("loading");
+
+        const username = document.getElementById("username").value;
+        const password = passwordInput.value;
+
+        try {
+          const res = await fetch("/php/jwt-login.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            localStorage.setItem("jwt", result.token);
+            errorMessage.textContent = "ورود موفقیت‌آمیز بود. در حال انتقال...";
+            errorMessage.style.color = "var(--primary-color)";
+            setTimeout(() => {
+              window.location.href = "/index.html";
+            }, 1000);
+          } else {
+            errorMessage.textContent =
+              result.message || "نام کاربری یا رمز عبور اشتباه است.";
+          }
+        } catch (error) {
+          errorMessage.textContent = "خطا در برقراری ارتباط با سرور.";
+        } finally {
+          if (errorMessage.style.color !== "var(--primary-color)") {
+            submitButton.disabled = false;
+            submitButton.classList.remove("loading");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
