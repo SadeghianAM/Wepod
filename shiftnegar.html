@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>برنامه شیفت‌ها</title>
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --shadow-color-medium: rgba(0, 174, 112, 0.12);
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      a {
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+      }
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        /* Resetting margin for header h1 */
+        margin-bottom: 0;
+        color: var(--header-text);
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+      main {
+        width: 100%;
+        flex-grow: 1;
+        background-color: var(--card-bg);
+        padding: 2rem;
+        box-shadow: 0 4px 20px var(--shadow-color-light);
+      }
+      /* Title inside main */
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-dark);
+        text-align: center;
+        font-weight: 700;
+      }
+
+      /* --- Filter Controls Styles --- */
+      .filters-container {
+        background-color: #f1f3f5; /* Keeping this specific grey for contrast */
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        align-items: flex-end;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+      }
+      .filter-group label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+      }
+      .filter-group input[type="date"],
+      .filter-group select {
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-color);
+        font-size: 1rem;
+        width: 100%;
+      }
+      .filter-group select {
+        background-color: var(--card-bg);
+      }
+
+      #loader {
+        text-align: center;
+        font-size: 1.2rem;
+        color: var(--secondary-text-color);
+        padding: 3rem;
+      }
+      .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+      th,
+      td {
+        padding: 0.9rem 1rem;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        white-space: nowrap;
+      }
+      thead th {
+        background-color: var(--primary-light);
+        color: var(--secondary-text-color);
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        line-height: 1.4;
+      }
+      tbody tr:nth-child(even) {
+        background-color: var(--bg-color);
+      }
+      tbody tr:hover {
+        background-color: var(--primary-light);
+      }
+
+      /* START: REVISED STICKY COLUMN STYLES */
+
+      thead th:nth-child(1),
+      tbody td:nth-child(1) {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      thead th:nth-child(2),
+      tbody td:nth-child(2) {
+        width: 150px;
+        min-width: 150px;
+        max-width: 150px;
+      }
+      thead th:nth-child(3),
+      tbody td:nth-child(3) {
+        width: 150px;
+        min-width: 150px;
+        max-width: 150px;
+      }
+
+      thead th:nth-child(-n + 3),
+      tbody td:nth-child(-n + 3) {
+        position: -webkit-sticky;
+        position: sticky;
+        z-index: 2;
+      }
+
+      thead th:nth-child(1),
+      tbody td:nth-child(1) {
+        right: 0;
+      }
+      thead th:nth-child(2),
+      tbody td:nth-child(2) {
+        right: 200px;
+      }
+      thead th:nth-child(3),
+      tbody td:nth-child(3) {
+        right: 350px;
+      }
+
+      thead th:nth-child(-n + 3) {
+        background-color: var(--primary-light);
+        z-index: 4;
+      }
+      tbody td:nth-child(-n + 3) {
+        background-color: var(--card-bg);
+      }
+      tbody tr:nth-child(even) td:nth-child(-n + 3) {
+        background-color: var(--bg-color);
+      }
+      tbody tr:hover td:nth-child(-n + 3) {
+        background-color: var(--primary-light);
+      }
+
+      tbody td:nth-child(1) {
+        font-weight: 600;
+        text-align: right;
+      }
+
+      /* Vertical borders after each sticky column (1, 2, and 3) */
+      thead th:nth-child(1)::after,
+      tbody td:nth-child(1)::after,
+      thead th:nth-child(2)::after,
+      tbody td:nth-child(2)::after,
+      thead th:nth-child(3)::after,
+      tbody td:nth-child(3)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 3px;
+        background-color: var(--primary-dark);
+      }
+
+      /* END: REVISED STICKY COLUMN STYLES */
+
+      .status {
+        padding: 0.5em 0.7em;
+        border-radius: 0.3rem;
+        font-weight: 500;
+        font-size: 0.85rem;
+        color: #fff;
+        min-width: 80px;
+        display: inline-block;
+      }
+      .status-on-duty {
+        background-color: #28a745;
+      }
+      .status-off {
+        background-color: #dc3545;
+      }
+      .status-unknown {
+        background-color: #6c757d;
+      }
+      .status-special {
+        background-color: #ffc107;
+        color: #212529;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+    <main>
+      <h1>برنامه شیفت ماهانه</h1>
+
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="startDate">از تاریخ:</label>
+          <input type="date" id="startDate" />
+        </div>
+        <div class="filter-group">
+          <label for="endDate">تا تاریخ:</label>
+          <input type="date" id="endDate" />
+        </div>
+        <div class="filter-group">
+          <label for="expertSelect1">انتخاب کارشناس اول:</label>
+          <select id="expertSelect1"></select>
+        </div>
+        <div class="filter-group">
+          <label for="expertSelect2">انتخاب کارشناس دوم:</label>
+          <select id="expertSelect2"></select>
+        </div>
+      </div>
+
+      <div id="loader">در حال بارگذاری اطلاعات...</div>
+      <div id="schedule-container" class="table-container"></div>
+    </main>
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+    <script>
+      // Global variables to store the full dataset
+      let allExperts = [];
+      let allAvailableDates = [];
+
+      // Variables for shift time color coding
+      const shiftColorMap = new Map();
+      const colorPalette = [
+        "#E3F2FD",
+        "#E8F5E9",
+        "#FFF3E0",
+        "#F3E5F5",
+        "#FFEBEE",
+        "#E0F7FA",
+      ];
+      let nextColorIndex = 0;
+
+      /**
+       * Gets a consistent background color style for a given shift time.
+       * @param {string} shiftTime - The shift time string (e.g., "08:00 - 17:00").
+       * @returns {string} An inline style string.
+       */
+      function getShiftStyle(shiftTime) {
+        if (!shiftTime) {
+          return "";
+        }
+        if (!shiftColorMap.has(shiftTime)) {
+          shiftColorMap.set(shiftTime, colorPalette[nextColorIndex]);
+          nextColorIndex = (nextColorIndex + 1) % colorPalette.length;
+        }
+        const bgColor = shiftColorMap.get(shiftTime);
+        return `style="background-color: ${bgColor};"`;
+      }
+
+      document.addEventListener("DOMContentLoaded", initializePage);
+
+      async function initializePage() {
+        const loader = document.getElementById("loader");
+        try {
+          const response = await fetch(
+            "/data/shifts.json?v=" + new Date().getTime()
+          );
+          if (!response.ok) {
+            throw new Error(
+              `فایل shifts.json یافت نشد (کد: ${response.status})`
+            );
+          }
+          const data = await response.json();
+          allExperts = data.experts || [];
+
+          if (allExperts.length === 0) {
+            loader.textContent = "هیچ اطلاعاتی برای نمایش وجود ندارد.";
+            return;
+          }
+
+          populateFilterControls();
+
+          document
+            .getElementById("startDate")
+            .addEventListener("change", applyFilters);
+          document
+            .getElementById("endDate")
+            .addEventListener("change", applyFilters);
+          document
+            .getElementById("expertSelect1")
+            .addEventListener("change", applyFilters);
+          document
+            .getElementById("expertSelect2")
+            .addEventListener("change", applyFilters);
+
+          applyFilters();
+        } catch (error) {
+          loader.textContent = `خطا: ${error.message}`;
+          loader.style.color = "#dc3545";
+        }
+      }
+
+      function populateFilterControls() {
+        const select1 = document.getElementById("expertSelect1");
+        const select2 = document.getElementById("expertSelect2");
+
+        let optionsHTML = '<option value="none">-- هیچکدام --</option>';
+        allExperts.forEach((expert) => {
+          optionsHTML += `<option value="${expert.id}">${expert.name}</option>`;
+        });
+
+        select1.innerHTML = optionsHTML;
+        select2.innerHTML = optionsHTML;
+
+        select1.value = "none";
+        select2.value = "none";
+
+        const dateSet = new Set();
+        allExperts.forEach((expert) => {
+          Object.keys(expert.shifts).forEach((date) => dateSet.add(date));
+        });
+        allAvailableDates = Array.from(dateSet).sort();
+
+        if (allAvailableDates.length > 0) {
+          document.getElementById("startDate").value = allAvailableDates[0];
+          document.getElementById("endDate").value =
+            allAvailableDates[allAvailableDates.length - 1];
+        }
+      }
+
+      function applyFilters() {
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const expertId1 = document.getElementById("expertSelect1").value;
+        const expertId2 = document.getElementById("expertSelect2").value;
+
+        const selectedExpertIds = new Set();
+        if (expertId1 !== "none") selectedExpertIds.add(expertId1);
+        if (expertId2 !== "none") selectedExpertIds.add(expertId2);
+
+        const filteredDates = allAvailableDates.filter(
+          (date) => date >= startDate && date <= endDate
+        );
+
+        // First, get the experts based on the filter dropdowns
+        let filteredExperts =
+          selectedExpertIds.size > 0
+            ? allExperts.filter((expert) => selectedExpertIds.has(expert.id))
+            : [...allExperts]; // Use a copy to avoid sorting the original array
+
+        // Now, sort the filtered list by shift time
+        filteredExperts.sort((a, b) => {
+          const shiftA = a["shifts-time"] || ""; // Handle undefined/null cases
+          const shiftB = b["shifts-time"] || "";
+          // Simple string comparison works because the format is "HH:MM..."
+          return shiftA.localeCompare(shiftB);
+        });
+
+        renderTable(filteredExperts, filteredDates);
+      }
+
+      function renderTable(experts, dates) {
+        const container = document.getElementById("schedule-container");
+        const loader = document.getElementById("loader");
+
+        if (!experts || experts.length === 0 || !dates || dates.length === 0) {
+          container.innerHTML = "";
+          loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
+          loader.style.display = "block";
+          return;
+        }
+
+        let tableHTML =
+          "<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>";
+        dates.forEach((date) => {
+          const d = new Date(date);
+          const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
+          const month = d.toLocaleDateString("fa-IR", { month: "short" });
+          const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
+
+          tableHTML += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
+        });
+        tableHTML += "</tr></thead><tbody>";
+
+        experts.forEach((expert) => {
+          const shiftTime = expert["shifts-time"];
+          const shiftStyle = getShiftStyle(shiftTime);
+          const breakTime = expert["break-time"] || "-";
+
+          tableHTML += `<tr>
+                                <td>${expert.name}</td>
+                                <td ${shiftStyle}>${shiftTime || "-"}</td>
+                                <td>${breakTime}</td>`;
+
+          dates.forEach((date) => {
+            const status = expert.shifts[date] || "unknown";
+            let statusClass = "",
+              statusText = status;
+            if (status === "on-duty") {
+              statusClass = "status-on-duty";
+              statusText = "حضور";
+            } else if (status === "off") {
+              statusClass = "status-off";
+              statusText = "عدم حضور";
+            } else if (status === "unknown") {
+              statusClass = "status-unknown";
+              statusText = "-";
+            } else {
+              statusClass = "status-special";
+            }
+            tableHTML += `<td><span class="status ${statusClass}">${statusText}</span></td>`;
+          });
+          tableHTML += "</tr>";
+        });
+
+        tableHTML += "</tbody></table>";
+
+        container.innerHTML = tableHTML;
+        loader.style.display = "none";
+      }
+    </script>
+  </body>
+</html>
