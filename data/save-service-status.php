@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 $data = file_get_contents('php://input');
 
 // آدرس فایل JSON شما که قرار است بازنویسی شود
-$file_path = '/data/service-status.json';
+$file_path = 'service-status.json';
 
 // داده‌های جدید را در فایل می‌نویسیم
 // file_put_contents فایل را به طور کامل بازنویسی می‌کند
