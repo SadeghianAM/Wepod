@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
           let colorClass = "green";
           if (service.status === "غیرفعال") colorClass = "red";
           else if (service.status === "در حال بررسی") colorClass = "yellow";
-          else if (service.status === "اختلال در عملکرد") colorClass = "orange";
+          else if (service.status === "اختلال در عملکرد") colorClass = "yellow";
           html += `<div class="news-alert-box ${colorClass}"><b>${
             service.name
           }:</b> ${service.status}${
