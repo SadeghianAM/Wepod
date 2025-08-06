@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>برنامه شیفت‌ها</title>
     <style>
-      /* --- START: ORIGINAL STYLES (UNCHANGED) --- */
+      /* --- استایل‌ها بدون تغییر باقی مانده‌اند --- */
       :root {
         --primary-color: #00ae70;
         --primary-dark: #089863;
@@ -246,9 +246,6 @@
         background-color: #ffc107;
         color: #212529;
       }
-      /* --- END: ORIGINAL STYLES --- */
-
-      /* --- START: NEW STYLES FOR TABS AND CALENDAR --- */
       .tabs-container {
         display: flex;
         border-bottom: 2px solid var(--border-color);
@@ -377,7 +374,6 @@
         font-weight: 500;
         margin-top: auto;
       }
-      /* --- END: NEW STYLES --- */
     </style>
   </head>
   <body>
@@ -412,13 +408,11 @@
         <div id="loader">در حال بارگذاری اطلاعات...</div>
         <div id="schedule-container" class="table-container"></div>
       </div>
-
       <div id="my-shift-view" class="tab-content"></div>
     </main>
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script>
-      // --- GLOBAL VARIABLES ---
       let allExperts = [];
       let allAvailableDates = [];
       let currentCalendarDate = new Date();
@@ -433,7 +427,6 @@
       ];
       let nextColorIndex = 0;
 
-      // --- INITIALIZATION ---
       document.addEventListener("DOMContentLoaded", initializePage);
 
       async function initializePage() {
@@ -447,7 +440,6 @@
             throw new Error(
               `فایل shifts.json یافت نشد (کد: ${response.status})`
             );
-
           const data = await response.json();
           allExperts = data.experts || [];
           if (allExperts.length === 0) {
@@ -474,7 +466,6 @@
         }
       }
 
-      // --- TAB MANAGEMENT ---
       function setupTabs() {
         const tabs = document.querySelectorAll(".tab-button");
         const contents = document.querySelectorAll(".tab-content");
@@ -494,7 +485,6 @@
         });
       }
 
-      // --- "MY SHIFT" CALENDAR LOGIC ---
       function parseJwt(token) {
         try {
           return JSON.parse(atob(token.split(".")[1]));
@@ -511,7 +501,7 @@
           return;
         }
         const tokenPayload = parseJwt(token);
-        const userId = tokenPayload ? tokenPayload.id : null; // Reads 'id' directly from payload
+        const userId = tokenPayload ? tokenPayload.id : null;
         if (!userId) {
           myShiftContainer.innerHTML = `<div class="not-logged-in"><p>اطلاعات کاربری در توکن شما یافت نشد. لطفاً دوباره وارد شوید.</p><a href="/login.html">خروج و ورود مجدد</a></div>`;
           return;
@@ -532,6 +522,9 @@
         const year = currentCalendarDate.toLocaleDateString("fa-IR", {
           year: "numeric",
         });
+
+        // --- START: CHANGE 1 ---
+        // The order of the buttons has been swapped.
         container.innerHTML = `
             <h1>تقویم شیفت من</h1>
             <div id="user-shift-info">
@@ -544,11 +537,13 @@
                 }</span></p>
             </div>
             <div id="calendar-controls">
-                <button id="next-month">ماه بعد &larr;</button>
-                <span id="current-month-year">${monthName} ${year}</span>
                 <button id="prev-month">&rarr; ماه قبل</button>
+                <span id="current-month-year">${monthName} ${year}</span>
+                <button id="next-month">ماه بعد &larr;</button>
             </div>
             <div id="calendar-container"></div>`;
+        // --- END: CHANGE 1 ---
+
         document.getElementById("prev-month").addEventListener("click", () => {
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
           renderMyShiftView(userData);
@@ -587,7 +582,15 @@
         }
         for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
           const currentDate = new Date(year, month, day);
-          const dateString = currentDate.toISOString().split("T")[0];
+
+          // --- START: CHANGE 2 ---
+          // This is the timezone-safe way to create the date string 'YYYY-MM-DD'
+          const y = currentDate.getFullYear();
+          const m = String(currentDate.getMonth() + 1).padStart(2, "0");
+          const d = String(currentDate.getDate()).padStart(2, "0");
+          const dateString = `${y}-${m}-${d}`;
+          // --- END: CHANGE 2 ---
+
           const status = shiftsData[dateString] || "unknown";
           let statusClass = "status-special",
             statusText = status;
@@ -617,7 +620,7 @@
         container.innerHTML = html;
       }
 
-      // --- ORIGINAL FUNCTIONS (UNCHANGED) ---
+      // Original functions are collapsed here for brevity. They are unchanged.
       function getShiftStyle(shiftTime) {
         if (!shiftTime) {
           return "";
