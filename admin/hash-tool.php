@@ -1,3 +1,6 @@
+<?php
+require __DIR__ . '/../php/auth_check.php';
+?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
   <head>

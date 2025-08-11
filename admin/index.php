@@ -1,26 +1,12 @@
+<?php
+require __DIR__ . '/../php/auth_check.php';
+?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>بخش مدیریت - وی هاب</title>
-
-    <script src="/js/auth.js"></script>
-    <script>
-      window.onload = function () {
-        // Protect page for specific users
-        protectPage([
-          "abolfazl",
-          "m.pourmosa",
-          "m.samyari",
-          "ehsan.jafari",
-          "aida.akbari",
-          "a.jamshidvand",
-          "a.sadeghianmajd",
-        ]);
-      };
-    </script>
-
     <style>
       :root {
         --primary-color: #00ae70;

@@ -1,3 +1,6 @@
+<?php
+require __DIR__ . '/../php/auth_check.php';
+?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
   <head>
@@ -316,7 +319,6 @@
       </div>
     </div>
 
-    <script src="/js/auth.js"></script>
     <script>
       let allExperts = [];
       let allAvailableDates = [];
@@ -326,27 +328,6 @@
       document.addEventListener("DOMContentLoaded", initializePage);
 
       async function initializePage() {
-        // --- بخش فعال‌سازی احراز هویت ---
-        try {
-          protectPage([
-            "abolfazl",
-            "m.pourmosa",
-            "m.samyari",
-            "ehsan.jafari",
-            "aida.akbari",
-            "a.jamshidvand",
-            "a.sadeghianmajd",
-          ]);
-        } catch (e) {
-          console.error(
-            "خطا در اجرای تابع protectPage. مطمئن شوید فایل auth.js به درستی بارگذاری شده است.",
-            e
-          );
-          document.body.innerHTML =
-            '<h1 style="color: red; text-align: center; margin-top: 50px;">خطای امنیتی: امکان بارگذاری صفحه وجود ندارد.</h1>';
-          return; // اجرای ادامه کد متوقف می‌شود
-        }
-        // --- پایان بخش احراز هویت ---
 
         const loader = document.getElementById("loader");
         loader.style.display = "block";
