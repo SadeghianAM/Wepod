@@ -255,6 +255,37 @@
         color: var(--primary-color);
         text-decoration: underline;
       }
+      /* --- START: Added styles for copy icon --- */
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      /* Add padding to inputs to make space for the icon */
+      .input-wrapper input {
+        padding-left: 45px;
+      }
+      .copy-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: var(--secondary-text-color);
+        font-size: 1.1rem;
+        transition: all 0.2s ease-in-out;
+        padding: 5px;
+        border-radius: 50%;
+        user-select: none; /* Prevent text selection */
+        line-height: 1;
+      }
+      .copy-icon:hover {
+        transform: translateY(-50%) scale(1.1);
+      }
+      .copy-icon.copied {
+        color: var(--primary-dark);
+      }
+      /* --- END: Added styles for copy icon --- */
       @media (max-width: 768px) {
         main {
           padding: 1.5rem;
@@ -312,25 +343,41 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="nameInput">👤 نام و نام خانوادگی</label>
-                  <input
-                    type="text"
-                    id="nameInput"
-                    placeholder="نام کاربر"
-                    autocomplete="off"
-                    aria-label="ورود نام و نام خانوادگی"
-                  />
+                  <div class="input-wrapper">
+                    <input
+                      type="text"
+                      id="nameInput"
+                      placeholder="نام کاربر"
+                      autocomplete="off"
+                      aria-label="ورود نام و نام خانوادگی"
+                    />
+                    <span
+                      class="copy-icon"
+                      onclick="copyField('nameInput')"
+                      title="کپی کردن"
+                      >📋</span
+                    >
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="nationalIdInput">💳 کدملی</label>
-                  <input
-                    type="text"
-                    id="nationalIdInput"
-                    placeholder="--- ------ -"
-                    autocomplete="off"
-                    maxlength="12"
-                    inputmode="numeric"
-                    aria-label="ورود کدملی"
-                  />
+                  <div class="input-wrapper">
+                    <input
+                      type="text"
+                      id="nationalIdInput"
+                      placeholder="--- ------ -"
+                      autocomplete="off"
+                      maxlength="12"
+                      inputmode="numeric"
+                      aria-label="ورود کدملی"
+                    />
+                    <span
+                      class="copy-icon"
+                      onclick="copyField('nationalIdInput')"
+                      title="کپی کردن"
+                      >📋</span
+                    >
+                  </div>
                   <div id="nationalIdMessage" class="input-message"></div>
                   <div
                     id="provinceDisplay"
@@ -342,28 +389,44 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="oldNumberInput">📱 شماره قبلی</label>
-                  <input
-                    type="text"
-                    id="oldNumberInput"
-                    placeholder="---- --- ----"
-                    autocomplete="off"
-                    maxlength="13"
-                    inputmode="numeric"
-                    aria-label="ورود شماره قبلی"
-                  />
+                  <div class="input-wrapper">
+                    <input
+                      type="text"
+                      id="oldNumberInput"
+                      placeholder="---- --- ----"
+                      autocomplete="off"
+                      maxlength="13"
+                      inputmode="numeric"
+                      aria-label="ورود شماره قبلی"
+                    />
+                    <span
+                      class="copy-icon"
+                      onclick="copyField('oldNumberInput')"
+                      title="کپی کردن"
+                      >📋</span
+                    >
+                  </div>
                   <div id="oldNumberMessage" class="input-message"></div>
                 </div>
                 <div class="form-group">
                   <label for="newNumberInput">📲 شماره جدید</label>
-                  <input
-                    type="text"
-                    id="newNumberInput"
-                    placeholder="---- --- ----"
-                    autocomplete="off"
-                    maxlength="13"
-                    inputmode="numeric"
-                    aria-label="ورود شماره جدید"
-                  />
+                  <div class="input-wrapper">
+                    <input
+                      type="text"
+                      id="newNumberInput"
+                      placeholder="---- --- ----"
+                      autocomplete="off"
+                      maxlength="13"
+                      inputmode="numeric"
+                      aria-label="ورود شماره جدید"
+                    />
+                    <span
+                      class="copy-icon"
+                      onclick="copyField('newNumberInput')"
+                      title="کپی کردن"
+                      >📋</span
+                    >
+                  </div>
                   <div id="newNumberMessage" class="input-message"></div>
                 </div>
               </div>
@@ -394,6 +457,48 @@
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script>
+      // --- START: Added function to copy field content ---
+      function copyField(inputId) {
+        const input = document.getElementById(inputId);
+        // Copy the raw value without spaces
+        const valueToCopy = input.value.replace(/\s/g, "").trim();
+        const icon = input.nextElementSibling; // The copy icon span
+
+        if (!valueToCopy) {
+          // Show feedback if field is empty
+          icon.innerText = "❗";
+          icon.classList.add("copied");
+          setTimeout(() => {
+            icon.innerText = "📋";
+            icon.classList.remove("copied");
+          }, 1500);
+          return;
+        }
+
+        navigator.clipboard
+          .writeText(valueToCopy)
+          .then(() => {
+            // Success feedback
+            icon.innerText = "✅";
+            icon.classList.add("copied");
+            setTimeout(() => {
+              icon.innerText = "📋";
+              icon.classList.remove("copied");
+            }, 1500);
+          })
+          .catch((err) => {
+            // Error feedback
+            console.error("خطا در کپی کردن متن: ", err);
+            icon.innerText = "❌";
+            icon.classList.add("copied");
+            setTimeout(() => {
+              icon.innerText = "📋";
+              icon.classList.remove("copied");
+            }, 1500);
+          });
+      }
+      // --- END: Added function ---
+
       function normalizeDigits(text) {
         return text.replace(/[۰-۹]/g, (d) =>
           "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString()
