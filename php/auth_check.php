@@ -66,7 +66,7 @@ function base64url_encode($data) {
 //================================================
 
 // لیست یوزرنیم‌های مجاز به عنوان ادمین
-$adminUsernames = ["abolfazl", "m.pourmosa", "m.samyari", "ehsan.jafari", "aida.akbari", "a.jamshidvand", "a.sadeghianmajd"];
+$adminUsernames = ["abolfazl", "f.alavimoghaddam","m.pourmosa", "h.mohammadalizadeh","m.samyari", "ehsan.jafari", "aida.akbari", "a.jamshidvand", "a.sadeghianmajd"];
 
 $is_authorized = false;
 
