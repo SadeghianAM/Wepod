@@ -226,17 +226,17 @@ require __DIR__ . '/../php/auth_check.php';
             <h2>🛠️ ابزارها</h2>
             <div class="card-content">
               <ul class="tools-grid" id="tools-list">
-                <li><a href="/admin/status.html">ویرایش وضعیت سرویس ها</a></li>
-                <li><a href="/admin/news.html">ویرایش اطلاعیه ها</a></li>
-                <li><a href="/admin/wiki.html">ویرایش ویکی</a></li>
+                <li><a href="/admin/status.php">ویرایش وضعیت سرویس ها</a></li>
+                <li><a href="/admin/news.php">ویرایش اطلاعیه ها</a></li>
+                <li><a href="/admin/wiki.php">ویرایش ویکی</a></li>
                 <li>
-                  <a href="/admin/process_shifts.html"
+                  <a href="/admin/process_shifts.php"
                     >به‌روزرسانی برنامه شیفت‌ها</a
                   >
                 </li>
-                <li><a href="/admin/admin-shifts.html">مدیریت شیفت ها</a></li>
+                <li><a href="/admin/admin-shifts.php">مدیریت شیفت ها</a></li>
 
-                <li><a href="/admin/hash-tool.html">ابزار تولید هش</a></li>
+                <li><a href="/admin/hash-tool.php">ابزار تولید هش</a></li>
               </ul>
             </div>
           </div>
