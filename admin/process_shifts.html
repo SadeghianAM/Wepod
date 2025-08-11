@@ -16,6 +16,8 @@
         --primary-color: #00ae70;
         --primary-dark: #089863;
         --primary-light: #e6f7f2;
+        --danger-color: #dc3545;
+        --danger-dark: #c82333;
         --bg-color: #f8fcf9;
         --text-color: #222;
         --secondary-text-color: #555;
@@ -130,8 +132,12 @@
         border-color: var(--primary-color);
         outline: none;
       }
-      button[type="submit"] {
-        background-color: var(--primary-color);
+      .form-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem; /* فاصله بین دکمه‌ها */
+      }
+      button {
         color: white;
         padding: 12px 20px;
         border: none;
@@ -141,11 +147,26 @@
         font-weight: 600;
         display: block;
         width: 100%;
-        box-shadow: 0 4px 10px var(--shadow-color-medium);
         transition: background-color 0.2s, transform 0.2s;
       }
-      button[type="submit"]:hover {
+      button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      button[type="submit"] {
+        background-color: var(--primary-color);
+        box-shadow: 0 4px 10px var(--shadow-color-medium);
+      }
+      button[type="submit"]:hover:not(:disabled) {
         background-color: var(--primary-dark);
+        transform: translateY(-2px);
+      }
+      .button-danger {
+        background-color: var(--danger-color);
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+      }
+      .button-danger:hover:not(:disabled) {
+        background-color: var(--danger-dark);
         transform: translateY(-2px);
       }
       .response-message {
@@ -186,7 +207,13 @@
             required
             placeholder="اطلاعات برنامه را اینجا وارد کنید..."
           ></textarea>
-          <button type="submit">ذخیره تغییرات</button>
+
+          <div class="form-actions">
+            <button type="submit">ذخیره تغییرات</button>
+            <button type="button" id="clearButton" class="button-danger">
+              پاک کردن کل اطلاعات
+            </button>
+          </div>
         </form>
 
         <div id="response" class="response-message"></div>
@@ -195,18 +222,21 @@
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script>
+      // Listener for the main form submission (update/save)
       document
         .getElementById("shiftForm")
         .addEventListener("submit", async function (e) {
-          e.preventDefault(); // جلوگیری از رفرش صفحه
+          e.preventDefault(); // Prevent page refresh
 
           const form = e.target;
           const formData = new FormData(form);
           const responseDiv = document.getElementById("response");
           const submitButton = form.querySelector('button[type="submit"]');
+          const clearButton = document.getElementById("clearButton");
 
-          responseDiv.style.display = "none"; // مخفی کردن پیام قبلی
+          responseDiv.style.display = "none";
           submitButton.disabled = true;
+          clearButton.disabled = true;
           submitButton.textContent = "در حال ذخیره...";
 
           try {
@@ -234,7 +264,66 @@
             responseDiv.style.display = "block";
           } finally {
             submitButton.disabled = false;
+            clearButton.disabled = false;
             submitButton.textContent = "ذخیره تغییرات";
+          }
+        });
+
+      // Listener for the clear data button
+      document
+        .getElementById("clearButton")
+        .addEventListener("click", async function (e) {
+          if (
+            !confirm(
+              "آیا از پاک کردن تمام اطلاعات مطمئن هستید؟ این عمل غیرقابل بازگشت است."
+            )
+          ) {
+            return;
+          }
+
+          const responseDiv = document.getElementById("response");
+          const clearButton = e.target;
+          const submitButton = document.querySelector(
+            '#shiftForm button[type="submit"]'
+          );
+
+          responseDiv.style.display = "none";
+          clearButton.disabled = true;
+          submitButton.disabled = true;
+          clearButton.textContent = "در حال پاک‌سازی...";
+
+          // Prepare data with an 'action' key to be identified by PHP
+          const formData = new FormData();
+          formData.append("action", "clear");
+
+          try {
+            const response = await fetch("/php/process_shifts.php", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error(`خطای سرور: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            responseDiv.textContent = result.message;
+            if (result.success) {
+              responseDiv.className = "response-message success";
+              document.getElementById("schedule_data").value = ""; // Clear textarea on success
+            } else {
+              responseDiv.className = "response-message error";
+            }
+            responseDiv.style.display = "block";
+          } catch (error) {
+            responseDiv.textContent = `یک خطای غیرمنتظره رخ داد: ${error.message}`;
+            responseDiv.className = "response-message error";
+            responseDiv.style.display = "block";
+          } finally {
+            clearButton.disabled = false;
+            submitButton.disabled = false;
+            clearButton.textContent = "پاک کردن کل اطلاعات";
           }
         });
     </script>

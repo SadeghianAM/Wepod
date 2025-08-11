@@ -1,14 +1,31 @@
 <?php
-// Set headers to return JSON
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-cache, must-revalidate');
+
+$filePath = __DIR__ . '/shifts.json';
 
 // --- Main execution block ---
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'message' => 'متد درخواست باید POST باشد.']);
     exit;
 }
 
+// Check for the 'clear' action first
+if (isset($_POST['action']) && $_POST['action'] === 'clear') {
+    try {
+        clearMasterJsonFile($filePath);
+        echo json_encode(['success' => true, 'message' => 'تمام اطلاعات با موفقیت پاک شد.']);
+    } catch (Exception $e) {
+        http_response_code(500); // Internal Server Error
+        echo json_encode(['success' => false, 'message' => 'خطا در پاک کردن فایل: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// If not clearing, proceed with the update logic
 if (empty($_POST['schedule_data'])) {
+    http_response_code(400); // Bad Request
     echo json_encode(['success' => false, 'message' => 'هیچ اطلاعاتی برای پردازش ارسال نشده است.']);
     exit;
 }
@@ -16,13 +33,29 @@ if (empty($_POST['schedule_data'])) {
 try {
     $rawText = $_POST['schedule_data'];
     $newExpertsData = parseScheduleText($rawText);
-    updateMasterJsonFile($newExpertsData);
+    updateMasterJsonFile($filePath, $newExpertsData);
 
     $count = count($newExpertsData);
     echo json_encode(['success' => true, 'message' => "عملیات موفقیت‌آمیز بود. اطلاعات {$count} کارشناس به‌روزرسانی شد."]);
 
 } catch (Exception $e) {
+    http_response_code(400); // Bad Request, as it's likely a data format issue
     echo json_encode(['success' => false, 'message' => 'خطا: ' . $e->getMessage()]);
+}
+
+/**
+ * Clears the master JSON file by writing an empty expert list to it.
+ * @param string $filePath The path to the JSON file.
+ * @throws Exception If file operations fail.
+ */
+function clearMasterJsonFile(string $filePath) {
+    $emptyStructure = ['experts' => []];
+    $jsonOutput = json_encode($emptyStructure, JSON_PRETTY_PRINT);
+
+    // file_put_contents with LOCK_EX is a concise and safe way to write
+    if (file_put_contents($filePath, $jsonOutput, LOCK_EX) === false) {
+        throw new Exception("امکان نوشتن در فایل {$filePath} وجود ندارد.");
+    }
 }
 
 /**
@@ -58,13 +91,13 @@ function parseScheduleText(string $text): array {
         if (empty(trim($rowStr))) continue;
 
         $cells = explode("\t", trim($rowStr));
+        if (count($cells) < 4) continue; // Skip malformed rows
 
-        // **UPDATED LOGIC HERE**
         $id = trim($cells[0]);
         $shiftTime = trim($cells[1]);
         $name = trim($cells[2]);
-        $breakTime = trim($cells[3]); // <-- New field for break time
-        $scheduleStatuses = array_slice($cells, 4); // <-- Start slicing from index 4
+        $breakTime = trim($cells[3]);
+        $scheduleStatuses = array_slice($cells, 4);
 
         if (empty($id) || empty($name)) continue;
 
@@ -83,7 +116,7 @@ function parseScheduleText(string $text): array {
             'id' => $id,
             'name' => $name,
             'shifts-time' => $shiftTime,
-            'break-time' => $breakTime, // <-- Storing the new field
+            'break-time' => $breakTime,
             'shifts' => $shifts
         ];
     }
@@ -92,11 +125,11 @@ function parseScheduleText(string $text): array {
 
 /**
  * Reads the master JSON file, updates it with new data, and writes it back.
+ * @param string $filePath The path to the JSON file.
  * @param array $newExpertsData An associative array of new expert data keyed by ID.
  * @throws Exception If file operations fail.
  */
-function updateMasterJsonFile(array $newExpertsData) {
-    $filePath = 'shifts.json';
+function updateMasterJsonFile(string $filePath, array $newExpertsData) {
     $masterData = ['experts' => []];
 
     // File locking to prevent race conditions
@@ -105,40 +138,35 @@ function updateMasterJsonFile(array $newExpertsData) {
         throw new Exception("امکان باز کردن فایل {$filePath} وجود ندارد.");
     }
 
-    // Lock file for exclusive writing
     if (!flock($fileHandle, LOCK_EX)) {
         fclose($fileHandle);
         throw new Exception("امکان قفل کردن فایل {$filePath} وجود ندارد.");
     }
 
-    $fileContents = fread($fileHandle, filesize($filePath) ?: 1);
-    if (!empty($fileContents)) {
-        $decodedData = json_decode($fileContents, true);
-        if (json_last_error() === JSON_ERROR_NONE && isset($decodedData['experts'])) {
-            $masterData = $decodedData;
+    $fileSize = filesize($filePath);
+    if ($fileSize > 0) {
+        $fileContents = fread($fileHandle, $fileSize);
+        if (!empty($fileContents)) {
+            $decodedData = json_decode($fileContents, true);
+            if (json_last_error() === JSON_ERROR_NONE && isset($decodedData['experts'])) {
+                $masterData = $decodedData;
+            }
         }
     }
 
-    // Create an associative array of master experts by ID for efficient updates
     $masterExpertsById = array_column($masterData['experts'], null, 'id');
 
-    // Update or insert new data
     foreach ($newExpertsData as $id => $expert) {
         $masterExpertsById[$id] = $expert;
     }
 
-    // Convert back to a zero-indexed array for proper JSON array format
     $masterData['experts'] = array_values($masterExpertsById);
-
-    // Prepare JSON for writing
     $jsonOutput = json_encode($masterData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-    // Write updated content back to the file
-    ftruncate($fileHandle, 0); // Clear the file
-    rewind($fileHandle);       // Move pointer to the beginning
+    ftruncate($fileHandle, 0);
+    rewind($fileHandle);
     fwrite($fileHandle, $jsonOutput);
 
-    // Release lock and close
     flock($fileHandle, LOCK_UN);
     fclose($fileHandle);
 }
