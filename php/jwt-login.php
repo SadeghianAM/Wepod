@@ -85,7 +85,6 @@ http_response_code(401); // Unauthorized
 echo json_encode(['message' => 'نام کاربری یا رمز عبور اشتباه است.']);
 
 
-// توابع ساخت JWT
 function create_jwt($payload, $secret) {
     $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
     $body = base64url_encode(json_encode($payload));
