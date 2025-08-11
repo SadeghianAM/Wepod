@@ -1,5 +1,12 @@
 [
   {
+    "id": 100,
+    "name": "حسین محمدعلی زاده",
+    "username": "h.mohammadalizadeh",
+    "Start date of work": "1401/04/11",
+    "password_hash": "$2y$10$sZXlo/PbgJ5FtHersopvC.Q/Q2QvxtwI6gh1nGupn8e5aMKCLqucu"
+  },
+  {
     "id": 108,
     "name": "آیدا اکبری",
     "username": "aida.akbari",
