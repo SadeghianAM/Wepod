@@ -327,7 +327,6 @@
 
       async function initializePage() {
         // --- بخش فعال‌سازی احراز هویت ---
-        // تابع امنیتی شما در اینجا فراخوانی می‌شود تا صفحه را محافظت کند
         try {
           protectPage([
             "abolfazl",
@@ -472,7 +471,7 @@
         }
 
         try {
-          const response = await fetch("/api/update-shift.php", {
+          const response = await fetch("/php/update-shift.php", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -492,6 +491,7 @@
 
           alert(result.message);
           closeEditModal();
+          // initializePage را فراخوانی می‌کنیم تا جدول با داده‌های جدید رفرش شود
           initializePage();
         } catch (error) {
           console.error("Error updating shift:", error);
@@ -542,6 +542,9 @@
             } else if (status === "off") {
               statusClass = "status-off";
               statusText = "عدم حضور";
+            } else if (status === "leave") {
+              statusClass = "status-special";
+              statusText = "مرخصی";
             } else if (status === "unknown") {
               statusClass = "status-unknown";
               statusText = "-";

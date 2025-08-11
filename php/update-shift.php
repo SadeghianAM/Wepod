@@ -94,8 +94,8 @@ function parseScheduleText(string $text): array {
     $currentYear = date('Y');
     $formattedDates = [];
     foreach ($gregorianDatesRaw as $dateStr) {
-        // This part might need adjustment based on the exact format from copy-paste
-        // Assuming format like "11-Aug"
+        // این بخش ممکن است نیاز به تنظیم بر اساس فرمت دقیق کپی و پیست داشته باشد
+        // با فرض فرمتی مانند "11-Aug"
         $dateObj = DateTime::createFromFormat('d-M', trim($dateStr));
         if ($dateObj) {
             $formattedDates[] = $dateObj->format($currentYear . '-m-d');
@@ -192,12 +192,17 @@ try {
     // حالت دوم: ویرایش تکی از طریق مودال تعاملی
     } else {
         $input = json_decode(file_get_contents('php://input'), true);
-        if (json_last_error() !== JSON_ERROR_NONE && isset($input['expertId'], $input['date'], $input['status'])) {
+
+        // --- بلوک اصلاح شده ---
+        // اگر JSON معتبر بود و تمام کلیدهای لازم وجود داشتند، ادامه بده
+        if (json_last_error() === JSON_ERROR_NONE && isset($input['expertId'], $input['date'], $input['status'])) {
             updateSingleShift($filePath, $input['expertId'], $input['date'], $input['status']);
             echo json_encode(['success' => true, 'message' => 'شیفت با موفقیت به‌روزرسانی شد.']);
         } else {
-             throw new Exception('درخواست نامعتبر است. هیچ داده‌ای برای پردازش یافت نشد.');
+            // در غیر این صورت، خطا بده
+            throw new Exception('درخواست نامعتبر است. داده‌های ارسالی ناقص یا با فرمت اشتباه است.');
         }
+        // --- پایان بلوک اصلاح شده ---
     }
 
 } catch (Exception $e) {
