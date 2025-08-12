@@ -365,7 +365,7 @@ require __DIR__ . '/../php/auth_check.php';
       </div>
 
       <div id="item-list" class="main-content"></div>
-      <a href="/admin/index.html" class="back-link">بازگشت به بخش مدیریت</a>
+      <a href="/admin/index.php" class="back-link">بازگشت به بخش مدیریت</a>
     </main>
 
     <div id="itemModal" class="modal">
