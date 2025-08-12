@@ -242,6 +242,11 @@
                 <div class="lesson-title">📽️ بانکداری ویدیویی</div>
               </div>
             </a>
+            <a href="/learn/physical-card.html" class="lesson-link">
+              <div class="lesson-box">
+                <div class="lesson-title">📽️ کارت فیزیکی</div>
+              </div>
+            </a>
             <a href="/learn/loan-marriage.html" class="lesson-link">
               <div class="lesson-box">
                 <div class="lesson-title">
@@ -273,24 +278,7 @@
     </main>
 
     <div id="footer-placeholder"></div>
-
-    <script>
-      fetch("/header.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("header-placeholder").innerHTML = data;
-          setupHeader("آموزش‌های بخش پشتیانی مشتریان");
-        });
-    </script>
-    <script>
-      fetch("/footer.html")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("footer-placeholder").innerHTML = data;
-        });
-    </script>
     <script src="/js/header.js"></script>
-
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const searchInput = document.getElementById("lesson-search");
