@@ -527,7 +527,6 @@
         renderMyShiftView(userShiftData);
       }
 
-      // --- START: MODIFIED FUNCTION ---
       function renderMyShiftView(userData) {
         const container = document.getElementById("my-shift-view");
         const monthName = currentCalendarDate.toLocaleDateString("fa-IR", {
@@ -545,7 +544,6 @@
         const hasPrevShifts = hasShiftsInMonth(prevMonthDate, userData.shifts);
         const hasNextShifts = hasShiftsInMonth(nextMonthDate, userData.shifts);
 
-        // --- Logic to determine break label ---
         const breakTime = userData["break-time"];
         let breakLabel = "ساعت استراحت";
         let breakValue = breakTime || "تعیین نشده";
@@ -560,27 +558,26 @@
             }
           }
         }
-        // --- End of break label logic ---
 
         container.innerHTML = `
-            <h1>تقویم شیفت من</h1>
-            <div id="user-shift-info">
-                <p>کارشناس: <span>${userData.name}</span></p>
-                <p>ساعت شیفت: <span>${
-                  userData["shifts-time"] || "تعیین نشده"
-                }</span></p>
-                <p>${breakLabel}: <span>${breakValue}</span></p>
-            </div>
-            <div id="calendar-controls">
-                <button id="prev-month" ${
-                  hasPrevShifts ? "" : "disabled"
-                }>&rarr; ماه قبل</button>
-                <span id="current-month-year">${monthName} ${year}</span>
-                <button id="next-month" ${
-                  hasNextShifts ? "" : "disabled"
-                }>ماه بعد &larr;</button>
-            </div>
-            <div id="calendar-container"></div>`;
+                <h1>تقویم شیفت من</h1>
+                <div id="user-shift-info">
+                    <p>کارشناس: <span>${userData.name}</span></p>
+                    <p>ساعت شیفت: <span>${
+                      userData["shifts-time"] || "تعیین نشده"
+                    }</span></p>
+                    <p>${breakLabel}: <span>${breakValue}</span></p>
+                </div>
+                <div id="calendar-controls">
+                    <button id="prev-month" ${
+                      hasPrevShifts ? "" : "disabled"
+                    }>&rarr; ماه قبل</button>
+                    <span id="current-month-year">${monthName} ${year}</span>
+                    <button id="next-month" ${
+                      hasNextShifts ? "" : "disabled"
+                    }>ماه بعد &larr;</button>
+                </div>
+                <div id="calendar-container"></div>`;
 
         document.getElementById("prev-month").addEventListener("click", () => {
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
@@ -592,7 +589,6 @@
         });
         renderCalendar(currentCalendarDate, userData.shifts);
       }
-      // --- END: MODIFIED FUNCTION ---
 
       function jalaliToGregorian(jy, jm, jd) {
         var sal_a, gy, gm, gd, days;
@@ -642,6 +638,7 @@
         return parts.map((part) => parseInt(part, 10));
       }
 
+      // --- START: MODIFIED FUNCTION ---
       function renderCalendar(date, shiftsData) {
         const container = document.getElementById("calendar-container");
         const weekDays = [
@@ -687,38 +684,48 @@
           const d = String(loopDate.getDate()).padStart(2, "0");
           const dateString = `${y}-${m}-${d}`;
           const status = shiftsData[dateString] || "unknown";
+
           let statusClass = "",
             statusText = "";
+
+          // *** CHANGE IS HERE ***
           if (status === "on-duty") {
             statusClass = "status-on-duty";
             statusText = "حضور";
           } else if (status === "off") {
             statusClass = "status-off";
             statusText = "عدم حضور";
+          } else if (status === "leave") {
+            // Condition added for 'leave'
+            statusClass = "status-special";
+            statusText = "مرخصی";
           } else if (status !== "unknown") {
+            // This now handles other special statuses
             statusClass = "status-special";
             statusText = status;
           }
+          // *** END OF CHANGE ***
+
           html += `<div class="calendar-day ${
             isOtherMonth ? "other-month" : ""
           }">
-                        <div class="day-number">${loopDate.toLocaleDateString(
-                          "fa-IR",
-                          { day: "numeric" }
-                        )}</div>
-                        ${
-                          statusText
-                            ? `<div class="shift-info ${statusClass}">${statusText}</div>`
-                            : ""
-                        }
-                     </div>`;
+                              <div class="day-number">${loopDate.toLocaleDateString(
+                                "fa-IR",
+                                { day: "numeric" }
+                              )}</div>
+                              ${
+                                statusText
+                                  ? `<div class="shift-info ${statusClass}">${statusText}</div>`
+                                  : ""
+                              }
+                           </div>`;
           loopDate.setDate(loopDate.getDate() + 1);
         }
         html += "</div>";
         container.innerHTML = html;
       }
+      // --- END: MODIFIED FUNCTION ---
 
-      // Original functions are collapsed here for brevity. They are unchanged.
       function getShiftStyle(shiftTime) {
         if (!shiftTime) {
           return "";
@@ -729,13 +736,16 @@
         }
         return `style="background-color: ${shiftColorMap.get(shiftTime)};"`;
       }
+
       function populateFilterControls() {
         const t = document.getElementById("expertSelect1"),
           e = document.getElementById("expertSelect2");
         let l = '<option value="none">-- هیچکدام --</option>';
-        allExperts.forEach((t) => {
-          l += `<option value="${t.id}">${t.name}</option>`;
-        }),
+        allExperts
+          .sort((a, b) => a.name.localeCompare(b.name, "fa"))
+          .forEach((t) => {
+            l += `<option value="${t.id}">${t.name}</option>`;
+          }),
           (t.innerHTML = l),
           (e.innerHTML = l),
           (t.value = "none"),
@@ -744,13 +754,29 @@
         allExperts.forEach((t) => {
           Object.keys(t.shifts).forEach((t) => n.add(t));
         }),
-          (allAvailableDates = Array.from(n).sort()),
-          allAvailableDates.length > 0 &&
-            ((document.getElementById("startDate").value =
-              allAvailableDates[0]),
-            (document.getElementById("endDate").value =
-              allAvailableDates[allAvailableDates.length - 1]));
+          (allAvailableDates = Array.from(n).sort());
+
+        if (allAvailableDates.length > 0) {
+          const today = new Date();
+          const firstDayOfMonth = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+          )
+            .toISOString()
+            .split("T")[0];
+          const lastDayOfMonth = new Date(
+            today.getFullYear(),
+            today.getMonth() + 1,
+            0
+          )
+            .toISOString()
+            .split("T")[0];
+          document.getElementById("startDate").value = firstDayOfMonth;
+          document.getElementById("endDate").value = lastDayOfMonth;
+        }
       }
+
       function applyFilters() {
         const t = document.getElementById("startDate").value,
           e = document.getElementById("endDate").value,
@@ -760,56 +786,83 @@
         "none" !== l && o.add(l), "none" !== n && o.add(n);
         const a = allAvailableDates.filter((l) => l >= t && l <= e);
         let r =
-          o.size > 0 ? allExperts.filter((t) => o.has(t.id)) : [...allExperts];
+          o.size > 0
+            ? allExperts.filter((t) => o.has(String(t.id)))
+            : [...allExperts];
         r.sort((t, e) =>
           (t["shifts-time"] || "").localeCompare(e["shifts-time"] || "")
         ),
           renderTable(r, a);
       }
-      function renderTable(t, e) {
-        const l = document.getElementById("schedule-container"),
-          n = document.getElementById("loader");
-        if (!t || 0 === t.length || !e || 0 === e.length)
-          return (
-            (l.innerHTML = ""),
-            (n.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد."),
-            void (n.style.display = "block")
-          );
-        let o =
+
+      // --- START: MODIFIED FUNCTION ---
+      function renderTable(experts, dates) {
+        const container = document.getElementById("schedule-container");
+        const loader = document.getElementById("loader");
+
+        if (!experts || experts.length === 0 || !dates || dates.length === 0) {
+          container.innerHTML = "";
+          loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
+          loader.style.display = "block";
+          return;
+        }
+
+        let tableHtml =
           "<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>";
-        e.forEach((t) => {
-          const e = new Date(t),
-            l = e.toLocaleDateString("fa-IR", { day: "numeric" }),
-            n = e.toLocaleDateString("fa-IR", { month: "short" }),
-            a = e.toLocaleDateString("fa-IR", { weekday: "short" });
-          o += `<th>${a}<br>${l} ${n}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${t}</span></th>`;
-        }),
-          (o += "</tr></thead><tbody>"),
-          t.forEach((t) => {
-            const l = t["shifts-time"],
-              n = getShiftStyle(l),
-              a = t["break-time"] || "-";
-            (o += `<tr><td>${t.name}</td><td ${n}>${
-              l || "-"
-            }</td><td>${a}</td>`),
-              e.forEach((e) => {
-                let l = "",
-                  n = t.shifts[e] || "unknown";
-                "on-duty" === n
-                  ? ((l = "status-on-duty"), (n = "حضور"))
-                  : "off" === n
-                  ? ((l = "status-off"), (n = "عدم حضور"))
-                  : "unknown" === n
-                  ? ((l = "status-unknown"), (n = "-"))
-                  : (l = "status-special"),
-                  (o += `<td><span class="status ${l}">${n}</span></td>`);
-              }),
-              (o += "</tr>");
-          }),
-          (o += "</tbody></table>"),
-          (l.innerHTML = o),
-          (n.style.display = "none");
+
+        dates.forEach((date) => {
+          const d = new Date(date);
+          const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
+          const month = d.toLocaleDateString("fa-IR", { month: "short" });
+          const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
+          tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
+        });
+
+        tableHtml += "</tr></thead><tbody>";
+
+        experts.forEach((expert) => {
+          const shiftTime = expert["shifts-time"];
+          const shiftStyle = getShiftStyle(shiftTime);
+          const breakTime = expert["break-time"] || "-";
+          tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${
+            shiftTime || "-"
+          }</td><td>${breakTime}</td>`;
+
+          dates.forEach((date) => {
+            let statusClass = "";
+            let statusText = expert.shifts[date] || "unknown";
+
+            // *** CHANGE IS HERE ***
+            if (statusText === "on-duty") {
+              statusClass = "status-on-duty";
+              statusText = "حضور";
+            } else if (statusText === "off") {
+              statusClass = "status-off";
+              statusText = "عدم حضور";
+            } else if (statusText === "leave") {
+              // Condition added for 'leave'
+              statusClass = "status-special";
+              statusText = "مرخصی";
+            } else if (statusText === "unknown") {
+              statusClass = "status-unknown";
+              statusText = "-";
+            } else {
+              // This handles other special statuses
+              statusClass = "status-special";
+            }
+            // *** END OF CHANGE ***
+
+            tableHtml += `<td><span class="status ${statusClass}">${statusText}</span></td>`;
+          });
+
+          tableHtml += "</tr>";
+        });
+
+        tableHtml += "</tbody></table>";
+        container.innerHTML = tableHtml;
+        loader.style.display = "none";
       }
+      // --- END: MODIFIED FUNCTION ---
     </script>
   </body>
 </html>
