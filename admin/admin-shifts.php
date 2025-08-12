@@ -56,8 +56,6 @@ require __DIR__ . '/../php/auth_check.php';
         text-align: center;
         font-weight: 700;
       }
-
-      /* --- Filters --- */
       .filters-container {
         background-color: #f1f3f5;
         padding: 1.5rem;
@@ -85,8 +83,6 @@ require __DIR__ . '/../php/auth_check.php';
         font-size: 1rem;
         width: 100%;
       }
-
-      /* --- Table Styles --- */
       .table-container {
         width: 100%;
         overflow-x: auto;
@@ -128,8 +124,6 @@ require __DIR__ . '/../php/auth_check.php';
         background-color: #ffe0b2;
         box-shadow: inset 0 0 0 2px var(--primary-dark);
       }
-
-      /* --- Status Styles --- */
       .status {
         padding: 0.5em 0.7em;
         border-radius: 0.3rem;
@@ -157,8 +151,6 @@ require __DIR__ . '/../php/auth_check.php';
         font-size: 1.2rem;
         padding: 3rem;
       }
-
-      /* --- Modal Styles --- */
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -253,6 +245,24 @@ require __DIR__ . '/../php/auth_check.php';
       .modal-footer .btn-cancel:hover {
         background-color: #5a6268;
       }
+      .summary-separator td {
+        background-color: #e9ecef;
+        font-weight: bold;
+        color: #495057;
+        border-top: 2px solid var(--primary-dark);
+        padding: 0.8rem;
+      }
+      .summary-row td:first-child {
+        text-align: right;
+        padding-right: 1.5rem;
+        font-weight: 600;
+        color: #333; /* رنگ متن برای خوانایی بهتر روی پس‌زمینه رنگی */
+      }
+      .summary-count {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary-dark);
+      }
     </style>
   </head>
   <body>
@@ -296,7 +306,9 @@ require __DIR__ . '/../php/auth_check.php';
               <option value="on-duty">حضور</option>
               <option value="off">عدم حضور</option>
               <option value="leave">مرخصی</option>
-              <option value="custom">سایر موارد (در کادر زیر بنویسید)</option>
+              <option value="custom">
+                سایر موارد (در کادر زیر بنویسید)
+              </option>
             </select>
           </div>
           <div
@@ -325,10 +337,20 @@ require __DIR__ . '/../php/auth_check.php';
       const modal = document.getElementById("edit-shift-modal");
       let currentEditingInfo = { expertId: null, date: null };
 
+      const shiftColorMap = new Map();
+      const colorPalette = [
+        "#E3F2FD",
+        "#E8F5E9",
+        "#FFF3E0",
+        "#F3E5F5",
+        "#FFEBEE",
+        "#E0F7FA",
+      ];
+      let nextColorIndex = 0;
+
       document.addEventListener("DOMContentLoaded", initializePage);
 
       async function initializePage() {
-
         const loader = document.getElementById("loader");
         loader.style.display = "block";
         try {
@@ -472,7 +494,6 @@ require __DIR__ . '/../php/auth_check.php';
 
           alert(result.message);
           closeEditModal();
-          // initializePage را فراخوانی می‌کنیم تا جدول با داده‌های جدید رفرش شود
           initializePage();
         } catch (error) {
           console.error("Error updating shift:", error);
@@ -480,69 +501,197 @@ require __DIR__ . '/../php/auth_check.php';
         }
       }
 
+      function getShiftStyle(shiftTime) {
+        if (!shiftTime) {
+          return "";
+        }
+        if (!shiftColorMap.has(shiftTime)) {
+          shiftColorMap.set(shiftTime, colorPalette[nextColorIndex]);
+          nextColorIndex = (nextColorIndex + 1) % colorPalette.length;
+        }
+        return `style="background-color: ${shiftColorMap.get(shiftTime)};"`;
+      }
+
       function renderTable(expertsToRender, datesToRender) {
         const container = document.getElementById("schedule-container");
         const loader = document.getElementById("loader");
 
         if (
-          !expertsToRender ||
-          expertsToRender.length === 0 ||
-          !datesToRender ||
-          datesToRender.length === 0
+            !expertsToRender ||
+            expertsToRender.length === 0 ||
+            !datesToRender ||
+            datesToRender.length === 0
         ) {
-          container.innerHTML = "";
-          loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
-          loader.style.display = "block";
-          return;
+            container.innerHTML = "";
+            loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
+            loader.style.display = "block";
+            return;
         }
 
-        let tableHtml =
-          "<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>";
+        const dailyOnDutyCounts = {};
+        const dailyOffDutyCounts = {};
+        const dailyLeaveCounts = {};
+        const totalOnDutyByDate = {};
+        const totalOffDutyByDate = {};
+        const totalLeaveByDate = {};
+
+
+        const uniqueShiftTimes = [
+            ...new Set(
+                expertsToRender.map((e) => e["shifts-time"]).filter(Boolean)
+            ),
+        ].sort();
+
         datesToRender.forEach((date) => {
-          const d = new Date(date);
-          const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
-          const month = d.toLocaleDateString("fa-IR", { month: "short" });
-          const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
-          tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
+            dailyOnDutyCounts[date] = {};
+            dailyOffDutyCounts[date] = {};
+            dailyLeaveCounts[date] = {};
+            uniqueShiftTimes.forEach((shift) => {
+                dailyOnDutyCounts[date][shift] = 0;
+                dailyOffDutyCounts[date][shift] = 0;
+                dailyLeaveCounts[date][shift] = 0;
+            });
+
+            totalOnDutyByDate[date] = 0;
+            totalOffDutyByDate[date] = 0;
+            totalLeaveByDate[date] = 0;
+
+            expertsToRender.forEach((expert) => {
+                const status = expert.shifts[date] || "unknown";
+                const shiftTime = expert["shifts-time"];
+
+                if (shiftTime) {
+                    switch (status) {
+                        case 'off':
+                            dailyOffDutyCounts[date][shiftTime]++;
+                            break;
+                        case 'leave':
+                            dailyLeaveCounts[date][shiftTime]++;
+                            break;
+                        case 'unknown':
+                            break;
+                        default:
+                            dailyOnDutyCounts[date][shiftTime]++;
+                            break;
+                    }
+                }
+
+                switch (status) {
+                    case 'off':
+                        totalOffDutyByDate[date]++;
+                        break;
+                    case 'leave':
+                        totalLeaveByDate[date]++;
+                        break;
+                    case 'unknown':
+                        break;
+                    default:
+                        totalOnDutyByDate[date]++;
+                        break;
+                }
+            });
+        });
+
+        let tableHtml =
+            `<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>`;
+        datesToRender.forEach((date) => {
+            const d = new Date(date);
+            const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
+            const month = d.toLocaleDateString("fa-IR", { month: "short" });
+            const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
+            tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
         });
         tableHtml += "</tr></thead><tbody>";
 
         expertsToRender.forEach((expert) => {
-          const shiftTime = expert["shifts-time"] || "-";
-          const breakTime = expert["break-time"] || "-";
-          tableHtml += `<tr><td>${expert.name}</td><td>${shiftTime}</td><td>${breakTime}</td>`;
+            const shiftTime = expert["shifts-time"] || "-";
+            const breakTime = expert["break-time"] || "-";
+            const shiftStyle = getShiftStyle(shiftTime);
 
-          datesToRender.forEach((date) => {
-            const status = expert.shifts[date] || "unknown";
-            let statusClass = "";
-            let statusText = status;
+            tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
 
-            if (status === "on-duty") {
-              statusClass = "status-on-duty";
-              statusText = "حضور";
-            } else if (status === "off") {
-              statusClass = "status-off";
-              statusText = "عدم حضور";
-            } else if (status === "leave") {
-              statusClass = "status-special";
-              statusText = "مرخصی";
-            } else if (status === "unknown") {
-              statusClass = "status-unknown";
-              statusText = "-";
-            } else {
-              statusClass = "status-special";
-            }
+            datesToRender.forEach((date) => {
+                const status = expert.shifts[date] || "unknown";
+                let statusClass = "";
+                let statusText = status;
 
-            tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}" data-current-status="${status}">
-                                  <span class="status ${statusClass}">${statusText}</span>
-                              </td>`;
-          });
-          tableHtml += "</tr>";
+                if (status === "on-duty") {
+                    statusClass = "status-on-duty";
+                    statusText = "حضور";
+                } else if (status === "off") {
+                    statusClass = "status-off";
+                    statusText = "عدم حضور";
+                } else if (status === "leave") {
+                    statusClass = "status-special";
+                    statusText = "مرخصی";
+                } else if (status === "unknown") {
+                    statusClass = "status-unknown";
+                    statusText = "-";
+                } else {
+                    statusClass = "status-special";
+                }
+
+                tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}" data-current-status="${status}">
+                                    <span class="status ${statusClass}">${statusText}</span>
+                                </td>`;
+            });
+            tableHtml += "</tr>";
         });
+
+        const totalColumns = datesToRender.length + 3;
+
+        if (uniqueShiftTimes.length > 0) {
+            tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">خلاصه وضعیت به تفکیک شیفت</td></tr>`;
+            uniqueShiftTimes.forEach((shiftTime) => {
+                const summaryRowStyle = getShiftStyle(shiftTime);
+                tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>حاضرین در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+                datesToRender.forEach((date) => {
+                    const count = dailyOnDutyCounts[date][shiftTime] || 0;
+                    tableHtml += `<td><span class="summary-count">${count}</span></td>`;
+                });
+                tableHtml += `</tr>`;
+
+                tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>عدم حضور در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+                datesToRender.forEach((date) => {
+                    const count = dailyOffDutyCounts[date][shiftTime] || 0;
+                    tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${count}</span></td>`;
+                });
+                tableHtml += `</tr>`;
+
+                tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>مرخصی در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+                datesToRender.forEach((date) => {
+                    const count = dailyLeaveCounts[date][shiftTime] || 0;
+                    tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${count}</span></td>`;
+                });
+                tableHtml += `</tr>`;
+            });
+        }
+
+        tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">جمع‌بندی کل روزانه</td></tr>`;
+
+        tableHtml += `<tr class="summary-row"><td style="background-color: #E8F5E9;">مجموع کل کارشناسان حاضر</td><td>-</td><td>-</td>`;
+        datesToRender.forEach((date) => {
+            tableHtml += `<td><span class="summary-count">${totalOnDutyByDate[date] || 0}</span></td>`;
+        });
+        tableHtml += `</tr>`;
+
+        tableHtml += `<tr class="summary-row"><td style="background-color: #FFEBEE;">مجموع کل عدم حضور</td><td>-</td><td>-</td>`;
+        datesToRender.forEach((date) => {
+            tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${totalOffDutyByDate[date] || 0}</span></td>`;
+        });
+        tableHtml += `</tr>`;
+
+        tableHtml += `<tr class="summary-row"><td style="background-color: #FFF3E0;">مجموع کل مرخصی</td><td>-</td><td>-</td>`;
+        datesToRender.forEach((date) => {
+            tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${totalLeaveByDate[date] || 0}</span></td>`;
+        });
+        tableHtml += `</tr>`;
+
+
         tableHtml += "</tbody></table>";
         container.innerHTML = tableHtml;
         loader.style.display = "none";
-      }
+    }
 
       function populateFilterControls() {
         const expertSelect1 = document.getElementById("expertSelect1");
