@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: خدمات بیمه پاسارگاد - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      /* --- HEADER & FOOTER (Restored from original) --- */
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px; /* <<<< WIDTH INCREASED */
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      /* --- Floating Table of Contents --- */
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      /* --- Article Card --- */
+      .article-card {
+        flex-grow: 1;
+        min-width: 0; /* Prevents flexbox overflow */
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      /* --- Article Typography --- */
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+
+      /* --- Alert Box Component --- */
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      /* --- Back Link (from original) --- */
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#intro">معرفی انواع بیمه</a></li>
+            <li><a href="#third-party">بیمه شخص ثالث</a></li>
+            <li><a href="#addendum">الحاقیه و تغییرات</a></li>
+            <li><a href="#errors">خطاهای متداول</a></li>
+            <li><a href="#credit-purchase">خرید اعتباری بیمه</a></li>
+            <li><a href="#fire-insurance">بیمه آتش‌سوزی</a></li>
+            <li><a href="#travel-insurance">بیمه درمان مسافرت</a></li>
+            <li><a href="#accident-insurance">بیمه حوادث انفرادی</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>⚙️ راهنمای کارشناس: خدمات بیمه پاسارگاد</h2>
+        <div class="card-content">
+          <h3 id="intro">معرفی انواع بیمه پاسارگاد در ویپاد</h3>
+          <p>
+            کاربران می‌توانند از طریق بخش "خدمات" در اپلیکیشن ویپاد، برای خرید
+            بیمه‌نامه‌های پاسارگاد اقدام کنند. فرآیند به گونه‌ای طراحی شده که
+            کاربر با تکمیل اطلاعات، در کمترین زمان ممکن بیمه‌نامه خود را صادر
+            نماید.
+          </p>
+          <p>انواع بیمه‌های قابل ارائه عبارتند از:</p>
+          <ul>
+            <li>بیمه شخص ثالث خودرو</li>
+            <li>بیمه آتش‌سوزی</li>
+            <li>بیمه درمان مسافرت خارجی</li>
+            <li>بیمه حوادث انفرادی</li>
+          </ul>
+
+          <h3 id="third-party">بیمه شخص ثالث</h3>
+          <p>
+            این بیمه برای تمام وسایل نقلیه موتوری زمینی اجباری است. در این
+            قرارداد، شرکت بیمه (شخص ثانی) متعهد می‌شود خسارات مالی و جانی وارد
+            شده به افراد زیان‌دیده در تصادف (اشخاص ثالث) را در صورتی که مالک
+            وسیله نقلیه (شخص اول) مقصر باشد، جبران نماید.
+          </p>
+
+          <h4>مراحل درخواست بیمه شخص ثالث</h4>
+          <p>
+            کاربران برای خرید بیمه شخص ثالث خودرو و موتورسیکلت، دو روش پیش رو
+            دارند:
+          </p>
+          <ol>
+            <li>
+              استعلام بر اساس شماره پلاک، کد ملی و تاریخ تولد بیمه‌گذار قبلی.
+            </li>
+            <li>
+              ورود دستی اطلاعات (در این روش نیز به اطلاعات بیمه‌گذار قبلی نیاز
+              است).
+            </li>
+          </ol>
+
+          <div class="alert-box yellow">
+            <h4>نکته مهم در مورد اطلاعات بیمه‌گذار قبلی</h4>
+            <p>
+              <strong>سوال:</strong> چرا از کد ملی و تاریخ تولد بیمه‌گذار قبلی
+              استفاده می‌شود و نه مالک فعلی خودرو؟
+            </p>
+            <p>
+              <strong>پاسخ:</strong> سیستم بیمه مرکزی برای بازیابی سوابق
+              تخفیفات، به اطلاعات فردی که بیمه‌نامه قبلی به نام او صادر شده
+              (بیمه‌گذار قبلی) نیاز دارد. این اطلاعات روی سند بیمه‌نامه قبلی درج
+              شده است. بیمه‌گذار قبلی ممکن است مالک خودرو باشد یا نباشد.
+            </p>
+          </div>
+
+          <h4>راهنمای گام‌به‌گام درخواست (روش اول)</h4>
+          <p>
+            ۱. <strong>ورود اطلاعات اولیه:</strong> در صفحه اول، کد ملی کاربر
+            ویپادی به صورت پیش‌فرض نمایش داده می‌شود. اگر کاربر برای وسیله نقلیه
+            خود اقدام می‌کند، کافیست شماره پلاک را وارد کرده و ادامه دهد.
+          </p>
+          <p>
+            ۲. <strong>خرید برای شخص دیگر:</strong> اگر کاربر قصد خرید بیمه برای
+            فرد دیگری را دارد، باید اطلاعات (شماره پلاک، کد ملی و تاریخ تولد)
+            مربوط به بیمه‌گذار قبلی را وارد کند.
+          </p>
+          <p>
+            ۳. <strong>تعیین بیمه‌گذار جدید:</strong> به صورت پیش‌فرض، فردی که
+            اطلاعاتش در مرحله قبل وارد شده، به عنوان بیمه‌گذار جدید نیز در نظر
+            گرفته می‌شود. اگر کاربر بخواهد بیمه‌نامه به نام شخص دیگری صادر شود،
+            باید تیک گزینه "این فرد به عنوان بیمه‌گذار جدید در بیمه‌نامه درج
+            شود" را برداشته و کد ملی و تاریخ تولد فرد مورد نظر را وارد نماید.
+          </p>
+          <div class="alert-box green">
+            <p>
+              <strong>نکته:</strong> تمامی اطلاعات کد ملی و تاریخ تولد از ثبت
+              احوال استعلام گرفته می‌شوند و عدم تطابق آن‌ها منجر به نمایش خطا به
+              کاربر خواهد شد.
+            </p>
+          </div>
+          <p>
+            ۴. <strong>مراحل تکمیلی:</strong> در صفحات بعد، کاربر به ترتیب
+            اطلاعات زیر را مشاهده و تکمیل می‌کند:
+          </p>
+          <ul>
+            <li>
+              <b>صفحه دوم:</b> مشاهده اطلاعات بیمه‌گذار قبلی، بعدی و وضعیت
+              تخفیفات.
+            </li>
+            <li><b>صفحه سوم:</b> انتخاب نوع و رنگ خودرو.</li>
+            <li>
+              <b>صفحه چهارم:</b> انتخاب سقف تعهد مالی و مشاهده قیمت نهایی.
+            </li>
+            <li>
+              <b>صفحه پنجم:</b> ثبت اطلاعات پستی برای ارسال نسخه فیزیکی
+              بیمه‌نامه.
+            </li>
+            <li>
+              <b>صفحه ششم:</b> بازبینی جزئیات سفارش و انتقال به سبد خرید برای
+              پرداخت.
+            </li>
+          </ul>
+
+          <h3 id="addendum">الحاقیه: درخواست تغییرات در بیمه‌نامه</h3>
+          <p>
+            اگر کاربری پس از خرید بیمه‌نامه از ویپاد، درخواست تغییراتی مانند
+            افزایش سقف تعهد مالی یا اصلاح اطلاعات را داشته باشد، باید مدارک زیر
+            را برای پشتیبانی ارسال کند:
+          </p>
+          <ul>
+            <li>تصویر کارت خودرو</li>
+            <li>تصویر گواهی‌نامه راننده</li>
+            <li>تصویر بیمه‌نامه فعلی صادر شده از ویپاد</li>
+          </ul>
+          <div class="alert-box yellow">
+            <p>
+              <strong>توجه:</strong> افزایش سقف تعهدات مالی ممکن است شامل هزینه
+              اضافی باشد که باید پیش از اعمال تغییرات به کاربر اطلاع‌رسانی شود.
+            </p>
+            <p>
+              <strong>در صورت تغییر مالکیت خودرو:</strong> علاوه بر مدارک فوق،
+              کاربر باید "تاریخچه پلاک" را نیز از مراکز تعویض پلاک دریافت و
+              تصویر آن را ارسال نماید.
+            </p>
+          </div>
+
+          <h3 id="errors">خطاهای متداول و راهکارها</h3>
+          <div class="alert-box yellow">
+            <h4>خطا: خطای استعلام مبلغ بیمه</h4>
+            <p>
+              <strong>علت:</strong> این خطا زمانی رخ می‌دهد که یک نمایندگی یا
+              سامانه بیمه دیگر، برای کاربر یک استعلام یا پیش‌نویس ثبت کرده باشد.
+              این کار معمولاً توسط بیمه‌گر قبلی و نزدیک به تاریخ انقضای
+              بیمه‌نامه انجام می‌شود تا صدور بیمه در جای دیگر را با مشکل مواجه
+              کند.
+            </p>
+            <p>
+              <strong>راه‌حل:</strong> کاربر باید با همان شرکت یا نمایندگی که
+              پرونده را برای او باز کرده تماس گرفته و درخواست حذف پرونده یا صدور
+              نهایی بیمه‌نامه را ثبت کند. تا زمانی که آن پرونده باز باشد، ویپاد
+              قادر به استعلام نخواهد بود.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>خطا: خطای پیش‌نویس (این پلاک دارای پیش‌نویس است)</h4>
+            <p>
+              <strong>علت:</strong> یک بیمه‌نامه نیمه‌کاره (پیش‌نویس) توسط
+              نمایندگی دیگری برای این خودرو ثبت شده و هنوز نهایی یا حذف نشده
+              است.
+            </p>
+            <p><strong>راه‌حل برای کاربر:</strong></p>
+            <ol>
+              <li>
+                <strong>تماس با نمایندگی ثبت‌کننده:</strong> در پیام خطا،
+                معمولاً کد یا نام نمایندگی مشخص است. کاربر باید با آنجا تماس
+                گرفته و درخواست حذف پیش‌نویس را بدهد.
+              </li>
+              <li>
+                <strong>انتظار برای انقضا:</strong> پیش‌نویس‌ها معمولاً پس از
+                چند روز (مثلاً ۷۲ ساعت) به صورت خودکار منقضی می‌شوند.
+              </li>
+            </ol>
+          </div>
+
+          <h3 id="credit-purchase">خرید اعتباری بیمه</h3>
+          <p>
+            کاربران می‌توانند هزینه بیمه‌نامه خود را تا سقف
+            <strong>۱۲ میلیون تومان</strong> به صورت اعتباری پرداخت کنند.
+          </p>
+          <h4>فرآیند خرید اعتباری</h4>
+          <ol>
+            <li>
+              پس از مشاهده فاکتور نهایی، کاربر گزینه "پرداخت اعتباری" را انتخاب
+              می‌کند.
+            </li>
+            <li>
+              فرآیند اعتبارسنجی با کسر کارمزد
+              <strong>۱۰ هزار تومانی</strong> آغاز می‌شود.
+            </li>
+            <li>
+              در صورت تأیید در اعتبارسنجی، کاربر وارد فرآیند دریافت اعتبار بیمه
+              می‌شود. کارمزد خدمات دیجیتال (۱٪ از مبلغ کل فاکتور) از حساب وی کسر
+              می‌گردد.
+            </li>
+            <li>
+              پس از تایید اعتبار، <strong>۲۵٪</strong> از مبلغ کل بیمه‌نامه به
+              عنوان پیش‌پرداخت از کاربر دریافت می‌شود.
+            </li>
+            <li>
+              مابقی مبلغ در <strong>۳ قسط ماهانه</strong> (شروع از ماه بعد) قابل
+              پرداخت خواهد بود.
+            </li>
+          </ol>
+          <div class="alert-box yellow">
+            <h4>نکات مهم بازپرداخت و تسویه</h4>
+            <p>
+              <strong>تسویه یکجا:</strong> در صورت تسویه یکجا، کل مبلغ اصل بدهی
+              به علاوه کارمزد بانکی (معادل ۲۳٪ سالانه) باید یکجا پرداخت شود.
+            </p>
+            <p>
+              <strong>بازپرداخت مرحله‌ای:</strong> حداقل مبلغ پرداختی در هر قسط،
+              ۲۵٪ از کل بدهی به علاوه سود سالیانه ۲۳٪ است.
+            </p>
+            <p>
+              <strong>محدودیت سقف:</strong> اگر مبلغ بیمه‌نامه از ۱۲ میلیون
+              تومان بیشتر باشد، امکان خرید اعتباری وجود ندارد و کل مبلغ باید
+              نقداً پرداخت شود.
+            </p>
+          </div>
+
+          <h3 id="fire-insurance">بیمه آتش‌سوزی</h3>
+          <p>
+            این بیمه برای منازل مسکونی (آپارتمانی و ویلایی) با شرایط زیر در
+            ویپاد قابل خریداری است:
+          </p>
+          <ul>
+            <li>کاربری ملک "مسکونی" باشد.</li>
+            <li>ملک در محدوده شهری باشد.</li>
+            <li>سازه اسکلت فلزی یا بتنی باشد.</li>
+            <li>عمر بنا کمتر از ۱۵ سال باشد.</li>
+          </ul>
+          <div class="alert-box green">
+            <h4>پوشش‌های اصلی و اضافی</h4>
+            <p>
+              <strong>پوشش‌های اصلی (اجباری):</strong> آتش‌سوزی، انفجار، صاعقه.
+            </p>
+            <p><strong>پوشش‌های اضافی (اختیاری):</strong></p>
+            <ul>
+              <li>زلزله و آتشفشان</li>
+              <li>سقوط هواپیما (در ۵ کیلومتری فرودگاه)</li>
+              <li>طوفان، گردباد و تندباد</li>
+              <li>مسئولیت مالی در قبال همسایگان</li>
+              <li>هزینه پاک‌سازی و جمع‌آوری ضایعات</li>
+            </ul>
+          </div>
+          <div class="alert-box red">
+            <h4>مواردی که تحت پوشش نیستند (استثنائات)</h4>
+            <ul>
+              <li>خسارات ناشی از جنگ، شورش، اغتشاشات و ...</li>
+              <li>
+                خسارات ناشی از انفجار مواد منفجره (غیر از انفجار گاز شهری) و
+                انفجار اتمی.
+              </li>
+              <li>
+                خسارات وارد شده به پول، طلا، جواهرات، اوراق بهادار و اسناد.
+              </li>
+              <li>
+                سایر خطراتی که در بیمه‌نامه ذکر نشده و حق بیمه اضافی برای آن
+                پرداخت نشده باشد.
+              </li>
+            </ul>
+          </div>
+
+          <h3 id="travel-insurance">بیمه درمان مسافرت خارجی</h3>
+          <p>
+            این بیمه‌نامه برای مسافران خارج از کشور (از ۱ روز تا ۷۰ سال) طراحی
+            شده و خسارت‌های ناشی از حادثه و بیماری را پوشش می‌دهد. خرید این بیمه
+            از ویپاد نیاز به آپلود مدرک ندارد و صرفاً ورود اطلاعات زیر کافیست:
+          </p>
+          <ul>
+            <li>نام و نام خانوادگی، ملیت، جنسیت، تاریخ تولد</li>
+            <li>کد ملی (برای ایرانیان) یا کد فیدا (برای اتباع غیرایرانی)</li>
+            <li>شماره پاسپورت</li>
+            <li>آدرس پستی</li>
+            <li>مقصد، مدت سفر، نوع ویزا و طرح سفر</li>
+          </ul>
+
+          <h3 id="accident-insurance">بیمه حوادث انفرادی</h3>
+          <p>
+            این بیمه، فرد را در برابر حوادث ناگهانی و غیرمنتظره پوشش می‌دهد.
+            برخی از حوادث تحت پوشش عبارتند از:
+          </p>
+          <ol>
+            <li>غرق شدگی</li>
+            <li>تأثیر گاز، بخار و یا مواد خورنده (مانند اسید)</li>
+            <li>مسمومیت</li>
+            <li>آسیب‌دیدگی حین دفاع مشروع</li>
+            <li>آسیب‌دیدگی حین نجات اشخاص و اموال از خطر</li>
+            <li>ابتلا به هاری، کزاز، سیاه‌زخم و گزیدگی حیوانات</li>
+            <li>سقوط از ارتفاع</li>
+          </ol>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>

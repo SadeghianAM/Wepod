@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: طرح پس‌انداز رویش - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      .article-card {
+        flex-grow: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#intro">معرفی و سودآوری</a></li>
+            <li><a href="#limits">سقف و تعداد طرح</a></li>
+            <li><a href="#cancellation">لغو طرح (برداشت وجه)</a></li>
+            <li><a href="#profit-calculation">جزئیات محاسبه سود</a></li>
+            <li><a href="#common-error">خطای رایج و راهکار</a></li>
+            <li><a href="#agent-notes">نکات فنی برای کارشناس</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>🌱 راهنمای کارشناس: طرح پس‌انداز رویش</h2>
+        <div class="card-content">
+          <h3 id="intro">معرفی طرح و سودآوری</h3>
+          <p>
+            طرح پس‌انداز رویش، یک سپرده سرمایه‌گذاری با سود روزشمار است که به
+            کاربران امکان می‌دهد مبالغ دلخواه خود را پس‌انداز کرده و سود دریافت
+            کنند.
+          </p>
+          <div class="alert-box green">
+            <h4>ویژگی‌های کلیدی طرح رویش</h4>
+            <ul>
+              <li><strong>نرخ سود:</strong> ۲۲.۵٪ سالانه (روزشمار)</li>
+              <li>
+                <strong>دوره پرداخت سود:</strong> ماهانه (هر ۳۱ روز یکبار)
+              </li>
+              <li>
+                <strong>مثال سود:</strong> به ازای هر ۱ میلیون تومان، ماهانه
+                ۱۸,۷۵۰ تومان سود پرداخت می‌شود.
+              </li>
+            </ul>
+          </div>
+
+          <h3 id="limits">سقف و تعداد طرح</h3>
+          <p>
+            هر کاربر می‌تواند چندین طرح پس‌انداز رویش به صورت همزمان داشته باشد،
+            با رعایت محدودیت‌های زیر:
+          </p>
+          <ul>
+            <li><strong>حداکثر تعداد طرح فعال:</strong> ۵۰ طرح</li>
+            <li><strong>سقف مجموع مبالغ:</strong> ۱۰ میلیارد تومان</li>
+          </ul>
+
+          <h3 id="cancellation">لغو طرح (برداشت وجه)</h3>
+          <p>
+            کاربران می‌توانند در هر زمان نسبت به برداشت وجه از طرح‌های خود اقدام
+            کنند. دو حالت برای لغو وجود دارد:
+          </p>
+          <h4>لغو جزئی طرح</h4>
+          <p>
+            کاربر می‌تواند با ورود به طرح مورد نظر، مبلغی از آن را برداشت کند.
+            مبلغ برداشت شده به موجودی حساب دیجیتال وی اضافه می‌شود.
+          </p>
+          <h4>لغو کلی طرح</h4>
+          <p>
+            با برداشت کل مبلغ یک طرح، آن طرح به صورت کامل لغو شده و از لیست
+            طرح‌های فعال کاربر حذف می‌گردد.
+          </p>
+          <div class="alert-box red">
+            <h4>نکته بسیار مهم: عدم تعلق سود در صورت لغو</h4>
+            <p>
+              باید با شفافیت کامل به کاربر توضیح داده شود که در صورت انجام
+              هرگونه برداشت (چه جزئی و چه کلی)، سودی به مبلغ برداشت شده در آن
+              دوره ۳۱ روزه <strong>تعلق نخواهد گرفت</strong>. سود تنها به مبالغی
+              پرداخت می‌شود که یک دوره کامل ۳۱ روزه را در طرح باقی بمانند.
+            </p>
+          </div>
+
+          <h3 id="profit-calculation">جزئیات محاسبه سود بانکی</h3>
+          <p>
+            سود سپرده بر اساس فرمول استاندارد بانکی و به صورت روزشمار محاسبه
+            می‌شود. جهت اطلاع کارشناس، فرمول به شرح زیر است:
+          </p>
+          <ol>
+            <li>
+              <strong>محاسبه سود روزانه:</strong> $(مبلغ \times نرخ \ سود) \div
+              365$
+            </li>
+            <li>
+              <strong>محاسبه سود ماهانه:</strong> $سود \ روزانه \times تعداد \
+              روزهای \ ماه \ مبنا$
+            </li>
+          </ol>
+          <ul>
+            <li>
+              برای محاسبه سود ماه مهر، از تعداد روزهای ماه قبل (شهریور) استفاده
+              می‌شود.
+            </li>
+            <li>سال‌های کبیسه (۳۶۶ روز) در محاسبات لحاظ می‌گردد.</li>
+            <li>در نتیجه نهایی، اعشار عدد سود حذف (گرد رو به پایین) می‌شود.</li>
+          </ul>
+
+          <h3 id="common-error">خطای رایج و راهکار</h3>
+          <div class="alert-box yellow">
+            <h4>خطا: عدم پاسخگویی دکمه "تایید قوانین"</h4>
+            <p>
+              <strong>علت:</strong> این مشکل معمولاً زمانی رخ می‌دهد که تعداد
+              کاراکترهای "نام کاربری" (Username) کاربر در پروفایل ویپاد، بیش از
+              حد مجاز باشد.
+            </p>
+            <p><strong>راه‌حل:</strong></p>
+            <ol>
+              <li>ابتدا از طریق پنل، نام کاربری فرد را بررسی کنید.</li>
+              <li>
+                در صورت طولانی بودن، به کاربر راهنمایی کنید تا از مسیر
+                <strong>پروفایل ← کلیک روی نام ← اطلاعات پروفایل</strong>، نام
+                کاربری خود را ویرایش و کوتاه‌تر کند.
+              </li>
+              <li>
+                اگر مشکل با این روش حل نشد، پیگیری با جزئیات کامل ثبت شود.
+              </li>
+            </ol>
+          </div>
+
+          <h3 id="agent-notes">نکات فنی (اطلاعات داخلی برای کارشناس)</h3>
+          <div class="alert-box yellow">
+            <h4>تغییر زیرساخت طرح رویش به مدل "چند حسابی"</h4>
+            <p>
+              <strong>نکته مهم:</strong> این اطلاعات صرفاً جهت آگاهی کارشناس است
+              و نباید به کاربر منتقل شود.
+            </p>
+            <p>
+              در زیرساخت جدید، با اولین فعال‌سازی طرح رویش، یک
+              <strong>سپرده بلندمدت</strong> برای کاربر افتتاح می‌شود. تمام
+              طرح‌های رویش بعدی کاربر ذیل همین سپرده ایجاد می‌شوند و سپرده جدیدی
+              افتتاح نمی‌گردد. این کار به دلیل محدودیت‌های بانک مرکزی در تعداد
+              سپرده‌های بلندمدت برای هر فرد انجام شده است. این سپرده بلندمدت
+              تنها زمانی بسته می‌شود که کاربر تمام طرح‌های رویش خود را به طور
+              کامل لغو کند.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: صندوق هزاره سوم پاد - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      .article-card {
+        flex-grow: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#intro">معرفی صندوق و سودآوری</a></li>
+            <li><a href="#investment-process">فرآیند سرمایه‌گذاری</a></li>
+            <li><a href="#profit-payout">محاسبه و پرداخت سود</a></li>
+            <li><a href="#cancellation">ابطال واحدها (برداشت وجه)</a></li>
+            <li><a href="#agent-tips">نکات کلیدی پشتیبانی</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>💰 راهنمای کارشناس: صندوق هزاره سوم پاد</h2>
+        <div class="card-content">
+          <h3 id="intro">معرفی صندوق و سودآوری</h3>
+          <p>
+            صندوق هزاره سوم پاد یک
+            <strong
+              >صندوق سرمایه‌گذاری با درآمد ثابت (Fixed-Income Fund)</strong
+            >
+            است. این صندوق با سرمایه‌گذاری در دارایی‌های کم‌ریسک مانند اوراق
+            مشارکت و سپرده‌های بانکی، بازدهی پایدار و قابل پیش‌بینی برای
+            سرمایه‌گذاران ایجاد می‌کند.
+          </p>
+          <div class="alert-box green">
+            <h4>ویژگی‌های کلیدی صندوق</h4>
+            <ul>
+              <li><strong>نرخ سود اسمی:</strong> ۲۸٪ سالانه</li>
+              <li>
+                <strong>نرخ سود مؤثر:</strong> ۳۱.۸٪ سالانه (در صورت
+                سرمایه‌گذاری مجدد سودهای ماهانه)
+              </li>
+              <li>
+                <strong>نهاد ناظر:</strong> دارای مجوز رسمی از سازمان بورس و
+                اوراق بهادار
+              </li>
+              <li>
+                <strong>مدیر صندوق:</strong> گروه خدمات بازار سرمایه پاسارگاد
+              </li>
+            </ul>
+          </div>
+
+          <h3 id="investment-process">فرآیند سرمایه‌گذاری</h3>
+          <p>کاربران برای شروع سرمایه‌گذاری باید فرآیند زیر را طی کنند:</p>
+          <ol>
+            <li>
+              <strong>استعلام کد سجام:</strong> این مرحله الزامی است. سجام
+              (سامانه جامع اطلاعات مشتریان)، سیستم یکپارچه احراز هویت در بازار
+              سرمایه ایران است.
+            </li>
+            <li>
+              <strong>صدور واحد (سرمایه‌گذاری):</strong> خرید واحدهای صندوق در
+              هر ساعت از شبانه‌روز امکان‌پذیر است.
+            </li>
+            <li>
+              <strong>مشاهده تاریخچه:</strong> سابقه تمامی خریدها و فروش‌ها در
+              بخش «تاریخچه سفارشات» قابل مشاهده است.
+            </li>
+          </ol>
+          <p>
+            <strong>سقف سرمایه‌گذاری:</strong> حداکثر مبلغ خرید برای هر کد ملی،
+            <strong>یک میلیارد تومان</strong> است.
+          </p>
+
+          <h3 id="profit-payout">محاسبه و پرداخت سود</h3>
+          <p>
+            سود صندوق به صورت روزشمار محاسبه و در دوره‌های ماهانه پرداخت می‌شود.
+          </p>
+          <ul>
+            <li>
+              <strong>زمان واریز سود:</strong> سود ماهانه، در
+              <strong>اولین روز کاری پس از پانزدهم هر ماه</strong> به حساب ویپاد
+              سرمایه‌گذاران واریز می‌شود.
+            </li>
+            <li>
+              <strong>مبنای محاسبه:</strong> کاربرانی که در پایان روز پانزدهم هر
+              ماه واحد صندوق را در اختیار داشته باشند، سود کامل آن دوره (معادل
+              ۲۸٪ سالانه) را دریافت می‌کنند.
+            </li>
+          </ul>
+
+          <h3 id="cancellation">ابطال واحدها (برداشت وجه)</h3>
+          <p>
+            کاربر می‌تواند هر زمان که بخواهد، تمام یا بخشی از واحدهای خود را
+            ابطال کرده و سرمایه خود را خارج کند. فرآیند تسویه به شرح زیر است:
+          </p>
+          <ul>
+            <li>
+              <strong>اصل پول:</strong> مبلغ اصلی سرمایه‌گذاری در
+              <strong>همان روز کاری</strong> (در صورت ثبت درخواست ابطال در ساعات
+              کاری) به حساب ویپاد کاربر واریز می‌شود.
+            </li>
+            <li>
+              <strong>سود دوره:</strong> سود روزشمار محاسبه شده از پانزدهم ماه
+              تا روز قبل از ابطال، در <strong>یک روز کاری بعد</strong> به حساب
+              واریز می‌گردد.
+            </li>
+          </ul>
+
+          <h3 id="agent-tips">نکات کلیدی برای پشتیبانی</h3>
+          <div class="alert-box red">
+            <h4>الزامی بودن کد سجام</h4>
+            <p>
+              اولین و مهم‌ترین نکته در راهنمایی کاربران جدید، اطمینان از داشتن
+              کد سجام است. اگر کاربری کد سجام ندارد، نمی‌تواند در این صندوق یا
+              هر ابزار دیگری در بازار سرمایه ایران سرمایه‌گذاری کند. او را
+              مستقیماً به سامانه سجام ارجاع دهید:
+            </p>
+            <p>
+              <strong>آدرس سامانه سجام:</strong>
+              <a
+                href="https://www.sejam.ir"
+                target="_blank"
+                rel="noopener noreferrer"
+                >https://www.sejam.ir</a
+              >
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>زمان‌بندی تسویه در زمان ابطال</h4>
+            <p>
+              برای مدیریت انتظار کاربر، این نکته را با شفافیت کامل توضیح دهید که
+              پس از درخواست ابطال، واریز وجه در دو مرحله انجام می‌شود:
+            </p>
+            <ul>
+              <li><strong>واریز اول (اصل پول):</strong> در همان روز کاری.</li>
+              <li><strong>واریز دوم (سود):</strong> در روز کاری بعد.</li>
+            </ul>
+            <p>
+              همچنین یادآوری کنید که درخواست‌های ثبت‌شده در روزهای تعطیل، در
+              اولین روز کاری بعد پردازش خواهند شد.
+            </p>
+          </div>
+          <div class="alert-box green">
+            <h4>توصیه برای زمان صدور واحد</h4>
+            <p>
+              اگرچه صدور واحد به صورت ۲۴/۷ امکان‌پذیر است، اما به دلیل عملیات
+              پایان روز سیستم بانکی و بازار سرمایه، بهتر است به کاربران توصیه
+              شود که از ثبت درخواست خرید بین ساعات
+              <strong>۲۲:۰۰ تا ۲۴:۰۰</strong> خودداری کنند تا از بروز هرگونه
+              مغایرت احتمالی جلوگیری شود.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>

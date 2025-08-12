@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: تسهیلات برآیند - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      .article-card {
+        flex-grow: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+      .card-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+      }
+      .card-content th,
+      .card-content td {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: center;
+      }
+      .card-content th {
+        background-color: var(--bg-color);
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#intro">معرفی و نحوه دریافت</a></li>
+            <li><a href="#credit-scoring">فرآیند اعتبارسنجی</a></li>
+            <li><a href="#costs-installments">هزینه‌ها، مبالغ و اقساط</a></li>
+            <li><a href="#repayment-rules">قوانین بازپرداخت</a></li>
+            <li><a href="#troubleshooting">راهنمای عیب‌یابی خطاها</a></li>
+            <li><a href="#agent-tips">نکات کلیدی پشتیبانی</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>✨ راهنمای کارشناس: تسهیلات برآیند</h2>
+        <div class="card-content">
+          <h3 id="intro">معرفی و نحوه دریافت</h3>
+          <p>
+            تسهیلات "برآیند" یک وام بدون ضامن و وثیقه است که بر اساس امتیاز
+            کاربر (سکه‌های وی‌کلاب) و نتیجه اعتبارسنجی به صورت
+            <strong>وجه نقد</strong> پرداخت می‌شود. بازپرداخت تمام مبالغ این طرح
+            <strong>۱۲ ماهه</strong> است.
+          </p>
+          <h4>مراحل دریافت تسهیلات</h4>
+          <ol>
+            <li>
+              <strong>ثبت درخواست:</strong> کاربر از داخل اپلیکیشن، درخواست
+              تسهیلات برآیند را ثبت می‌کند.
+            </li>
+            <li>
+              <strong>پرداخت کارمزد اعتبارسنجی:</strong> مبلغ
+              <strong>۸۷ هزار تومان</strong> برای بررسی رفتار مالی در شبکه بانکی
+              پرداخت می‌شود.
+            </li>
+            <li>
+              <strong>انتخاب مبلغ:</strong> بر اساس نتیجه اعتبارسنجی و تعداد
+              سکه‌های وی‌کلاب، مبالغ قابل دریافت به کاربر نمایش داده می‌شود و او
+              مبلغ مورد نظر را انتخاب می‌کند.
+            </li>
+            <li>
+              <strong>پرداخت سکه و دریافت وجه:</strong> کاربر سکه‌های مورد نیاز
+              را پرداخت کرده و مبلغ تسهیلات بلافاصله به حساب دیجیتال وی واریز
+              می‌شود.
+            </li>
+          </ol>
+
+          <h3 id="credit-scoring">فرآیند اعتبارسنجی</h3>
+          <p>اعتبارسنجی در طرح برآیند از سه بخش اصلی تشکیل شده است:</p>
+          <ul>
+            <li>
+              <strong>استعلام از سامانه‌های بانکی:</strong> بررسی سوابق چک
+              (صیاد)، بدهی‌های بانکی (سمات) و کارت‌های اعتباری (مکنا).
+            </li>
+            <li>
+              <strong>بررسی رتبه اعتباری ایران:</strong> این رتبه، خوش‌حسابی فرد
+              در بازپرداخت‌های قبلی را نشان می‌دهد.
+            </li>
+            <li>
+              <strong>اعتبارسنجی هوشمند ویپاد:</strong> بررسی تاریخچه کارکرد
+              حساب و بازپرداخت تسهیلات قبلی در خود ویپاد.
+            </li>
+          </ul>
+          <div class="alert-box green">
+            <h4>شرط رتبه اعتباری</h4>
+            <p>
+              برای دریافت تسهیلات برآیند، کاربر باید دارای رتبه اعتباری
+              <strong>A یا B</strong> از سامانه اعتبارسنجی ایران باشد.
+              رتبه‌های پایین‌تر واجد شرایط نیستند.
+            </p>
+          </div>
+
+          <h3 id="costs-installments">هزینه‌ها، مبالغ و اقساط</h3>
+          <h4>هزینه‌ها و سکه‌های مورد نیاز</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>مبلغ تسهیلات (تومان)</th>
+                <th>امتیاز وی‌کلاب (سکه)</th>
+                <th>هزینه بیمه عمر (تومان)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>۱۰ میلیون</td>
+                <td>۹,۰۰۰</td>
+                <td>۲۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۱۵ میلیون</td>
+                <td>۱۳,۵۰۰</td>
+                <td>۳۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۲۰ میلیون</td>
+                <td>۱۸,۰۰۰</td>
+                <td>۴۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۲۵ میلیون</td>
+                <td>۲۲,۵۰۰</td>
+                <td>۵۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۳۰ میلیون</td>
+                <td>۲۷,۰۰۰</td>
+                <td>۶۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۳۵ میلیون</td>
+                <td>۳۱,۵۰۰</td>
+                <td>۷۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۴۰ میلیون</td>
+                <td>۳۶,۰۰۰</td>
+                <td>۸۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۴۵ میلیون</td>
+                <td>۴۰,۵۰۰</td>
+                <td>۹۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۵۰ میلیون</td>
+                <td>۴۵,۰۰۰</td>
+                <td>۱۰۰,۰۰۰</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>هزینه اعتبارسنجی:</strong> برای تمام مبالغ، هزینه ثابت
+            <strong>۸۷,۰۰۰ تومان</strong> در ابتدای فرآیند دریافت می‌شود.
+          </p>
+          <h4>جدول اقساط و مجموع بازپرداخت</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>مبلغ تسهیلات</th>
+                <th>مدت بازپرداخت</th>
+                <th>مبلغ هر قسط (تومان)</th>
+                <th>مجموع بازپرداخت (تومان)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>۱۰ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۹۴۰,۷۶۳</td>
+                <td>۱۱,۲۸۹,۱۵۶</td>
+              </tr>
+              <tr>
+                <td>۱۵ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۱,۴۱۱,۱۴۴</td>
+                <td>۱۶,۹۳۳,۷۲۸</td>
+              </tr>
+              <tr>
+                <td>۲۰ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۱,۸۸۱,۵۲۶</td>
+                <td>۲۲,۵۷۸,۳۱۲</td>
+              </tr>
+              <tr>
+                <td>۲۵ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۲,۳۵۱,۹۰۸</td>
+                <td>۲۸,۲۲۲,۸۹۶</td>
+              </tr>
+              <tr>
+                <td>۳۰ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۲,۸۲۲,۲۸۹</td>
+                <td>۳۳,۸۶۷,۴۶۸</td>
+              </tr>
+              <tr>
+                <td>۳۵ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۳,۲۹۲,۶۷۱</td>
+                <td>۳۹,۵۱۲۰,۵۲</td>
+              </tr>
+              <tr>
+                <td>۴۰ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۳,۷۶۳,۰۵۲</td>
+                <td>۴۵,۱۵۶,۶۲۴</td>
+              </tr>
+              <tr>
+                <td>۴۵ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۴,۲۳۳,۴۳۴</td>
+                <td>۵۰,۸۰۰,۲۰۸</td>
+              </tr>
+              <tr>
+                <td>۵۰ میلیون</td>
+                <td>۱۲ ماهه</td>
+                <td>۴,۷۰۳,۸۱۶</td>
+                <td>۵۶,۴۴۵,۷۹۲</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 id="repayment-rules">قوانین بازپرداخت</h3>
+          <p>
+            پس از دریافت تسهیلات، جدول اقساط کاربر طی ۲۴ ساعت به‌روزرسانی
+            می‌شود.
+          </p>
+          <ul>
+            <li>
+              <strong>بازپرداخت مرحله‌ای:</strong> بازپرداخت در
+              <strong>۱۲ قسط ماهانه</strong> با سود
+              <strong>۲۳٪ سالانه</strong> انجام می‌شود. در صورت عدم پرداخت قسط
+              تا سررسید، سیستم به صورت خودکار مبلغ قسط را از حساب کاربر کسر
+              می‌کند. اگر موجودی کافی نباشد، بدهی مشمول جریمه دیرکرد
+              <strong>۶٪ سالانه</strong> می‌شود.
+            </li>
+            <li>
+              <strong>تسویه یکجا:</strong> کاربر در هر زمان می‌تواند با انتخاب
+              گزینه "تسویه یکجا"، کل بدهی باقی‌مانده را پرداخت کند. در این حالت،
+              تخفیفی در سود بانکی برای کاربر لحاظ می‌گردد.
+            </li>
+          </ul>
+
+          <h3 id="troubleshooting">راهنمای عیب‌یابی خطاها</h3>
+          <div class="alert-box yellow">
+            <h4>خطای رتبه اعتباری ایران</h4>
+            <p>
+              <strong>شرح مشکل:</strong> کاربر با وجود داشتن رتبه اعتباری مناسب
+              (A یا B)، ممکن است با خطا مواجه شود.
+            </p>
+            <p>
+              <strong>علت:</strong> این مشکل معمولاً به دلیل وجود مغایرت یا نقص
+              در اطلاعات ثبت شده کاربر در سامانه «اعتبارسنجی ایرانیان» است.
+            </p>
+            <p>
+              <strong>راه‌حل:</strong> کاربر باید مستقیماً به سامانه اعتبارسنجی
+              ایرانیان مراجعه کرده، گزارش اعتبارسنجی خود را دریافت و نتیجه را
+              بررسی نماید. در اپلیکیشن ویپاد، با کلیک روی فلش کنار نتیجه
+              استعلام، جزئیات برای کاربر قابل مشاهده است.
+            </p>
+          </div>
+
+          <h3 id="agent-tips">نکات کلیدی پشتیبانی</h3>
+          <div class="alert-box red">
+            <h4>کاربران فاقد شرایط (رتبه پایین)</h4>
+            <p>
+              اگر کاربری به دلیل رتبه اعتباری پایین (پایین‌تر از C) واجد شرایط
+              دریافت تسهیلات برآیند نشد، راهکار جایگزین را به او پیشنهاد دهید:
+              <strong>تسهیلات برآیند چک‌یار</strong>. در این طرح، کاربر می‌تواند
+              با ارائه چک دیجیتال، کمبود رتبه اعتباری خود را جبران نماید.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>هزینه‌های غیرقابل بازگشت</h4>
+            <p>
+              با شفافیت به کاربر توضیح دهید که
+              <strong>هزینه اعتبارسنجی (۸۷ هزار تومان)</strong> و
+              <strong>هزینه بیمه عمر</strong>، حتی در صورت عدم دریافت تسهیلات یا
+              تسویه آنی، به هیچ عنوان قابل بازگشت <strong>نیستند</strong>.
+            </p>
+          </div>
+          <div class="alert-box green">
+            <h4>مزایای کلیدی تسهیلات برآیند</h4>
+            <p>در راهنمایی کاربران، بر مزایای اصلی این طرح تاکید کنید:</p>
+            <ul>
+              <li>
+                <strong>عدم نیاز به ضامن و وثیقه:</strong> تسهیلات تنها بر اساس
+                اعتبار و امتیاز کاربر پرداخت می‌شود.
+              </li>
+              <li>
+                <strong>عدم وجود شرط پلکانی:</strong> کاربر می‌تواند هر مبلغی را
+                که واجد شرایط آن باشد (بدون نیاز به دریافت پله‌های قبلی)
+                مستقیماً درخواست دهد.
+              </li>
+              <li>
+                <strong>پرداخت به صورت وجه نقد:</strong> مبلغ تسهیلات مستقیماً
+                به حساب واریز شده و برای هر منظوری (برداشت، انتقال، خرید) قابل
+                استفاده است.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>
