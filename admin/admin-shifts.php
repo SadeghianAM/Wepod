@@ -278,15 +278,14 @@ require __DIR__ . '/../php/auth_check.php';
           <input type="date" id="endDate" />
         </div>
         <div class="filter-group">
-          <label for="expertInput1">جستجوی کارشناس اول:</label>
-          <input type="text" id="expertInput1" list="experts-list" placeholder="نام کارشناس را تایپ کنید..." />
+          <label for="expertSelect1">انتخاب کارشناس اول:</label>
+          <select id="expertSelect1"></select>
         </div>
         <div class="filter-group">
-          <label for="expertInput2">جستجوی کارشناس دوم:</label>
-          <input type="text" id="expertInput2" list="experts-list" placeholder="نام کارشناس را تایپ کنید..." />
+          <label for="expertSelect2">انتخاب کارشناس دوم:</label>
+          <select id="expertSelect2"></select>
         </div>
       </div>
-      <datalist id="experts-list"></datalist>
 
       <div id="loader">در حال بارگذاری اطلاعات...</div>
       <div id="schedule-container" class="table-container"></div>
@@ -341,12 +340,8 @@ require __DIR__ . '/../php/auth_check.php';
 
       const shiftColorMap = new Map();
       const colorPalette = [
-        "#E3F2FD",
-        "#E8F5E9",
-        "#FFF3E0",
-        "#F3E5F5",
-        "#FFEBEE",
-        "#E0F7FA",
+        "#E3F2FD", "#E8F5E9", "#FFF3E0",
+        "#F3E5F5", "#FFEBEE", "#E0F7FA",
       ];
       let nextColorIndex = 0;
 
@@ -386,11 +381,11 @@ require __DIR__ . '/../php/auth_check.php';
             .getElementById("endDate")
             .addEventListener("change", applyFilters);
         document
-            .getElementById("expertInput1")
-            .addEventListener("input", applyFilters);
+            .getElementById("expertSelect1")
+            .addEventListener("change", applyFilters);
         document
-            .getElementById("expertInput2")
-            .addEventListener("input", applyFilters);
+            .getElementById("expertSelect2")
+            .addEventListener("change", applyFilters);
         document
             .getElementById("modal-cancel-btn")
             .addEventListener("click", closeEditModal);
@@ -426,9 +421,7 @@ require __DIR__ . '/../php/auth_check.php';
         ).toLocaleDateString("fa-IR");
 
         const statusSelect = document.getElementById("shift-status-select");
-        const customStatusInput = document.getElementById(
-          "custom-shift-status"
-        );
+        const customStatusInput = document.getElementById("custom-shift-status");
         const customGroup = document.getElementById("custom-status-group");
 
         const standardStatuses = ["on-duty", "off", "leave"];
@@ -524,23 +517,12 @@ require __DIR__ . '/../php/auth_check.php';
             datesToRender.length === 0
         ) {
             container.innerHTML = "";
-            // اگر کارشناسی پیدا نشد ولی تاریخ وجود داشت، جدول خالی با خلاصه را نشان بده
-            if(expertsToRender && datesToRender.length > 0) {
-               // ادامه می‌دهیم تا جدول با ردیف‌های خالی و خلاصه صفر نمایش داده شود
-            } else {
-               loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
-               loader.style.display = "block";
-               return;
-            }
+            loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
+            loader.style.display = "block";
+            return;
         }
 
-        if (expertsToRender.length === 0 && datesToRender.length > 0) {
-             loader.textContent = "کارشناسی با نام وارد شده یافت نشد.";
-             loader.style.display = "block";
-        } else {
-            loader.style.display = "none";
-        }
-
+        loader.style.display = "none";
 
         const dailyOnDutyCounts = {};
         const dailyOffDutyCounts = {};
@@ -548,7 +530,6 @@ require __DIR__ . '/../php/auth_check.php';
         const totalOnDutyByDate = {};
         const totalOffDutyByDate = {};
         const totalLeaveByDate = {};
-
 
         const uniqueShiftTimes = [
             ...new Set(
@@ -656,7 +637,6 @@ require __DIR__ . '/../php/auth_check.php';
             });
         }
 
-
         const totalColumns = datesToRender.length + 3;
 
         if (uniqueShiftTimes.length > 0) {
@@ -712,74 +692,69 @@ require __DIR__ . '/../php/auth_check.php';
     }
 
       function populateFilterControls() {
-        const dataList = document.getElementById("experts-list");
-        let optionsHtml = '';
+        const expertSelect1 = document.getElementById("expertSelect1");
+        const expertSelect2 = document.getElementById("expertSelect2");
+        let optionsHtml = '<option value="none">-- هیچکدام --</option>';
         allExperts
-        .sort((a, b) => a.name.localeCompare(b.name, "fa"))
-        .forEach((expert) => {
-            optionsHtml += `<option value="${expert.name}"></option>`;
-        });
-        dataList.innerHTML = optionsHtml;
+          .sort((a, b) => a.name.localeCompare(b.name, "fa"))
+          .forEach((expert) => {
+            optionsHtml += `<option value="${expert.id}">${expert.name}</option>`;
+          });
+        expertSelect1.innerHTML = optionsHtml;
+        expertSelect2.innerHTML = optionsHtml;
+        expertSelect1.value = "none";
+        expertSelect2.value = "none";
 
         const allDatesSet = new Set();
         allExperts.forEach((expert) => {
-        Object.keys(expert.shifts).forEach((date) => allDatesSet.add(date));
+          Object.keys(expert.shifts).forEach((date) => allDatesSet.add(date));
         });
         allAvailableDates = Array.from(allDatesSet).sort();
 
         if (allAvailableDates.length > 0) {
-        const today = new Date();
-        const firstDayOfMonth = new Date(
+          const today = new Date();
+          const firstDayOfMonth = new Date(
             today.getFullYear(),
             today.getMonth(),
             1
-        )
+          )
             .toISOString()
             .split("T")[0];
-        const lastDayOfMonth = new Date(
+          const lastDayOfMonth = new Date(
             today.getFullYear(),
             today.getMonth() + 1,
             0
-        )
+          )
             .toISOString()
             .split("T")[0];
-        document.getElementById("startDate").value = firstDayOfMonth;
-        document.getElementById("endDate").value = lastDayOfMonth;
+          document.getElementById("startDate").value = firstDayOfMonth;
+          document.getElementById("endDate").value = lastDayOfMonth;
         }
     }
 
       function applyFilters() {
         const startDate = document.getElementById("startDate").value;
         const endDate = document.getElementById("endDate").value;
-        const expertName1 = document.getElementById("expertInput1").value;
-        const expertName2 = document.getElementById("expertInput2").value;
+        const expert1 = document.getElementById("expertSelect1").value;
+        const expert2 = document.getElementById("expertSelect2").value;
 
         const selectedExpertIds = new Set();
-
-        const expert1 = allExperts.find(e => e.name === expertName1);
-        const expert2 = allExperts.find(e => e.name === expertName2);
-
-        if (expert1) selectedExpertIds.add(String(expert1.id));
-        if (expert2) selectedExpertIds.add(String(expert2.id));
+        if (expert1 !== "none") selectedExpertIds.add(expert1);
+        if (expert2 !== "none") selectedExpertIds.add(expert2);
 
         const filteredDates = allAvailableDates.filter(
-        (date) => date >= startDate && date <= endDate
+          (date) => date >= startDate && date <= endDate
         );
 
         let filteredExperts = allExperts;
-
-        if (expertName1 || expertName2) {
-            if(selectedExpertIds.size > 0){
-                filteredExperts = allExperts.filter((expert) =>
-                    selectedExpertIds.has(String(expert.id))
-                );
-            } else {
-                filteredExperts = [];
-            }
+        if (selectedExpertIds.size > 0) {
+          filteredExperts = allExperts.filter((expert) =>
+            selectedExpertIds.has(String(expert.id))
+          );
         }
 
         filteredExperts.sort((a, b) =>
-        (a["shifts-time"] || "").localeCompare(b["shifts-time"] || "")
+          (a["shifts-time"] || "").localeCompare(b["shifts-time"] || "")
         );
         renderTable(
             filteredExperts,
