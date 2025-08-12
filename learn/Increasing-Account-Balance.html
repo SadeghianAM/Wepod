@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: افزایش موجودی و خطاها - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      .article-card {
+        flex-grow: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+      .card-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+      }
+      .card-content th,
+      .card-content td {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: center;
+      }
+      .card-content th {
+        background-color: var(--bg-color);
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#methods">روش‌های افزایش موجودی</a></li>
+            <li><a href="#ownership-error">خطای مالکیت کارت</a></li>
+            <li><a href="#troubleshooting">عیب‌یابی تراکنش‌های ناموفق</a></li>
+            <li><a href="#agent-tips">نکات کلیدی پشتیبانی</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>📥 راهنمای کارشناس: افزایش موجودی و خطاها</h2>
+        <div class="card-content">
+          <h3 id="methods">روش‌های افزایش موجودی</h3>
+          <p>
+            کاربران می‌توانند از روش‌های متنوعی برای واریز وجه به حساب ویپاد خود
+            استفاده کنند.
+          </p>
+          <ul>
+            <li>
+              <strong>گزینه «افزایش موجودی» در اپلیکیشن:</strong> از طریق درگاه
+              پرداخت یا کارت به کارت با هر کارت بانکی به نام خود کاربر (سقف
+              روزانه ۱۰ میلیون تومان).
+            </li>
+            <li>
+              <strong>انتقال پایا یا ساتنا:</strong> واریز به شماره شبای حساب
+              ویپاد.
+            </li>
+            <li>
+              <strong>کارت به کارت مستقیم:</strong> واریز از طریق سایر
+              اپلیکیشن‌ها یا خودپردازها به شماره کارت ویپاد.
+            </li>
+            <li>
+              <strong>انتقال وجه پل:</strong> واریز آنی به شماره شبای حساب ویپاد
+            </li>
+            <li>
+              <strong>اتصال به کارت‌خوان (POS):</strong> تعریف شماره شبای حساب
+              ویپاد در دستگاه کارت‌خوان.
+            </li>
+            <li>
+              <strong>تسویه با کارفرما:</strong> اعلام شماره شبای حساب ویپاد به
+              کارفرماهایی مانند اسنپ، تپسی و... .
+            </li>
+            <li>
+              <strong>واریز نقدی:</strong> مراجعه حضوری به هر یک از شعب بانک
+              پاسارگاد.
+            </li>
+          </ul>
+
+          <h3 id="ownership-error">خطای مالکیت هنگام افزایش موجودی (مهم)</h3>
+          <p>
+            طبق بخشنامه بانک مرکزی، افزایش موجودی از طریق درگاه داخل اپلیکیشن
+            ویپاد، فقط با استفاده از کارت بانکی که به نام خود صاحب حساب ویپاد
+            باشد، امکان‌پذیر است.
+          </p>
+          <h4>سناریوهای خطا:</h4>
+          <ul>
+            <li>
+              <strong>اگر کارت مبدا به نام شخص دیگری باشد:</strong> خطا صحیح است
+              و کاربر باید از کارتی به نام خودش استفاده کند.
+            </li>
+            <li>
+              <strong>اگر کاربر اصرار دارد کارت به نام خودش است:</strong> به
+              احتمال زیاد مغایرتی جزئی در نام ثبت شده در بانک مبدا و اطلاعات
+              هویتی ویپاد وجود دارد (مانند پسوند نام خانوادگی، پیشوند "سید"
+              و...). در این حالت، مشکل باید از سمت
+              <strong>بانک صادرکننده کارت مبدا</strong> پیگیری شود.
+            </li>
+          </ul>
+
+          <h3 id="troubleshooting">عیب‌یابی تراکنش‌های ناموفق</h3>
+          <h4>تراکنش ناموفق با کارت‌های عادی</h4>
+          <p>
+            اگر کاربر از طریق گزینه «افزایش موجودی» تراکنشی انجام داده، مبلغ از
+            مبدا کسر شده ولی به حساب ویپاد واریز نشده است، برای ثبت پیگیری باید
+            تصویر واضحی از <strong>رسید تراکنش در گردش حساب مبدا</strong> را
+            ارسال نماید.
+          </p>
+          <h4>تراکنش ناموفق با بن کارت یا کارت هدیه</h4>
+          <p>
+            بسیاری از بن کارت‌ها و کارت‌های هدیه برای استفاده در درگاه‌های
+            پرداخت اینترنتی محدودیت دارند.
+          </p>
+          <p>
+            اگر تراکنش با این نوع کارت‌ها ناموفق بود، به کاربر اطلاع دهید که
+            مبلغ کسر شده معمولاً طی <strong>۷۲ ساعت کاری</strong> به صورت خودکار
+            به کارت مبدا بازمی‌گردد. اگر پس از این مدت مبلغ بازنگشت، برای ثبت
+            پیگیری مدارک زیر مورد نیاز است:
+          </p>
+          <ul>
+            <li>تصویر رسید تراکنش.</li>
+            <li>تصویر گردش حساب ۷۲ ساعت کاری گذشته کارت مبدا.</li>
+            <li>شماره کارت مبدا، مبلغ دقیق، ساعت و تاریخ تراکنش.</li>
+          </ul>
+
+          <h3 id="agent-tips">نکات کلیدی پشتیبانی</h3>
+          <div class="alert-box red">
+            <h4>قانون تطابق نام صاحب کارت و حساب (مهم‌ترین نکته)</h4>
+            <p>
+              شایع‌ترین دلیل برای خطای افزایش موجودی، عدم تطابق نام صاحب کارت
+              مبدا با صاحب حساب ویپاد است. با تاکید به کاربر توضیح دهید که این
+              یک قانون سراسری بانکی است و ویپاد نقشی در آن ندارد.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>افزایش سقف موقت برای تسویه بدهی</h4>
+            <p>
+              یک قابلیت مهم سیستم این است که اگر کاربر بدهی تسهیلاتی داشته باشد،
+              سقف افزایش موجودی ۱۰ میلیون تومانی داخل اپلیکیشن به صورت موقت به
+              اندازه مبلغ بدهی <strong>افزایش می‌یابد</strong> تا کاربر بتواند
+              بدهی خود را به راحتی تسویه کند. پس از تسویه، سقف مجدداً به ۱۰
+              میلیون تومان بازمی‌گردد.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>

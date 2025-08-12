@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: تسهیلات پیش‌درآمد - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      .article-card {
+        flex-grow: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+      .card-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+      }
+      .card-content th,
+      .card-content td {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: center;
+      }
+      .card-content th {
+        background-color: var(--bg-color);
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#intro">معرفی و نحوه امتیازگیری</a></li>
+            <li><a href="#costs-table">فرآیند درخواست و هزینه‌ها</a></li>
+            <li><a href="#repayment-rules">قوانین بازپرداخت (مهم)</a></li>
+            <li><a href="#agent-tips">راهنمای کلیدی پشتیبانی</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>💰 راهنمای کارشناس: تسهیلات پیش‌درآمد</h2>
+        <div class="card-content">
+          <h3 id="intro">معرفی و نحوه امتیازگیری</h3>
+          <p>
+            تسهیلات «پیش‌درآمد» یک وام کوتاه‌مدت بدون ضامن و وثیقه است که بر
+            مبنای <strong>امتیاز واریزی‌های یک ماه اخیر کاربر</strong> و نتیجه
+            اعتبارسنجی اعطا می‌شود. این تسهیلات به صورت
+            <strong>وجه نقد</strong> به حساب کاربر واریز شده و قابل برداشت و
+            انتقال است.
+          </p>
+          <h4>نحوه کسب امتیاز</h4>
+          <p>
+            امتیاز کاربر بر اساس مبالغ واریز شده به حساب ویپاد او در ۳۰ روز
+            گذشته محاسبه می‌شود. به ازای هر ۱۰۰ هزار تومان واریزی روزانه، بین ۱
+            تا ۱۲ امتیاز به کاربر تعلق می‌گیرد. کسب امتیاز بیشتر به واریزهای
+            مستمر و مبالغ بالاتر بستگی دارد.
+          </p>
+
+          <h3 id="costs-table">فرآیند درخواست، هزینه‌ها و مبالغ</h3>
+          <h4>مراحل درخواست</h4>
+          <ol>
+            <li>ثبت درخواست تسهیلات پیش‌درآمد در اپلیکیشن.</li>
+            <li>
+              پرداخت <strong>هزینه اعتبارسنجی (۵۰ هزار تومان)</strong>. در این
+              مرحله سوابق بانکی (چک برگشتی، بدهی معوق) و رتبه اعتباری کاربر
+              بررسی می‌شود.
+            </li>
+            <li>
+              در صورت تایید اعتبارسنجی، پرداخت
+              <strong>کارمزد ارائه خدمات (۷۵ هزار تومان)</strong>.
+            </li>
+            <li>واریز آنی مبلغ تسهیلات به حساب دیجیتال کاربر.</li>
+          </ol>
+          <h4>جدول مبالغ، امتیازات و هزینه‌ها</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>مبلغ تسهیلات (تومان)</th>
+                <th>امتیاز مورد نیاز</th>
+                <th>هزینه اعتبارسنجی (تومان)</th>
+                <th>کارمزد خدمات (تومان)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>۲ میلیون</td>
+                <td>۸۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۳ میلیون</td>
+                <td>۱۲۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۴ میلیون</td>
+                <td>۱۶۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۵ میلیون</td>
+                <td>۲۰۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۶ میلیون</td>
+                <td>۲۴۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۷ میلیون</td>
+                <td>۲۸۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۸ میلیون</td>
+                <td>۳۲۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 id="repayment-rules">قوانین بازپرداخت (بسیار مهم)</h3>
+          <p>
+            این تسهیلات دارای یک دوره بازپرداخت ویژه است که باید با دقت برای
+            کاربر توضیح داده شود.
+          </p>
+          <div class="alert-box green">
+            <h4>فرصت طلایی: تسویه ۷ روزه بدون کارمزد</h4>
+            <p>
+              مهم‌ترین ویژگی این طرح، امکان تسویه کامل بدهی ظرف
+              <strong>۷ روز</strong> پس از دریافت تسهیلات است. در این حالت،
+              هیچ‌گونه کارمزد بانکی (سود ۲۳٪) به بدهی تعلق
+              <strong>نمی‌گیرد</strong>.
+            </p>
+          </div>
+          <h4>بازپرداخت پس از ۷ روز</h4>
+          <p>
+            اگر کاربر بدهی خود را در ۷ روز اول تسویه نکند، وارد دوره بازپرداخت ۱
+            تا ۴ ماهه می‌شود. در این حالت،
+            <strong>کارمزد بانکی ۲۳٪ سالانه</strong> به صورت روزشمار به مبلغ
+            بدهی اضافه خواهد شد.
+          </p>
+          <div class="alert-box yellow">
+            <h4>الزام به تعیین تکلیف بدهی</h4>
+            <p>
+              کاربر موظف است <strong>یک روز قبل از تاریخ سررسید</strong>، وضعیت
+              بازپرداخت خود را مشخص کند. او باید بین تسویه کامل بدهی یا انتخاب
+              بازپرداخت اقساطی، یک گزینه را انتخاب نماید.
+            </p>
+          </div>
+
+          <h3 id="agent-tips">راهنمای کلیدی پشتیبانی</h3>
+          <div class="alert-box red">
+            <h4>هزینه‌های غیرقابل بازگشت</h4>
+            <p>
+              با شفافیت به کاربر توضیح دهید که
+              <strong>هزینه اعتبارسنجی (۵۰ هزار تومان)</strong> در هر صورت (چه
+              تایید شود چه رد) غیرقابل بازگشت است.
+              <strong>کارمزد خدمات (۷۵ هزار تومان)</strong> نیز پس از پرداخت و
+              دریافت تسهیلات، قابل عودت نیست.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>شرط رتبه اعتباری و عدم امکان لغو</h4>
+            <ul>
+              <li>
+                برای دریافت این تسهیلات، رتبه اعتباری کاربر باید
+                <strong>A, B یا C</strong> باشد.
+              </li>
+              <li>
+                پس از واریز مبلغ به حساب، امکان <strong>لغو تسهیلات</strong> به
+                هیچ عنوان وجود ندارد.
+              </li>
+              <li>
+                کاربر می‌تواند در صورت تسویه بدهی، در هر ماه تا ۴ مرتبه از این
+                تسهیلات استفاده کند (به شرط داشتن امتیاز کافی).
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>

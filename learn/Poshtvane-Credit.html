@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: اعتبار پشتوانه - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      .article-card {
+        flex-grow: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+      .card-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+      }
+      .card-content th,
+      .card-content td {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: center;
+      }
+      .card-content th {
+        background-color: var(--bg-color);
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#intro">معرفی و فرآیند درخواست</a></li>
+            <li><a href="#costs-table">جدول کامل هزینه‌ها و مبالغ</a></li>
+            <li><a href="#repayment-rules">قوانین بازپرداخت (مهم)</a></li>
+            <li><a href="#troubleshooting">راهنمای عیب‌یابی خطاها</a></li>
+            <li><a href="#agent-tips">نکات کلیدی پشتیبانی</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>🚀 راهنمای کارشناس: اعتبار پشتوانه</h2>
+        <div class="card-content">
+          <h3 id="intro">معرفی و فرآیند درخواست</h3>
+          <p>
+            اعتبار "پشتوانه" یک تسهیلات بدون ضامن و وثیقه است که بر اساس عملکرد
+            حساب ۳ ماهه اخیر کاربر و نتیجه اعتبارسنجی اعطا می‌شود. این اعتبار به
+            صورت <strong>وجه نقد</strong> به حساب دیجیتال کاربر واریز شده و برای
+            هر نوع تراکنشی قابل استفاده است.
+          </p>
+          <h4>مراحل درخواست</h4>
+          <ol>
+            <li>
+              کاربر مبلغ اعتبار مورد نظر خود را در اپلیکیشن انتخاب می‌کند.
+            </li>
+            <li>
+              <strong>پرداخت هزینه اعتبارسنجی:</strong> این هزینه برای بررسی
+              سوابق بانکی (صیاد، سمات، مکنا) و رتبه اعتباری ایران دریافت می‌شود.
+            </li>
+            <li>
+              <strong>پرداخت کارمزد خدمات دیجیتال و بیمه:</strong> در صورت تایید
+              اعتبارسنجی، کاربر این هزینه‌ها را پرداخت می‌کند.
+            </li>
+            <li>مبلغ اعتبار به صورت آنی به حساب ویپاد کاربر واریز می‌شود.</li>
+          </ol>
+          <div class="alert-box green">
+            <h4>شرط رتبه اعتباری برای پله اول</h4>
+            <p>
+              برای دریافت اولین پله اعتبار پشتوانه (مبلغ ۱ میلیون تومان)، کاربر
+              باید دارای رتبه اعتباری <strong>A, B یا C</strong> باشد. برای
+              پله‌های بعدی، عملکرد حساب و خوش‌حسابی در ویپاد ملاک اصلی است.
+            </p>
+          </div>
+
+          <h3 id="costs-table">جدول کامل هزینه‌ها و مبالغ</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>مبلغ اعتبار (تومان)</th>
+                <th>هزینه اعتبارسنجی (تومان)</th>
+                <th>کارمزد خدمات (تومان)</th>
+                <th>بیمه عمر (تومان)</th>
+                <th>جمع کل پرداختی (تومان)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>۱ میلیون</td>
+                <td>۱۵,۰۰۰</td>
+                <td>۲۵,۰۰۰</td>
+                <td>۲,۰۰۰</td>
+                <td>۴۲,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۲ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۲۵,۰۰۰</td>
+                <td>۴,۰۰۰</td>
+                <td>۳۹,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۳ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۶,۰۰۰</td>
+                <td>۶۶,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۴ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۸,۰۰۰</td>
+                <td>۶۸,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۵ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۹۵,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۷ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۷۵,۰۰۰</td>
+                <td>۱۴,۰۰۰</td>
+                <td>۹۹,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۱۰ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۱۰۰,۰۰۰</td>
+                <td>۲۰,۰۰۰</td>
+                <td>۱۳۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۱۵ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۱۰۰,۰۰۰</td>
+                <td>۳۰,۰۰۰</td>
+                <td>۱۴۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۲۰ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۱۰۰,۰۰۰</td>
+                <td>۴۰,۰۰۰</td>
+                <td>۱۵۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۲۵ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۱۰۰,۰۰۰</td>
+                <td>۵۰,۰۰۰</td>
+                <td>۱۶۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۳۰ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۱۰۰,۰۰۰</td>
+                <td>۶۰,۰۰۰</td>
+                <td>۱۷۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۳۵ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۱۰۰,۰۰۰</td>
+                <td>۷۰,۰۰۰</td>
+                <td>۱۸۰,۰۰۰</td>
+              </tr>
+              <tr>
+                <td>۴۰ میلیون</td>
+                <td>۱۰,۰۰۰</td>
+                <td>۱۰۰,۰۰۰</td>
+                <td>۸۰,۰۰۰</td>
+                <td>۱۹۰,۰۰۰</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 id="repayment-rules">قوانین بازپرداخت (مهم)</h3>
+          <p>
+            پس از دریافت اعتبار، لیست اقساط ممکن است تا ۲۴ ساعت بعد در اپلیکیشن
+            به‌روزرسانی شود. کاربر ۳۰ روز فرصت دارد تا روش بازپرداخت خود را
+            انتخاب کند.
+          </p>
+          <h4>روش‌های بازپرداخت</h4>
+          <ul>
+            <li>
+              <strong>تسویه یکجا:</strong> پرداخت کل بدهی به همراه سود ۲۳٪
+              سالانه (برای وام ۴۰ میلیونی ۲۰٪). در این حالت، تخفیف خوش‌حسابی به
+              کاربر تعلق می‌گیرد.
+            </li>
+            <li>
+              <strong>بازپرداخت جزئی:</strong> پرداخت بخشی از بدهی در هر زمان
+              دلخواه طی دوره ۳۰ روزه.
+            </li>
+            <li>
+              <strong>بازپرداخت چند مرحله‌ای:</strong> کاربر
+              می‌تواند بدهی را به صورت قسطی پرداخت کند.
+            </li>
+
+          </ul>
+          <h4>جدول شرایط بازپرداخت اقساطی/چندمرحله‌ای</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>مبلغ اعتبار</th>
+                <th>حداکثر تعداد اقساط</th>
+                <th>حداقل مبلغ هر قسط</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>۱ تا ۱۰ میلیون تومان</td>
+                <td>۴ ماه</td>
+                <td>۲۵٪ اصل بدهی + سود</td>
+              </tr>
+              <tr>
+                <td>۱۵ تا ۳۵ میلیون تومان</td>
+                <td>۶ ماه</td>
+                <td>۱۷٪ اصل بدهی + سود</td>
+              </tr>
+              <tr>
+                <td>۴۰ میلیون تومان</td>
+                <td>۱۲ ماه</td>
+                <td>۱/۱۲ اصل بدهی + سود</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 id="troubleshooting">راهنمای جامع عیب‌یابی خطاها</h3>
+          <h4>خطا: شما مجاز به دریافت حساب پشتوانه نیستید</h4>
+          <p>
+            <strong>علت:</strong> وجود تخلفات پیشین در تسهیلات کاربر، مانند عدم
+            پرداخت به موقع یا سوءاستفاده. (مثال: برخی کاربران شهر اهر که به صورت
+            گروهی مسدود شده‌اند).
+          </p>
+          <p>
+            <strong>راه‌حل:</strong> برای کاربر پیگیری ثبت شود تا علت دقیق توسط
+            تیم فنی بررسی و به وی اعلام گردد.
+          </p>
+
+          <h4>خطا: در حال حاضر امکان دریافت این مبلغ برای شما وجود ندارد...</h4>
+          <p>
+            <strong>علت:</strong> عدم کسب امتیاز لازم بر اساس مجموعه رفتارهای
+            مالی کاربر در ویپاد (مانند میزان کارکرد حساب و خوش‌حسابی).
+          </p>
+          <p>
+            <strong>راه‌حل:</strong> به کاربر توضیح داده شود که با بهبود عملکرد
+            مالی خود در ویپاد، امکان دریافت مبالغ بالاتر در آینده برای وی فراهم
+            خواهد شد.
+          </p>
+
+          <h4>خطا در تسویه (عمومی)</h4>
+          <p>
+            <strong>راه‌حل:</strong> اگر بدهی معوقه است، کاربر باید حساب را به
+            اندازه کل بدهی شارژ کند تا سیستم به صورت خودکار برداشت کند. اگر
+            برداشت خودکار پس از ۲۴ ساعت انجام نشد، پیگیری ثبت شود. اگر در روز
+            سررسید خطا رخ داد، کاربر باید تا پایان همان روز مجدداً تلاش کرده و
+            همزمان پیگیری ثبت کند.
+          </p>
+
+          <h4>خطا: پرداخت پیشین در حال انجام است</h4>
+          <p>
+            <strong>راه‌حل:</strong> اگر بدهی معوقه نیست، برای کاربر پیگیری ثبت
+            شود تا در زمان‌های دیگر تلاش کند. اگر بدهی معوقه است، باید منتظر
+            برداشت خودکار توسط سیستم باشد.
+          </p>
+
+          <h4>خطا: امکان برداشت از این حساب نیست</h4>
+          <p>
+            <strong>علت:</strong> حساب کاربر مسدود است (معمولاً به دلایل قضایی).
+          </p>
+          <p>
+            <strong>راه‌حل:</strong> به کاربر اطلاع دهید که برای تسویه باید به
+            صورت
+            <strong>حضوری به یکی از شعب بانک پاسارگاد مراجعه کرده</strong> و
+            بدهی را نقداً پرداخت نماید.
+          </p>
+
+          <h3 id="agent-tips">نکات کلیدی پشتیبانی</h3>
+          <div class="alert-box red">
+            <h4>بدهی معوقه در اعتبارسنجی</h4>
+            <ul>
+              <li>
+                <strong>تسویه به موقع:</strong> اگر کاربر بدهی قبلی را به موقع
+                تسویه کرده ولی همچنان در اعتبارسنجی نمایش داده می‌شود، با ارسال
+                تصویر رسید و اعتبارسنجی، پیگیری ثبت شود.
+              </li>
+              <li>
+                <strong>تسویه با تاخیر:</strong> اگر کاربر بدهی را با تاخیر
+                تسویه کرده، ممکن است حذف سابقه از اعتبارسنجی بین ۲۴ ساعت تا ۷
+                روز زمان ببرد.
+              </li>
+            </ul>
+          </div>
+          <div class="alert-box yellow">
+            <h4>قانون ۱۴ روز برای ارتقای پله</h4>
+            <p>این قانون را با دقت برای کاربر توضیح دهید:</p>
+            <ul>
+              <li>
+                برای دریافت اعتبار در <strong>پله بالاتر</strong>، کاربر باید
+                <strong>۱۴ روز</strong> از زمان دریافت آخرین تسهیلات پشتوانه خود
+                صبر کند.
+              </li>
+              <li>
+                برای دریافت اعتبار در
+                <strong>همان پله یا پله‌های پایین‌تر</strong>، نیازی به انتظار
+                ۱۴ روزه نیست و بلافاصله پس از تسویه می‌تواند اقدام کند.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>
