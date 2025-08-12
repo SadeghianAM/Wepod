@@ -75,7 +75,7 @@ require __DIR__ . '/../php/auth_check.php';
         margin-bottom: 0.5rem;
         font-size: 0.9rem;
       }
-      .filter-group input[type="date"],
+      .filter-group input,
       .filter-group select {
         padding: 0.75rem;
         border-radius: 0.5rem;
@@ -256,7 +256,7 @@ require __DIR__ . '/../php/auth_check.php';
         text-align: right;
         padding-right: 1.5rem;
         font-weight: 600;
-        color: #333; /* رنگ متن برای خوانایی بهتر روی پس‌زمینه رنگی */
+        color: #333;
       }
       .summary-count {
         font-weight: 700;
@@ -278,14 +278,16 @@ require __DIR__ . '/../php/auth_check.php';
           <input type="date" id="endDate" />
         </div>
         <div class="filter-group">
-          <label for="expertSelect1">انتخاب کارشناس اول:</label>
-          <select id="expertSelect1"></select>
+          <label for="expertInput1">جستجوی کارشناس اول:</label>
+          <input type="text" id="expertInput1" list="experts-list" placeholder="نام کارشناس را تایپ کنید..." />
         </div>
         <div class="filter-group">
-          <label for="expertSelect2">انتخاب کارشناس دوم:</label>
-          <select id="expertSelect2"></select>
+          <label for="expertInput2">جستجوی کارشناس دوم:</label>
+          <input type="text" id="expertInput2" list="experts-list" placeholder="نام کارشناس را تایپ کنید..." />
         </div>
       </div>
+      <datalist id="experts-list"></datalist>
+
       <div id="loader">در حال بارگذاری اطلاعات...</div>
       <div id="schedule-container" class="table-container"></div>
     </main>
@@ -378,41 +380,41 @@ require __DIR__ . '/../php/auth_check.php';
 
       function setupEventListeners() {
         document
-          .getElementById("startDate")
-          .addEventListener("change", applyFilters);
+            .getElementById("startDate")
+            .addEventListener("change", applyFilters);
         document
-          .getElementById("endDate")
-          .addEventListener("change", applyFilters);
+            .getElementById("endDate")
+            .addEventListener("change", applyFilters);
         document
-          .getElementById("expertSelect1")
-          .addEventListener("change", applyFilters);
+            .getElementById("expertInput1")
+            .addEventListener("input", applyFilters);
         document
-          .getElementById("expertSelect2")
-          .addEventListener("change", applyFilters);
+            .getElementById("expertInput2")
+            .addEventListener("input", applyFilters);
         document
-          .getElementById("modal-cancel-btn")
-          .addEventListener("click", closeEditModal);
+            .getElementById("modal-cancel-btn")
+            .addEventListener("click", closeEditModal);
         document
-          .getElementById("modal-save-btn")
-          .addEventListener("click", saveShiftUpdate);
+            .getElementById("modal-save-btn")
+            .addEventListener("click", saveShiftUpdate);
 
         document
-          .getElementById("shift-status-select")
-          .addEventListener("change", (e) => {
+            .getElementById("shift-status-select")
+            .addEventListener("change", (e) => {
             document.getElementById("custom-status-group").style.display =
-              e.target.value === "custom" ? "block" : "none";
-          });
+                e.target.value === "custom" ? "block" : "none";
+            });
 
         document
-          .getElementById("schedule-container")
-          .addEventListener("click", (e) => {
+            .getElementById("schedule-container")
+            .addEventListener("click", (e) => {
             const cell = e.target.closest(".editable-cell");
             if (cell) {
-              const { expertId, date, currentStatus } = cell.dataset;
-              openEditModal(expertId, date, currentStatus);
+                const { expertId, date, currentStatus } = cell.dataset;
+                openEditModal(expertId, date, currentStatus);
             }
-          });
-      }
+            });
+    }
 
       function openEditModal(expertId, date, currentStatus) {
         currentEditingInfo = { expertId, date };
@@ -518,15 +520,27 @@ require __DIR__ . '/../php/auth_check.php';
 
         if (
             !expertsToRender ||
-            expertsToRender.length === 0 ||
             !datesToRender ||
             datesToRender.length === 0
         ) {
             container.innerHTML = "";
-            loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
-            loader.style.display = "block";
-            return;
+            // اگر کارشناسی پیدا نشد ولی تاریخ وجود داشت، جدول خالی با خلاصه را نشان بده
+            if(expertsToRender && datesToRender.length > 0) {
+               // ادامه می‌دهیم تا جدول با ردیف‌های خالی و خلاصه صفر نمایش داده شود
+            } else {
+               loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
+               loader.style.display = "block";
+               return;
+            }
         }
+
+        if (expertsToRender.length === 0 && datesToRender.length > 0) {
+             loader.textContent = "کارشناسی با نام وارد شده یافت نشد.";
+             loader.style.display = "block";
+        } else {
+            loader.style.display = "none";
+        }
+
 
         const dailyOnDutyCounts = {};
         const dailyOffDutyCounts = {};
@@ -538,7 +552,7 @@ require __DIR__ . '/../php/auth_check.php';
 
         const uniqueShiftTimes = [
             ...new Set(
-                expertsToRender.map((e) => e["shifts-time"]).filter(Boolean)
+                allExperts.map((e) => e["shifts-time"]).filter(Boolean)
             ),
         ].sort();
 
@@ -556,7 +570,9 @@ require __DIR__ . '/../php/auth_check.php';
             totalOffDutyByDate[date] = 0;
             totalLeaveByDate[date] = 0;
 
-            expertsToRender.forEach((expert) => {
+            const allExpertsForCounting = allExperts;
+
+            allExpertsForCounting.forEach((expert) => {
                 const status = expert.shifts[date] || "unknown";
                 const shiftTime = expert["shifts-time"];
 
@@ -603,40 +619,43 @@ require __DIR__ . '/../php/auth_check.php';
         });
         tableHtml += "</tr></thead><tbody>";
 
-        expertsToRender.forEach((expert) => {
-            const shiftTime = expert["shifts-time"] || "-";
-            const breakTime = expert["break-time"] || "-";
-            const shiftStyle = getShiftStyle(shiftTime);
+        if (expertsToRender.length > 0) {
+            expertsToRender.forEach((expert) => {
+                const shiftTime = expert["shifts-time"] || "-";
+                const breakTime = expert["break-time"] || "-";
+                const shiftStyle = getShiftStyle(shiftTime);
 
-            tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
+                tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
 
-            datesToRender.forEach((date) => {
-                const status = expert.shifts[date] || "unknown";
-                let statusClass = "";
-                let statusText = status;
+                datesToRender.forEach((date) => {
+                    const status = expert.shifts[date] || "unknown";
+                    let statusClass = "";
+                    let statusText = status;
 
-                if (status === "on-duty") {
-                    statusClass = "status-on-duty";
-                    statusText = "حضور";
-                } else if (status === "off") {
-                    statusClass = "status-off";
-                    statusText = "عدم حضور";
-                } else if (status === "leave") {
-                    statusClass = "status-special";
-                    statusText = "مرخصی";
-                } else if (status === "unknown") {
-                    statusClass = "status-unknown";
-                    statusText = "-";
-                } else {
-                    statusClass = "status-special";
-                }
+                    if (status === "on-duty") {
+                        statusClass = "status-on-duty";
+                        statusText = "حضور";
+                    } else if (status === "off") {
+                        statusClass = "status-off";
+                        statusText = "عدم حضور";
+                    } else if (status === "leave") {
+                        statusClass = "status-special";
+                        statusText = "مرخصی";
+                    } else if (status === "unknown") {
+                        statusClass = "status-unknown";
+                        statusText = "-";
+                    } else {
+                        statusClass = "status-special";
+                    }
 
-                tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}" data-current-status="${status}">
-                                    <span class="status ${statusClass}">${statusText}</span>
-                                </td>`;
+                    tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}" data-current-status="${status}">
+                                        <span class="status ${statusClass}">${statusText}</span>
+                                    </td>`;
+                });
+                tableHtml += "</tr>";
             });
-            tableHtml += "</tr>";
-        });
+        }
+
 
         const totalColumns = datesToRender.length + 3;
 
@@ -690,79 +709,83 @@ require __DIR__ . '/../php/auth_check.php';
 
         tableHtml += "</tbody></table>";
         container.innerHTML = tableHtml;
-        loader.style.display = "none";
     }
 
       function populateFilterControls() {
-        const expertSelect1 = document.getElementById("expertSelect1");
-        const expertSelect2 = document.getElementById("expertSelect2");
-        let optionsHtml = '<option value="none">-- هیچکدام --</option>';
+        const dataList = document.getElementById("experts-list");
+        let optionsHtml = '';
         allExperts
-          .sort((a, b) => a.name.localeCompare(b.name, "fa"))
-          .forEach((expert) => {
-            optionsHtml += `<option value="${expert.id}">${expert.name}</option>`;
-          });
-        expertSelect1.innerHTML = optionsHtml;
-        expertSelect2.innerHTML = optionsHtml;
-        expertSelect1.value = "none";
-        expertSelect2.value = "none";
+        .sort((a, b) => a.name.localeCompare(b.name, "fa"))
+        .forEach((expert) => {
+            optionsHtml += `<option value="${expert.name}"></option>`;
+        });
+        dataList.innerHTML = optionsHtml;
 
         const allDatesSet = new Set();
         allExperts.forEach((expert) => {
-          Object.keys(expert.shifts).forEach((date) => allDatesSet.add(date));
+        Object.keys(expert.shifts).forEach((date) => allDatesSet.add(date));
         });
         allAvailableDates = Array.from(allDatesSet).sort();
 
         if (allAvailableDates.length > 0) {
-          const today = new Date();
-          const firstDayOfMonth = new Date(
+        const today = new Date();
+        const firstDayOfMonth = new Date(
             today.getFullYear(),
             today.getMonth(),
             1
-          )
+        )
             .toISOString()
             .split("T")[0];
-          const lastDayOfMonth = new Date(
+        const lastDayOfMonth = new Date(
             today.getFullYear(),
             today.getMonth() + 1,
             0
-          )
+        )
             .toISOString()
             .split("T")[0];
-          document.getElementById("startDate").value = firstDayOfMonth;
-          document.getElementById("endDate").value = lastDayOfMonth;
+        document.getElementById("startDate").value = firstDayOfMonth;
+        document.getElementById("endDate").value = lastDayOfMonth;
         }
-      }
+    }
 
       function applyFilters() {
         const startDate = document.getElementById("startDate").value;
         const endDate = document.getElementById("endDate").value;
-        const expert1 = document.getElementById("expertSelect1").value;
-        const expert2 = document.getElementById("expertSelect2").value;
+        const expertName1 = document.getElementById("expertInput1").value;
+        const expertName2 = document.getElementById("expertInput2").value;
 
         const selectedExpertIds = new Set();
-        if (expert1 !== "none") selectedExpertIds.add(expert1);
-        if (expert2 !== "none") selectedExpertIds.add(expert2);
+
+        const expert1 = allExperts.find(e => e.name === expertName1);
+        const expert2 = allExperts.find(e => e.name === expertName2);
+
+        if (expert1) selectedExpertIds.add(String(expert1.id));
+        if (expert2) selectedExpertIds.add(String(expert2.id));
 
         const filteredDates = allAvailableDates.filter(
-          (date) => date >= startDate && date <= endDate
+        (date) => date >= startDate && date <= endDate
         );
 
         let filteredExperts = allExperts;
-        if (selectedExpertIds.size > 0) {
-          filteredExperts = allExperts.filter((expert) =>
-            selectedExpertIds.has(String(expert.id))
-          );
+
+        if (expertName1 || expertName2) {
+            if(selectedExpertIds.size > 0){
+                filteredExperts = allExperts.filter((expert) =>
+                    selectedExpertIds.has(String(expert.id))
+                );
+            } else {
+                filteredExperts = [];
+            }
         }
 
         filteredExperts.sort((a, b) =>
-          (a["shifts-time"] || "").localeCompare(b["shifts-time"] || "")
+        (a["shifts-time"] || "").localeCompare(b["shifts-time"] || "")
         );
         renderTable(
-          filteredExperts,
-          filteredExperts.length > 0 ? filteredDates : []
+            filteredExperts,
+            filteredDates
         );
-      }
+    }
     </script>
   </body>
 </html>
