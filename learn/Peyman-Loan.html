@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: تسهیلات پیمان - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      .article-card {
+        flex-grow: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+      .card-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.85rem; /* Smaller font for dense table */
+      }
+      .card-content th,
+      .card-content td {
+        border: 1px solid var(--border-color);
+        padding: 0.5rem; /* Smaller padding */
+        text-align: center;
+        vertical-align: middle;
+      }
+      .card-content th {
+        background-color: var(--bg-color);
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#intro">معرفی و پیش‌نیازها</a></li>
+            <li><a href="#process">فرآیند کامل درخواست</a></li>
+            <li><a href="#costs-table">جدول جامع هزینه‌ها و اقساط</a></li>
+            <li><a href="#repayment-rules">قوانین بازپرداخت و دیرکرد</a></li>
+            <li><a href="#agent-tips">راهنمای کلیدی پشتیبانی</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>🤝 راهنمای کارشناس: تسهیلات پیمان</h2>
+        <div class="card-content">
+          <h3 id="intro">معرفی و پیش‌نیازهای اصلی</h3>
+          <p>
+            تسهیلات «پیمان» یک وام با مبالغ بالا (۷۵ تا ۳۰۰ میلیون تومان) است که
+            به صورت <strong>وجه نقد</strong> به حساب کاربر واریز می‌شود.
+            بازپرداخت این تسهیلات در <strong>۱۸ قسط ماهانه</strong> ثابت انجام
+            می‌شود. این طرح به جای ضامن، از
+            <strong>وثیقه چک الکترونیک</strong> و امتیاز وی‌کلاب کاربر استفاده
+            می‌کند.
+          </p>
+          <div class="alert-box green">
+            <h4>پیش‌نیازهای اصلی برای دریافت تسهیلات</h4>
+            <p>
+              کاربر قبل از اقدام برای تسهیلات پیمان، باید دو شرط اساسی زیر را
+              احراز کرده باشد:
+            </p>
+            <ol>
+              <li>
+                <strong>افتتاح حساب جاری دیجیتال:</strong> کاربر باید فرآیند
+                افتتاح حساب جاری را با موفقیت به پایان رسانده باشد.
+              </li>
+              <li>
+                <strong>دریافت دسته چک الکترونیک:</strong> کاربر باید حداقل
+                <strong>۶ برگ چک الکترونیک</strong> قابل استفاده در حساب جاری
+                خود داشته باشد.
+              </li>
+            </ol>
+          </div>
+
+          <h3 id="process">فرآیند کامل درخواست تسهیلات</h3>
+          <p>
+            پس از احراز پیش‌نیازها، کاربر مراحل زیر را برای دریافت تسهیلات طی
+            می‌کند:
+          </p>
+          <ol>
+            <li>
+              <strong>انتخاب مبلغ:</strong> کاربر از بین مبالغ ۷۵ تا ۳۰۰ میلیون
+              تومان، مبلغ مورد نظر خود را بر اساس سکه‌های وی‌کلاب موجود، انتخاب
+              می‌کند.
+            </li>
+            <li>
+              <strong>اعتبارسنجی:</strong> با پرداخت هزینه
+              <strong>۵۰ هزار تومان</strong>، سوابق بانکی کاربر (سمات، صیاد،
+              مکنا) بررسی می‌شود.
+            </li>
+            <li>
+              <strong>ثبت چک‌های وثیقه:</strong> در صورت تایید اعتبارسنجی، کاربر
+              به درگاه وثایق هدایت می‌شود تا
+              <strong>۶ برگ چک الکترونیک</strong> را به عنوان ضمانت ثبت کند.
+            </li>
+            <li>
+              <strong>پرداخت سکه و کارمزد:</strong> پس از ثبت موفق چک‌ها،
+              سکه‌های وی‌کلاب مورد نیاز و کارمزد خدمات از حساب کاربر کسر می‌شود.
+            </li>
+            <li>
+              <strong>واریز وجه:</strong> مبلغ تسهیلات به حساب دیجیتال ویپاد
+              کاربر واریز می‌گردد.
+            </li>
+          </ol>
+
+          <h3 id="costs-table">جدول جامع هزینه‌ها، اقساط و وثایق</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>مبلغ تسهیلات (تومان)</th>
+                <th>امتیاز وی‌کلاب</th>
+                <th>مبلغ هر چک وثیقه (تومان)</th>
+                <th>مبلغ هر قسط (تومان)</th>
+                <th>مجموع بازپرداخت (تومان)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>۷۵ میلیون</td>
+                <td>۱۰۰,۰۰۰</td>
+                <td>۱۷,۷۲۶,۴۰۰</td>
+                <td>۴,۹۶۶,۰۷۸</td>
+                <td>۸۹,۳۸۹,۴۰۴</td>
+              </tr>
+              <tr>
+                <td>۱۰۰ میلیون</td>
+                <td>۱۳۵,۰۰۰</td>
+                <td>۲۳,۶۳۵,۲۰۰</td>
+                <td>۶,۶۲۱,۴۳۷</td>
+                <td>۱۱۹,۱۸۵,۸۶۶</td>
+              </tr>
+              <tr>
+                <td>۱۲۵ میلیون</td>
+                <td>۱۷۰,۰۰۰</td>
+                <td>۲۹,۵۴۴,۰۰۰</td>
+                <td>۸,۲۷۶,۷۹۷</td>
+                <td>۱۴۸,۹۸۲,۳۴۶</td>
+              </tr>
+              <tr>
+                <td>۱۵۰ میلیون</td>
+                <td>۲۰۰,۰۰۰</td>
+                <td>۳۵,۴۵۲,۸۰۰</td>
+                <td>۹,۹۳۲,۱۵۶</td>
+                <td>۱۷۸,۷۷۸,۸۰۸</td>
+              </tr>
+              <tr>
+                <td>۱۷۵ میلیون</td>
+                <td>۲۳۵,۰۰۰</td>
+                <td>۴۱,۳۶۱,۶۰۰</td>
+                <td>۱۱,۵۸۷,۵۱۶</td>
+                <td>۲۰۸,۵۷۵,۲۸۸</td>
+              </tr>
+              <tr>
+                <td>۲۰۰ میلیون</td>
+                <td>۲۷۰,۰۰۰</td>
+                <td>۴۷,۲۷۰,۴۰۰</td>
+                <td>۱۳,۲۴۲,۸۷۵</td>
+                <td>۲۳۸,۳۷۱,۷۵۰</td>
+              </tr>
+              <tr>
+                <td>۲۵۰ میلیون</td>
+                <td>۳۳۵,۰۰۰</td>
+                <td>۵۹,۵۹۳,۰۰۰</td>
+                <td>۱۶,۵۵۳,۵۹۴</td>
+                <td>۲۹۷,۹۶۴,۶۹۲</td>
+              </tr>
+              <tr>
+                <td>۳۰۰ میلیون</td>
+                <td>۴۰۰,۰۰۰</td>
+                <td>۷۱,۵۱۲,۰۰۰</td>
+                <td>۱۹,۸۶۴,۳۱۳</td>
+                <td>۳۵۷,۵۵۷,۶۳۴</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="text-align: center; font-size: 0.9rem">
+            * هزینه <strong>اعتبارسنجی (۵۰,۰۰۰ تومان)</strong> و
+            <strong>کارمزد خدمات (۱۰۰,۰۰۰ تومان)</strong> برای تمام مبالغ یکسان
+            است.
+          </p>
+
+          <h3 id="repayment-rules">قوانین بازپرداخت و دیرکرد</h3>
+          <p>
+            بازپرداخت در <strong>۱۸ قسط ماهانه</strong> ثابت انجام می‌شود. اولین
+            قسط، یک ماه پس از دریافت تسهیلات سررسید می‌شود. لیست اقساط تا ۲۴
+            ساعت پس از دریافت وام در اپلیکیشن قابل مشاهده است.
+          </p>
+          <ul>
+            <li>
+              <strong>تسویه یکجا:</strong> کاربر می‌تواند در هر زمان با انتخاب
+              گزینه «تسویه»، کل بدهی باقی‌مانده را پرداخت کند.
+            </li>
+          </ul>
+
+          <h3 id="agent-tips">راهنمای کلیدی پشتیبانی</h3>
+          <div class="alert-box red">
+            <h4>عواقب عدم پرداخت اقساط (مهم‌ترین نکته)</h4>
+            <p>این مورد را باید با شفافیت کامل به کاربر توضیح داد:</p>
+            <p>
+              اگر پرداخت <strong>سه قسط</strong> از تسهیلات به تعویق بیفتد، بانک
+              به صورت خودکار <strong>یکی از چک‌های الکترونیک وثیقه</strong> را
+              برگشت می‌زند. برای رفع سوءاثر این چک، کاربر موظف است هر
+              <strong>سه قسط معوقه را به صورت یکجا</strong> تسویه نماید.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>پیش‌نیازهای اصلی را ابتدا بررسی کنید</h4>
+            <p>
+              اگر کاربری در شروع فرآیند با مشکل مواجه است، قبل از هرچیز از او
+              سوال کنید که آیا فرآیند <strong>افتتاح حساب جاری</strong> و
+              <strong>دریافت دسته چک الکترونیک</strong> را با موفقیت به پایان
+              رسانده است یا خیر. این دو مورد، پیش‌نیازهای مطلق برای شروع فرآیند
+              تسهیلات پیمان هستند.
+            </p>
+          </div>
+          <div class="alert-box green">
+            <h4>جزئیات وثیقه چک</h4>
+            <p>
+              به کاربر اطلاع دهید که مجموع مبلغ ۶ برگ چک وثیقه، معادل
+              <strong>۱۲۰ درصد کل اصل و سود تسهیلات</strong> در دوره ۱۸ ماهه
+              است. این یک رویه استاندارد برای پوشش ریسک بانک است.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>

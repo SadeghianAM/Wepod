@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>آموزش کارشناس: وی‌کلاب (امتیاز سکه) - ویپاد</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --orange-color: #f9ab00;
+        --orange-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .toc-container {
+        width: 250px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
+      }
+      .toc {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+      }
+      .toc h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        transition: all 0.2s ease-in-out;
+      }
+      .toc li a:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateX(-5px);
+      }
+
+      .article-card {
+        flex-grow: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .article-card h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .article-card .card-content {
+        padding: 1.5rem;
+        line-height: 1.9;
+      }
+
+      .card-content h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 0.5rem;
+      }
+      .card-content h3:first-child {
+        margin-top: 0;
+      }
+      .card-content h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0 0.75rem 0;
+      }
+      .card-content p {
+        margin-bottom: 1rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content ul,
+      .card-content ol {
+        padding-right: 1.5rem;
+        color: var(--secondary-text-color);
+      }
+      .card-content li {
+        margin-bottom: 0.75rem;
+      }
+      .card-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+      }
+      .card-content th,
+      .card-content td {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: center;
+      }
+      .card-content th {
+        background-color: var(--bg-color);
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+
+      .alert-box {
+        border-radius: var(--border-radius);
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border: 1px solid transparent;
+        border-inline-start-width: 5px;
+      }
+      .alert-box.green {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+      }
+      .alert-box.yellow {
+        border-color: var(--orange-color);
+        background-color: var(--orange-bg);
+      }
+      .alert-box.red {
+        border-color: var(--danger-color);
+        background-color: var(--danger-bg);
+      }
+      .alert-box p:last-child,
+      .alert-box ul:last-child,
+      .alert-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .alert-box h4 {
+        margin-top: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        font-weight: 500;
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 992px) {
+        .toc-container {
+          display: none;
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="toc-container">
+        <nav class="toc">
+          <h4>فهرست مطالب</h4>
+          <ul>
+            <li><a href="#intro">معرفی و کاربرد سکه‌ها</a></li>
+            <li><a href="#earning-coins">روش‌های کسب سکه</a></li>
+            <li><a href="#calculation-examples">مثال‌های محاسبه سکه</a></li>
+            <li><a href="#agent-tips">راهنمای کلیدی پشتیبانی</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="article-card">
+        <h2>🪙 راهنمای کارشناس: وی‌کلاب (امتیاز سکه)</h2>
+        <div class="card-content">
+          <h3 id="intro">معرفی وی‌کلاب و کاربرد سکه‌ها</h3>
+          <p>
+            وی‌کلاب، باشگاه مشتریان ویپاد است که در آن کاربران بر اساس
+            فعالیت‌های خود، امتیاز "سکه" دریافت می‌کنند. کاربران می‌توانند با
+            مراجعه به بخش وی‌کلاب، گزارش سکه‌های دریافتی و مصرفی خود را مشاهده
+            کنند.
+          </p>
+          <h4>کاربردهای اصلی سکه:</h4>
+          <ul>
+            <li>
+              <strong>شرکت در جشنواره‌ها:</strong> کاربران می‌توانند سکه‌های خود
+              را به شانس قرعه‌کشی در جشنواره‌های مختلف تبدیل کنند.
+            </li>
+            <li>
+              <strong>دریافت تسهیلات:</strong> کسب تعداد مشخصی سکه، پیش‌نیاز
+              اصلی برای دریافت برخی تسهیلات مانند
+              <strong>تسهیلات برآیند</strong> است.
+            </li>
+          </ul>
+
+          <h3 id="earning-coins">روش‌های کسب سکه</h3>
+          <p>در حال حاضر، کاربران از دو روش اصلی می‌توانند سکه کسب کنند:</p>
+          <ol>
+            <li>
+              <strong>افتتاح حساب:</strong> به محض افتتاح حساب در ویپاد،
+              <strong>۳ سکه</strong> به عنوان هدیه به کاربر تعلق می‌گیرد.
+            </li>
+            <li>
+              <strong>سپرده‌گذاری در حساب:</strong> سیستم به صورت روزانه،
+              <strong>کمترین میزان موجودی</strong> حساب کاربر در طول آن روز (از
+              ساعت ۰۰:۰۰ تا ۲۳:۵۹) را ملاک قرار داده و به ازای هر
+              <strong>۱۰۰ هزار تومان</strong>، <strong>۱ سکه</strong> به او
+              اختصاص می‌دهد.
+            </li>
+          </ol>
+
+          <h3 id="calculation-examples">مثال‌های محاسبه سکه روزانه</h3>
+          <p>
+            برای درک بهتر قانون "کمترین میزان موجودی روزانه"، مثال‌های زیر را
+            برای کاربر توضیح دهید:
+          </p>
+          <h4>مثال ۱: واریز وجه در میانه روز</h4>
+          <ul>
+            <li>
+              <strong>وضعیت:</strong> کاربر روز یکشنبه حساب باز کرده و در میانه
+              روز ۱ میلیون تومان واریز می‌کند. تا پایان روز دوشنبه به حساب خود
+              دست نمی‌زند.
+            </li>
+            <li>
+              <strong>محاسبه:</strong> کمترین موجودی روز یکشنبه
+              <strong>صفر</strong> بوده (چون روز را با موجودی صفر آغاز کرده).
+              کمترین موجودی روز دوشنبه <strong>۱ میلیون تومان</strong> بوده است.
+            </li>
+            <li>
+              <strong>نتیجه:</strong> روز یکشنبه <strong>۰ سکه</strong> و روز
+              دوشنبه <strong>۱۰ سکه</strong> دریافت می‌کند.
+            </li>
+          </ul>
+          <h4>مثال ۲: برداشت و واریز مجدد در یک روز</h4>
+          <ul>
+            <li>
+              <strong>وضعیت:</strong> کاربر روز را با موجودی ۱ میلیون تومان آغاز
+              می‌کند. در میانه روز ۷۵۰ هزار تومان برداشت کرده (موجودی: ۲۵۰ هزار
+              تومان) و کمی بعد دوباره مبلغی واریز می‌کند.
+            </li>
+            <li>
+              <strong>محاسبه:</strong> چون موجودی حساب در لحظه‌ای از روز به ۲۵۰
+              هزار تومان رسیده، <strong>کمترین میزان موجودی</strong> آن روز ۲۵۰
+              هزار تومان در نظر گرفته می‌شود.
+            </li>
+            <li>
+              <strong>نتیجه:</strong> در پایان آن روز
+              <strong>۲ سکه</strong> دریافت می‌کند.
+            </li>
+          </ul>
+          <h4>مثال ۳: عدم تغییر موجودی</h4>
+          <ul>
+            <li>
+              <strong>وضعیت:</strong> کاربر روز را با ۱۰ میلیون تومان آغاز کرده
+              و هیچ تغییری در موجودی خود ایجاد نمی‌کند.
+            </li>
+            <li>
+              <strong>محاسبه:</strong> کمترین میزان موجودی در تمام طول روز ۱۰
+              میلیون تومان بوده است.
+            </li>
+            <li>
+              <strong>نتیجه:</strong> در پایان آن روز
+              <strong>۱۰۰ سکه</strong> دریافت می‌کند.
+            </li>
+          </ul>
+
+          <h3 id="agent-tips">راهنمای کلیدی پشتیبانی</h3>
+          <div class="alert-box red">
+            <h4>موجودی مسدود شده سکه نمی‌آورد</h4>
+            <p>
+              یک نکته بسیار مهم که باید به آن توجه داشت: اگر بخشی از موجودی حساب
+              کاربر به دلایل قضایی یا هر نوع دستور دیگری مسدود شده باشد، آن مبلغ
+              مسدودی در محاسبه سکه روزانه لحاظ <strong>نمی‌شود</strong>.
+            </p>
+          </div>
+          <div class="alert-box yellow">
+            <h4>نقطه اصلی ابهام کاربران: "کمترین موجودی روزانه"</h4>
+            <p>
+              شایع‌ترین دلیل نارضایتی کاربران از تعداد سکه‌های دریافتی، عدم درک
+              قانون "کمترین موجودی روزانه" است. با استفاده از مثال‌ها، با شفافیت
+              برای کاربر توضیح دهید که حتی یک برداشت لحظه‌ای که بلافاصله جبران
+              شود، مبنای محاسبه سکه آن روز را کاهش خواهد داد.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
+  </body>
+</html>
