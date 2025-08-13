@@ -1,7 +1,6 @@
 <?php
 // فایل حاوی کلید مخفی شما
 require 'secret.php';
-require __DIR__ . '/../php/auth_check.php';
 
 // تنظیم هدر برای پاسخ JSON
 header('Content-Type: application/json; charset=utf-8');
