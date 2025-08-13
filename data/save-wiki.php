@@ -1,4 +1,7 @@
 <?php
+
+require __DIR__ . '/../php/auth_check.php';
+
 // تنظیم هدر برای اطمینان از اینکه پاسخ به صورت JSON است
 header('Content-Type: application/json');
 

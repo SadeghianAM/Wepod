@@ -1,4 +1,7 @@
 <?php
+
+require __DIR__ . '/../php/auth_check.php';
+
 // Set headers to return JSON and prevent caching
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, must-revalidate');
