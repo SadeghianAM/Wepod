@@ -38,26 +38,17 @@ $password = $data['password'] ?? '';
 foreach ($users as $user) {
     if ($user['username'] === $username) {
         if (password_verify($password, $user['password_hash'])) {
-
-            $adminUsernames = ["abolfazl", "f.alavimoghaddam", "m.pourmosa", "h.mohammadalizadeh", "m.samyari", "ehsan.jafari", "aida.akbari", "a.jamshidvand", "a.sadeghianmajd"];
-
-
-            if (!in_array($username, $adminUsernames)) {
-                http_response_code(403); // Forbidden
-                echo json_encode(['message' => 'شما دسترسی لازم برای ورود به این پنل را ندارید.']);
-                exit;
-            }
-
             $_SESSION['login_attempts'] = 0;
             unset($_SESSION['last_attempt_time']);
 
             $payload = [
                 'id' => $user['id'],
                 'username' => $username,
-                'exp' => time() + (60 * 60 * 12) // اعتبار برای ۱۲ ساعت
+                'exp' => time() + (60 * 60 * 12)
             ];
             $token = create_jwt($payload, JWT_SECRET);
 
+            // *** تغییر اصلی اینجاست: تنظیم کوکی امن ***
             setcookie('jwt_token', $token, [
                 'expires' => $payload['exp'],
                 'path' => '/',
