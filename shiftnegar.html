@@ -388,20 +388,20 @@
         <h1>برنامه شیفت ماهانه</h1>
         <div class="filters-container">
           <div class="filter-group">
-            <label for="startDate">از تاریخ:</label
-            ><input type="date" id="startDate" />
+            <label for="startDate">از تاریخ:</label>
+            <input type="date" id="startDate" />
           </div>
           <div class="filter-group">
-            <label for="endDate">تا تاریخ:</label
-            ><input type="date" id="endDate" />
+            <label for="endDate">تا تاریخ:</label>
+            <input type="date" id="endDate" />
           </div>
           <div class="filter-group">
-            <label for="expertSelect1">انتخاب کارشناس اول:</label
-            ><select id="expertSelect1"></select>
+            <label for="expertSelect1">انتخاب کارشناس اول:</label>
+            <select id="expertSelect1"></select>
           </div>
           <div class="filter-group">
-            <label for="expertSelect2">انتخاب کارشناس دوم:</label
-            ><select id="expertSelect2"></select>
+            <label for="expertSelect2">انتخاب کارشناس دوم:</label>
+            <select id="expertSelect2"></select>
           </div>
         </div>
         <div id="loader">در حال بارگذاری اطلاعات...</div>
@@ -410,6 +410,7 @@
       <div id="my-shift-view" class="tab-content"></div>
     </main>
     <div id="footer-placeholder"></div>
+
     <script src="/js/header.js"></script>
     <script>
       let allExperts = [];
@@ -425,6 +426,54 @@
         "#E0F7FA",
       ];
       let nextColorIndex = 0;
+
+      // --- NEW: start work helpers ---
+      let startWorkMap = null;
+
+      async function getStartWorkMap() {
+        if (startWorkMap) return startWorkMap;
+        try {
+          const res = await fetch(
+            "/data/start-work.json?v=" + new Date().getTime()
+          );
+          if (!res.ok)
+            throw new Error(
+              `فایل start_work.json یافت نشد (کد: ${res.status})`
+            );
+          const json = await res.json();
+          if (Array.isArray(json)) {
+            startWorkMap = new Map(json.map((it) => [String(it.id), it]));
+          } else if (json && typeof json === "object" && "id" in json) {
+            startWorkMap = new Map([[String(json.id), json]]);
+          } else if (json && typeof json === "object") {
+            startWorkMap = new Map(
+              Object.values(json).map((it) => [String(it.id), it])
+            );
+          } else {
+            startWorkMap = new Map();
+          }
+        } catch (e) {
+          console.error(e);
+          startWorkMap = new Map();
+        }
+        return startWorkMap;
+      }
+
+      function diffDaysInclusive(fromDate, toDate) {
+        const d1 = new Date(
+          fromDate.getFullYear(),
+          fromDate.getMonth(),
+          fromDate.getDate()
+        );
+        const d2 = new Date(
+          toDate.getFullYear(),
+          toDate.getMonth(),
+          toDate.getDate()
+        );
+        const ms = d2 - d1;
+        if (ms < 0) return 0;
+        return Math.floor(ms / 86400000) + 1; // احتساب روز شروع
+      }
 
       document.addEventListener("DOMContentLoaded", initializePage);
 
@@ -501,7 +550,8 @@
         );
       }
 
-      function handleMyShiftTabClick() {
+      // UPDATED: async + start work lookup
+      async function handleMyShiftTabClick() {
         const myShiftContainer = document.getElementById("my-shift-view");
         const token = localStorage.getItem("jwt");
         if (!token) {
@@ -519,10 +569,12 @@
           myShiftContainer.innerHTML = `<div class="not-logged-in"><p>اطلاعات شیفت برای شما در سیستم یافت نشد.</p></div>`;
           return;
         }
-        renderMyShiftView(userShiftData);
+        const swMap = await getStartWorkMap();
+        const startInfo = swMap.get(String(userId)) || null;
+        renderMyShiftView(userShiftData, startInfo);
       }
 
-      function renderMyShiftView(userData) {
+      function renderMyShiftView(userData, startInfo) {
         const container = document.getElementById("my-shift-view");
         const monthName = currentCalendarDate.toLocaleDateString("fa-IR", {
           month: "long",
@@ -542,45 +594,61 @@
         const breakTime = userData["break-time"];
         let breakLabel = "ساعت استراحت";
         let breakValue = breakTime || "تعیین نشده";
-
         if (breakTime && breakTime.includes(" - ")) {
           const endTime = breakTime.split(" - ")[1].trim();
           if (endTime) {
-            if (endTime <= "17:00") {
-              breakLabel = "تایم ناهار";
-            } else {
-              breakLabel = "تایم شام";
-            }
+            breakLabel = endTime <= "17:00" ? "🌮 تایم ناهار" : "🌮 تایم شام";
+          }
+        }
+
+        // NEW: محاسبه روزهای داتینی از start_work (جلالی)
+        let startWorkText =
+          startInfo && startInfo.start_work ? startInfo.start_work : null;
+        let startWorkDays = null;
+        if (startWorkText) {
+          const parts = startWorkText.split("/");
+          if (parts.length === 3) {
+            const [jy, jm, jd] = parts.map(Number);
+            const gStart = jalaliToGregorian(jy, jm, jd);
+            startWorkDays = diffDaysInclusive(gStart, new Date());
           }
         }
 
         container.innerHTML = `
-                        <h1>تقویم شیفت من</h1>
-                        <div id="user-shift-info">
-                            <p>کارشناس: <span>${userData.name}</span></p>
-                            <p>ساعت شیفت: <span>${
-                              userData["shifts-time"] || "تعیین نشده"
-                            }</span></p>
-                            <p>${breakLabel}: <span>${breakValue}</span></p>
-                        </div>
-                        <div id="calendar-controls">
-                            <button id="prev-month" ${
-                              hasPrevShifts ? "" : "disabled"
-                            }>&rarr; ماه قبل</button>
-                            <span id="current-month-year">${monthName} ${year}</span>
-                            <button id="next-month" ${
-                              hasNextShifts ? "" : "disabled"
-                            }>ماه بعد &larr;</button>
-                        </div>
-                        <div id="calendar-container"></div>`;
+          <h1>تقویم شیفت من</h1>
+          <div id="user-shift-info">
+            <p>👤 کارشناس: <span>${userData.name}</span></p>
+            <p>⏰ ساعت شیفت: <span>${
+              userData["shifts-time"] || "تعیین نشده"
+            }</span></p>
+            <p>${breakLabel}: <span>${breakValue}</span></p>
+            ${
+              startWorkText
+                ? `<p>📅 داتینی از تاریخ: <span>${startWorkText}</span></p>
+                   <p><span>🚀 ${(startWorkDays ?? 0).toLocaleString(
+                     "fa-IR"
+                   )}</span> روزه که داتینی هستی</p>`
+                : ``
+            }
+          </div>
+          <div id="calendar-controls">
+            <button id="prev-month" ${
+              hasPrevShifts ? "" : "disabled"
+            }>&rarr; ماه قبل</button>
+            <span id="current-month-year">${monthName} ${year}</span>
+            <button id="next-month" ${
+              hasNextShifts ? "" : "disabled"
+            }>ماه بعد &larr;</button>
+          </div>
+          <div id="calendar-container"></div>`;
 
         document.getElementById("prev-month").addEventListener("click", () => {
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-          renderMyShiftView(userData);
+          renderMyShiftView(userData, startInfo);
         });
         document.getElementById("next-month").addEventListener("click", () => {
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-          renderMyShiftView(userData);
+          renderMyShiftView(userData, startInfo);
         });
         renderCalendar(currentCalendarDate, userData.shifts);
       }
@@ -648,10 +716,11 @@
         weekDays.forEach(
           (day) => (html += `<div class="calendar-header">${day}</div>`)
         );
+
         const [pYear, pMonth] = toPersian(date);
         const firstDayOfPersianMonth = jalaliToGregorian(pYear, pMonth, 1);
         const isLeap =
-          toPersian(jalaliToGregorian(pYear + 1, 1, 1)).slice(0, 1) - pYear > 1;
+          toPersian(jalaliToGregorian(pYear + 1, 1, 1))[0] - pYear > 1; // FIXED
         const daysInMonth =
           pMonth < 7 ? 31 : pMonth < 12 ? 30 : isLeap ? 30 : 29;
         const lastDayOfPersianMonth = jalaliToGregorian(
@@ -659,16 +728,19 @@
           pMonth,
           daysInMonth
         );
+
         const calendarStartDate = new Date(firstDayOfPersianMonth);
         const startDayOfWeek = firstDayOfPersianMonth.getDay();
         const offsetToSaturday = (startDayOfWeek + 1) % 7;
         calendarStartDate.setDate(
           calendarStartDate.getDate() - offsetToSaturday
         );
+
         const calendarEndDate = new Date(lastDayOfPersianMonth);
         const endDayOfWeek = lastDayOfPersianMonth.getDay();
         const offsetToFriday = (5 - endDayOfWeek + 7) % 7;
         calendarEndDate.setDate(calendarEndDate.getDate() + offsetToFriday);
+
         let loopDate = new Date(calendarStartDate);
         while (loopDate <= calendarEndDate) {
           const [currentPYear, currentPMonth] = toPersian(loopDate);
@@ -699,16 +771,16 @@
           html += `<div class="calendar-day ${
             isOtherMonth ? "other-month" : ""
           }">
-                                      <div class="day-number">${loopDate.toLocaleDateString(
-                                        "fa-IR",
-                                        { day: "numeric" }
-                                      )}</div>
-                                      ${
-                                        statusText
-                                          ? `<div class="shift-info ${statusClass}">${statusText}</div>`
-                                          : ""
-                                      }
-                                  </div>`;
+              <div class="day-number">${loopDate.toLocaleDateString("fa-IR", {
+                day: "numeric",
+              })}</div>
+              ${
+                statusText
+                  ? `<div class="shift-info ${statusClass}">${statusText}</div>`
+                  : ""
+              }
+            </div>`;
+
           loopDate.setDate(loopDate.getDate() + 1);
         }
         html += "</div>";
@@ -716,9 +788,7 @@
       }
 
       function getShiftStyle(shiftTime) {
-        if (!shiftTime) {
-          return "";
-        }
+        if (!shiftTime) return "";
         if (!shiftColorMap.has(shiftTime)) {
           shiftColorMap.set(shiftTime, colorPalette[nextColorIndex]);
           nextColorIndex = (nextColorIndex + 1) % colorPalette.length;
@@ -752,14 +822,11 @@
             const day = String(date.getDate()).padStart(2, "0");
             return `${year}-${month}-${day}`;
           };
-
           const today = new Date();
           const futureDate = new Date();
           futureDate.setDate(today.getDate() + 7);
-
           const startDateValue = formatDate(today);
           const endDateValue = formatDate(futureDate);
-
           document.getElementById("startDate").value = startDateValue;
           document.getElementById("endDate").value = endDateValue;
         }
@@ -784,11 +851,9 @@
           const shiftTimeA = expertA["shifts-time"] || "";
           const shiftTimeB = expertB["shifts-time"] || "";
           const shiftCompare = shiftTimeA.localeCompare(shiftTimeB, "fa");
-
           if (shiftCompare !== 0) {
             return shiftCompare;
           }
-
           const breakTimeA = expertA["break-time"] || "";
           const breakTimeB = expertB["break-time"] || "";
           return breakTimeA.localeCompare(breakTimeB, "fa");
