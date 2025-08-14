@@ -10,18 +10,23 @@ require 'secret.php';
  * @param string $secret کلید مخفی
  * @return bool
  */
-function verify_jwt($token, $secret) {
+function verify_jwt($token, $secret)
+{
     $parts = explode('.', $token);
-    if (count($parts) !== 3) return false;
+    if (count($parts) !== 3)
+        return false;
     [$header, $payload, $signature] = $parts;
 
     $sig_check = base64url_encode(hash_hmac('sha256', "$header.$payload", $secret, true));
-    if (!hash_equals($sig_check, $signature)) return false;
+    if (!hash_equals($sig_check, $signature))
+        return false;
 
     $payload_arr = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
-    if (json_last_error() !== JSON_ERROR_NONE) return false;
+    if (json_last_error() !== JSON_ERROR_NONE)
+        return false;
 
-    if (!isset($payload_arr['exp']) || $payload_arr['exp'] < time()) return false;
+    if (!isset($payload_arr['exp']) || $payload_arr['exp'] < time())
+        return false;
 
     return true;
 }
@@ -30,10 +35,12 @@ function verify_jwt($token, $secret) {
  * @param string $token توکن JWT
  * @return array|null
  */
-function get_payload($token) {
+function get_payload($token)
+{
     $parts = explode('.', $token);
-    if (count($parts) !== 3) return null;
-    [, $payload, ] = $parts;
+    if (count($parts) !== 3)
+        return null;
+    [, $payload,] = $parts;
     return json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
 }
 
@@ -41,13 +48,14 @@ function get_payload($token) {
  * @param string $data
  * @return string
  */
-function base64url_encode($data) {
+function base64url_encode($data)
+{
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 
 
 // لیست یوزرنیم‌های مجاز به عنوان ادمین
-$adminUsernames = ["abolfazl", "f.alavimoghaddam","m.pourmosa", "h.mohammadalizadeh","m.samyari", "ehsan.jafari", "aida.akbari", "a.jamshidvand", "a.sadeghianmajd"];
+$adminUsernames = ["abolfazl", "f.alavimoghaddam", "m.pourmosa", "h.mohammadalizadeh", "m.samyari", "ehsan.jafari", "aida.akbari", "a.jamshidvand", "a.sadeghianmajd"];
 
 $is_authorized = false;
 

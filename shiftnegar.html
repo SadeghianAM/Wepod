@@ -104,15 +104,13 @@
         margin-bottom: 0.5rem;
         font-size: 0.9rem;
       }
-      .filter-group input[type="date"],
+      .filter-group input[type="text"],
       .filter-group select {
         padding: 0.75rem;
         border-radius: 0.5rem;
         border: 1px solid var(--border-color);
         font-size: 1rem;
         width: 100%;
-      }
-      .filter-group select {
         background-color: var(--card-bg);
       }
       #loader {
@@ -154,6 +152,7 @@
       tbody tr:hover {
         background-color: var(--primary-light);
       }
+
       thead th:nth-child(1),
       tbody td:nth-child(1) {
         width: 60px;
@@ -180,9 +179,9 @@
         min-width: 150px;
         max-width: 150px;
       }
+
       thead th:nth-child(-n + 4),
       tbody td:nth-child(-n + 4) {
-        position: -webkit-sticky;
         position: sticky;
         z-index: 2;
       }
@@ -215,6 +214,7 @@
       tbody tr:hover td:nth-child(-n + 4) {
         background-color: var(--primary-light);
       }
+
       tbody td:nth-child(2) {
         font-weight: 600;
         text-align: right;
@@ -241,6 +241,7 @@
         background-color: #ffc107;
         color: #212529;
       }
+
       .tabs-container {
         display: flex;
         border-bottom: 2px solid var(--border-color);
@@ -280,6 +281,7 @@
           opacity: 1;
         }
       }
+
       .not-logged-in {
         text-align: center;
         padding: 3rem;
@@ -292,6 +294,7 @@
         color: var(--primary-dark);
         font-weight: bold;
       }
+
       #user-shift-info {
         background-color: var(--primary-light);
         padding: 1.5rem;
@@ -306,6 +309,7 @@
         font-weight: 700;
         color: var(--primary-dark);
       }
+
       #calendar-controls {
         display: flex;
         justify-content: space-between;
@@ -373,6 +377,63 @@
         font-weight: 500;
         margin-top: auto;
       }
+
+      /* === Persian DatePicker (vanilla) === */
+      .jdp-popover {
+        position: absolute;
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        box-shadow: 0 8px 24px var(--shadow-color-medium);
+        padding: 0.75rem;
+        width: 280px;
+        z-index: 9999;
+      }
+      .jdp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+      }
+      .jdp-nav-btn {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        padding: 0.25rem 0.6rem;
+        border-radius: 0.4rem;
+        cursor: pointer;
+      }
+      .jdp-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+      }
+      .jdp-weekday {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--secondary-text-color);
+        padding: 0.3rem 0;
+      }
+      .jdp-day {
+        text-align: center;
+        padding: 0.4rem 0;
+        border-radius: 0.4rem;
+        cursor: pointer;
+        background: #fafafa;
+        border: 1px solid #f0f0f0;
+      }
+      .jdp-day:hover {
+        background: var(--primary-light);
+      }
+      .jdp-day.other {
+        color: #bbb;
+        background: #f8f9fa;
+      }
+      .jdp-hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -384,16 +445,29 @@
         </button>
         <button id="my-shift-tab" class="tab-button">شیفت من</button>
       </div>
+
       <div id="monthly-view" class="tab-content active">
         <h1>برنامه شیفت ماهانه</h1>
         <div class="filters-container">
           <div class="filter-group">
             <label for="startDate">از تاریخ:</label>
-            <input type="date" id="startDate" />
+            <input
+              type="text"
+              id="startDate"
+              placeholder="انتخاب تاریخ (جلالی)"
+              autocomplete="off"
+            />
+            <input type="hidden" id="startDateAlt" />
           </div>
           <div class="filter-group">
             <label for="endDate">تا تاریخ:</label>
-            <input type="date" id="endDate" />
+            <input
+              type="text"
+              id="endDate"
+              placeholder="انتخاب تاریخ (جلالی)"
+              autocomplete="off"
+            />
+            <input type="hidden" id="endDateAlt" />
           </div>
           <div class="filter-group">
             <label for="expertSelect1">انتخاب کارشناس اول:</label>
@@ -407,6 +481,7 @@
         <div id="loader">در حال بارگذاری اطلاعات...</div>
         <div id="schedule-container" class="table-container"></div>
       </div>
+
       <div id="my-shift-view" class="tab-content"></div>
     </main>
     <div id="footer-placeholder"></div>
@@ -438,7 +513,7 @@
           );
           if (!res.ok)
             throw new Error(
-              `فایل start_work.json یافت نشد (کد: ${res.status})`
+              `فایل start-work.json یافت نشد (کد: ${res.status})`
             );
           const json = await res.json();
           if (Array.isArray(json)) {
@@ -472,9 +547,196 @@
         );
         const ms = d2 - d1;
         if (ms < 0) return 0;
-        return Math.floor(ms / 86400000) + 1; // احتساب روز شروع
+        return Math.floor(ms / 86400000) + 1;
       }
 
+      // ====== Persian helpers (already in your code) ======
+      function jalaliToGregorian(jy, jm, jd) {
+        var sal_a, gy, gm, gd, days;
+        jy += 1595;
+        days =
+          -355668 +
+          365 * jy +
+          ~~(jy / 33) * 8 +
+          ~~(((jy % 33) + 3) / 4) +
+          jd +
+          (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
+        gy = 400 * ~~(days / 146097);
+        days %= 146097;
+        if (days > 36524) {
+          gy += 100 * ~~(--days / 36524);
+          days %= 36524;
+          if (days >= 365) days++;
+        }
+        gy += 4 * ~~(days / 1461);
+        days %= 1461;
+        if (days > 365) {
+          gy += ~~((days - 1) / 365);
+          days = (days - 1) % 365;
+        }
+        gd = days + 1;
+        sal_a = [
+          0,
+          31,
+          (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+        ];
+        for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+        return new Date(gy, gm - 1, gd);
+      }
+      function toPersian(date) {
+        const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
+        return parts.map((part) => parseInt(part, 10));
+      }
+
+      // ===== Vanilla Jalali DatePicker (no deps)
+      function pad2(n) {
+        return String(n).padStart(2, "0");
+      }
+      function formatJalaliDisplay(jy, jm, jd) {
+        return `${jy}/${pad2(jm)}/${pad2(jd)}`;
+      }
+      function formatISO(date) {
+        return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(
+          date.getDate()
+        )}`;
+      }
+      function isJalaliLeap(jy) {
+        return (
+          ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 <
+          682
+        );
+      }
+      function jalaliMonthLength(jy, jm) {
+        if (jm <= 6) return 31;
+        if (jm <= 11) return 30;
+        return isJalaliLeap(jy) ? 30 : 29;
+      }
+      class JalaliDatePicker {
+        constructor(inputId, altId) {
+          this.input = document.getElementById(inputId);
+          this.alt = document.getElementById(altId);
+          if (!this.input || !this.alt) return;
+
+          const gNow = new Date();
+          const [jy, jm, jd] = toPersian(gNow);
+          this.jy = jy;
+          this.jm = jm;
+          this.jd = jd;
+
+          this.pop = document.createElement("div");
+          this.pop.className = "jdp-popover jdp-hidden";
+          document.body.appendChild(this.pop);
+
+          this.boundClickOutside = (e) => {
+            if (!this.pop.contains(e.target) && e.target !== this.input) {
+              this.hide();
+            }
+          };
+
+          this.input.addEventListener("focus", () => this.show());
+          this.input.addEventListener("click", () => this.show());
+          window.addEventListener("resize", () => this.position());
+        }
+        show() {
+          this.render();
+          this.position();
+          this.pop.classList.remove("jdp-hidden");
+          setTimeout(
+            () =>
+              document.addEventListener("mousedown", this.boundClickOutside),
+            0
+          );
+        }
+        hide() {
+          this.pop.classList.add("jdp-hidden");
+          document.removeEventListener("mousedown", this.boundClickOutside);
+        }
+        position() {
+          const rect = this.input.getBoundingClientRect();
+          this.pop.style.top = window.scrollY + rect.bottom + 6 + "px";
+          this.pop.style.left = window.scrollX + rect.left + "px";
+        }
+        nav(delta) {
+          this.jm += delta;
+          if (this.jm < 1) {
+            this.jm = 12;
+            this.jy--;
+          }
+          if (this.jm > 12) {
+            this.jm = 1;
+            this.jy++;
+          }
+          this.render();
+        }
+        render() {
+          const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+          const firstG = jalaliToGregorian(this.jy, this.jm, 1);
+          const firstWeekday = (firstG.getDay() + 1) % 7;
+          const daysInMonth = jalaliMonthLength(this.jy, this.jm);
+
+          let html = `
+            <div class="jdp-header">
+              <button class="jdp-nav-btn" data-nav="-1">&rarr;</button>
+              <div>${new Intl.DateTimeFormat("fa-IR", { month: "long" }).format(
+                firstG
+              )} ${new Intl.DateTimeFormat("fa-IR", { year: "numeric" }).format(
+            firstG
+          )}</div>
+              <button class="jdp-nav-btn" data-nav="1">&larr;</button>
+            </div>
+            <div class="jdp-grid">
+              ${weekDays
+                .map((w) => `<div class="jdp-weekday">${w}</div>`)
+                .join("")}
+          `;
+          for (let i = 0; i < firstWeekday; i++) {
+            html += `<div class="jdp-day other"></div>`;
+          }
+          for (let d = 1; d <= daysInMonth; d++) {
+            html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat(
+              "fa-IR"
+            ).format(d)}</div>`;
+          }
+          html += `</div>`;
+          this.pop.innerHTML = html;
+
+          this.pop.querySelectorAll("[data-nav]").forEach((btn) => {
+            btn.addEventListener("click", (e) =>
+              this.nav(parseInt(e.currentTarget.dataset.nav, 10))
+            );
+          });
+          this.pop.querySelectorAll("[data-day]").forEach((cell) => {
+            cell.addEventListener("click", (e) => {
+              const d = parseInt(e.currentTarget.dataset.day, 10);
+              const gDate = jalaliToGregorian(this.jy, this.jm, d);
+              this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
+              this.alt.value = formatISO(gDate);
+              this.hide();
+              if (typeof applyFilters === "function") applyFilters();
+            });
+          });
+        }
+        setInitialFromGregorian(date) {
+          const [jy, jm, jd] = toPersian(date);
+          this.jy = jy;
+          this.jm = jm;
+          this.jd = jd;
+          this.input.value = formatJalaliDisplay(jy, jm, jd);
+          this.alt.value = formatISO(date);
+        }
+      }
+
+      // ====== Original app code ======
       document.addEventListener("DOMContentLoaded", initializePage);
 
       async function initializePage() {
@@ -495,18 +757,16 @@
             return;
           }
           populateFilterControls();
-          document
-            .getElementById("startDate")
-            .addEventListener("change", applyFilters);
-          document
-            .getElementById("endDate")
-            .addEventListener("change", applyFilters);
+
+          // لیسنرها
           document
             .getElementById("expertSelect1")
             .addEventListener("change", applyFilters);
           document
             .getElementById("expertSelect2")
             .addEventListener("change", applyFilters);
+
+          // اولین رندر جدول بر اساس مقدار اولیه تاریخ‌ها (که در DatePicker ست می‌شوند)
           applyFilters();
         } catch (error) {
           loader.textContent = `خطا: ${error.message}`;
@@ -526,9 +786,7 @@
               tab.id.replace("-tab", "-view")
             );
             activeContent.classList.add("active");
-            if (tab.id === "my-shift-tab") {
-              handleMyShiftTabClick();
-            }
+            if (tab.id === "my-shift-tab") handleMyShiftTabClick();
           });
         });
       }
@@ -550,7 +808,6 @@
         );
       }
 
-      // UPDATED: async + start work lookup
       async function handleMyShiftTabClick() {
         const myShiftContainer = document.getElementById("my-shift-view");
         const token = localStorage.getItem("jwt");
@@ -596,12 +853,10 @@
         let breakValue = breakTime || "تعیین نشده";
         if (breakTime && breakTime.includes(" - ")) {
           const endTime = breakTime.split(" - ")[1].trim();
-          if (endTime) {
+          if (endTime)
             breakLabel = endTime <= "17:00" ? "🌮 تایم ناهار" : "🌮 تایم شام";
-          }
         }
 
-        // NEW: محاسبه روزهای داتینی از start_work (جلالی)
         let startWorkText =
           startInfo && startInfo.start_work ? startInfo.start_work : null;
         let startWorkDays = null;
@@ -653,52 +908,8 @@
         renderCalendar(currentCalendarDate, userData.shifts);
       }
 
-      function jalaliToGregorian(jy, jm, jd) {
-        var sal_a, gy, gm, gd, days;
-        jy += 1595;
-        days =
-          -355668 +
-          365 * jy +
-          ~~(jy / 33) * 8 +
-          ~~(((jy % 33) + 3) / 4) +
-          jd +
-          (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
-        gy = 400 * ~~(days / 146097);
-        days %= 146097;
-        if (days > 36524) {
-          gy += 100 * ~~(--days / 36524);
-          days %= 36524;
-          if (days >= 365) days++;
-        }
-        gy += 4 * ~~(days / 1461);
-        days %= 1461;
-        if (days > 365) {
-          gy += ~~((days - 1) / 365);
-          days = (days - 1) % 365;
-        }
-        gd = days + 1;
-        sal_a = [
-          0,
-          31,
-          (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28,
-          31,
-          30,
-          31,
-          30,
-          31,
-          31,
-          30,
-          31,
-          30,
-          31,
-        ];
-        for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
-        return new Date(gy, gm - 1, gd);
-      }
-
-      function toPersian(date) {
-        const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
-        return parts.map((part) => parseInt(part, 10));
+      function toPersianDisplay(date) {
+        return date.toLocaleDateString("fa-IR", { day: "numeric" });
       }
 
       function renderCalendar(date, shiftsData) {
@@ -720,7 +931,7 @@
         const [pYear, pMonth] = toPersian(date);
         const firstDayOfPersianMonth = jalaliToGregorian(pYear, pMonth, 1);
         const isLeap =
-          toPersian(jalaliToGregorian(pYear + 1, 1, 1))[0] - pYear > 1; // FIXED
+          toPersian(jalaliToGregorian(pYear + 1, 1, 1))[0] - pYear > 1;
         const daysInMonth =
           pMonth < 7 ? 31 : pMonth < 12 ? 30 : isLeap ? 30 : 29;
         const lastDayOfPersianMonth = jalaliToGregorian(
@@ -753,7 +964,6 @@
 
           let statusClass = "",
             statusText = "";
-
           if (status === "on-duty") {
             statusClass = "status-on-duty";
             statusText = "حضور";
@@ -780,7 +990,6 @@
                   : ""
               }
             </div>`;
-
           loopDate.setDate(loopDate.getDate() + 1);
         }
         html += "</div>";
@@ -804,59 +1013,50 @@
           .sort((a, b) => a.name.localeCompare(b.name, "fa"))
           .forEach((t) => {
             l += `<option value="${t.id}">${t.name}</option>`;
-          }),
-          (t.innerHTML = l),
-          (e.innerHTML = l),
-          (t.value = "none"),
-          (e.value = "none");
+          });
+        t.innerHTML = l;
+        e.innerHTML = l;
+        t.value = "none";
+        e.value = "none";
+
         const n = new Set();
         allExperts.forEach((t) => {
-          Object.keys(t.shifts).forEach((t) => n.add(t));
-        }),
-          (allAvailableDates = Array.from(n).sort());
+          Object.keys(t.shifts).forEach((d) => n.add(d));
+        });
+        allAvailableDates = Array.from(n).sort();
 
-        if (allAvailableDates.length > 0) {
-          const formatDate = (date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, "0");
-            const day = String(date.getDate()).padStart(2, "0");
-            return `${year}-${month}-${day}`;
-          };
-          const today = new Date();
-          const futureDate = new Date();
-          futureDate.setDate(today.getDate() + 7);
-          const startDateValue = formatDate(today);
-          const endDateValue = formatDate(futureDate);
-          document.getElementById("startDate").value = startDateValue;
-          document.getElementById("endDate").value = endDateValue;
-        }
+        // مقدار اولیه تاریخ‌ها توسط DatePicker ست می‌شود (نیازی به ست کردن اینجا نیست)
       }
 
       // --- JAVASCRIPT CHANGE START ---
       function applyFilters() {
-        const t = document.getElementById("startDate").value,
-          e = document.getElementById("endDate").value,
-          l = document.getElementById("expertSelect1").value,
-          n = document.getElementById("expertSelect2").value,
-          o = new Set();
-        "none" !== l && o.add(l), "none" !== n && o.add(n);
-        const a = allAvailableDates.filter((l) => l >= t && l <= e);
+        // ✅ تغییر مهم: از فیلدهای مخفی میلادی بخوان
+        const t = document.getElementById("startDateAlt").value;
+        const e = document.getElementById("endDateAlt").value;
+        const l = document.getElementById("expertSelect1").value;
+        const n = document.getElementById("expertSelect2").value;
+
+        const o = new Set();
+        if (l !== "none") o.add(l);
+        if (n !== "none") o.add(n);
+
+        const a = allAvailableDates.filter(
+          (d) => (!t || d >= t) && (!e || d <= e)
+        );
         let r =
           o.size > 0
-            ? allExperts.filter((t) => o.has(String(t.id)))
+            ? allExperts.filter((x) => o.has(String(x.id)))
             : [...allExperts];
 
         // Multi-level sorting logic
-        r.sort((expertA, expertB) => {
-          const shiftTimeA = expertA["shifts-time"] || "";
-          const shiftTimeB = expertB["shifts-time"] || "";
-          const shiftCompare = shiftTimeA.localeCompare(shiftTimeB, "fa");
-          if (shiftCompare !== 0) {
-            return shiftCompare;
-          }
-          const breakTimeA = expertA["break-time"] || "";
-          const breakTimeB = expertB["break-time"] || "";
-          return breakTimeA.localeCompare(breakTimeB, "fa");
+        r.sort((A, B) => {
+          const stA = A["shifts-time"] || "";
+          const stB = B["shifts-time"] || "";
+          const c1 = stA.localeCompare(stB, "fa");
+          if (c1 !== 0) return c1;
+          const btA = A["break-time"] || "";
+          const btB = B["break-time"] || "";
+          return btA.localeCompare(btB, "fa");
         });
 
         renderTable(r, a);
@@ -876,7 +1076,6 @@
 
         let tableHtml =
           "<table><thead><tr><th>ردیف</th><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>";
-
         dates.forEach((date) => {
           const d = new Date(date);
           const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
@@ -884,7 +1083,6 @@
           const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
           tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
         });
-
         tableHtml += "</tr></thead><tbody>";
 
         experts.forEach((expert, index) => {
@@ -901,7 +1099,6 @@
           dates.forEach((date) => {
             let statusClass = "";
             let statusText = expert.shifts[date] || "unknown";
-
             if (statusText === "on-duty") {
               statusClass = "status-on-duty";
               statusText = "حضور";
@@ -917,7 +1114,6 @@
             } else {
               statusClass = "status-special";
             }
-
             tableHtml += `<td><span class="status ${statusClass}">${statusText}</span></td>`;
           });
 
@@ -928,6 +1124,27 @@
         container.innerHTML = tableHtml;
         loader.style.display = "none";
       }
+
+      // ===== Initialize the two Jalali date pickers AFTER DOM ready =====
+      document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date();
+        const nextWeek = new Date();
+        nextWeek.setDate(today.getDate() + 7);
+
+        const dpStart = new JalaliDatePicker("startDate", "startDateAlt");
+        dpStart.setInitialFromGregorian(today);
+
+        const dpEnd = new JalaliDatePicker("endDate", "endDateAlt");
+        dpEnd.setInitialFromGregorian(nextWeek);
+
+        // اگر کاربر دستی مقدار را پاک/تغییر داد، هنگام blur تلاش کنیم فیلتر اعمال شود
+        document
+          .getElementById("startDate")
+          .addEventListener("blur", applyFilters);
+        document
+          .getElementById("endDate")
+          .addEventListener("blur", applyFilters);
+      });
     </script>
   </body>
 </html>

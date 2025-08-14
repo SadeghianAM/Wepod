@@ -33,7 +33,7 @@ if (file_exists($filePath)) {
     // If the file does not exist, check if its directory is writable.
     $dirName = dirname($filePath);
     if (!is_dir($dirName)) {
-         http_response_code(500);
+        http_response_code(500);
         echo json_encode(['success' => false, 'message' => "خطای مسیر: پوشه '{$dirName}' وجود ندارد. لطفاً مطمئن شوید پوشه data در ریشه وب‌سایت شما قرار دارد."]);
         exit;
     }
@@ -91,7 +91,8 @@ try {
  * @return int The number of bytes written to the file.
  * @throws Exception If file operations fail.
  */
-function clearMasterJsonFile(string $filePath): int {
+function clearMasterJsonFile(string $filePath): int
+{
     $emptyStructure = ['experts' => []];
     $jsonOutput = json_encode($emptyStructure, JSON_PRETTY_PRINT);
 
@@ -109,7 +110,8 @@ function clearMasterJsonFile(string $filePath): int {
  * @return int The number of bytes written to the file.
  * @throws Exception If file operations fail.
  */
-function updateMasterJsonFile(string $filePath, array $newExpertsData): int {
+function updateMasterJsonFile(string $filePath, array $newExpertsData): int
+{
     $masterData = ['experts' => []];
 
     // Read existing data if the file is not empty
@@ -144,7 +146,8 @@ function updateMasterJsonFile(string $filePath, array $newExpertsData): int {
  * @return array An associative array of experts keyed by their ID.
  * @throws Exception If the input format is invalid.
  */
-function parseScheduleText(string $text): array {
+function parseScheduleText(string $text): array
+{
     $lines = explode("\n", trim($text));
     if (count($lines) < 4) {
         throw new Exception("فرمت ورودی صحیح نیست. حداقل به 4 خط اطلاعات نیاز است.");
@@ -168,10 +171,12 @@ function parseScheduleText(string $text): array {
     $expertsById = [];
 
     foreach ($dataRows as $rowStr) {
-        if (empty(trim($rowStr))) continue;
+        if (empty(trim($rowStr)))
+            continue;
 
         $cells = explode("\t", trim($rowStr));
-        if (count($cells) < 4) continue; // Skip malformed rows
+        if (count($cells) < 4)
+            continue; // Skip malformed rows
 
         $id = trim($cells[0]);
         $shiftTime = trim($cells[1]);
@@ -179,15 +184,18 @@ function parseScheduleText(string $text): array {
         $breakTime = trim($cells[3]);
         $scheduleStatuses = array_slice($cells, 4);
 
-        if (empty($id) || empty($name)) continue;
+        if (empty($id) || empty($name))
+            continue;
 
         $shifts = [];
         foreach ($scheduleStatuses as $index => $status) {
             if (isset($formattedDates[$index])) {
                 $dateKey = $formattedDates[$index];
                 $mappedStatus = trim($status);
-                if ($mappedStatus === 'ON') $mappedStatus = 'on-duty';
-                if ($mappedStatus === 'OFF') $mappedStatus = 'off';
+                if ($mappedStatus === 'ON')
+                    $mappedStatus = 'on-duty';
+                if ($mappedStatus === 'OFF')
+                    $mappedStatus = 'off';
                 $shifts[$dateKey] = $mappedStatus;
             }
         }

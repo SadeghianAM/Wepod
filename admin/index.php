@@ -3,247 +3,263 @@ require __DIR__ . '/../php/auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>بخش مدیریت - وی هاب</title>
-    <style>
-      :root {
-        --primary-color: #00ae70;
-        --primary-dark: #089863;
-        --primary-light: #e6f7f2;
-        --bg-color: #f8fcf9;
-        --text-color: #222;
-        --secondary-text-color: #555;
-        --card-bg: #ffffff;
-        --header-text: #ffffff;
-        --shadow-color-light: rgba(0, 174, 112, 0.07);
-        --shadow-color-medium: rgba(0, 174, 112, 0.12);
-        --danger-color: #d93025;
-        --danger-bg: #fce8e6;
-        --orange-color: #f9ab00; /* A more pleasant orange */
-        --orange-bg: #feefc3;
-        --yellow-color: #f9ab00; /* For Paya Cycle */
-        --yellow-bg: #feefc3;
-        --border-radius: 0.75rem;
-        --border-color: #e9e9e9;
-      }
 
-      @font-face {
-        font-family: "Vazirmatn";
-        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
-        font-weight: 100 900;
-        font-display: swap;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>بخش مدیریت - وی هاب</title>
+  <style>
+    :root {
+      --primary-color: #00ae70;
+      --primary-dark: #089863;
+      --primary-light: #e6f7f2;
+      --bg-color: #f8fcf9;
+      --text-color: #222;
+      --secondary-text-color: #555;
+      --card-bg: #ffffff;
+      --header-text: #ffffff;
+      --shadow-color-light: rgba(0, 174, 112, 0.07);
+      --shadow-color-medium: rgba(0, 174, 112, 0.12);
+      --danger-color: #d93025;
+      --danger-bg: #fce8e6;
+      --orange-color: #f9ab00;
+      /* A more pleasant orange */
+      --orange-bg: #feefc3;
+      --yellow-color: #f9ab00;
+      /* For Paya Cycle */
+      --yellow-bg: #feefc3;
+      --border-radius: 0.75rem;
+      --border-color: #e9e9e9;
+    }
 
-      *,
-      *::before,
-      *::after {
-        font-family: "Vazirmatn", sans-serif;
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+    @font-face {
+      font-family: "Vazirmatn";
+      src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+      font-weight: 100 900;
+      font-display: swap;
+    }
 
-      body {
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        direction: rtl;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
+    *,
+    *::before,
+    *::after {
+      font-family: "Vazirmatn", sans-serif;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-      /* --- HEADER & FOOTER (Shared) --- */
-      header,
-      footer {
-        background: var(--primary-color);
-        color: var(--header-text);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 6px var(--shadow-color-light);
-        position: relative;
-        z-index: 10;
-      }
-      header {
-        height: 70px;
-      }
-      footer {
-        height: 60px;
-        font-size: 0.85rem;
-      }
-      header h1 {
-        font-size: 1.2rem;
-        font-weight: 700;
-      }
-      #today-date,
-      #user-info {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1rem;
-        opacity: 0.85;
-        font-weight: 500;
-        white-space: nowrap;
-      }
-      #today-date {
-        inset-inline-start: 1.5rem;
-      }
-      #user-info {
-        inset-inline-end: 1.5rem;
-        cursor: pointer;
-        padding: 0.5rem 0.8rem;
-        border-radius: 0.5rem;
-        transition: background-color 0.2s;
-      }
-      #user-info:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-      }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      direction: rtl;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
+    /* --- HEADER & FOOTER (Shared) --- */
+    header,
+    footer {
+      background: var(--primary-color);
+      color: var(--header-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px var(--shadow-color-light);
+      position: relative;
+      z-index: 10;
+    }
+
+    header {
+      height: 70px;
+    }
+
+    footer {
+      height: 60px;
+      font-size: 0.85rem;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    #today-date,
+    #user-info {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      opacity: 0.85;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    #today-date {
+      inset-inline-start: 1.5rem;
+    }
+
+    #user-info {
+      inset-inline-end: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem 0.8rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    #user-info:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    main {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* --- Layout for Admin page (single column) --- */
+    .main-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+      transition: all 0.2s ease-in-out;
+    }
+
+    /* === Tools Column Structure (from base file) === */
+    .tool-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px var(--shadow-color-light);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .tool-card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 0.9rem 1.5rem;
+      background-color: var(--bg-color);
+      color: var(--primary-dark);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tool-card .card-content {
+      padding: 1.5rem;
+    }
+
+    #tools-search {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.7em 1em;
+      border-radius: 0.6em;
+      border: 1.5px solid #ddd;
+      margin-bottom: 1.5rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #tools-search:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .tools-grid li a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.2rem;
+      background-color: var(--card-bg);
+      border-radius: 0.6rem;
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 1rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .tools-grid li a:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+    }
+
+    /* --- Responsive Design --- */
+    @media (max-width: 600px) {
       main {
-        flex-grow: 1;
-        padding: 2rem;
-        max-width: 1200px;
-        width: 100%;
-        margin: 0 auto;
-      }
-
-      /* --- Layout for Admin page (single column) --- */
-      .main-content {
-        max-width: 900px;
-        margin: 0 auto;
-      }
-
-      ul {
-        list-style: none;
-      }
-      a {
-        text-decoration: none;
-        transition: all 0.2s ease-in-out;
-      }
-
-      /* === Tools Column Structure (from base file) === */
-      .tool-card {
-        background: var(--card-bg);
-        border-radius: var(--border-radius);
-        border: 1px solid var(--border-color);
-        box-shadow: 0 4px 15px var(--shadow-color-light);
-        margin-bottom: 2rem;
-        overflow: hidden;
-      }
-      .tool-card h2 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        padding: 0.9rem 1.5rem;
-        background-color: var(--bg-color);
-        color: var(--primary-dark);
-        border-bottom: 1px solid var(--border-color);
-      }
-      .tool-card .card-content {
         padding: 1.5rem;
       }
 
-      #tools-search {
-        width: 100%;
-        font-size: 1rem;
-        padding: 0.7em 1em;
-        border-radius: 0.6em;
-        border: 1.5px solid #ddd;
-        margin-bottom: 1.5rem;
-        outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-      }
-      #tools-search:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
-      }
-
       .tools-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
+        grid-template-columns: 1fr;
       }
-      .tools-grid li a {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 1.2rem;
-        background-color: var(--card-bg);
-        border-radius: 0.6rem;
-        color: var(--text-color);
-        font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      main {
+        padding: 1rem;
+      }
+
+      #today-date,
+      #user-info {
+        display: none;
+      }
+
+      .tool-card h2 {
+        padding: 0.8rem 1rem;
         font-size: 1rem;
-        border: 1px solid var(--border-color);
-      }
-      .tools-grid li a:hover {
-        border-color: var(--primary-color);
-        color: var(--primary-dark);
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
       }
 
-      /* --- Responsive Design --- */
-      @media (max-width: 600px) {
-        main {
-          padding: 1.5rem;
-        }
-        .tools-grid {
-          grid-template-columns: 1fr;
-        }
+      .tool-card .card-content {
+        padding: 1rem;
       }
-      @media (max-width: 480px) {
-        main {
-          padding: 1rem;
-        }
-        #today-date,
-        #user-info {
-          display: none;
-        }
-        .tool-card h2 {
-          padding: 0.8rem 1rem;
-          font-size: 1rem;
-        }
-        .tool-card .card-content {
-          padding: 1rem;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="header-placeholder"></div>
-    <main>
-      <div class="main-content">
-        <div class="column column-tools">
-          <input
-            type="text"
-            id="tools-search"
-            placeholder="جستجو در ابزارها..."
-            aria-label="جستجو در ابزارها"
-          />
-          <div class="tool-card">
-            <h2>🛠️ ابزارها</h2>
-            <div class="card-content">
-              <ul class="tools-grid" id="tools-list">
-                <li><a href="/admin/status.php">ویرایش وضعیت سرویس ها</a></li>
-                <li><a href="/admin/news.php">ویرایش اطلاعیه ها</a></li>
-                <li><a href="/admin/wiki.php">ویرایش ویکی</a></li>
-                <li>
-                  <a href="/admin/process_shifts.php"
-                    >به‌روزرسانی برنامه شیفت‌ها</a
-                  >
-                </li>
-                <li><a href="/admin/admin-shifts.php">مدیریت شیفت ها</a></li>
+    }
+  </style>
+</head>
 
-                <li><a href="/admin/hash-tool.php">ابزار تولید هش</a></li>
-              </ul>
-            </div>
+<body>
+  <div id="header-placeholder"></div>
+  <main>
+    <div class="main-content">
+      <div class="column column-tools">
+        <input type="text" id="tools-search" placeholder="جستجو در ابزارها..." aria-label="جستجو در ابزارها" />
+        <div class="tool-card">
+          <h2>🛠️ ابزارها</h2>
+          <div class="card-content">
+            <ul class="tools-grid" id="tools-list">
+              <li><a href="/admin/status.php">ویرایش وضعیت سرویس ها</a></li>
+              <li><a href="/admin/news.php">ویرایش اطلاعیه ها</a></li>
+              <li><a href="/admin/wiki.php">ویرایش ویکی</a></li>
+              <li>
+                <a href="/admin/process_shifts.php">به‌روزرسانی برنامه شیفت‌ها</a>
+              </li>
+              <li><a href="/admin/admin-shifts.php">مدیریت شیفت ها</a></li>
+
+              <li><a href="/admin/hash-tool.php">ابزار تولید هش</a></li>
+            </ul>
           </div>
         </div>
       </div>
-    </main>
-    <div id="footer-placeholder"></div>
-    <script src="/js/header.js"></script>
-  </body>
+    </div>
+  </main>
+  <div id="footer-placeholder"></div>
+  <script src="/js/header.js"></script>
+</body>
+
 </html>

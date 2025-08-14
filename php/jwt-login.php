@@ -50,9 +50,9 @@ foreach ($users as $user) {
 
             // ایجاد توکن JWT
             $payload = [
-                'id'       => $user['id'],
+                'id' => $user['id'],
                 'username' => $username,
-                'exp'      => time() + (60 * 60 * 12) // اعتبار برای ۱۲ ساعت
+                'exp' => time() + (60 * 60 * 12) // اعتبار برای ۱۲ ساعت
             ];
             $token = create_jwt($payload, JWT_SECRET);
 
@@ -85,7 +85,8 @@ http_response_code(401); // Unauthorized
 echo json_encode(['message' => 'نام کاربری یا رمز عبور اشتباه است.']);
 
 
-function create_jwt($payload, $secret) {
+function create_jwt($payload, $secret)
+{
     $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
     $body = base64url_encode(json_encode($payload));
     $signature = hash_hmac('sha256', "$header.$body", $secret, true);
@@ -93,7 +94,8 @@ function create_jwt($payload, $secret) {
     return "$header.$body.$sig_encoded";
 }
 
-function base64url_encode($data) {
+function base64url_encode($data)
+{
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 ?>
