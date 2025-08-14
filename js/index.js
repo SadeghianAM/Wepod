@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!container) return;
     container.innerHTML = "در حال محاسبه تاریخ پیگیری کارت...";
     try {
-      const response = await fetch("data/holidays-1404.json");
+      const response = await fetch("/data/holidays-1404.json");
       const holidays = await response.json();
       const holidayDates = new Set(holidays.map((h) => h.date));
       let businessDaysToCount = 14;
@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
     let holidays = [];
     try {
-      const res = await fetch("data/holidays-1404.json");
+      const res = await fetch("/data/holidays-1404.json");
       holidays = await res.json();
     } catch (e) {
       statusDiv.innerHTML =
@@ -382,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function setupPayaaCycleStatus() {
     let holidays = [];
     try {
-      const res = await fetch("data/holidays-1404.json");
+      const res = await fetch("/data/holidays-1404.json");
       holidays = await res.json();
     } catch (e) {
       console.error("Failed to load holidays for Payaa cycle:", e);
@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!serviceStatusDiv) return;
     serviceStatusDiv.innerHTML = "در حال بارگذاری وضعیت سرویس‌ها...";
     try {
-      const response = await fetch("data/service-status.json");
+      const response = await fetch("/data/service-status.json");
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       const services = await response.json();
@@ -463,7 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!newsAlertsDiv) return;
     newsAlertsDiv.innerHTML = "در حال بارگذاری اطلاعیه‌ها...";
     try {
-      const response = await fetch("data/news-alerts.json");
+      const response = await fetch("/data/news-alerts.json");
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       const alerts = await response.json();
