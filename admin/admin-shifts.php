@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>مدیریت برنامه شیفت‌ها</title>
   <style>
-    /* --- General Styles (Unchanged) --- */
     :root {
       --primary-color: #00ae70;
       --primary-dark: #089863;
@@ -18,7 +17,6 @@
       --header-text: #ffffff;
       --border-radius: 0.75rem;
       --border-color: #e9e9e9;
-      /* --- NEW --- */
       --swap-color: #e8eaf6;
       /* Light Indigo for swaps */
       --swap-text-color: #3f51b5;
@@ -171,7 +169,6 @@
       color: #212529;
     }
 
-    /* --- NEW --- */
     .status-swap {
       background-color: var(--swap-color);
       color: var(--swap-text-color);
@@ -183,7 +180,6 @@
       padding: 3rem;
     }
 
-    /* --- Modal Styles (Mostly Unchanged) --- */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -294,7 +290,6 @@
       background-color: #5a6268;
     }
 
-    /* --- NEW Style for Swap Date Selection --- */
     #swap-date-list {
       display: flex;
       flex-wrap: wrap;
@@ -325,7 +320,6 @@
       font-weight: bold;
     }
 
-    /* Summary Styles & DatePicker Styles (Unchanged) */
     .summary-separator td {
       background-color: #e9ecef;
       font-weight: bold;
@@ -461,7 +455,7 @@
             <option value="custom">سایر موارد (در کادر زیر بنویسید)</option>
           </select>
         </div>
-        <div class="form-group" id="custom-status-group" style="display: none">
+        <div class="form-group" id="custom-status-group" style="display: none;">
           <label for="custom-shift-status">وضعیت سفارشی</label>
           <input type="text" id="custom-shift-status" placeholder="مثلا: ماموریت، آموزش، یا 10:00 - 19:00" />
         </div>
@@ -471,13 +465,12 @@
             <select id="swap-expert-select"></select>
           </div>
           <div class="form-group">
-            <label for="swap-date-list">در تاریخ (روزهای عدم حضور همکار):</label>
+            <label>در تاریخ (روزهای عدم حضور همکار):</label>
             <div id="swap-date-list">
               <p style="color: #6c757d;">ابتدا یک همکار را انتخاب کنید.</p>
             </div>
           </div>
         </div>
-
       </div>
       <div class="modal-footer">
         <button id="modal-cancel-btn" class="btn-cancel">انصراف</button>
@@ -490,13 +483,17 @@
     let allExperts = [];
     let allAvailableDates = [];
     const modal = document.getElementById("edit-shift-modal");
-    let currentEditingInfo = { expertId: null, date: null, expertName: null };
-
+    let currentEditingInfo = {
+      expertId: null,
+      date: null,
+      isSwap: false,
+      linkedTo: null
+    };
     const shiftColorMap = new Map();
     const colorPalette = ["#E3F2FD", "#E8F5E9", "#FFF3E0", "#F3E5F5", "#FFEBEE", "#E0F7FA"];
     let nextColorIndex = 0;
 
-    // Jalali Helper Functions (Unchanged)
+    /* ===== Jalali helpers ===== */
     function jalaliToGregorian(jy, jm, jd) { var sal_a, gy, gm, gd, days; jy += 1595; days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186); gy = 400 * ~~(days / 146097); days %= 146097; if (days > 36524) { gy += 100 * ~~(--days / 36524); days %= 36524; if (days >= 365) days++; } gy += 4 * ~~(days / 1461); days %= 1461; if (days > 365) { gy += ~~((days - 1) / 365); days = (days - 1) % 365; } gd = days + 1; sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm]; return new Date(gy, gm - 1, gd); }
     function toPersian(date) { const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/"); return parts.map((part) => parseInt(part, 10)); }
     function pad2(n) { return String(n).padStart(2, "0"); }
@@ -505,8 +502,16 @@
     function isJalaliLeap(jy) { return ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 < 682; }
     function jalaliMonthLength(jy, jm) { if (jm <= 6) return 31; if (jm <= 11) return 30; return isJalaliLeap(jy) ? 30 : 29; }
 
-    // Vanilla Jalali DatePicker Class (Unchanged)
-    class JalaliDatePicker { constructor(inputId, altId) { this.input = document.getElementById(inputId); this.alt = document.getElementById(altId); if (!this.input || !this.alt) return; const gNow = new Date(); const [jy, jm, jd] = toPersian(gNow); this.jy = jy; this.jm = jm; this.jd = jd; this.pop = document.createElement("div"); this.pop.className = "jdp-popover jdp-hidden"; document.body.appendChild(this.pop); this.boundClickOutside = (e) => { if (!this.pop.contains(e.target) && e.target !== this.input) { this.hide(); } }; this.input.addEventListener("focus", () => this.show()); this.input.addEventListener("click", () => this.show()); window.addEventListener("resize", () => this.position()); } show() { this.render(); this.position(); this.pop.classList.remove("jdp-hidden"); setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0); } hide() { this.pop.classList.add("jdp-hidden"); document.removeEventListener("mousedown", this.boundClickOutside); } position() { const rect = this.input.getBoundingClientRect(); this.pop.style.top = window.scrollY + rect.bottom + 6 + "px"; this.pop.style.left = window.scrollX + rect.left + "px"; } nav(delta) { this.jm += delta; if (this.jm < 1) { this.jm = 12; this.jy--; } if (this.jm > 12) { this.jm = 1; this.jy++; } this.render(); } render() { const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"]; const firstG = jalaliToGregorian(this.jy, this.jm, 1); const firstWeekday = (firstG.getDay() + 1) % 7; const daysInMonth = jalaliMonthLength(this.jy, this.jm); let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat("fa-IR", { month: "long" }).format(firstG)} ${new Intl.DateTimeFormat("fa-IR", { year: "numeric" }).format(firstG)}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${weekDays.map((w) => `<div class="jdp-weekday">${w}</div>`).join("")}`; for (let i = 0; i < firstWeekday; i++) { html += `<div class="jdp-day other"></div>`; } for (let d = 1; d <= daysInMonth; d++) { html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`; } html += `</div>`; this.pop.innerHTML = html; this.pop.querySelectorAll("[data-nav]").forEach((btn) => { btn.addEventListener("click", (e) => this.nav(parseInt(e.currentTarget.dataset.nav, 10))); }); this.pop.querySelectorAll("[data-day]").forEach((cell) => { cell.addEventListener("click", (e) => { const d = parseInt(e.currentTarget.dataset.day, 10); const gDate = jalaliToGregorian(this.jy, this.jm, d); this.input.value = formatJalaliDisplay(this.jy, this.jm, d); this.alt.value = formatISO(gDate); this.hide(); if (typeof applyFilters === "function") applyFilters(); }); }); } setInitialFromGregorian(date) { const [jy, jm, jd] = toPersian(date); this.jy = jy; this.jm = jm; this.jd = jd; this.input.value = formatJalaliDisplay(jy, jm, jd); this.alt.value = formatISO(date); } }
+    /* ===== Vanilla Jalali DatePicker (no deps) ===== */
+    class JalaliDatePicker {
+      constructor(inputId, altId) { this.input = document.getElementById(inputId); this.alt = document.getElementById(altId); if (!this.input || !this.alt) return; const gNow = new Date(); const [jy, jm, jd] = toPersian(gNow); this.jy = jy; this.jm = jm; this.jd = jd; this.pop = document.createElement("div"); this.pop.className = "jdp-popover jdp-hidden"; document.body.appendChild(this.pop); this.boundClickOutside = (e) => { if (!this.pop.contains(e.target) && e.target !== this.input) { this.hide(); } }; this.input.addEventListener("focus", () => this.show()); this.input.addEventListener("click", () => this.show()); window.addEventListener("resize", () => this.position()); }
+      show() { this.render(); this.position(); this.pop.classList.remove("jdp-hidden"); setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0); }
+      hide() { this.pop.classList.add("jdp-hidden"); document.removeEventListener("mousedown", this.boundClickOutside); }
+      position() { const rect = this.input.getBoundingClientRect(); this.pop.style.top = window.scrollY + rect.bottom + 6 + "px"; this.pop.style.left = window.scrollX + rect.left + "px"; }
+      nav(delta) { this.jm += delta; if (this.jm < 1) { this.jm = 12; this.jy--; } if (this.jm > 12) { this.jm = 1; this.jy++; } this.render(); }
+      render() { const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"]; const firstG = jalaliToGregorian(this.jy, this.jm, 1); const firstWeekday = (firstG.getDay() + 1) % 7; const daysInMonth = jalaliMonthLength(this.jy, this.jm); let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat("fa-IR", { month: "long" }).format(firstG)} ${new Intl.DateTimeFormat("fa-IR", { year: "numeric" }).format(firstG)}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${weekDays.map((w) => `<div class="jdp-weekday">${w}</div>`).join("")}`; for (let i = 0; i < firstWeekday; i++) { html += `<div class="jdp-day other"></div>`; } for (let d = 1; d <= daysInMonth; d++) { html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`; } html += `</div>`; this.pop.innerHTML = html; this.pop.querySelectorAll("[data-nav]").forEach((btn) => { btn.addEventListener("click", (e) => this.nav(parseInt(e.currentTarget.dataset.nav, 10))); }); this.pop.querySelectorAll("[data-day]").forEach((cell) => { cell.addEventListener("click", (e) => { const d = parseInt(e.currentTarget.dataset.day, 10); const gDate = jalaliToGregorian(this.jy, this.jm, d); this.input.value = formatJalaliDisplay(this.jy, this.jm, d); this.alt.value = formatISO(gDate); this.hide(); if (typeof applyFilters === "function") applyFilters(); }); }); }
+      setInitialFromGregorian(date) { const [jy, jm, jd] = toPersian(date); this.jy = jy; this.jm = jm; this.jd = jd; this.input.value = formatJalaliDisplay(jy, jm, jd); this.alt.value = formatISO(date); }
+    }
 
     document.addEventListener("DOMContentLoaded", initializePage);
 
@@ -515,7 +520,8 @@
       loader.style.display = "block";
       try {
         const response = await fetch("/data/shifts.json?v=" + new Date().getTime());
-        if (!response.ok) throw new Error(`فایل shifts.json یافت نشد (کد: ${response.status})`);
+        if (!response.ok)
+          throw new Error(`فایل shifts.json یافت نشد (کد: ${response.status})`);
 
         const data = await response.json();
         allExperts = data.experts || [];
@@ -539,18 +545,19 @@
         applyFilters();
       } catch (error) {
         loader.textContent = `خطا در بارگذاری اولیه: ${error.message}`;
+        console.error(error);
       }
     }
 
     function setupEventListeners() {
-      document.getElementById("startDate").addEventListener("blur", applyFilters);
-      document.getElementById("endDate").addEventListener("blur", applyFilters);
+      // Note: Date pickers trigger the change on the hidden 'alt' field.
+      document.getElementById("startDateAlt").addEventListener("change", applyFilters);
+      document.getElementById("endDateAlt").addEventListener("change", applyFilters);
       document.getElementById("expertSelect1").addEventListener("change", applyFilters);
       document.getElementById("expertSelect2").addEventListener("change", applyFilters);
       document.getElementById("modal-cancel-btn").addEventListener("click", closeEditModal);
       document.getElementById("modal-save-btn").addEventListener("click", saveShiftUpdate);
 
-      // --- MODIFIED Event Listener for Status Select ---
       document.getElementById("shift-status-select").addEventListener("change", (e) => {
         const customGroup = document.getElementById("custom-status-group");
         const swapGroup = document.getElementById("swap-controls-group");
@@ -560,11 +567,13 @@
         swapGroup.style.display = selectedValue === "swap" ? "block" : "none";
 
         if (selectedValue === "swap") {
-          populateSwapExpertSelect();
+          if (!currentEditingInfo.isSwap) {
+            populateSwapExpertSelect();
+            document.getElementById("swap-date-list").innerHTML = `<p style="color: #6c757d;">ابتدا یک همکار را انتخاب کنید.</p>`;
+          }
         }
       });
 
-      // --- NEW Event Listener for Swap Expert Select ---
       document.getElementById("swap-expert-select").addEventListener("change", (e) => {
         const expertB_id = e.target.value;
         if (expertB_id && expertB_id !== 'none') {
@@ -574,7 +583,6 @@
         }
       });
 
-      // --- NEW Event Listener for Date Selection in Swap ---
       document.getElementById('swap-date-list').addEventListener('click', e => {
         if (e.target.classList.contains('swap-date-option')) {
           document.querySelectorAll('.swap-date-option').forEach(el => el.classList.remove('selected'));
@@ -585,79 +593,106 @@
       document.getElementById("schedule-container").addEventListener("click", (e) => {
         const cell = e.target.closest(".editable-cell");
         if (cell) {
-          const { expertId, date, currentStatus } = cell.dataset;
-          openEditModal(expertId, date, currentStatus);
+          openEditModal(cell.dataset.expertId, cell.dataset.date);
         }
       });
     }
 
-    function openEditModal(expertId, date, currentStatus) {
+    function getShiftDetails(shiftEntry) {
+      if (typeof shiftEntry === 'object' && shiftEntry !== null && shiftEntry.status === 'swap') {
+        return {
+          status: 'swap',
+          displayText: shiftEntry.displayText,
+          isSwap: true,
+          linkedTo: shiftEntry.linkedTo
+        };
+      }
+
+      const status = shiftEntry || 'unknown';
+      let displayText = status;
+      switch (status) {
+        case 'on-duty': displayText = 'حضور'; break;
+        case 'off': displayText = 'عدم حضور'; break;
+        case 'leave': displayText = 'مرخصی'; break;
+        case 'unknown': displayText = '-'; break;
+      }
+
+      return {
+        status: status,
+        displayText: displayText,
+        isSwap: false,
+        linkedTo: null
+      };
+    }
+
+    function openEditModal(expertId, date) {
       const expert = allExperts.find((exp) => exp.id == expertId);
-      currentEditingInfo = { expertId, date, expertName: expert.name };
+      const rawShiftData = expert.shifts[date];
+      const shiftDetails = getShiftDetails(rawShiftData);
+
+      currentEditingInfo = {
+        expertId: expertId,
+        date: date,
+        isSwap: shiftDetails.isSwap,
+        linkedTo: shiftDetails.linkedTo
+      };
 
       document.getElementById("modal-expert-name").textContent = expert.name;
       document.getElementById("modal-shift-date").textContent = new Date(date).toLocaleDateString("fa-IR");
 
       const statusSelect = document.getElementById("shift-status-select");
-      const customStatusInput = document.getElementById("custom-shift-status");
       const customGroup = document.getElementById("custom-status-group");
       const swapGroup = document.getElementById("swap-controls-group");
 
-      // Reset all conditional groups
       customGroup.style.display = "none";
       swapGroup.style.display = "none";
-      customStatusInput.value = "";
-      document.getElementById("swap-date-list").innerHTML = `<p style="color: #6c757d;">ابتدا یک همکار را انتخاب کنید.</p>`;
+      document.getElementById("custom-shift-status").value = "";
 
-
-      const standardStatuses = ["on-duty", "off", "leave"];
-      if (standardStatuses.includes(currentStatus)) {
-        statusSelect.value = currentStatus;
-      } else if (currentStatus && currentStatus.startsWith("جابجایی")) {
+      if (shiftDetails.isSwap) {
         statusSelect.value = "swap";
-        // In a real scenario, you might want to pre-fill the swap controls here
-        // For now, we just set the type.
-      } else if (currentStatus && currentStatus !== "unknown") {
-        statusSelect.value = "custom";
-        customGroup.style.display = "block";
-        customStatusInput.value = currentStatus;
+        swapGroup.style.display = "block";
+        populateSwapExpertSelect(shiftDetails.linkedTo.expertId);
+        populateSwapDates(shiftDetails.linkedTo.expertId, shiftDetails.linkedTo.date);
+      } else if (['on-duty', 'off', 'leave'].includes(shiftDetails.status)) {
+        statusSelect.value = shiftDetails.status;
+      } else if (shiftDetails.status !== 'unknown') {
+        statusSelect.value = 'custom';
+        customGroup.style.display = 'block';
+        document.getElementById('custom-shift-status').value = shiftDetails.status;
       } else {
-        statusSelect.value = "on-duty";
+        statusSelect.value = 'on-duty';
       }
       modal.classList.add("visible");
     }
 
-    function closeEditModal() {
-      modal.classList.remove("visible");
-    }
-
-    // --- NEW Functions for Swap ---
-    function populateSwapExpertSelect() {
+    function populateSwapExpertSelect(selectedExpertId = 'none') {
       const select = document.getElementById('swap-expert-select');
       const expertA_id = currentEditingInfo.expertId;
 
       let optionsHtml = '<option value="none">-- انتخاب کنید --</option>';
       allExperts
-        .filter(exp => String(exp.id) !== String(expertA_id)) // Exclude current expert
+        .filter(exp => String(exp.id) !== String(expertA_id))
         .sort((a, b) => a.name.localeCompare(b.name, 'fa'))
         .forEach(expert => {
           optionsHtml += `<option value="${expert.id}">${expert.name}</option>`;
         });
       select.innerHTML = optionsHtml;
+      select.value = selectedExpertId;
     }
 
-    function populateSwapDates(expertB_id) {
+    function populateSwapDates(expertB_id, selectedDate = null) {
       const dateListContainer = document.getElementById('swap-date-list');
       const expertB = allExperts.find(exp => String(exp.id) === String(expertB_id));
-      if (!expertB) {
-        dateListContainer.innerHTML = `<p style="color: #dc3545;">خطا: کارشناس یافت نشد.</p>`;
-        return;
-      }
+      if (!expertB) return;
 
       const availableDates = Object.entries(expertB.shifts)
-        .filter(([date, status]) => status === 'off')
-        .map(([date]) => date)
-        .sort();
+        .filter(([date, status]) => getShiftDetails(status).status === 'off')
+        .map(([date]) => date);
+
+      if (selectedDate && !availableDates.includes(selectedDate)) {
+        availableDates.push(selectedDate);
+      }
+      availableDates.sort();
 
       if (availableDates.length === 0) {
         dateListContainer.innerHTML = `<p style="color: #6c757d;">این همکار روز خالی برای جابجایی ندارد.</p>`;
@@ -667,88 +702,77 @@
       let datesHtml = '';
       availableDates.forEach(date => {
         const jalaliDate = new Date(date).toLocaleDateString('fa-IR');
-        datesHtml += `<div class="swap-date-option" data-date="${date}">${jalaliDate}</div>`;
+        const isSelectedClass = (date === selectedDate) ? 'selected' : '';
+        datesHtml += `<div class="swap-date-option ${isSelectedClass}" data-date="${date}">${jalaliDate}</div>`;
       });
       dateListContainer.innerHTML = datesHtml;
     }
 
-    // --- MODIFIED saveShiftUpdate function ---
     async function saveShiftUpdate() {
       const token = localStorage.getItem("jwt");
       if (!token) {
-        alert("توکن احراز هویت یافت نشد. لطفاً دوباره وارد شوید.");
+        alert("توکن احراز هویت یافت نشد.");
         return;
       }
 
       const statusSelectValue = document.getElementById("shift-status-select").value;
-      let requestBody, action;
+      let requestBody = {};
+      const isOriginallySwap = currentEditingInfo.isSwap;
+      const wantsSwap = (statusSelectValue === 'swap');
 
-      if (statusSelectValue === 'swap') {
-        action = 'swap';
+      if (isOriginallySwap && !wantsSwap) {
+        let newStatus = statusSelectValue;
+        if (newStatus === 'custom') newStatus = document.getElementById('custom-shift-status').value.trim();
+        if (!newStatus) {
+          alert("لطفاً وضعیت جدید را مشخص کنید.");
+          return;
+        }
+        requestBody = {
+          action: 'revert_and_update',
+          expertId: currentEditingInfo.expertId,
+          date: currentEditingInfo.date,
+          newStatus: newStatus,
+          linkedExpertId: currentEditingInfo.linkedTo.expertId,
+          linkedDate: currentEditingInfo.linkedTo.date
+        };
+      } else if (wantsSwap) {
         const expertA_id = currentEditingInfo.expertId;
         const dateX = currentEditingInfo.date;
         const expertB_id = document.getElementById('swap-expert-select').value;
         const selectedDateEl = document.querySelector('.swap-date-option.selected');
-
         if (expertB_id === 'none' || !selectedDateEl) {
           alert('لطفاً همکار و تاریخ مورد نظر برای جابجایی را انتخاب کنید.');
           return;
         }
         const dateY = selectedDateEl.dataset.date;
-
-        requestBody = { action, expertA_id, dateX, expertB_id, dateY };
-
+        requestBody = { action: 'swap', expertA_id, dateX, expertB_id, dateY };
       } else {
-        action = 'update';
-        const { expertId, date } = currentEditingInfo;
-        if (!expertId || !date) return;
-
         let newStatus = statusSelectValue;
-        if (newStatus === "custom") {
-          newStatus = document.getElementById("custom-shift-status").value.trim();
-          if (!newStatus) {
-            alert("لطفاً برای وضعیت سفارشی یک مقدار وارد کنید.");
-            return;
-          }
+        if (newStatus === 'custom') newStatus = document.getElementById('custom-shift-status').value.trim();
+        if (!newStatus) {
+          alert("لطفاً وضعیت سفارشی را وارد کنید.");
+          return;
         }
-        requestBody = { action, expertId, date, status: newStatus };
+        requestBody = {
+          action: 'update',
+          expertId: currentEditingInfo.expertId,
+          date: currentEditingInfo.date,
+          status: newStatus
+        };
       }
 
       try {
         const response = await fetch("/php/update-shift.php", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify(requestBody),
         });
-
         const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.message || "خطا در ذخیره‌سازی تغییرات.");
-        }
+        if (!response.ok) throw new Error(result.message || "خطا در ذخیره‌سازی.");
 
         alert(result.message);
         closeEditModal();
-
-        // --- Update local data for instant feedback ---
-        if (action === 'swap') {
-          const { expertA_id, dateX, expertB_id, dateY } = requestBody;
-          const expertA = allExperts.find(e => String(e.id) === String(expertA_id));
-          const expertB = allExperts.find(e => String(e.id) === String(expertB_id));
-          if (expertA && expertB) {
-            expertA.shifts[dateX] = `عدم حضور (جابجایی با ${expertB.name})`;
-            expertB.shifts[dateY] = `حضور (جابجایی از ${expertA.name})`;
-          }
-        } else {
-          const { expertId, date, status } = requestBody;
-          const exp = allExperts.find(e => String(e.id) === String(expertId));
-          if (exp) {
-            exp.shifts[date] = status;
-          }
-        }
-        applyFilters();
+        await refreshDataAndRender();
 
       } catch (error) {
         console.error("Error updating shift:", error);
@@ -756,11 +780,29 @@
       }
     }
 
-    // Unchanged functions: getShiftStyle, populateFilterControls
-    function getShiftStyle(shiftTime) { if (!shiftTime) return ""; if (!shiftColorMap.has(shiftTime)) { shiftColorMap.set(shiftTime, colorPalette[nextColorIndex]); nextColorIndex = (nextColorIndex + 1) % colorPalette.length; } return `style="background-color: ${shiftColorMap.get(shiftTime)};"`; }
-    function populateFilterControls() { const expertSelect1 = document.getElementById("expertSelect1"); const expertSelect2 = document.getElementById("expertSelect2"); let optionsHtml = '<option value="none">-- هیچکدام --</option>'; allExperts.sort((a, b) => a.name.localeCompare(b.name, "fa")).forEach((expert) => { optionsHtml += `<option value="${expert.id}">${expert.name}</option>`; }); expertSelect1.innerHTML = optionsHtml; expertSelect2.innerHTML = optionsHtml; expertSelect1.value = "none"; expertSelect2.value = "none"; const allDatesSet = new Set(); allExperts.forEach((expert) => { Object.keys(expert.shifts).forEach((date) => allDatesSet.add(date)); }); allAvailableDates = Array.from(allDatesSet).sort(); }
+    async function refreshDataAndRender() {
+      try {
+        const response = await fetch("/data/shifts.json?v=" + new Date().getTime());
+        if (!response.ok) {
+          console.error("Failed to refresh data from server.");
+          return;
+        }
+        const data = await response.json();
+        allExperts = data.experts || [];
 
-    // --- MODIFIED renderTable function ---
+        const allDatesSet = new Set();
+        allExperts.forEach((expert) => {
+          Object.keys(expert.shifts).forEach((date) => allDatesSet.add(date));
+        });
+        allAvailableDates = Array.from(allDatesSet).sort();
+
+        applyFilters();
+      } catch (error) {
+        console.error("Error during data refresh:", error);
+        alert('خطا در به‌روزرسانی جدول.');
+      }
+    }
+
     function renderTable(expertsToRender, datesToRender) {
       const container = document.getElementById("schedule-container");
       const loader = document.getElementById("loader");
@@ -773,10 +815,10 @@
       }
       loader.style.display = "none";
 
-      // All calculation logic remains unchanged
-      const dailyOnDutyCounts = {}; const dailyOffDutyCounts = {}; const dailyLeaveCounts = {}; const totalOnDutyByDate = {}; const totalOffDutyByDate = {}; const totalLeaveByDate = {};
+      const dailyOnDutyCounts = {}; const dailyOffDutyCounts = {}; const dailyLeaveCounts = {};
+      const totalOnDutyByDate = {}; const totalOffDutyByDate = {}; const totalLeaveByDate = {};
       const uniqueShiftTimes = [...new Set(allExperts.map((e) => e["shifts-time"]).filter(Boolean))].sort();
-      datesToRender.forEach((date) => { dailyOnDutyCounts[date] = {}; dailyOffDutyCounts[date] = {}; dailyLeaveCounts[date] = {}; uniqueShiftTimes.forEach((shift) => { dailyOnDutyCounts[date][shift] = 0; dailyOffDutyCounts[date][shift] = 0; dailyLeaveCounts[date][shift] = 0; }); totalOnDutyByDate[date] = 0; totalOffDutyByDate[date] = 0; totalLeaveByDate[date] = 0; allExperts.forEach((expert) => { const status = expert.shifts[date] || "unknown"; const shiftTime = expert["shifts-time"]; if (shiftTime) { switch (status) { case "off": dailyOffDutyCounts[date][shiftTime]++; break; case "leave": dailyLeaveCounts[date][shiftTime]++; break; default: if (!status.startsWith("عدم حضور")) dailyOnDutyCounts[date][shiftTime]++; break; } } switch (status) { case "off": totalOffDutyByDate[date]++; break; case "leave": totalLeaveByDate[date]++; break; case "unknown": break; default: if (status.startsWith("عدم حضور")) { totalOffDutyByDate[date]++; } else { totalOnDutyByDate[date]++; } break; } }); });
+      datesToRender.forEach((date) => { dailyOnDutyCounts[date] = {}; dailyOffDutyCounts[date] = {}; dailyLeaveCounts[date] = {}; uniqueShiftTimes.forEach((shift) => { dailyOnDutyCounts[date][shift] = 0; dailyOffDutyCounts[date][shift] = 0; dailyLeaveCounts[date][shift] = 0; }); totalOnDutyByDate[date] = 0; totalOffDutyByDate[date] = 0; totalLeaveByDate[date] = 0; allExperts.forEach((expert) => { const shiftDetails = getShiftDetails(expert.shifts[date]); const shiftTime = expert["shifts-time"]; const status = shiftDetails.status; if (shiftTime) { if (status === 'off' || (status === 'swap' && shiftDetails.displayText.startsWith('عدم'))) { dailyOffDutyCounts[date][shiftTime]++; } else if (status === 'leave') { dailyLeaveCounts[date][shiftTime]++; } else if (status !== 'unknown') { dailyOnDutyCounts[date][shiftTime]++; } } if (status === 'off' || (status === 'swap' && shiftDetails.displayText.startsWith('عدم'))) { totalOffDutyByDate[date]++; } else if (status === 'leave') { totalLeaveByDate[date]++; } else if (status !== 'unknown') { totalOnDutyByDate[date]++; } }); });
 
       let tableHtml = `<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>`;
       datesToRender.forEach((date) => {
@@ -788,46 +830,28 @@
       });
       tableHtml += "</tr></thead><tbody>";
 
-      if (expertsToRender.length > 0) {
-        expertsToRender.forEach((expert) => {
-          const shiftTime = expert["shifts-time"] || "-";
-          const breakTime = expert["break-time"] || "-";
-          const shiftStyle = getShiftStyle(shiftTime);
-          tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
+      expertsToRender.forEach((expert) => {
+        const shiftTime = expert["shifts-time"] || "-";
+        const breakTime = expert["break-time"] || "-";
+        const shiftStyle = getShiftStyle(shiftTime);
+        tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
 
-          datesToRender.forEach((date) => {
-            const status = expert.shifts[date] || "unknown";
-            let statusClass = "", statusText = status;
-
-            // --- MODIFIED Status rendering logic ---
-            if (status.includes("جابجایی")) {
-              statusClass = "status-swap";
-              statusText = status; // Display full text
-            } else if (status === "on-duty") {
-              statusClass = "status-on-duty";
-              statusText = "حضور";
-            } else if (status === "off") {
-              statusClass = "status-off";
-              statusText = "عدم حضور";
-            } else if (status === "leave") {
-              statusClass = "status-special";
-              statusText = "مرخصی";
-            } else if (status === "unknown") {
-              statusClass = "status-unknown";
-              statusText = "-";
-            } else {
-              statusClass = "status-special";
-            }
-
-            tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}" data-current-status="${status}">
-                            <span class="status ${statusClass}">${statusText}</span>
-                          </td>`;
-          });
-          tableHtml += "</tr>";
+        datesToRender.forEach((date) => {
+          const shiftDetails = getShiftDetails(expert.shifts[date]);
+          let statusClass = '';
+          if (shiftDetails.isSwap) {
+            statusClass = 'status-swap';
+          } else {
+            const classMap = { 'on-duty': 'status-on-duty', 'off': 'status-off', 'leave': 'status-special', 'unknown': 'status-unknown' };
+            statusClass = classMap[shiftDetails.status] || 'status-special';
+          }
+          tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}">
+                          <span class="status ${statusClass}">${shiftDetails.displayText}</span>
+                        </td>`;
         });
-      }
+        tableHtml += "</tr>";
+      });
 
-      // Summary section generation (Unchanged)
       const totalColumns = datesToRender.length + 3;
       if (uniqueShiftTimes.length > 0) { tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">خلاصه وضعیت به تفکیک شیفت</td></tr>`; uniqueShiftTimes.forEach((shiftTime) => { const summaryRowStyle = getShiftStyle(shiftTime); tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>حاضرین در شیفت ${shiftTime}</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count">${dailyOnDutyCounts[date][shiftTime] || 0}</span></td>`; }); tableHtml += `</tr>`; tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>عدم حضور در شیفت ${shiftTime}</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${dailyOffDutyCounts[date][shiftTime] || 0}</span></td>`; }); tableHtml += `</tr>`; tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>مرخصی در شیفت ${shiftTime}</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${dailyLeaveCounts[date][shiftTime] || 0}</span></td>`; }); tableHtml += `</tr>`; }); }
       tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">جمع‌بندی کل روزانه</td></tr>`; tableHtml += `<tr class="summary-row"><td style="background-color: #E8F5E9;">مجموع کل کارشناسان حاضر</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count">${totalOnDutyByDate[date] || 0}</span></td>`; }); tableHtml += `</tr>`; tableHtml += `<tr class="summary-row"><td style="background-color: #FFEBEE;">مجموع کل عدم حضور</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${totalOffDutyByDate[date] || 0}</span></td>`; }); tableHtml += `</tr>`; tableHtml += `<tr class="summary-row"><td style="background-color: #FFF3E0;">مجموع کل مرخصی</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${totalLeaveByDate[date] || 0}</span></td>`; }); tableHtml += `</tr>`;
@@ -855,6 +879,40 @@
 
       filteredExperts.sort((a, b) => (a["shifts-time"] || "").localeCompare(b["shifts-time"] || ""));
       renderTable(filteredExperts, filteredDates);
+    }
+
+    function closeEditModal() {
+      modal.classList.remove("visible");
+    }
+
+    function getShiftStyle(shiftTime) {
+      if (!shiftTime) return "";
+      if (!shiftColorMap.has(shiftTime)) {
+        shiftColorMap.set(shiftTime, colorPalette[nextColorIndex]);
+        nextColorIndex = (nextColorIndex + 1) % colorPalette.length;
+      }
+      return `style="background-color: ${shiftColorMap.get(shiftTime)};"`;
+    }
+
+    function populateFilterControls() {
+      const expertSelect1 = document.getElementById("expertSelect1");
+      const expertSelect2 = document.getElementById("expertSelect2");
+      let optionsHtml = '<option value="none">-- هیچکدام --</option>';
+      allExperts
+        .sort((a, b) => a.name.localeCompare(b.name, "fa"))
+        .forEach((expert) => {
+          optionsHtml += `<option value="${expert.id}">${expert.name}</option>`;
+        });
+      expertSelect1.innerHTML = optionsHtml;
+      expertSelect2.innerHTML = optionsHtml;
+      expertSelect1.value = "none";
+      expertSelect2.value = "none";
+
+      const allDatesSet = new Set();
+      allExperts.forEach((expert) => {
+        Object.keys(expert.shifts).forEach((date) => allDatesSet.add(date));
+      });
+      allAvailableDates = Array.from(allDatesSet).sort();
     }
   </script>
 </body>
