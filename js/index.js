@@ -473,17 +473,30 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         alerts.forEach((alert) => {
           const colorClass = alert.color;
-          let startDateTimeInfo = "",
-            endDateTimeInfo = "";
-          if (alert.startDate && alert.startTime) {
-            startDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">شروع: ${toPersianDigits(
-              alert.startDate
-            )} ساعت ${toPersianDigits(alert.startTime)}</p>`;
+          let startDateTimeInfo = "";
+          let endDateTimeInfo = "";
+          if (alert.startDate || alert.startTime) {
+            const parts = [];
+            if (alert.startDate) {
+              parts.push(toPersianDigits(alert.startDate));
+            }
+            if (alert.startTime) {
+              parts.push(`ساعت ${toPersianDigits(alert.startTime)}`);
+            }
+            const dateTimeString = parts.join(" ");
+            startDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">شروع: ${dateTimeString}</p>`;
           }
-          if (alert.endDate && alert.endTime) {
-            endDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">پایان: ${toPersianDigits(
-              alert.endDate
-            )} ساعت ${toPersianDigits(alert.endTime)}</p>`;
+
+          if (alert.endDate || alert.endTime) {
+            const parts = [];
+            if (alert.endDate) {
+              parts.push(toPersianDigits(alert.endDate));
+            }
+            if (alert.endTime) {
+              parts.push(`ساعت ${toPersianDigits(alert.endTime)}`);
+            }
+            const dateTimeString = parts.join(" ");
+            endDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">پایان: ${dateTimeString}</p>`;
           }
           html += `<div class="news-alert-box ${colorClass}"><b>${
             alert.title
