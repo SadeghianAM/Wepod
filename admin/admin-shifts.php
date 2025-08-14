@@ -795,7 +795,11 @@ require __DIR__ . '/../php/auth_check.php';
 
         alert(result.message);
         closeEditModal();
-        initializePage(); // رفرش داده‌ها
+        const exp = allExperts.find(exp => String(exp.id) === String(expertId));
+        if (exp) {
+          exp.shifts[date] = newStatus;
+        }
+        applyFilters();
       } catch (error) {
         console.error("Error updating shift:", error);
         alert(`ذخیره ناموفق بود: ${error.message}`);
