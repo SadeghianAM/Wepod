@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>برنامه شیفت‌ها</title>
     <style>
-      /* --- استایل‌ها بدون تغییر باقی مانده‌اند --- */
       :root {
         --primary-color: #00ae70;
         --primary-dark: #089863;
@@ -131,7 +130,7 @@
       table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 900px;
+        min-width: 960px;
       }
       th,
       td {
@@ -157,17 +156,17 @@
       }
       thead th:nth-child(1),
       tbody td:nth-child(1) {
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+      }
+      thead th:nth-child(2),
+      tbody td:nth-child(2) {
         width: 200px;
         min-width: 200px;
         max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
-      }
-      thead th:nth-child(2),
-      tbody td:nth-child(2) {
-        width: 150px;
-        min-width: 150px;
-        max-width: 150px;
       }
       thead th:nth-child(3),
       tbody td:nth-child(3) {
@@ -175,8 +174,14 @@
         min-width: 150px;
         max-width: 150px;
       }
-      thead th:nth-child(-n + 3),
-      tbody td:nth-child(-n + 3) {
+      thead th:nth-child(4),
+      tbody td:nth-child(4) {
+        width: 150px;
+        min-width: 150px;
+        max-width: 150px;
+      }
+      thead th:nth-child(-n + 4),
+      tbody td:nth-child(-n + 4) {
         position: -webkit-sticky;
         position: sticky;
         z-index: 2;
@@ -187,42 +192,32 @@
       }
       thead th:nth-child(2),
       tbody td:nth-child(2) {
-        right: 200px;
+        right: 60px;
       }
       thead th:nth-child(3),
       tbody td:nth-child(3) {
-        right: 350px;
+        right: 260px;
       }
-      thead th:nth-child(-n + 3) {
+      thead th:nth-child(4),
+      tbody td:nth-child(4) {
+        right: 410px;
+      }
+      thead th:nth-child(-n + 4) {
         background-color: var(--primary-light);
         z-index: 4;
       }
-      tbody td:nth-child(-n + 3) {
+      tbody td:nth-child(-n + 4) {
         background-color: var(--card-bg);
       }
-      tbody tr:nth-child(even) td:nth-child(-n + 3) {
+      tbody tr:nth-child(even) td:nth-child(-n + 4) {
         background-color: var(--bg-color);
       }
-      tbody tr:hover td:nth-child(-n + 3) {
+      tbody tr:hover td:nth-child(-n + 4) {
         background-color: var(--primary-light);
       }
-      tbody td:nth-child(1) {
+      tbody td:nth-child(2) {
         font-weight: 600;
         text-align: right;
-      }
-      thead th:nth-child(1)::after,
-      tbody td:nth-child(1)::after,
-      thead th:nth-child(2)::after,
-      tbody td:nth-child(2)::after,
-      thead th:nth-child(3)::after,
-      tbody td:nth-child(3)::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: 3px;
-        background-color: var(--primary-dark);
       }
       .status {
         padding: 0.5em 0.7em;
@@ -560,24 +555,24 @@
         }
 
         container.innerHTML = `
-                <h1>تقویم شیفت من</h1>
-                <div id="user-shift-info">
-                    <p>کارشناس: <span>${userData.name}</span></p>
-                    <p>ساعت شیفت: <span>${
-                      userData["shifts-time"] || "تعیین نشده"
-                    }</span></p>
-                    <p>${breakLabel}: <span>${breakValue}</span></p>
-                </div>
-                <div id="calendar-controls">
-                    <button id="prev-month" ${
-                      hasPrevShifts ? "" : "disabled"
-                    }>&rarr; ماه قبل</button>
-                    <span id="current-month-year">${monthName} ${year}</span>
-                    <button id="next-month" ${
-                      hasNextShifts ? "" : "disabled"
-                    }>ماه بعد &larr;</button>
-                </div>
-                <div id="calendar-container"></div>`;
+                        <h1>تقویم شیفت من</h1>
+                        <div id="user-shift-info">
+                            <p>کارشناس: <span>${userData.name}</span></p>
+                            <p>ساعت شیفت: <span>${
+                              userData["shifts-time"] || "تعیین نشده"
+                            }</span></p>
+                            <p>${breakLabel}: <span>${breakValue}</span></p>
+                        </div>
+                        <div id="calendar-controls">
+                            <button id="prev-month" ${
+                              hasPrevShifts ? "" : "disabled"
+                            }>&rarr; ماه قبل</button>
+                            <span id="current-month-year">${monthName} ${year}</span>
+                            <button id="next-month" ${
+                              hasNextShifts ? "" : "disabled"
+                            }>ماه بعد &larr;</button>
+                        </div>
+                        <div id="calendar-container"></div>`;
 
         document.getElementById("prev-month").addEventListener("click", () => {
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
@@ -638,7 +633,6 @@
         return parts.map((part) => parseInt(part, 10));
       }
 
-      // --- START: MODIFIED FUNCTION ---
       function renderCalendar(date, shiftsData) {
         const container = document.getElementById("calendar-container");
         const weekDays = [
@@ -688,7 +682,6 @@
           let statusClass = "",
             statusText = "";
 
-          // *** CHANGE IS HERE ***
           if (status === "on-duty") {
             statusClass = "status-on-duty";
             statusText = "حضور";
@@ -696,35 +689,31 @@
             statusClass = "status-off";
             statusText = "عدم حضور";
           } else if (status === "leave") {
-            // Condition added for 'leave'
             statusClass = "status-special";
             statusText = "مرخصی";
           } else if (status !== "unknown") {
-            // This now handles other special statuses
             statusClass = "status-special";
             statusText = status;
           }
-          // *** END OF CHANGE ***
 
           html += `<div class="calendar-day ${
             isOtherMonth ? "other-month" : ""
           }">
-                              <div class="day-number">${loopDate.toLocaleDateString(
-                                "fa-IR",
-                                { day: "numeric" }
-                              )}</div>
-                              ${
-                                statusText
-                                  ? `<div class="shift-info ${statusClass}">${statusText}</div>`
-                                  : ""
-                              }
-                           </div>`;
+                                      <div class="day-number">${loopDate.toLocaleDateString(
+                                        "fa-IR",
+                                        { day: "numeric" }
+                                      )}</div>
+                                      ${
+                                        statusText
+                                          ? `<div class="shift-info ${statusClass}">${statusText}</div>`
+                                          : ""
+                                      }
+                                  </div>`;
           loopDate.setDate(loopDate.getDate() + 1);
         }
         html += "</div>";
         container.innerHTML = html;
       }
-      // --- END: MODIFIED FUNCTION ---
 
       function getShiftStyle(shiftTime) {
         if (!shiftTime) {
@@ -757,26 +746,26 @@
           (allAvailableDates = Array.from(n).sort());
 
         if (allAvailableDates.length > 0) {
+          const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+          };
+
           const today = new Date();
-          const firstDayOfMonth = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-          )
-            .toISOString()
-            .split("T")[0];
-          const lastDayOfMonth = new Date(
-            today.getFullYear(),
-            today.getMonth() + 1,
-            0
-          )
-            .toISOString()
-            .split("T")[0];
-          document.getElementById("startDate").value = firstDayOfMonth;
-          document.getElementById("endDate").value = lastDayOfMonth;
+          const futureDate = new Date();
+          futureDate.setDate(today.getDate() + 7);
+
+          const startDateValue = formatDate(today);
+          const endDateValue = formatDate(futureDate);
+
+          document.getElementById("startDate").value = startDateValue;
+          document.getElementById("endDate").value = endDateValue;
         }
       }
 
+      // --- JAVASCRIPT CHANGE START ---
       function applyFilters() {
         const t = document.getElementById("startDate").value,
           e = document.getElementById("endDate").value,
@@ -789,13 +778,26 @@
           o.size > 0
             ? allExperts.filter((t) => o.has(String(t.id)))
             : [...allExperts];
-        r.sort((t, e) =>
-          (t["shifts-time"] || "").localeCompare(e["shifts-time"] || "")
-        ),
-          renderTable(r, a);
-      }
 
-      // --- START: MODIFIED FUNCTION ---
+        // Multi-level sorting logic
+        r.sort((expertA, expertB) => {
+          const shiftTimeA = expertA["shifts-time"] || "";
+          const shiftTimeB = expertB["shifts-time"] || "";
+          const shiftCompare = shiftTimeA.localeCompare(shiftTimeB, "fa");
+
+          if (shiftCompare !== 0) {
+            return shiftCompare;
+          }
+
+          const breakTimeA = expertA["break-time"] || "";
+          const breakTimeB = expertB["break-time"] || "";
+          return breakTimeA.localeCompare(breakTimeB, "fa");
+        });
+
+        renderTable(r, a);
+      }
+      // --- JAVASCRIPT CHANGE END ---
+
       function renderTable(experts, dates) {
         const container = document.getElementById("schedule-container");
         const loader = document.getElementById("loader");
@@ -808,7 +810,7 @@
         }
 
         let tableHtml =
-          "<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>";
+          "<table><thead><tr><th>ردیف</th><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>";
 
         dates.forEach((date) => {
           const d = new Date(date);
@@ -820,11 +822,14 @@
 
         tableHtml += "</tr></thead><tbody>";
 
-        experts.forEach((expert) => {
+        experts.forEach((expert, index) => {
           const shiftTime = expert["shifts-time"];
           const shiftStyle = getShiftStyle(shiftTime);
           const breakTime = expert["break-time"] || "-";
-          tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${
+
+          tableHtml += `<tr><td>${index + 1}</td><td>${
+            expert.name
+          }</td><td ${shiftStyle}>${
             shiftTime || "-"
           }</td><td>${breakTime}</td>`;
 
@@ -832,7 +837,6 @@
             let statusClass = "";
             let statusText = expert.shifts[date] || "unknown";
 
-            // *** CHANGE IS HERE ***
             if (statusText === "on-duty") {
               statusClass = "status-on-duty";
               statusText = "حضور";
@@ -840,17 +844,14 @@
               statusClass = "status-off";
               statusText = "عدم حضور";
             } else if (statusText === "leave") {
-              // Condition added for 'leave'
               statusClass = "status-special";
               statusText = "مرخصی";
             } else if (statusText === "unknown") {
               statusClass = "status-unknown";
               statusText = "-";
             } else {
-              // This handles other special statuses
               statusClass = "status-special";
             }
-            // *** END OF CHANGE ***
 
             tableHtml += `<td><span class="status ${statusClass}">${statusText}</span></td>`;
           });
@@ -862,7 +863,6 @@
         container.innerHTML = tableHtml;
         loader.style.display = "none";
       }
-      // --- END: MODIFIED FUNCTION ---
     </script>
   </body>
 </html>

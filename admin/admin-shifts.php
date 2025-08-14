@@ -512,14 +512,14 @@ require __DIR__ . '/../php/auth_check.php';
         const loader = document.getElementById("loader");
 
         if (
-            !expertsToRender ||
-            !datesToRender ||
-            datesToRender.length === 0
+          !expertsToRender ||
+          !datesToRender ||
+          datesToRender.length === 0
         ) {
-            container.innerHTML = "";
-            loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
-            loader.style.display = "block";
-            return;
+          container.innerHTML = "";
+          loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
+          loader.style.display = "block";
+          return;
         }
 
         loader.style.display = "none";
@@ -532,165 +532,166 @@ require __DIR__ . '/../php/auth_check.php';
         const totalLeaveByDate = {};
 
         const uniqueShiftTimes = [
-            ...new Set(
-                allExperts.map((e) => e["shifts-time"]).filter(Boolean)
-            ),
+          ...new Set(
+            allExperts.map((e) => e["shifts-time"]).filter(Boolean)
+          ),
         ].sort();
 
         datesToRender.forEach((date) => {
-            dailyOnDutyCounts[date] = {};
-            dailyOffDutyCounts[date] = {};
-            dailyLeaveCounts[date] = {};
-            uniqueShiftTimes.forEach((shift) => {
-                dailyOnDutyCounts[date][shift] = 0;
-                dailyOffDutyCounts[date][shift] = 0;
-                dailyLeaveCounts[date][shift] = 0;
-            });
+          dailyOnDutyCounts[date] = {};
+          dailyOffDutyCounts[date] = {};
+          dailyLeaveCounts[date] = {};
+          uniqueShiftTimes.forEach((shift) => {
+            dailyOnDutyCounts[date][shift] = 0;
+            dailyOffDutyCounts[date][shift] = 0;
+            dailyLeaveCounts[date][shift] = 0;
+          });
 
-            totalOnDutyByDate[date] = 0;
-            totalOffDutyByDate[date] = 0;
-            totalLeaveByDate[date] = 0;
+          totalOnDutyByDate[date] = 0;
+          totalOffDutyByDate[date] = 0;
+          totalLeaveByDate[date] = 0;
 
-            const allExpertsForCounting = allExperts;
+          const allExpertsForCounting = allExperts;
 
-            allExpertsForCounting.forEach((expert) => {
-                const status = expert.shifts[date] || "unknown";
-                const shiftTime = expert["shifts-time"];
+          allExpertsForCounting.forEach((expert) => {
+            const status = expert.shifts[date] || "unknown";
+            const shiftTime = expert["shifts-time"];
 
-                if (shiftTime) {
-                    switch (status) {
-                        case 'off':
-                            dailyOffDutyCounts[date][shiftTime]++;
-                            break;
-                        case 'leave':
-                            dailyLeaveCounts[date][shiftTime]++;
-                            break;
-                        case 'unknown':
-                            break;
-                        default:
-                            dailyOnDutyCounts[date][shiftTime]++;
-                            break;
-                    }
-                }
-
+            if (shiftTime) {
                 switch (status) {
                     case 'off':
-                        totalOffDutyByDate[date]++;
+                        dailyOffDutyCounts[date][shiftTime]++;
                         break;
                     case 'leave':
-                        totalLeaveByDate[date]++;
+                        dailyLeaveCounts[date][shiftTime]++;
                         break;
                     case 'unknown':
                         break;
                     default:
-                        totalOnDutyByDate[date]++;
+                        dailyOnDutyCounts[date][shiftTime]++;
                         break;
                 }
-            });
+            }
+
+            switch (status) {
+                case 'off':
+                    totalOffDutyByDate[date]++;
+                    break;
+                case 'leave':
+                    totalLeaveByDate[date]++;
+                    break;
+                case 'unknown':
+                    break;
+                default:
+                    totalOnDutyByDate[date]++;
+                    break;
+            }
+          });
         });
 
         let tableHtml =
-            `<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>`;
+          `<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>`;
         datesToRender.forEach((date) => {
-            const d = new Date(date);
-            const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
-            const month = d.toLocaleDateString("fa-IR", { month: "short" });
-            const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
-            tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
+          const d = new Date(date);
+          const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
+          const month = d.toLocaleDateString("fa-IR", { month: "short" });
+          const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
+          tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
         });
         tableHtml += "</tr></thead><tbody>";
 
         if (expertsToRender.length > 0) {
-            expertsToRender.forEach((expert) => {
-                const shiftTime = expert["shifts-time"] || "-";
-                const breakTime = expert["break-time"] || "-";
-                const shiftStyle = getShiftStyle(shiftTime);
+          expertsToRender.forEach((expert) => {
+            const shiftTime = expert["shifts-time"] || "-";
+            const breakTime = expert["break-time"] || "-";
+            const shiftStyle = getShiftStyle(shiftTime);
 
-                tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
+            tableHtml += `<tr><td>${expert.name}</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
 
-                datesToRender.forEach((date) => {
-                    const status = expert.shifts[date] || "unknown";
-                    let statusClass = "";
-                    let statusText = status;
+            datesToRender.forEach((date) => {
+              const status = expert.shifts[date] || "unknown";
+              let statusClass = "";
+              let statusText = status;
 
-                    if (status === "on-duty") {
-                        statusClass = "status-on-duty";
-                        statusText = "حضور";
-                    } else if (status === "off") {
-                        statusClass = "status-off";
-                        statusText = "عدم حضور";
-                    } else if (status === "leave") {
-                        statusClass = "status-special";
-                        statusText = "مرخصی";
-                    } else if (status === "unknown") {
-                        statusClass = "status-unknown";
-                        statusText = "-";
-                    } else {
-                        statusClass = "status-special";
-                    }
+              if (status === "on-duty") {
+                statusClass = "status-on-duty";
+                statusText = "حضور";
+              } else if (status === "off") {
+                statusClass = "status-off";
+                statusText = "عدم حضور";
+              } else if (status === "leave") {
+                statusClass = "status-special";
+                statusText = "مرخصی";
+              } else if (status === "unknown") {
+                statusClass = "status-unknown";
+                statusText = "-";
+              } else {
+                statusClass = "status-special";
+              }
 
-                    tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}" data-current-status="${status}">
-                                        <span class="status ${statusClass}">${statusText}</span>
-                                    </td>`;
-                });
-                tableHtml += "</tr>";
+              tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}" data-current-status="${status}">
+                                      <span class="status ${statusClass}">${statusText}</span>
+                                  </td>`;
             });
+            tableHtml += "</tr>";
+          });
         }
 
         const totalColumns = datesToRender.length + 3;
 
         if (uniqueShiftTimes.length > 0) {
-            tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">خلاصه وضعیت به تفکیک شیفت</td></tr>`;
-            uniqueShiftTimes.forEach((shiftTime) => {
-                const summaryRowStyle = getShiftStyle(shiftTime);
-                tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>حاضرین در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
-                datesToRender.forEach((date) => {
-                    const count = dailyOnDutyCounts[date][shiftTime] || 0;
-                    tableHtml += `<td><span class="summary-count">${count}</span></td>`;
-                });
-                tableHtml += `</tr>`;
-
-                tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>عدم حضور در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
-                datesToRender.forEach((date) => {
-                    const count = dailyOffDutyCounts[date][shiftTime] || 0;
-                    tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${count}</span></td>`;
-                });
-                tableHtml += `</tr>`;
-
-                tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>مرخصی در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
-                datesToRender.forEach((date) => {
-                    const count = dailyLeaveCounts[date][shiftTime] || 0;
-                    tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${count}</span></td>`;
-                });
-                tableHtml += `</tr>`;
+          tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">خلاصه وضعیت به تفکیک شیفت</td></tr>`;
+          uniqueShiftTimes.forEach((shiftTime) => {
+            const summaryRowStyle = getShiftStyle(shiftTime);
+            tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>حاضرین در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+            datesToRender.forEach((date) => {
+              const count = dailyOnDutyCounts[date][shiftTime] || 0;
+              tableHtml += `<td><span class="summary-count">${count}</span></td>`;
             });
+            tableHtml += `</tr>`;
+
+            tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>عدم حضور در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+            datesToRender.forEach((date) => {
+              const count = dailyOffDutyCounts[date][shiftTime] || 0;
+              tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${count}</span></td>`;
+            });
+            tableHtml += `</tr>`;
+
+            tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>مرخصی در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+            datesToRender.forEach((date) => {
+              const count = dailyLeaveCounts[date][shiftTime] || 0;
+              tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${count}</span></td>`;
+            });
+            tableHtml += `</tr>`;
+          });
         }
 
         tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">جمع‌بندی کل روزانه</td></tr>`;
 
         tableHtml += `<tr class="summary-row"><td style="background-color: #E8F5E9;">مجموع کل کارشناسان حاضر</td><td>-</td><td>-</td>`;
         datesToRender.forEach((date) => {
-            tableHtml += `<td><span class="summary-count">${totalOnDutyByDate[date] || 0}</span></td>`;
+          tableHtml += `<td><span class="summary-count">${totalOnDutyByDate[date] || 0}</span></td>`;
         });
         tableHtml += `</tr>`;
 
         tableHtml += `<tr class="summary-row"><td style="background-color: #FFEBEE;">مجموع کل عدم حضور</td><td>-</td><td>-</td>`;
         datesToRender.forEach((date) => {
-            tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${totalOffDutyByDate[date] || 0}</span></td>`;
+          tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${totalOffDutyByDate[date] || 0}</span></td>`;
         });
         tableHtml += `</tr>`;
 
         tableHtml += `<tr class="summary-row"><td style="background-color: #FFF3E0;">مجموع کل مرخصی</td><td>-</td><td>-</td>`;
         datesToRender.forEach((date) => {
-            tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${totalLeaveByDate[date] || 0}</span></td>`;
+          tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${totalLeaveByDate[date] || 0}</span></td>`;
         });
         tableHtml += `</tr>`;
 
 
         tableHtml += "</tbody></table>";
         container.innerHTML = tableHtml;
-    }
+      }
 
+      // --- START: MODIFIED FUNCTION ---
       function populateFilterControls() {
         const expertSelect1 = document.getElementById("expertSelect1");
         const expertSelect2 = document.getElementById("expertSelect2");
@@ -712,25 +713,26 @@ require __DIR__ . '/../php/auth_check.php';
         allAvailableDates = Array.from(allDatesSet).sort();
 
         if (allAvailableDates.length > 0) {
-          const today = new Date();
-          const firstDayOfMonth = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-          )
-            .toISOString()
-            .split("T")[0];
-          const lastDayOfMonth = new Date(
-            today.getFullYear(),
-            today.getMonth() + 1,
-            0
-          )
-            .toISOString()
-            .split("T")[0];
-          document.getElementById("startDate").value = firstDayOfMonth;
-          document.getElementById("endDate").value = lastDayOfMonth;
+            // Helper function to format a Date object into YYYY-MM-DD string
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const today = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(today.getDate() + 7);
+
+            const startDateValue = formatDate(today);
+            const endDateValue = formatDate(futureDate);
+
+            document.getElementById("startDate").value = startDateValue;
+            document.getElementById("endDate").value = endDateValue;
         }
-    }
+      }
+      // --- END: MODIFIED FUNCTION ---
 
       function applyFilters() {
         const startDate = document.getElementById("startDate").value;
@@ -760,7 +762,7 @@ require __DIR__ . '/../php/auth_check.php';
             filteredExperts,
             filteredDates
         );
-    }
+      }
     </script>
   </body>
 </html>
