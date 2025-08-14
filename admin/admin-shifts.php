@@ -1,3 +1,6 @@
+<?php
+require __DIR__ . '/../php/auth_check.php';
+?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 
@@ -720,7 +723,36 @@
       const isOriginallySwap = currentEditingInfo.isSwap;
       const wantsSwap = (statusSelectValue === 'swap');
 
-      if (isOriginallySwap && !wantsSwap) {
+      if (isOriginallySwap && wantsSwap) {
+        const expertA_id = currentEditingInfo.expertId;
+        const dateX = currentEditingInfo.date;
+
+        const newExpertB_id = document.getElementById('swap-expert-select').value;
+        const selectedDateEl = document.querySelector('.swap-date-option.selected');
+
+        if (newExpertB_id === 'none' || !selectedDateEl) {
+          alert('لطفاً همکار و تاریخ جدید برای جابجایی را انتخاب کنید.');
+          return;
+        }
+        const newDateY = selectedDateEl.dataset.date;
+
+        if (String(currentEditingInfo.linkedTo.expertId) === newExpertB_id && currentEditingInfo.linkedTo.date === newDateY) {
+          alert('تغییری در جابجایی ایجاد نشده است.');
+          closeEditModal();
+          return;
+        }
+
+        requestBody = {
+          action: 'modify_swap',
+          expertA_id: expertA_id,
+          dateX: dateX,
+          newExpertB_id: newExpertB_id,
+          newDateY: newDateY,
+          oldLinkedExpertId: currentEditingInfo.linkedTo.expertId,
+          oldLinkedDate: currentEditingInfo.linkedTo.date
+        };
+
+      } else if (isOriginallySwap && !wantsSwap) {
         let newStatus = statusSelectValue;
         if (newStatus === 'custom') newStatus = document.getElementById('custom-shift-status').value.trim();
         if (!newStatus) {
@@ -745,7 +777,13 @@
           return;
         }
         const dateY = selectedDateEl.dataset.date;
-        requestBody = { action: 'swap', expertA_id, dateX, expertB_id, dateY };
+        requestBody = {
+          action: 'swap',
+          expertA_id,
+          dateX,
+          expertB_id,
+          dateY
+        };
       } else {
         let newStatus = statusSelectValue;
         if (newStatus === 'custom') newStatus = document.getElementById('custom-shift-status').value.trim();
@@ -764,7 +802,10 @@
       try {
         const response = await fetch("/php/update-shift.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
           body: JSON.stringify(requestBody),
         });
         const result = await response.json();

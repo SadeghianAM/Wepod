@@ -1,13 +1,8 @@
 <?php
-// فایل حاوی کلید مخفی شما
 require 'secret.php';
 
-// تنظیم هدر برای پاسخ JSON
 header('Content-Type: application/json; charset=utf-8');
 
-// =================================================================
-// بخش ۱: توابع امنیتی و JWT
-// =================================================================
 function verify_jwt($token, $secret)
 {
     $parts = explode('.', $token);
@@ -44,7 +39,6 @@ if (!preg_match('/Bearer\s(\S+)/', $auth, $matches)) {
 }
 
 $token = $matches[1];
-// JWT_SECRET از فایل secret.php می‌آید
 if (!verify_jwt($token, JWT_SECRET)) {
     http_response_code(403);
     echo json_encode(['message' => 'توکن نامعتبر یا منقضی شده است.']);
@@ -60,10 +54,6 @@ if (empty($username) || !in_array($username, $adminUsernames)) {
     exit;
 }
 
-
-// =================================================================
-// بخش ۲: منطق اصلی برنامه
-// =================================================================
 $filePath = $_SERVER['DOCUMENT_ROOT'] . '/data/shifts.json';
 if (!file_exists(dirname($filePath))) {
     mkdir(dirname($filePath), 0775, true);
@@ -86,6 +76,47 @@ try {
     $expertIndexMap = array_column($masterData['experts'], null, 'id');
 
     switch ($action) {
+        case 'modify_swap':
+            $eA_id = $input['expertA_id'];
+            $dateX = $input['dateX'];
+            $new_eB_id = $input['newExpertB_id'];
+            $new_dateY = $input['newDateY'];
+            $old_eB_id = $input['oldLinkedExpertId'];
+            $old_dateY = $input['oldLinkedDate'];
+
+            if (!isset($expertIndexMap[$eA_id]) || !isset($expertIndexMap[$new_eB_id]) || !isset($expertIndexMap[$old_eB_id])) {
+                throw new Exception("یک یا چند نفر از کارشناسان درگیر در عملیات یافت نشدند.");
+            }
+
+            // پیدا کردن ایندکس‌ها
+            $indexA = array_search($eA_id, array_column($masterData['experts'], 'id'));
+            $index_newB = array_search($new_eB_id, array_column($masterData['experts'], 'id'));
+            $index_oldB = array_search($old_eB_id, array_column($masterData['experts'], 'id'));
+
+            // مرحله ۱: برگرداندن وضعیت همکار قدیمی به حالت عادی
+            $masterData['experts'][$index_oldB]['shifts'][$old_dateY] = 'off';
+
+            // مرحله ۲: ایجاد جابجایی جدید
+            $nameA = $expertIndexMap[$eA_id]['name'];
+            $name_newB = $expertIndexMap[$new_eB_id]['name'];
+
+            // به‌روزرسانی کارشناس A
+            $masterData['experts'][$indexA]['shifts'][$dateX] = [
+                'status' => 'swap',
+                'displayText' => "عدم حضور (جابجایی با {$name_newB})",
+                'linkedTo' => ['expertId' => (int) $new_eB_id, 'date' => $new_dateY]
+            ];
+
+            // به‌روزرسانی کارشناس جدید B
+            $masterData['experts'][$index_newB]['shifts'][$new_dateY] = [
+                'status' => 'swap',
+                'displayText' => "حضور (جابجایی از {$nameA})",
+                'linkedTo' => ['expertId' => (int) $eA_id, 'date' => $dateX]
+            ];
+
+            $message = 'جابجایی شیفت با موفقیت تغییر یافت.';
+            break;
+
         case 'swap':
             $eA_id = $input['expertA_id'];
             $eB_id = $input['expertB_id'];
