@@ -1,6 +1,5 @@
 <?php
-require_once 'secret.php';
-require_once 'auth_check.php';
+require_once 'jwt-functions.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -12,9 +11,10 @@ if (!isset($_COOKIE['jwt_token'])) {
 
 $token = $_COOKIE['jwt_token'];
 
+// فقط اعتبار توکن را بررسی می‌کنیم، نه دسترسی ادمین را
 if (!verify_jwt($token, JWT_SECRET)) {
     http_response_code(403); // Forbidden
-    setcookie('jwt_token', '', time() - 3600, '/'); // پاک کردن کوکی نامعتبر
+    setcookie('jwt_token', '', time() - 3600, '/');
     echo json_encode(['message' => 'توکن نامعتبر است.']);
     exit;
 }
@@ -40,6 +40,7 @@ $users = json_decode($json_data, true);
 
 foreach ($users as $user) {
     if ($user['id'] === $userId) {
+        // اطلاعات هر کاربری که لاگین کرده باشد را برمی‌گردانیم
         echo json_encode([
             'id' => $user['id'],
             'name' => $user['name']
@@ -50,5 +51,4 @@ foreach ($users as $user) {
 
 http_response_code(404);
 echo json_encode(['message' => 'کاربر یافت نشد.']);
-
 ?>
