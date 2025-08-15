@@ -403,14 +403,14 @@
         </div>
       </div>
     </main>
-
     <div id="footer-placeholder"></div>
-
     <script src="/js/header.js"></script>
     <script>
       // --- Bank Identification Logic ---
       let binData = [];
       const requireFullBin = ["502229", "621986"];
+      const WEPOD_BIN8 = "50222915";
+
       fetch("./data/bin-data.json")
         .then((res) => res.json())
         .then((data) => {
@@ -468,11 +468,30 @@
         );
         const rawValue = input.value.replace(/\D/g, "").substring(0, 16);
         input.value = (rawValue.match(/.{1,4}/g) || []).join(" ");
+
         clearCardResults(`${prefix}Card`);
+
+        if (
+          input.id === "destCardInput" &&
+          rawValue.length >= 8 &&
+          rawValue.substring(0, 8) !== WEPOD_BIN8
+        ) {
+          showResult(
+            validationBox,
+            "تنها شماره کارت ویپادی مجاز است.",
+            "error"
+          );
+          input.classList.add("input-error");
+          document.getElementById("copyBtn").disabled = true;
+          return; // توقف ادامه‌ی بررسی‌ها (تشخیص بانک/لوهن)
+        }
+
         if (rawValue.length < 6) return;
+
         const bin6 = rawValue.substring(0, 6);
         const requires8 = requireFullBin.includes(bin6);
         let bankMatched = false;
+
         if (requires8 && rawValue.length < 8) {
           showResult(
             resultBox,
@@ -497,6 +516,7 @@
             showResult(resultBox, "بانکی با این شماره پیدا نشد.", "warning");
           }
         }
+
         if (bankMatched && rawValue.length === 16) {
           if (validateLuhn(rawValue)) {
             showResult(validationBox, "✅ شماره کارت معتبر است.", "success");
@@ -622,7 +642,22 @@
           destCardInput.classList.add("input-error");
         }
 
-        // 4. NEW: Luhn validation for card numbers
+        const destCardValidationEl =
+          document.getElementById("destCardValidation");
+        if (
+          destCardVal.length >= 8 &&
+          destCardVal.substring(0, 8) !== WEPOD_BIN8
+        ) {
+          allValid = false;
+          showResult(
+            destCardValidationEl,
+            "تنها شماره کارت ویپادی مجاز است.",
+            "error"
+          );
+          destCardInput.classList.add("input-error");
+        }
+
+        // 4. Luhn validation for card numbers
         if (sourceCardVal.length === 16 && !validateLuhn(sourceCardVal)) {
           allValid = false;
           if (triedSubmit) sourceCardInput.classList.add("input-error");
