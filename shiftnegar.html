@@ -286,27 +286,6 @@
         color: var(--swap-text-color);
       }
 
-      .summary-separator td {
-        background-color: #e9ecef;
-        font-weight: bold;
-        color: #495057;
-        border-top: 2px solid var(--primary-dark);
-        padding: 0.8rem;
-      }
-
-      .summary-row td:first-child {
-        text-align: right;
-        padding-right: 1.5rem;
-        font-weight: 600;
-        color: #333;
-      }
-
-      .summary-count {
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: var(--primary-dark);
-      }
-
       .tabs-container {
         display: flex;
         border-bottom: 2px solid var(--border-color);
@@ -1026,7 +1005,6 @@
                   originalExpert["shifts-time"] || "نامشخص";
                 const originalBreakTime =
                   originalExpert["break-time"] || "نامشخص";
-                // Changed to display vertically
                 extraDetailsHtml = `<div class="swapped-shift-details">
                                                     <div>⏰ ${originalShiftTime}</div>
                                                     <div>🌮 ${originalBreakTime}</div>
@@ -1168,57 +1146,6 @@
           return;
         }
         loader.style.display = "none";
-        const dailyOnDutyCounts = {},
-          dailyOffDutyCounts = {},
-          dailyLeaveCounts = {};
-        const totalOnDutyByDate = {},
-          totalOffDutyByDate = {},
-          totalLeaveByDate = {};
-        const uniqueShiftTimes = [
-          ...new Set(allExperts.map((e) => e["shifts-time"]).filter(Boolean)),
-        ].sort();
-        datesToRender.forEach((date) => {
-          dailyOnDutyCounts[date] = {};
-          dailyOffDutyCounts[date] = {};
-          dailyLeaveCounts[date] = {};
-          uniqueShiftTimes.forEach((shift) => {
-            dailyOnDutyCounts[date][shift] = 0;
-            dailyOffDutyCounts[date][shift] = 0;
-            dailyLeaveCounts[date][shift] = 0;
-          });
-          totalOnDutyByDate[date] = 0;
-          totalOffDutyByDate[date] = 0;
-          totalLeaveByDate[date] = 0;
-          allExperts.forEach((expert) => {
-            const shiftDetails = getShiftDetails(expert.shifts[date]);
-            const shiftTime = expert["shifts-time"];
-            const status = shiftDetails.status;
-            if (shiftTime) {
-              if (
-                status === "off" ||
-                (shiftDetails.isSwap &&
-                  shiftDetails.displayText.startsWith("عدم"))
-              ) {
-                dailyOffDutyCounts[date][shiftTime]++;
-              } else if (status === "leave") {
-                dailyLeaveCounts[date][shiftTime]++;
-              } else if (status !== "unknown") {
-                dailyOnDutyCounts[date][shiftTime]++;
-              }
-            }
-            if (
-              status === "off" ||
-              (shiftDetails.isSwap &&
-                shiftDetails.displayText.startsWith("عدم"))
-            ) {
-              totalOffDutyByDate[date]++;
-            } else if (status === "leave") {
-              totalLeaveByDate[date]++;
-            } else if (status !== "unknown") {
-              totalOnDutyByDate[date]++;
-            }
-          });
-        });
         let tableHtml = `<table><thead><tr><th>ردیف</th><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>`;
         datesToRender.forEach((date) => {
           const d = new Date(date);
@@ -1253,56 +1180,6 @@
           });
           tableHtml += "</tr>";
         });
-        const totalColumns = datesToRender.length + 4;
-        if (uniqueShiftTimes.length > 0) {
-          tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">خلاصه وضعیت به تفکیک شیفت</td></tr>`;
-          uniqueShiftTimes.forEach((shiftTime) => {
-            const summaryRowStyle = getShiftStyle(shiftTime);
-            tableHtml += `<tr class="summary-row"><td colspan="2" ${summaryRowStyle}>حاضرین در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
-            datesToRender.forEach((date) => {
-              tableHtml += `<td><span class="summary-count">${
-                dailyOnDutyCounts[date][shiftTime] || 0
-              }</span></td>`;
-            });
-            tableHtml += `</tr>`;
-            tableHtml += `<tr class="summary-row"><td colspan="2" ${summaryRowStyle}>عدم حضور در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
-            datesToRender.forEach((date) => {
-              tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${
-                dailyOffDutyCounts[date][shiftTime] || 0
-              }</span></td>`;
-            });
-            tableHtml += `</tr>`;
-            tableHtml += `<tr class="summary-row"><td colspan="2" ${summaryRowStyle}>مرخصی در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
-            datesToRender.forEach((date) => {
-              tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${
-                dailyLeaveCounts[date][shiftTime] || 0
-              }</span></td>`;
-            });
-            tableHtml += `</tr>`;
-          });
-        }
-        tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">جمع‌بندی کل روزانه</td></tr>`;
-        tableHtml += `<tr class="summary-row"><td colspan="2" style="background-color: #E8F5E9;">مجموع کل کارشناسان حاضر</td><td>-</td><td>-</td>`;
-        datesToRender.forEach((date) => {
-          tableHtml += `<td><span class="summary-count">${
-            totalOnDutyByDate[date] || 0
-          }</span></td>`;
-        });
-        tableHtml += `</tr>`;
-        tableHtml += `<tr class="summary-row"><td colspan="2" style="background-color: #FFEBEE;">مجموع کل عدم حضور</td><td>-</td><td>-</td>`;
-        datesToRender.forEach((date) => {
-          tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${
-            totalOffDutyByDate[date] || 0
-          }</span></td>`;
-        });
-        tableHtml += `</tr>`;
-        tableHtml += `<tr class="summary-row"><td colspan="2" style="background-color: #FFF3E0;">مجموع کل مرخصی</td><td>-</td><td>-</td>`;
-        datesToRender.forEach((date) => {
-          tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${
-            totalLeaveByDate[date] || 0
-          }</span></td>`;
-        });
-        tableHtml += `</tr>`;
         tableHtml += "</tbody></table>";
         container.innerHTML = tableHtml;
       }
