@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>درخواست پرینت حساب - وی هاب</title>
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --shadow-color-medium: rgba(0, 174, 112, 0.12);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --info-color: #1a73e8;
+        --info-bg: #e8f0fe;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif !important;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      footer {
+        height: 60px;
+        font-size: 0.85rem;
+        margin-top: auto;
+      }
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      .tool-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .tool-card h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .tool-card .card-content {
+        padding: 1.5rem;
+      }
+      .form-section {
+        margin-bottom: 2rem;
+        border-bottom: 1px dashed var(--border-color);
+        padding-bottom: 2rem;
+      }
+      .form-section:last-of-type {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+      }
+      label {
+        margin-bottom: 0.6rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--secondary-text-color);
+      }
+      input,
+      textarea {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.7em 1em;
+        border-radius: 0.6em;
+        border: 1.5px solid #ddd;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      input:focus,
+      textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+      }
+      input.input-error {
+        border-color: var(--danger-color);
+      }
+      textarea {
+        height: 100px;
+        resize: vertical;
+      }
+      input[inputmode="numeric"] {
+        direction: ltr;
+        text-align: center;
+        letter-spacing: 2px;
+      }
+      .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--header-text);
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .btn-primary {
+        background-color: var(--primary-color);
+      }
+      .btn-danger {
+        background-color: var(--danger-color);
+      }
+      .btn-info {
+        background-color: var(--info-color);
+      }
+      .btn-primary:hover:not(:disabled) {
+        background-color: var(--primary-dark);
+      }
+      .btn-danger:hover:not(:disabled) {
+        background-color: #c02717;
+      }
+      .btn-info:hover:not(:disabled) {
+        background-color: #1558c0;
+      }
+      .btn:disabled {
+        background-color: #ccc;
+        color: #888;
+        cursor: not-allowed;
+      }
+
+      /* --- MODIFIED STYLE --- */
+      #autoFillBtn {
+        margin-top: 0.75rem;
+        width: 100%;
+      }
+
+      .input-message,
+      .result {
+        border-radius: var(--border-radius);
+        padding: 0.6rem 1rem;
+        border: 1px solid transparent;
+        border-inline-start-width: 4px;
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: none;
+      }
+      .result {
+        text-align: center;
+      }
+      .input-message.success,
+      .input-message.error,
+      .result.success,
+      .result.error {
+        display: block;
+      }
+      .input-message.success,
+      .result.success {
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-dark);
+      }
+      .input-message.error,
+      .result.error {
+        background-color: var(--danger-bg);
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+      }
+
+      a {
+        text-decoration: none;
+      }
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        text-align: center;
+      }
+      .back-link:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+      }
+
+      .jdp-popover {
+        position: absolute;
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        box-shadow: 0 8px 24px var(--shadow-color-medium);
+        padding: 0.75rem;
+        width: 280px;
+        z-index: 9999;
+      }
+      .jdp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+      }
+      .jdp-nav-btn {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        padding: 0.25rem 0.6rem;
+        border-radius: 0.4rem;
+        cursor: pointer;
+      }
+      .jdp-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+      }
+      .jdp-weekday {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--secondary-text-color);
+        padding: 0.3rem 0;
+      }
+      .jdp-day {
+        text-align: center;
+        padding: 0.4rem 0;
+        border-radius: 0.4rem;
+        cursor: pointer;
+        background: #fafafa;
+        border: 1px solid #f0f0f0;
+      }
+      .jdp-day:hover {
+        background: var(--primary-light);
+      }
+      .jdp-day.other {
+        color: #bbb;
+        background: #f8f9fa;
+      }
+      .jdp-hidden {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .form-row,
+        .button-group {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .form-group {
+          margin-bottom: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+    <main>
+      <div class="tool-card">
+        <h2>📄 درخواست پرینت حساب</h2>
+        <div class="card-content">
+          <div class="form-section">
+            <div class="form-group">
+              <label for="autoFillInput">✨ تکمیل خودکار از روی متن تیکت</label>
+              <textarea
+                id="autoFillInput"
+                placeholder="متن تیکت مشتری را اینجا وارد کنید..."
+              ></textarea>
+            </div>
+            <button
+              class="btn btn-info"
+              id="autoFillBtn"
+              type="button"
+              onclick="autoFillForm()"
+            >
+              پر کردن خودکار فرم
+            </button>
+          </div>
+
+          <div class="form-section">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nameInput">👤 نام و نام خانوادگی</label>
+                <input
+                  type="text"
+                  id="nameInput"
+                  placeholder="نام کامل کاربر"
+                />
+              </div>
+              <div class="form-group">
+                <label for="nationalIdInput">💳 کدملی</label>
+                <input
+                  type="text"
+                  id="nationalIdInput"
+                  placeholder="--- ------ -"
+                  inputmode="numeric"
+                  maxlength="12"
+                />
+                <div id="nationalIdMessage" class="input-message"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="mobileInput">📱 شماره موبایل</label>
+                <input
+                  type="text"
+                  id="mobileInput"
+                  placeholder="09-- --- ----"
+                  inputmode="numeric"
+                  maxlength="13"
+                />
+                <div id="mobileMessage" class="input-message"></div>
+              </div>
+            </div>
+            <hr
+              style="
+                border: none;
+                border-top: 1px dashed var(--border-color);
+                margin: 1.5rem 0;
+              "
+            />
+            <div class="form-row">
+              <div class="form-group">
+                <label for="fromDateInput">📅 از تاریخ:</label>
+                <input
+                  type="text"
+                  id="fromDateInput"
+                  placeholder="برای انتخاب کلیک کنید"
+                  readonly
+                />
+                <div id="fromDateMessage" class="input-message"></div>
+              </div>
+              <div class="form-group">
+                <label for="toDateInput">📅 تا تاریخ:</label>
+                <input
+                  type="text"
+                  id="toDateInput"
+                  placeholder="برای انتخاب کلیک کنید"
+                  readonly
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button class="btn btn-danger" type="button" onclick="clearForm()">
+              🗑️ پاک کردن فرم
+            </button>
+            <button
+              class="btn btn-primary"
+              id="copyBtn"
+              onclick="copyRequest()"
+              disabled
+            >
+              📋 کپی متن درخواست
+            </button>
+          </div>
+          <div id="copyResult" class="result"></div>
+          <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+        </div>
+      </div>
+    </main>
+    <div id="footer-placeholder"></div>
+
+    <script src="/js/header.js"></script>
+    <script>
+      const requiredFields = [
+        "nameInput",
+        "nationalIdInput",
+        "mobileInput",
+        "fromDateInput",
+        "toDateInput",
+      ];
+
+      // --- Jalali Date Picker Logic ---
+      function jalaliToGregorian(jy, jm, jd) {
+        jy += 1595;
+        let days =
+          -355668 +
+          365 * jy +
+          ~~(jy / 33) * 8 +
+          ~~(((jy % 33) + 3) / 4) +
+          jd +
+          (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
+        let gy = 400 * ~~(days / 146097);
+        days %= 146097;
+        if (days > 36524) {
+          gy += 100 * ~~(--days / 36524);
+          days %= 36524;
+          if (days >= 365) days++;
+        }
+        gy += 4 * ~~(days / 1461);
+        days %= 1461;
+        if (days > 365) {
+          gy += ~~((days - 1) / 365);
+          days = (days - 1) % 365;
+        }
+        let gd = days + 1;
+        const sal_a = [
+          0,
+          31,
+          (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28,
+          31,
+          30,
+          31,
+          30,
+          31,
+          31,
+          30,
+          31,
+          30,
+          31,
+        ];
+        let gm = 0;
+        for (; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+        return new Date(gy, gm - 1, gd);
+      }
+      function toPersian(date) {
+        const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
+        return parts.map((part) => parseInt(part, 10));
+      }
+      function pad2(n) {
+        return String(n).padStart(2, "0");
+      }
+      function formatJalaliDisplay(jy, jm, jd) {
+        return `${jy}/${pad2(jm)}/${pad2(jd)}`;
+      }
+      function isJalaliLeap(jy) {
+        return (
+          ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 <
+          682
+        );
+      }
+      function jalaliMonthLength(jy, jm) {
+        if (jm <= 6) return 31;
+        if (jm <= 11) return 30;
+        return isJalaliLeap(jy) ? 30 : 29;
+      }
+      class JalaliDatePicker {
+        constructor(inputId) {
+          this.input = document.getElementById(inputId);
+          if (!this.input) return;
+          const [jy, jm] = toPersian(new Date());
+          this.jy = jy;
+          this.jm = jm;
+          this.pop = document.createElement("div");
+          this.pop.className = "jdp-popover jdp-hidden";
+          document.body.appendChild(this.pop);
+          this.boundClickOutside = (e) => {
+            if (!this.pop.contains(e.target) && e.target !== this.input)
+              this.hide();
+          };
+          this.input.addEventListener("focus", () => this.show());
+          this.input.addEventListener("click", () => this.show());
+          window.addEventListener("resize", () => this.position());
+        }
+        show() {
+          this.render();
+          this.position();
+          this.pop.classList.remove("jdp-hidden");
+          setTimeout(
+            () =>
+              document.addEventListener("mousedown", this.boundClickOutside),
+            0
+          );
+        }
+        hide() {
+          this.pop.classList.add("jdp-hidden");
+          document.removeEventListener("mousedown", this.boundClickOutside);
+        }
+        position() {
+          const rect = this.input.getBoundingClientRect();
+          this.pop.style.top = window.scrollY + rect.bottom + 6 + "px";
+          this.pop.style.left = window.scrollX + rect.left + "px";
+        }
+        nav(delta) {
+          this.jm += delta;
+          if (this.jm < 1) {
+            this.jm = 12;
+            this.jy--;
+          }
+          if (this.jm > 12) {
+            this.jm = 1;
+            this.jy++;
+          }
+          this.render();
+        }
+        render() {
+          const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+          const firstG = jalaliToGregorian(this.jy, this.jm, 1);
+          const firstWeekday = (firstG.getDay() + 1) % 7;
+          const daysInMonth = jalaliMonthLength(this.jy, this.jm);
+          let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat(
+            "fa-IR",
+            { month: "long" }
+          ).format(firstG)} ${new Intl.DateTimeFormat("fa-IR", {
+            year: "numeric",
+          }).format(
+            firstG
+          )}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${weekDays
+            .map((w) => `<div class="jdp-weekday">${w}</div>`)
+            .join("")}`;
+          for (let i = 0; i < firstWeekday; i++)
+            html += `<div class="jdp-day other"></div>`;
+          for (let d = 1; d <= daysInMonth; d++)
+            html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat(
+              "fa-IR"
+            ).format(d)}</div>`;
+          this.pop.innerHTML = html + `</div>`;
+          this.pop
+            .querySelectorAll("[data-nav]")
+            .forEach((btn) =>
+              btn.addEventListener("click", (e) =>
+                this.nav(parseInt(e.currentTarget.dataset.nav, 10))
+              )
+            );
+          this.pop.querySelectorAll("[data-day]").forEach((cell) => {
+            cell.addEventListener("click", (e) => {
+              const d = parseInt(e.currentTarget.dataset.day, 10);
+              this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
+              this.hide();
+              if (typeof updateCopyButton === "function") updateCopyButton();
+            });
+          });
+        }
+      }
+
+      // --- Formatting Functions ---
+      function formatMobileNumber(input) {
+        let value = input.value.replace(/\D/g, "").slice(0, 11);
+        if (value.length > 7)
+          input.value = value
+            .replace(/(\d{4})(\d{3})(\d{1,4})/, "$1 $2 $3")
+            .trim();
+        else if (value.length > 4)
+          input.value = value.replace(/(\d{4})(\d{1,3})/, "$1 $2").trim();
+        else input.value = value;
+        return value;
+      }
+
+      function formatNationalId(input) {
+        let value = input.value.replace(/\D/g, "").slice(0, 10);
+        if (value.length >= 10)
+          input.value = value.replace(/(\d{3})(\d{6})(\d{1})/, "$1 $2 $3");
+        else if (value.length > 3)
+          input.value = value.replace(/(\d{3})(\d{0,6})/, "$1 $2");
+        else input.value = value;
+        return value;
+      }
+
+      // --- Validation Functions ---
+      function isValidIranianNationalCode(input) {
+        if (!/^\d{10}$/.test(input) || /^(\d)\1{9}$/.test(input)) return false;
+        let check = +input[9];
+        let sum =
+          Array(9)
+            .fill()
+            .map((_, i) => +input[i] * (10 - i))
+            .reduce((x, y) => x + y) % 11;
+        return sum < 2 ? check === sum : check === 11 - sum;
+      }
+
+      function validatePhone(inputEl, msgEl, rawValue) {
+        msgEl.className = "input-message";
+        if (!rawValue) return true;
+        if (!/^09\d{9}$/.test(rawValue)) {
+          msgEl.textContent = "شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.";
+          msgEl.classList.add("error");
+          return false;
+        }
+        return true;
+      }
+
+      function validateNationalId(inputEl, msgEl, rawValue) {
+        msgEl.className = "input-message";
+        if (!rawValue) return true;
+        if (rawValue.length > 0 && rawValue.length < 10) {
+          msgEl.textContent = "کدملی باید ۱۰ رقم باشد.";
+          msgEl.classList.add("error");
+          return false;
+        }
+        if (rawValue.length === 10 && !isValidIranianNationalCode(rawValue)) {
+          msgEl.textContent = "کدملی وارد شده معتبر نیست.";
+          msgEl.classList.add("error");
+          return false;
+        }
+        if (rawValue.length === 10 && isValidIranianNationalCode(rawValue)) {
+          msgEl.textContent = "کدملی معتبر است.";
+          msgEl.classList.add("success");
+        }
+        return true;
+      }
+
+      // --- Main Form Logic ---
+      function updateCopyButton() {
+        let allValid = true;
+        let emptyFields = false;
+        requiredFields.forEach((id) => {
+          const field = document.getElementById(id);
+          if (!field.value.trim()) {
+            allValid = false;
+            emptyFields = true;
+          }
+          field.classList.remove("input-error");
+        });
+
+        const mobileInput = document.getElementById("mobileInput");
+        const nationalIdInput = document.getElementById("nationalIdInput");
+        const isMobileValid = validatePhone(
+          mobileInput,
+          document.getElementById("mobileMessage"),
+          mobileInput.value.replace(/\D/g, "")
+        );
+        const isNationalIdValid = validateNationalId(
+          nationalIdInput,
+          document.getElementById("nationalIdMessage"),
+          nationalIdInput.value.replace(/\D/g, "")
+        );
+
+        if (!isMobileValid || !isNationalIdValid) {
+          allValid = false;
+        }
+
+        if (!emptyFields && !isMobileValid)
+          mobileInput.classList.add("input-error");
+        if (!emptyFields && !isNationalIdValid)
+          nationalIdInput.classList.add("input-error");
+
+        const fromDateInput = document.getElementById("fromDateInput");
+        const toDateInput = document.getElementById("toDateInput");
+        const fromDateVal = fromDateInput.value.replace(/\//g, "");
+        const toDateVal = toDateInput.value.replace(/\//g, "");
+        const fromDateMsg = document.getElementById("fromDateMessage");
+
+        fromDateMsg.className = "input-message";
+
+        if (
+          fromDateVal &&
+          toDateVal &&
+          parseInt(fromDateVal) > parseInt(toDateVal)
+        ) {
+          allValid = false;
+          const errorMsg = "تاریخ شروع نمی‌تواند بعد از تاریخ پایان باشد.";
+          fromDateMsg.textContent = errorMsg;
+          fromDateMsg.className = "input-message error";
+          fromDateInput.classList.add("input-error");
+        }
+
+        document.getElementById("copyBtn").disabled = !allValid;
+      }
+
+      function clearForm() {
+        requiredFields.forEach((id) => {
+          document.getElementById(id).value = "";
+          document.getElementById(id).classList.remove("input-error");
+        });
+        document.getElementById("autoFillInput").value = "";
+        document.getElementById("nationalIdMessage").className =
+          "input-message";
+        document.getElementById("mobileMessage").className = "input-message";
+        document.getElementById("fromDateMessage").className = "input-message";
+        document.getElementById("copyResult").className = "result";
+        updateCopyButton();
+      }
+
+      function copyRequest() {
+        if (document.getElementById("copyBtn").disabled) return;
+
+        const name = document.getElementById("nameInput").value.trim();
+        const mobile = document
+          .getElementById("mobileInput")
+          .value.replace(/\D/g, "");
+        const nationalId = document
+          .getElementById("nationalIdInput")
+          .value.replace(/\D/g, "");
+        const fromDate = document.getElementById("fromDateInput").value.trim();
+        const toDate = document.getElementById("toDateInput").value.trim();
+
+        const reportText = `باسلام
+کاربر ${name} با شماره موبایل ${mobile} و کدملی ${nationalId} درخواست پرینت حساب خود را از تاریخ ${fromDate} تا تاریخ ${toDate} دارد
+باتشکر`;
+
+        navigator.clipboard.writeText(reportText).then(
+          () => {
+            const res = document.getElementById("copyResult");
+            res.textContent = "✅ متن درخواست با موفقیت کپی شد!";
+            res.className = "result success";
+          },
+          () => {
+            const res = document.getElementById("copyResult");
+            res.textContent = "❌ مشکلی در کپی کردن متن رخ داد.";
+            res.className = "result error";
+          }
+        );
+      }
+
+      function autoFillForm() {
+        const rawText = document.getElementById("autoFillInput").value.trim();
+        if (!rawText) return;
+        const text = rawText.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+        const mobileMatch = text.match(/09\d{9}/);
+        if (mobileMatch) {
+          const mobileInput = document.getElementById("mobileInput");
+          mobileInput.value = mobileMatch[0];
+          handleMobileInput({ target: mobileInput });
+        }
+        const nationalIdMatch = text.match(/\b(?<!\d)\d{10}(?!\d)\b/);
+        if (nationalIdMatch) {
+          const nationalIdInput = document.getElementById("nationalIdInput");
+          nationalIdInput.value = nationalIdMatch[0];
+          handleNationalIdInput({ target: nationalIdInput });
+        }
+        updateCopyButton();
+      }
+
+      // --- Event Handlers ---
+      function handleMobileInput(e) {
+        const pureValue = formatMobileNumber(e.target);
+        validatePhone(
+          e.target,
+          document.getElementById("mobileMessage"),
+          pureValue
+        );
+        updateCopyButton();
+      }
+      function handleNationalIdInput(e) {
+        const pureValue = formatNationalId(e.target);
+        validateNationalId(
+          e.target,
+          document.getElementById("nationalIdMessage"),
+          pureValue
+        );
+        updateCopyButton();
+      }
+
+      // --- Attach Event Listeners ---
+      document.addEventListener("DOMContentLoaded", () => {
+        new JalaliDatePicker("fromDateInput");
+        new JalaliDatePicker("toDateInput");
+
+        document
+          .getElementById("mobileInput")
+          .addEventListener("input", handleMobileInput);
+        document
+          .getElementById("nationalIdInput")
+          .addEventListener("input", handleNationalIdInput);
+
+        requiredFields.forEach((id) => {
+          if (id !== "mobileInput" && id !== "nationalIdInput") {
+            document
+              .getElementById(id)
+              .addEventListener("input", updateCopyButton);
+          }
+        });
+        updateCopyButton(); // Initial check
+      });
+    </script>
+  </body>
+</html>
