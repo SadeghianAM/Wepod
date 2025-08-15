@@ -27,7 +27,7 @@ if (!$is_authorized) {
     if (isset($_COOKIE['jwt_token'])) {
         setcookie('jwt_token', '', time() - 3600, '/');
     }
-    header('Location: /login.html');
+    header('Location: /admin/login.html');
     exit();
 }
 ?>
