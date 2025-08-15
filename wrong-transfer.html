@@ -61,8 +61,13 @@
       header {
         height: 70px;
       }
+      header h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
       footer {
         height: 60px;
+        font-size: 0.85rem;
         margin-top: auto;
       }
       main {
@@ -246,6 +251,9 @@
         flex-shrink: 0;
       }
 
+      a {
+        text-decoration: none;
+      }
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -270,6 +278,8 @@
     </style>
   </head>
   <body>
+    <div id="header-placeholder"></div>
+
     <main>
       <div class="tool-card">
         <h2>💸 پیگیری انتقال وجه اشتباه</h2>
@@ -394,6 +404,9 @@
       </div>
     </main>
 
+    <div id="footer-placeholder"></div>
+
+    <script src="/js/header.js"></script>
     <script>
       // --- Bank Identification Logic ---
       let binData = [];
@@ -406,6 +419,7 @@
         .catch(console.error);
 
       function validateLuhn(number) {
+        if (!number || number.length !== 16) return false;
         let sum = 0;
         for (let i = 0; i < number.length; i++) {
           let digit = parseInt(number[i], 10);
@@ -483,10 +497,12 @@
             showResult(resultBox, "بانکی با این شماره پیدا نشد.", "warning");
           }
         }
-        if (bankMatched && rawValue.length === 16 && validateLuhn(rawValue)) {
-          showResult(validationBox, "✅ شماره کارت معتبر است.", "success");
-        } else if (bankMatched && rawValue.length === 16) {
-          showResult(validationBox, "❌ شماره کارت نامعتبر است.", "error");
+        if (bankMatched && rawValue.length === 16) {
+          if (validateLuhn(rawValue)) {
+            showResult(validationBox, "✅ شماره کارت معتبر است.", "success");
+          } else {
+            showResult(validationBox, "❌ شماره کارت نامعتبر است.", "error");
+          }
         }
       }
 
@@ -558,33 +574,23 @@
         // 2. Specific validation for mobile numbers
         const sourceMobileInput = document.getElementById("sourceMobileInput");
         const sourceMobileMsg = document.getElementById("sourceMobileMessage");
+        const sourceMobileVal = sourceMobileInput.value.replace(/\D/g, "");
         if (
-          !validatePhone(
-            sourceMobileInput,
-            sourceMobileMsg,
-            sourceMobileInput.value.replace(/\D/g, "")
-          )
+          !validatePhone(sourceMobileInput, sourceMobileMsg, sourceMobileVal)
         ) {
           allValid = false;
           if (triedSubmit) sourceMobileInput.classList.add("input-error");
         }
         const destMobileInput = document.getElementById("destMobileInput");
         const destMobileMsg = document.getElementById("destMobileMessage");
-        if (
-          !validatePhone(
-            destMobileInput,
-            destMobileMsg,
-            destMobileInput.value.replace(/\D/g, "")
-          )
-        ) {
+        const destMobileVal = destMobileInput.value.replace(/\D/g, "");
+        if (!validatePhone(destMobileInput, destMobileMsg, destMobileVal)) {
           allValid = false;
           if (triedSubmit) destMobileInput.classList.add("input-error");
         }
 
-        // 3. NEW: Check for duplicates
+        // 3. Check for duplicates
         const dupMobileMsg = "شماره موبایل مبدا و مقصد نباید یکسان باشد.";
-        const sourceMobileVal = sourceMobileInput.value.replace(/\D/g, "");
-        const destMobileVal = destMobileInput.value.replace(/\D/g, "");
         if (sourceMobileVal && sourceMobileVal === destMobileVal) {
           allValid = false;
           sourceMobileMsg.textContent = dupMobileMsg;
@@ -614,6 +620,16 @@
           );
           sourceCardInput.classList.add("input-error");
           destCardInput.classList.add("input-error");
+        }
+
+        // 4. NEW: Luhn validation for card numbers
+        if (sourceCardVal.length === 16 && !validateLuhn(sourceCardVal)) {
+          allValid = false;
+          if (triedSubmit) sourceCardInput.classList.add("input-error");
+        }
+        if (destCardVal.length === 16 && !validateLuhn(destCardVal)) {
+          allValid = false;
+          if (triedSubmit) destCardInput.classList.add("input-error");
         }
 
         document.getElementById("copyBtn").disabled = !allValid;
