@@ -51,7 +51,6 @@
         flex-direction: column;
       }
 
-      /* --- HEADER & FOOTER (Unchanged) --- */
       header,
       footer {
         background: var(--primary-color);
@@ -114,7 +113,6 @@
         transition: all 0.2s ease-in-out;
       }
 
-      /* === Left Column: Info & Status === */
       .column-info h2 {
         font-size: 1.25rem;
         margin-bottom: 1rem;
@@ -132,7 +130,6 @@
         margin-bottom: 1rem;
       }
 
-      /* === NEW, SIMPLER & CLEANER DESIGN for Status Boxes === */
       .video-banking-box,
       .news-alert-box {
         border-radius: var(--border-radius);
@@ -150,7 +147,6 @@
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
       }
 
-      /* Color mapping for each state */
       .news-alert-box.green,
       .video-banking-box {
         background-color: var(--primary-light);
@@ -174,7 +170,6 @@
         border-right-color: var(--yellow-color);
       }
 
-      /* Typography inside boxes */
       .news-alert-box b,
       .video-banking-box b {
         font-weight: 700;
@@ -213,34 +208,6 @@
         box-shadow: 0 4px 12px var(--shadow-color-medium);
       }
 
-      /* === START: ADDED FOR BLINKING NOTICE === */
-      .refresh-notice {
-        text-align: center;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1.5rem; /* Matches spacing of other info-wrappers */
-        background-color: var(--red-bg);
-        border: 1px solid var(--red-color);
-        color: #c20000; /* Darker orange for better contrast */
-        font-size: 0.9em;
-        font-weight: 600;
-        border-radius: var(--border-radius);
-        animation: blinker 2s ease-in-out infinite;
-      }
-
-      @keyframes blinker {
-        0% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.5;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-      /* === END: ADDED FOR BLINKING NOTICE === */
-
-      /* === Right Column: Tools & Links === */
       .tool-card {
         background: var(--card-bg);
         border-radius: var(--border-radius);
@@ -296,7 +263,6 @@
         font-size: 0.95rem;
         border: 1px solid #eee;
       }
-      /* This rule now excludes the special button from the generic hover effect */
       .tools-grid li:not(.single-link-li) a:hover {
         border-color: var(--primary-color);
         color: var(--primary-dark);
@@ -320,7 +286,6 @@
         box-shadow: 0 4px 10px var(--shadow-color-medium);
       }
 
-      /* --- Responsive Design --- */
       @media (max-width: 900px) {
         .main-content {
           grid-template-columns: 1fr;
@@ -366,11 +331,6 @@
             <div id="video-banking-status"></div>
             <div id="card-tracking-info"></div>
             <div id="news-alerts-page"></div>
-          </div>
-
-          <div class="refresh-notice">
-            برای بروزرسانی سامانه، هر چند ساعت یکبار با Ctrl + F5 صفحات رو
-            بارگذاری کنید
           </div>
           <div class="info-wrapper">
             <h2>⚙️ وضعیت کلی سرویس‌ها</h2>
