@@ -404,6 +404,11 @@
                 />
               </div>
             </div>
+            <div
+              id="dateDurationResult"
+              class="result"
+              style="text-align: right; margin-top: 1rem"
+            ></div>
           </div>
 
           <div class="button-group">
@@ -655,6 +660,44 @@
         return true;
       }
 
+      // --- NEW: Date Duration Calculation Function ---
+      function calculateJalaliDuration(startDateStr, endDateStr) {
+        if (!startDateStr || !endDateStr) return "";
+
+        let [y1, m1, d1] = startDateStr.split("/").map(Number);
+        let [y2, m2, d2] = endDateStr.split("/").map(Number);
+
+        // Handle borrowing for days
+        if (d2 < d1) {
+          m2 -= 1;
+          // Get the number of days in the previous month
+          const prevMonth = m2 === 0 ? 12 : m2;
+          const prevYear = m2 === 0 ? y2 - 1 : y2;
+          d2 += jalaliMonthLength(prevYear, prevMonth);
+        }
+
+        // Handle borrowing for months
+        if (m2 < m1) {
+          y2 -= 1;
+          m2 += 12;
+        }
+
+        const yearDiff = y2 - y1;
+        const monthDiff = m2 - m1;
+        const dayDiff = d2 - d1;
+
+        if (yearDiff < 0) return ""; // Start date is after end date
+
+        const parts = [];
+        if (yearDiff > 0) parts.push(`${yearDiff} سال`);
+        if (monthDiff > 0) parts.push(`${monthDiff} ماه`);
+        if (dayDiff > 0) parts.push(`${dayDiff} روز`);
+
+        if (parts.length === 0) return "بازه زمانی یکسان است.";
+
+        return `فاصله زمانی: ${parts.join(" و ")}`;
+      }
+
       // --- Main Form Logic ---
       function updateCopyButton() {
         let allValid = true;
@@ -692,22 +735,37 @@
 
         const fromDateInput = document.getElementById("fromDateInput");
         const toDateInput = document.getElementById("toDateInput");
-        const fromDateVal = fromDateInput.value.replace(/\//g, "");
-        const toDateVal = toDateInput.value.replace(/\//g, "");
+        const fromDateVal = fromDateInput.value;
+        const toDateVal = toDateInput.value;
         const fromDateMsg = document.getElementById("fromDateMessage");
+        const durationResultEl = document.getElementById("dateDurationResult");
 
         fromDateMsg.className = "input-message";
+        durationResultEl.className = "result";
+        durationResultEl.innerHTML = "";
 
-        if (
-          fromDateVal &&
-          toDateVal &&
-          parseInt(fromDateVal) > parseInt(toDateVal)
-        ) {
-          allValid = false;
-          const errorMsg = "تاریخ شروع نمی‌تواند بعد از تاریخ پایان باشد.";
-          fromDateMsg.textContent = errorMsg;
-          fromDateMsg.className = "input-message error";
-          fromDateInput.classList.add("input-error");
+        if (fromDateVal && toDateVal) {
+          const fromDateInt = parseInt(fromDateVal.replace(/\//g, ""));
+          const toDateInt = parseInt(toDateVal.replace(/\//g, ""));
+
+          if (fromDateInt > toDateInt) {
+            allValid = false;
+            const errorMsg = "تاریخ شروع نمی‌تواند بعد از تاریخ پایان باشد.";
+            fromDateMsg.textContent = errorMsg;
+            fromDateMsg.className = "input-message error";
+            fromDateInput.classList.add("input-error");
+          } else {
+            // Calculate and display duration
+            const durationText = calculateJalaliDuration(
+              fromDateVal,
+              toDateVal
+            );
+            durationResultEl.textContent = durationText;
+            durationResultEl.className = "result success";
+            durationResultEl.style.backgroundColor = "var(--info-bg)";
+            durationResultEl.style.borderColor = "var(--info-color)";
+            durationResultEl.style.color = "#333";
+          }
         }
 
         document.getElementById("copyBtn").disabled = !allValid;
@@ -724,6 +782,7 @@
         document.getElementById("mobileMessage").className = "input-message";
         document.getElementById("fromDateMessage").className = "input-message";
         document.getElementById("copyResult").className = "result";
+        document.getElementById("dateDurationResult").className = "result"; // Clear duration
         updateCopyButton();
       }
 
@@ -836,7 +895,6 @@
         const rawText = document.getElementById("autoFillInput").value.trim();
         if (!rawText) return;
 
-        // --- MODIFICATION: Clear only necessary fields, not the autoFillInput ---
         requiredFields.forEach((id) => {
           const field = document.getElementById(id);
           if (field) field.value = "";
