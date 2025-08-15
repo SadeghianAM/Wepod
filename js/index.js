@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // ۲. وضعیت لاگین کاربر را بررسی کن و در صورت نیاز باکس اطلاعات را نمایش بده
+    // ۲. وضعیت لاگین کاربر را بررسی کن و باکس مناسب را نمایش بده
     await checkLoginStatus();
 
     // ۳. حالا که قالب در صفحه قرار گرفته، هدر را با تاریخ و ساعت مقداردهی کن
@@ -89,19 +89,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const css = `
       #user-info-box {
         position: fixed; top: 80px; left: 10px; background-color: #ffffff;
-        border: 1px solid #dee2e6; border-radius: 8px; padding: 12px 18px;
+        border: 1px solid #dee2e6; border-radius: 8px; padding: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); font-family: "Vazirmatn", sans-serif;
-        z-index: 1000; direction: rtl; min-width: 220px;
+        z-index: 1000; direction: rtl; min-width: 220px; text-align: center;
       }
       #user-info-box p { margin: 0 0 8px 0; font-size: 14px; color: #343a40; }
       #user-info-box p strong { font-weight: bold; margin-left: 5px; }
-      #logout-button {
-        width: 100%; padding: 8px; background-color: #dc3545; color: #fff;
+
+      #logout-button, #login-button {
+        width: 100%; padding: 8px; color: #fff;
         border: none; border-radius: 6px; font-size: 14px; font-weight: bold;
         cursor: pointer; font-family: "Vazirmatn", sans-serif;
-        transition: background-color 0.3s; margin-top: 8px;
+        transition: background-color 0.3s;
       }
+
+      #logout-button { background-color: #dc3545; margin-top: 8px; }
       #logout-button:hover { background-color: #c82333; }
+
+      #login-button { background-color: #079863; }
+      #login-button:hover { background-color: #068456; }
     `;
     const styleElement = document.createElement("style");
     styleElement.type = "text/css";
@@ -119,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function checkLoginStatus() {
     try {
       const response = await fetch("/php/get-user-info.php");
+
       if (response.ok) {
         const userData = await response.json();
         injectUserInfoStyles();
@@ -127,12 +134,23 @@ document.addEventListener("DOMContentLoaded", () => {
         userInfoBox.innerHTML = `
           <p><strong>نام:</strong> ${userData.name}</p>
           <p><strong>داخلی:</strong> ${toPersianDigits(userData.id)}</p>
-          <button id="logout-button">خروج از وی هاب</button>
+          <button id="logout-button">خروج</button>
         `;
         document.body.prepend(userInfoBox);
         document
           .getElementById("logout-button")
           .addEventListener("click", logout);
+      } else {
+        injectUserInfoStyles();
+        const loginBox = document.createElement("div");
+        loginBox.id = "user-info-box";
+        loginBox.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
+        document.body.prepend(loginBox);
+        document
+          .getElementById("login-button")
+          .addEventListener("click", () => {
+            window.location.href = "/login.html";
+          });
       }
     } catch (error) {
       console.error("Error checking login status:", error);

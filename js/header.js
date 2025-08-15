@@ -39,12 +39,13 @@ function injectUserInfoStyles() {
       background-color: #ffffff;
       border: 1px solid #dee2e6;
       border-radius: 8px;
-      padding: 12px 18px;
+      padding: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       font-family: "Vazirmatn", sans-serif;
       z-index: 1000;
       direction: rtl;
       min-width: 220px;
+      text-align: center;
     }
     #user-info-box p {
       margin: 0 0 8px 0;
@@ -55,10 +56,10 @@ function injectUserInfoStyles() {
       font-weight: bold;
       margin-left: 5px;
     }
-    #logout-button {
+    /* استایل مشترک برای هر دو دکمه */
+    #logout-button, #login-button {
       width: 100%;
       padding: 8px;
-      background-color: #dc3545;
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -67,10 +68,21 @@ function injectUserInfoStyles() {
       cursor: pointer;
       font-family: "Vazirmatn", sans-serif;
       transition: background-color 0.3s;
+    }
+    /* استایل دکمه خروج (قرمز) */
+    #logout-button {
+      background-color: #dc3545;
       margin-top: 8px;
     }
     #logout-button:hover {
       background-color: #c82333;
+    }
+    /* استایل دکمه ورود (سبز) */
+    #login-button {
+      background-color: #079863;
+    }
+    #login-button:hover {
+      background-color: #068456;
     }
   `;
 
@@ -109,6 +121,7 @@ function toJalali(gy, gm, gd) {
 }
 
 function toPersianDigits(str) {
+  if (str === null || str === undefined) return "";
   return str.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
 }
 
@@ -163,13 +176,11 @@ async function logout() {
 async function checkLoginStatus() {
   try {
     const response = await fetch("/php/get-user-info.php");
+
+    // اگر کاربر لاگین کرده باشد
     if (response.ok) {
       const userData = await response.json();
-
-      // مرحله 1: استایل‌ها را به صفحه اضافه کن
       injectUserInfoStyles();
-
-      // مرحله 2: باکس اطلاعات کاربر را بساز
       const userInfoBox = document.createElement("div");
       userInfoBox.id = "user-info-box";
       userInfoBox.innerHTML = `
@@ -177,14 +188,21 @@ async function checkLoginStatus() {
         <p><strong>داخلی:</strong> ${toPersianDigits(userData.id)}</p>
         <button id="logout-button">خروج از وی هاب</button>
       `;
-
       document.body.prepend(userInfoBox);
-
       document
         .getElementById("logout-button")
         .addEventListener("click", logout);
-    } else {
-      console.log("User not logged in.");
+    }
+    // اگر کاربر لاگین نکرده باشد
+    else {
+      injectUserInfoStyles();
+      const loginBox = document.createElement("div");
+      loginBox.id = "user-info-box";
+      loginBox.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
+      document.body.prepend(loginBox);
+      document.getElementById("login-button").addEventListener("click", () => {
+        window.location.href = "/login.html";
+      });
     }
   } catch (error) {
     console.error("Error checking login status:", error);
@@ -209,6 +227,7 @@ async function loadLayout() {
     const footerData = await footerRes.text();
     document.getElementById("footer-placeholder").innerHTML = footerData;
 
+    // پس از بارگذاری کامل لایوت، وضعیت لاگین را بررسی کن
     await checkLoginStatus();
   } catch (error) {
     console.error("Error loading layout components:", error);
