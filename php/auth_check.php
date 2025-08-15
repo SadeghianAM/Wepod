@@ -3,7 +3,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require 'secret.php';
+require_once 'secret.php';
 
 /**
  * @param string $token توکن JWT

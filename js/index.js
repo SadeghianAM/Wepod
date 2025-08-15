@@ -16,10 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // ۲. حالا که قالب در صفحه قرار گرفته، هدر را با تاریخ و ساعت مقداردهی کن
+    // ۲. وضعیت لاگین کاربر را بررسی کن و در صورت نیاز باکس اطلاعات را نمایش بده
+    await checkLoginStatus();
+
+    // ۳. حالا که قالب در صفحه قرار گرفته، هدر را با تاریخ و ساعت مقداردهی کن
     setupHeader();
 
-    // ۳. در نهایت، محتوای اصلی صفحه (اطلاعیه‌ها، وضعیت‌ها و ...) را بارگذاری کن
+    // ۴. در نهایت، محتوای اصلی صفحه (اطلاعیه‌ها، وضعیت‌ها و ...) را بارگذاری کن
     loadMainContent();
   }
 
@@ -75,8 +78,67 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =================================================================================
-  // بخش ۳: توابع کمکی و منطق اصلی (کپی شده از فایل‌های قبلی)
+  // بخش ۳: توابع کمکی و منطق اصلی
   // =================================================================================
+
+  // ---- توابع جدید برای مدیریت لاگین و اطلاعات کاربر ----
+  let stylesInjected = false;
+
+  function injectUserInfoStyles() {
+    if (stylesInjected) return;
+    const css = `
+      #user-info-box {
+        position: fixed; top: 80px; left: 10px; background-color: #ffffff;
+        border: 1px solid #dee2e6; border-radius: 8px; padding: 12px 18px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); font-family: "Vazirmatn", sans-serif;
+        z-index: 1000; direction: rtl; min-width: 220px;
+      }
+      #user-info-box p { margin: 0 0 8px 0; font-size: 14px; color: #343a40; }
+      #user-info-box p strong { font-weight: bold; margin-left: 5px; }
+      #logout-button {
+        width: 100%; padding: 8px; background-color: #dc3545; color: #fff;
+        border: none; border-radius: 6px; font-size: 14px; font-weight: bold;
+        cursor: pointer; font-family: "Vazirmatn", sans-serif;
+        transition: background-color 0.3s; margin-top: 8px;
+      }
+      #logout-button:hover { background-color: #c82333; }
+    `;
+    const styleElement = document.createElement("style");
+    styleElement.type = "text/css";
+    styleElement.appendChild(document.createTextNode(css));
+    document.head.appendChild(styleElement);
+    stylesInjected = true;
+  }
+
+  async function logout() {
+    await fetch("/php/logout.php");
+    localStorage.removeItem("jwt");
+    window.location.href = "/login.html";
+  }
+
+  async function checkLoginStatus() {
+    try {
+      const response = await fetch("/php/get-user-info.php");
+      if (response.ok) {
+        const userData = await response.json();
+        injectUserInfoStyles();
+        const userInfoBox = document.createElement("div");
+        userInfoBox.id = "user-info-box";
+        userInfoBox.innerHTML = `
+          <p><strong>نام:</strong> ${userData.name}</p>
+          <p><strong>داخلی:</strong> ${toPersianDigits(userData.id)}</p>
+          <button id="logout-button">خروج از وی هاب</button>
+        `;
+        document.body.prepend(userInfoBox);
+        document
+          .getElementById("logout-button")
+          .addEventListener("click", logout);
+      }
+    } catch (error) {
+      console.error("Error checking login status:", error);
+    }
+  }
+  // ---- پایان توابع جدید ----
 
   const weekdays = [
     "یک‌شنبه",

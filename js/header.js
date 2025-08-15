@@ -22,6 +22,65 @@ const persianMonths = [
   "اسفند",
 ];
 
+// یک فلگ برای اینکه مطمئن شویم استایل‌ها فقط یک بار به صفحه اضافه می‌شوند
+let stylesInjected = false;
+
+/**
+ * استایل‌های مربوط به باکس اطلاعات کاربر را به صورت داینامیک به <head> اضافه می‌کند
+ */
+function injectUserInfoStyles() {
+  if (stylesInjected) return; // اگر استایل‌ها قبلاً اضافه شده‌اند، دوباره کاری نکن
+
+  const css = `
+    #user-info-box {
+      position: fixed;
+      top: 80px;
+      left: 10px;
+      background-color: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 12px 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      font-family: "Vazirmatn", sans-serif;
+      z-index: 1000;
+      direction: rtl;
+      min-width: 220px;
+    }
+    #user-info-box p {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #343a40;
+    }
+    #user-info-box p strong {
+      font-weight: bold;
+      margin-left: 5px;
+    }
+    #logout-button {
+      width: 100%;
+      padding: 8px;
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: "Vazirmatn", sans-serif;
+      transition: background-color 0.3s;
+      margin-top: 8px;
+    }
+    #logout-button:hover {
+      background-color: #c82333;
+    }
+  `;
+
+  const styleElement = document.createElement("style");
+  styleElement.type = "text/css";
+  styleElement.appendChild(document.createTextNode(css));
+  document.head.appendChild(styleElement);
+  stylesInjected = true;
+}
+
 function toJalali(gy, gm, gd) {
   const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
   let jy = gy > 1600 ? 979 : 0;
@@ -95,6 +154,43 @@ function setupHeader(title) {
   }
 }
 
+async function logout() {
+  await fetch("/php/logout.php");
+  localStorage.removeItem("jwt");
+  window.location.href = "/login.html";
+}
+
+async function checkLoginStatus() {
+  try {
+    const response = await fetch("/php/get-user-info.php");
+    if (response.ok) {
+      const userData = await response.json();
+
+      // مرحله 1: استایل‌ها را به صفحه اضافه کن
+      injectUserInfoStyles();
+
+      // مرحله 2: باکس اطلاعات کاربر را بساز
+      const userInfoBox = document.createElement("div");
+      userInfoBox.id = "user-info-box";
+      userInfoBox.innerHTML = `
+        <p><strong>نام:</strong> ${userData.name}</p>
+        <p><strong>داخلی:</strong> ${toPersianDigits(userData.id)}</p>
+        <button id="logout-button">خروج از وی هاب</button>
+      `;
+
+      document.body.prepend(userInfoBox);
+
+      document
+        .getElementById("logout-button")
+        .addEventListener("click", logout);
+    } else {
+      console.log("User not logged in.");
+    }
+  } catch (error) {
+    console.error("Error checking login status:", error);
+  }
+}
+
 async function loadLayout() {
   try {
     const [headerRes, footerRes] = await Promise.all([
@@ -112,6 +208,8 @@ async function loadLayout() {
 
     const footerData = await footerRes.text();
     document.getElementById("footer-placeholder").innerHTML = footerData;
+
+    await checkLoginStatus();
   } catch (error) {
     console.error("Error loading layout components:", error);
   }
