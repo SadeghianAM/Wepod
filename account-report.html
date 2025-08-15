@@ -197,8 +197,6 @@
         color: #888;
         cursor: not-allowed;
       }
-
-      /* --- MODIFIED STYLE --- */
       #autoFillBtn {
         margin-top: 0.75rem;
         width: 100%;
@@ -760,39 +758,133 @@
         );
       }
 
+      function findDatesInText(text) {
+        const [currentYear] = toPersian(new Date());
+        const allMatches = [];
+        const monthMap = {
+          فروردین: 1,
+          اردیبهشت: 2,
+          خرداد: 3,
+          تیر: 4,
+          مرداد: 5,
+          شهریور: 6,
+          مهر: 7,
+          آبان: 8,
+          آذر: 9,
+          دی: 10,
+          بهمن: 11,
+          اسفند: 12,
+        };
+
+        // Use lookarounds to avoid matching digits/slashes next to the date string
+        const patterns = [
+          {
+            regex: /(?<![\d\/])(1[34]\d{2})\/(\d{1,2})\/(\d{1,2})(?![\d\/])/g,
+            map: (m) => ({ year: m[1], month: m[2], day: m[3], raw: m[0] }),
+          },
+          {
+            regex: new RegExp(
+              `(?<!\\d)(\\d{1,2})\\s+(${Object.keys(monthMap).join(
+                "|"
+              )})(?!\\w)`,
+              "g"
+            ),
+            map: (m) => ({
+              year: currentYear,
+              month: monthMap[m[2]],
+              day: m[1],
+              raw: m[0],
+            }),
+          },
+          {
+            regex: /(?<![\d\/])(\d{1,2})\/(\d{1,2})(?![\d\/])/g,
+            map: (m) => ({
+              year: currentYear,
+              month: m[1],
+              day: m[2],
+              raw: m[0],
+            }),
+          },
+        ];
+
+        let processedText = text;
+        for (const pattern of patterns) {
+          for (const match of processedText.matchAll(pattern.regex)) {
+            const date = pattern.map(match);
+            allMatches.push({ ...date, index: match.index });
+          }
+        }
+
+        return allMatches.sort((a, b) => a.index - b.index);
+      }
+
       function autoFillForm() {
         const rawText = document.getElementById("autoFillInput").value.trim();
         if (!rawText) return;
-        const text = rawText.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
-        const mobileMatch = text.match(/09\d{9}/);
-        if (mobileMatch) {
-          const mobileInput = document.getElementById("mobileInput");
-          mobileInput.value = mobileMatch[0];
-          handleMobileInput({ target: mobileInput });
+
+        // --- MODIFICATION: Clear only necessary fields, not the whole form ---
+        requiredFields.forEach((id) => {
+          const field = document.getElementById(id);
+          if (field) field.value = "";
+        });
+        document.getElementById("nationalIdMessage").className =
+          "input-message";
+        document.getElementById("mobileMessage").className = "input-message";
+        document.getElementById("fromDateMessage").className = "input-message";
+
+        const textWithEnglishNumerals = rawText.replace(/[۰-۹]/g, (d) =>
+          "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
+        );
+
+        // Fill Mobile and National ID
+        const mobileMatch = textWithEnglishNumerals.match(/09\d{9}/);
+        if (mobileMatch)
+          handleMobileInput({ target: { value: mobileMatch[0] } });
+
+        const nationalIdMatch = textWithEnglishNumerals.match(/\b\d{10}\b/);
+        if (nationalIdMatch)
+          handleNationalIdInput({ target: { value: nationalIdMatch[0] } });
+
+        // Fill Dates using the new robust function
+        const foundDates = findDatesInText(textWithEnglishNumerals);
+        if (foundDates.length > 0) {
+          const startDate = foundDates[0];
+          document.getElementById("fromDateInput").value = formatJalaliDisplay(
+            parseInt(startDate.year),
+            parseInt(startDate.month),
+            parseInt(startDate.day)
+          );
         }
-        const nationalIdMatch = text.match(/\b(?<!\d)\d{10}(?!\d)\b/);
-        if (nationalIdMatch) {
-          const nationalIdInput = document.getElementById("nationalIdInput");
-          nationalIdInput.value = nationalIdMatch[0];
-          handleNationalIdInput({ target: nationalIdInput });
+        if (foundDates.length > 1) {
+          const endDate = foundDates[1];
+          document.getElementById("toDateInput").value = formatJalaliDisplay(
+            parseInt(endDate.year),
+            parseInt(endDate.month),
+            parseInt(endDate.day)
+          );
         }
+
         updateCopyButton();
       }
 
       // --- Event Handlers ---
       function handleMobileInput(e) {
-        const pureValue = formatMobileNumber(e.target);
+        const mobileInput = document.getElementById("mobileInput");
+        mobileInput.value = e.target.value;
+        const pureValue = formatMobileNumber(mobileInput);
         validatePhone(
-          e.target,
+          mobileInput,
           document.getElementById("mobileMessage"),
           pureValue
         );
         updateCopyButton();
       }
       function handleNationalIdInput(e) {
-        const pureValue = formatNationalId(e.target);
+        const nationalIdInput = document.getElementById("nationalIdInput");
+        nationalIdInput.value = e.target.value;
+        const pureValue = formatNationalId(nationalIdInput);
         validateNationalId(
-          e.target,
+          nationalIdInput,
           document.getElementById("nationalIdMessage"),
           pureValue
         );
