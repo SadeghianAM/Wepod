@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>انتقال وجه اشتباه - وی هاب</title>
+    <style>
+      :root {
+        --primary-color: #00ae70;
+        --primary-dark: #089863;
+        --primary-light: #e6f7f2;
+        --bg-color: #f8fcf9;
+        --text-color: #222;
+        --secondary-text-color: #555;
+        --card-bg: #ffffff;
+        --header-text: #ffffff;
+        --shadow-color-light: rgba(0, 174, 112, 0.07);
+        --danger-color: #d93025;
+        --danger-bg: #fce8e6;
+        --info-color: #1a73e8;
+        --info-bg: #e8f0fe;
+        --warning-color: #f9ab00;
+        --warning-bg: #feefc3;
+        --border-radius: 0.75rem;
+        --border-color: #e9e9e9;
+      }
+      @font-face {
+        font-family: "Vazirmatn";
+        src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      *,
+      *::before,
+      *::after {
+        font-family: "Vazirmatn", sans-serif;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        direction: rtl;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header,
+      footer {
+        background: var(--primary-color);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px var(--shadow-color-light);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+      }
+      header {
+        height: 70px;
+      }
+      footer {
+        height: 60px;
+        margin-top: auto;
+      }
+      main {
+        flex-grow: 1;
+        padding: 2rem;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      .tool-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 15px var(--shadow-color-light);
+        overflow: hidden;
+      }
+      .tool-card h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        color: var(--primary-dark);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .tool-card .card-content {
+        padding: 1.5rem;
+      }
+      .info-notice {
+        background-color: var(--info-bg);
+        color: var(--info-color);
+        border: 1px solid var(--info-color);
+        border-right-width: 4px;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+      }
+      .info-notice ul {
+        list-style-position: inside;
+        padding-right: 0.5rem;
+      }
+      .info-notice li {
+        margin-bottom: 0.5rem;
+      }
+      .info-notice li:last-child {
+        margin-bottom: 0;
+      }
+      .form-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+      }
+      .form-column h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1.2rem;
+      }
+      label {
+        margin-bottom: 0.6rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--secondary-text-color);
+      }
+      input {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.7em 1em;
+        border-radius: 0.6em;
+        border: 1.5px solid #ddd;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+      }
+      input.input-error {
+        border-color: var(--danger-color);
+      }
+      input.card-input,
+      input.mobile-input {
+        direction: ltr;
+        text-align: center;
+        letter-spacing: 2px;
+        font-size: 1.1rem;
+      }
+      .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--header-text);
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .btn-primary {
+        background-color: var(--primary-color);
+      }
+      .btn-danger {
+        background-color: var(--danger-color);
+      }
+      .btn-primary:hover:not(:disabled) {
+        background-color: var(--primary-dark);
+      }
+      .btn-danger:hover:not(:disabled) {
+        background-color: #c02717;
+      }
+      .btn:disabled {
+        background-color: #ccc;
+        color: #888;
+        cursor: not-allowed;
+      }
+
+      .input-message,
+      .result {
+        border-radius: var(--border-radius);
+        padding: 0.6rem 1rem;
+        line-height: 1.6;
+        border: 1px solid transparent;
+        border-inline-start-width: 4px;
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: none;
+        gap: 0.5rem;
+      }
+      .result {
+        align-items: center;
+        justify-content: center;
+      }
+      .input-message.success,
+      .input-message.error,
+      .result.success,
+      .result.error,
+      .result.warning {
+        display: flex !important;
+      }
+      .input-message.success,
+      .result.success {
+        background-color: var(--primary-light);
+        border-color: var(--primary-color);
+        color: var(--primary-dark);
+      }
+      .input-message.error,
+      .result.error {
+        background-color: var(--danger-bg);
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+      }
+      .result.warning {
+        background-color: var(--warning-bg);
+        border-color: var(--warning-color);
+        color: var(--secondary-text-color);
+      }
+      .result img {
+        height: 24px;
+        width: auto;
+        flex-shrink: 0;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 2rem;
+        color: var(--primary-dark);
+        text-align: center;
+      }
+      .back-link:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+      }
+
+      @media (max-width: 768px) {
+        .form-columns,
+        .button-group {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .form-column {
+          margin-bottom: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="tool-card">
+        <h2>💸 پیگیری انتقال وجه اشتباه</h2>
+        <div class="card-content">
+          <div class="info-notice">
+            <strong>⚠️ نکات مهم:</strong>
+            <ul>
+              <li>
+                این فرم تنها برای انتقال های اشتباه به مقصد
+                <strong>ویپاد</strong> کاربرد دارد.
+              </li>
+              <li>
+                مبلغ انتقالی تنها به کارتی که انتقال از آن انجام شده است باید
+                برگشت داده شود.
+              </li>
+              <li>
+                در هنگام تماس از یکی بودن نام صاحب حساب و صاحب شماره کارت مبدا
+                اطمینان حاصل کنید.
+              </li>
+            </ul>
+          </div>
+          <div class="form-columns">
+            <div class="form-column">
+              <h3>اطلاعات مبدا تراکنش</h3>
+              <div class="form-group">
+                <label for="sourceNameInput">👤 نام و نام خانوادگی</label>
+                <input
+                  type="text"
+                  id="sourceNameInput"
+                  placeholder="نام کامل صاحب کارت مبدا"
+                />
+              </div>
+              <div class="form-group">
+                <label for="sourceMobileInput">📱 شماره موبایل</label>
+                <input
+                  type="text"
+                  id="sourceMobileInput"
+                  class="mobile-input"
+                  placeholder="09-- --- ----"
+                  inputmode="numeric"
+                  maxlength="13"
+                />
+                <div id="sourceMobileMessage" class="input-message"></div>
+              </div>
+              <div class="form-group">
+                <label for="sourceCardInput">💳 شماره کارت</label>
+                <input
+                  type="text"
+                  id="sourceCardInput"
+                  class="card-input"
+                  placeholder="---- ---- ---- ----"
+                  inputmode="numeric"
+                  maxlength="19"
+                />
+                <div id="sourceCardResult" class="result"></div>
+                <div id="sourceCardValidation" class="result"></div>
+              </div>
+              <div class="form-group">
+                <label for="dateTimeInput">📅 تاریخ و ساعت</label>
+                <input
+                  type="text"
+                  id="dateTimeInput"
+                  placeholder="مثال: ۱۴۰۴/۰۵/۱۵ - ۱۲:۳۰"
+                />
+              </div>
+            </div>
+
+            <div class="form-column">
+              <h3>اطلاعات مقصد تراکنش</h3>
+              <div class="form-group">
+                <label for="destNameInput">👤 نام و نام خانوادگی</label>
+                <input
+                  type="text"
+                  id="destNameInput"
+                  placeholder="نام کامل صاحب حساب ویپادی"
+                />
+              </div>
+              <div class="form-group">
+                <label for="destMobileInput">📱 شماره موبایل</label>
+                <input
+                  type="text"
+                  id="destMobileInput"
+                  class="mobile-input"
+                  placeholder="09-- --- ----"
+                  inputmode="numeric"
+                  maxlength="13"
+                />
+                <div id="destMobileMessage" class="input-message"></div>
+              </div>
+              <div class="form-group">
+                <label for="destCardInput">💳 شماره کارت</label>
+                <input
+                  type="text"
+                  id="destCardInput"
+                  class="card-input"
+                  placeholder="---- ---- ---- ----"
+                  inputmode="numeric"
+                  maxlength="19"
+                />
+                <div id="destCardResult" class="result"></div>
+                <div id="destCardValidation" class="result"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button class="btn btn-danger" type="button" onclick="clearForm()">
+              🗑️ پاک کردن فرم
+            </button>
+            <button
+              class="btn btn-primary"
+              id="copyBtn"
+              onclick="copyRequest()"
+              disabled
+            >
+              📋 کپی متن پیگیری
+            </button>
+          </div>
+          <div id="copyResult" class="result" style="margin-top: 1.5rem"></div>
+          <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // --- Bank Identification Logic ---
+      let binData = [];
+      const requireFullBin = ["502229", "621986"];
+      fetch("./data/bin-data.json")
+        .then((res) => res.json())
+        .then((data) => {
+          binData = data.sort((a, b) => b.bin.length - a.bin.length);
+        })
+        .catch(console.error);
+
+      function validateLuhn(number) {
+        let sum = 0;
+        for (let i = 0; i < number.length; i++) {
+          let digit = parseInt(number[i], 10);
+          if (i % 2 === (number.length % 2 === 0 ? 0 : 1)) {
+            digit *= 2;
+            if (digit > 9) digit -= 9;
+          }
+          sum += digit;
+        }
+        return sum % 10 === 0;
+      }
+
+      function showResult(
+        element,
+        message,
+        type,
+        logoName = null,
+        bankName = null
+      ) {
+        element.className = `result ${type}`;
+        element.innerHTML = "";
+        if (logoName && bankName && type === "success") {
+          const img = document.createElement("img");
+          img.src = `./assets/logo/${logoName}.svg`;
+          img.alt = `لوگوی ${bankName}`;
+          img.onerror = () => (img.style.display = "none");
+          element.appendChild(document.createTextNode("این کارت متعلق به "));
+          element.appendChild(img);
+          element.appendChild(document.createTextNode(`${bankName} است.`));
+        } else {
+          element.textContent = message;
+        }
+      }
+
+      function clearCardResults(prefix) {
+        document.getElementById(`${prefix}Result`).className = "result";
+        document.getElementById(`${prefix}Validation`).className = "result";
+      }
+
+      function handleCardInput(event) {
+        const input = event.target;
+        const prefix = input.id.replace("CardInput", "");
+        const resultBox = document.getElementById(`${prefix}CardResult`);
+        const validationBox = document.getElementById(
+          `${prefix}CardValidation`
+        );
+        const rawValue = input.value.replace(/\D/g, "").substring(0, 16);
+        input.value = (rawValue.match(/.{1,4}/g) || []).join(" ");
+        clearCardResults(`${prefix}Card`);
+        if (rawValue.length < 6) return;
+        const bin6 = rawValue.substring(0, 6);
+        const requires8 = requireFullBin.includes(bin6);
+        let bankMatched = false;
+        if (requires8 && rawValue.length < 8) {
+          showResult(
+            resultBox,
+            "برای تشخیص دقیق‌تر، لطفاً ارقام بیشتری وارد کنید.",
+            "warning"
+          );
+        } else {
+          const binToMatch = requires8 ? rawValue.substring(0, 8) : bin6;
+          const match = binData.find((entry) =>
+            binToMatch.startsWith(entry.bin)
+          );
+          if (match) {
+            bankMatched = true;
+            showResult(
+              resultBox,
+              `این کارت متعلق به ${match.name} است.`,
+              "success",
+              match.logo,
+              match.name
+            );
+          } else {
+            showResult(resultBox, "بانکی با این شماره پیدا نشد.", "warning");
+          }
+        }
+        if (bankMatched && rawValue.length === 16 && validateLuhn(rawValue)) {
+          showResult(validationBox, "✅ شماره کارت معتبر است.", "success");
+        } else if (bankMatched && rawValue.length === 16) {
+          showResult(validationBox, "❌ شماره کارت نامعتبر است.", "error");
+        }
+      }
+
+      // --- Mobile Number Validation Logic ---
+      function formatMobileNumber(input) {
+        let value = input.value.replace(/\D/g, "").slice(0, 11);
+        if (value.length > 7) {
+          input.value = value
+            .replace(/(\d{4})(\d{3})(\d{1,4})/, "$1 $2 $3")
+            .trim();
+        } else if (value.length > 4) {
+          input.value = value.replace(/(\d{4})(\d{1,3})/, "$1 $2").trim();
+        } else {
+          input.value = value;
+        }
+        return value;
+      }
+
+      function validatePhone(inputEl, messageEl, rawValue) {
+        messageEl.className = "input-message";
+        if (rawValue && !/^09\d{9}$/.test(rawValue)) {
+          messageEl.textContent = "شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.";
+          messageEl.classList.add("error");
+          return false;
+        }
+        return true;
+      }
+
+      function handleMobileInput(event) {
+        const input = event.target;
+        const msgEl = document.getElementById(
+          input.id.replace("Input", "Message")
+        );
+        const pureValue = formatMobileNumber(input);
+        validatePhone(input, msgEl, pureValue);
+      }
+
+      // --- Main Form Logic ---
+      const requiredFields = [
+        "sourceNameInput",
+        "sourceMobileInput",
+        "sourceCardInput",
+        "dateTimeInput",
+        "destNameInput",
+        "destMobileInput",
+        "destCardInput",
+      ];
+      let triedSubmit = false;
+
+      function normalizeDigits(text) {
+        return text
+          ? text.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString())
+          : "";
+      }
+
+      function validateFields() {
+        let allValid = true;
+
+        // 1. Check for empty fields
+        requiredFields.forEach((id) => {
+          const field = document.getElementById(id);
+          field.classList.remove("input-error");
+          if (!field.value.trim()) {
+            allValid = false;
+            if (triedSubmit) field.classList.add("input-error");
+          }
+        });
+
+        // 2. Specific validation for mobile numbers
+        const sourceMobileInput = document.getElementById("sourceMobileInput");
+        const sourceMobileMsg = document.getElementById("sourceMobileMessage");
+        if (
+          !validatePhone(
+            sourceMobileInput,
+            sourceMobileMsg,
+            sourceMobileInput.value.replace(/\D/g, "")
+          )
+        ) {
+          allValid = false;
+          if (triedSubmit) sourceMobileInput.classList.add("input-error");
+        }
+        const destMobileInput = document.getElementById("destMobileInput");
+        const destMobileMsg = document.getElementById("destMobileMessage");
+        if (
+          !validatePhone(
+            destMobileInput,
+            destMobileMsg,
+            destMobileInput.value.replace(/\D/g, "")
+          )
+        ) {
+          allValid = false;
+          if (triedSubmit) destMobileInput.classList.add("input-error");
+        }
+
+        // 3. NEW: Check for duplicates
+        const dupMobileMsg = "شماره موبایل مبدا و مقصد نباید یکسان باشد.";
+        const sourceMobileVal = sourceMobileInput.value.replace(/\D/g, "");
+        const destMobileVal = destMobileInput.value.replace(/\D/g, "");
+        if (sourceMobileVal && sourceMobileVal === destMobileVal) {
+          allValid = false;
+          sourceMobileMsg.textContent = dupMobileMsg;
+          destMobileMsg.textContent = dupMobileMsg;
+          sourceMobileMsg.className = "input-message error";
+          destMobileMsg.className = "input-message error";
+          sourceMobileInput.classList.add("input-error");
+          destMobileInput.classList.add("input-error");
+        }
+
+        const dupCardMsg = "شماره کارت مبدا و مقصد نباید یکسان باشد.";
+        const sourceCardInput = document.getElementById("sourceCardInput");
+        const destCardInput = document.getElementById("destCardInput");
+        const sourceCardVal = sourceCardInput.value.replace(/\D/g, "");
+        const destCardVal = destCardInput.value.replace(/\D/g, "");
+        if (sourceCardVal && sourceCardVal === destCardVal) {
+          allValid = false;
+          showResult(
+            document.getElementById("sourceCardValidation"),
+            dupCardMsg,
+            "error"
+          );
+          showResult(
+            document.getElementById("destCardValidation"),
+            dupCardMsg,
+            "error"
+          );
+          sourceCardInput.classList.add("input-error");
+          destCardInput.classList.add("input-error");
+        }
+
+        document.getElementById("copyBtn").disabled = !allValid;
+        return allValid;
+      }
+
+      function clearForm() {
+        triedSubmit = false;
+        requiredFields.forEach((id) => {
+          const field = document.getElementById(id);
+          field.value = "";
+          field.classList.remove("input-error");
+        });
+        clearCardResults("sourceCard");
+        clearCardResults("destCard");
+        document.getElementById("sourceMobileMessage").className =
+          "input-message";
+        document.getElementById("destMobileMessage").className =
+          "input-message";
+        document.getElementById("copyResult").className = "result";
+        validateFields();
+      }
+
+      function copyRequest() {
+        triedSubmit = true;
+        if (!validateFields()) return;
+        const reportText = `اطلاعات تراکنش انتقال وجه اشتباه
+---------------------------------
+مشخصات مبدا تراکنش:
+نام و نام خانوادگی: ${document.getElementById("sourceNameInput").value.trim()}
+شماره موبایل: ${normalizeDigits(
+          document.getElementById("sourceMobileInput").value.replace(/\D/g, "")
+        )}
+شماره کارت: ${normalizeDigits(
+          document.getElementById("sourceCardInput").value.replace(/\D/g, "")
+        )}
+تاریخ و ساعت: ${normalizeDigits(
+          document.getElementById("dateTimeInput").value.trim()
+        )}
+---------------------------------
+مشخصات مقصد تراکنش:
+نام و نام خانوادگی: ${document.getElementById("destNameInput").value.trim()}
+شماره موبایل: ${normalizeDigits(
+          document.getElementById("destMobileInput").value.replace(/\D/g, "")
+        )}
+شماره کارت: ${normalizeDigits(
+          document.getElementById("destCardInput").value.replace(/\D/g, "")
+        )}`;
+
+        navigator.clipboard.writeText(reportText).then(
+          () => {
+            const res = document.getElementById("copyResult");
+            res.textContent = "✅ متن پیگیری با موفقیت کپی شد!";
+            res.className = "result success";
+          },
+          () => {
+            const res = document.getElementById("copyResult");
+            res.textContent = "❌ مشکلی در کپی کردن متن رخ داد.";
+            res.className = "result error";
+          }
+        );
+      }
+
+      // Attach all event listeners
+      document
+        .getElementById("sourceCardInput")
+        .addEventListener("input", handleCardInput);
+      document
+        .getElementById("destCardInput")
+        .addEventListener("input", handleCardInput);
+      document
+        .getElementById("sourceMobileInput")
+        .addEventListener("input", handleMobileInput);
+      document
+        .getElementById("destMobileInput")
+        .addEventListener("input", handleMobileInput);
+      requiredFields.forEach((id) =>
+        document.getElementById(id).addEventListener("input", validateFields)
+      );
+
+      validateFields(); // Initial check
+    </script>
+  </body>
+</html>
