@@ -30,12 +30,6 @@
     "password_hash": "$2y$10$v7dVnFKfsjyciHkWv7TSVuZO1StIW8Y2btAYtA41pabxVOjpjRBf."
   },
   {
-    "id": 122,
-    "name": "صدف سمیعیان",
-    "username": "sadaf.samieian",
-    "password_hash": "$2y$10$965ykIiBZZyQ15/dcMPZXOuC91E8tK2guqJqWi07Jo4sGIo3QJZEG"
-  },
-  {
     "id": 113,
     "name": "احسان جعفری",
     "username": "ehsan.jafari",
@@ -442,12 +436,6 @@
     "name": "مهسا فرکی",
     "username": "m.faraki",
     "password_hash": "$2y$10$NNQbMMmKHZBn82xjMyqvZuVgXfH4cncQCkEoY9UI128Eq50mfdX6q"
-  },
-  {
-    "id": 207,
-    "name": "بهزاد سحاب حضرت نیا",
-    "username": "b.sahab",
-    "password_hash": "$2y$10$uwBlmGlyzfQvl9nv0T1c6erXZ0GQhLfWAiHZc289lYtHRbjMGc3YW"
   },
   {
     "id": 208,
