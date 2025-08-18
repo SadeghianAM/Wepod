@@ -18,6 +18,9 @@
         --shadow-color-medium: rgba(0, 174, 112, 0.12);
         --border-radius: 0.75rem;
         --border-color: #e9e9e9;
+        --highlight-bg: #fdffb6;
+        --danger-light: #fee2e2;
+        --danger-dark: #ef4444;
       }
       @font-face {
         font-family: "Vazirmatn";
@@ -69,108 +72,226 @@
         font-size: 0.85rem;
         margin-top: auto;
       }
+
       main {
         flex-grow: 1;
-        padding: 2rem;
-        max-width: 900px;
+        padding: 2rem 1rem;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        transition: justify-content 0.3s ease;
+      }
+      body.search-mode main {
+        justify-content: center;
+      }
+      body:not(.search-mode) main {
+        justify-content: flex-start;
+      }
+
+      .hero-section {
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+      .hero-section .title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+      }
+      .search-wrapper {
+        max-width: 700px;
         width: 100%;
         margin: 0 auto;
       }
-      .hero-section {
-        text-align: center;
-        margin-bottom: 2rem;
+      .search-bar-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
-      .hero-section .title {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--primary-dark);
-        margin-bottom: 0.5rem;
-      }
-      .hero-section .subtitle {
-        font-size: 1.1rem;
-        color: var(--secondary-text-color);
-      }
-      .search-card {
-        background: var(--card-bg);
-        border-radius: var(--border-radius);
-        border: 1px solid var(--border-color);
-        box-shadow: 0 4px 15px var(--shadow-color-light);
-        overflow: hidden;
-      }
-      .search-card .card-content {
-        padding: 1.5rem;
-      }
-      .search-form {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 2rem;
-      }
-      .form-group {
+      .search-container {
+        flex-grow: 1;
         position: relative;
       }
-      .form-group .icon {
+      .search-container .icon {
         position: absolute;
         inset-inline-start: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         color: #999;
         pointer-events: none;
       }
-      input[type="text"],
-      select {
+      input[type="text"] {
         width: 100%;
         font-size: 1rem;
-        padding: 0.8em 1em;
-        padding-inline-start: 2.8rem;
-        border-radius: 0.6em;
+        padding: 1em 1.2em;
+        padding-inline-start: 3rem;
+        border-radius: 100px;
         border: 1.5px solid #ddd;
         outline: none;
         transition: border-color 0.2s, box-shadow 0.2s;
         background-color: #fff;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
+        box-shadow: 0 2px 8px var(--shadow-color-light);
       }
-      select {
-        cursor: pointer;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: left 0.5rem center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-        padding-left: 2.5rem;
-      }
-      input[type="text"]:focus,
-      select:focus {
+      input[type="text"]:focus {
         border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+        box-shadow: 0 4px 12px var(--shadow-color-medium);
       }
+
+      #active-category-container {
+        transition: all 0.4s ease;
+      }
+      #active-category-container .category-pill {
+        padding-left: 28px;
+        position: relative;
+      }
+      #active-category-container .category-pill::after {
+        content: "×";
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.4em;
+        line-height: 1;
+        font-weight: 600;
+        color: var(--primary-dark);
+        opacity: 0.6;
+        transition: opacity 0.2s;
+      }
+      #active-category-container .category-pill:hover {
+        background-color: var(--danger-light);
+        border-color: var(--danger-dark);
+        color: var(--danger-dark);
+      }
+      #active-category-container .category-pill:hover::after {
+        opacity: 1;
+        color: var(--danger-dark);
+      }
+
+      .category-filters {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+        transition: opacity 0.4s, transform 0.4s, visibility 0.4s;
+      }
+      body:not(.search-mode) .category-filters {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        height: 0;
+        margin: 0;
+      }
+      .category-pill {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 100px;
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--secondary-text-color);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+      .category-pill:hover {
+        background-color: #f0f0f0;
+        border-color: #ccc;
+      }
+      .category-pill.active {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        border-color: var(--primary-color);
+        font-weight: 600;
+      }
+      .pill-in-place {
+        animation: fadeIn 0.5s ease forwards;
+      }
+
+      /* --- استایل اصلاح‌شده برای پنهان‌سازی بخش وضعیت جستجو --- */
+      .search-status-container {
+        text-align: center;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      .search-status-container.visible {
+        max-height: 50px; /* ارتفاع کافی برای نمایش محتوا */
+        opacity: 1;
+        margin-top: 2.5rem;
+        margin-bottom: 1.5rem;
+      }
+      #search-status {
+        display: inline-block;
+        padding: 0.4rem 1.2rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--primary-dark);
+        background-color: var(--primary-light);
+        border-radius: 50px;
+        border: 1px solid #cceee4;
+      }
+
       .results {
-        text-align: right;
+        column-count: 2;
+        column-gap: 1.5rem;
+        width: 100%;
+        margin: 0 auto;
       }
+      @media (max-width: 768px) {
+        .results {
+          column-count: 1;
+        }
+      }
+
       .result-item {
         background: var(--card-bg);
         border-radius: var(--border-radius);
         padding: 1.2rem 1.5rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         box-shadow: 0 3px 8px var(--shadow-color-light);
         border: 1px solid var(--border-color);
         border-inline-start: 5px solid var(--primary-color);
-        transition: transform 0.2s ease, box-shadow 0.2s ease,
-          background-color 0.4s ease;
         cursor: pointer;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: cardEnter 0.5s forwards ease-out;
+        break-inside: avoid;
+        width: 100%;
       }
       .result-item:hover {
-        transform: translateY(-3px);
+        transform: translateY(-3px) !important;
         box-shadow: 0 6px 16px var(--shadow-color-medium);
         border-inline-start-color: var(--primary-dark);
       }
+      .result-item:focus-visible {
+        outline: 2px solid var(--primary-dark);
+        outline-offset: 2px;
+      }
+      @keyframes cardEnter {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
       .result-title {
         font-size: 1.2rem;
         font-weight: 700;
         color: var(--text-color);
         margin-bottom: 0.75rem;
+      }
+      .result-meta {
+        margin-bottom: 0.75rem;
+      }
+      .result-desc {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: var(--secondary-text-color);
       }
       .result-category,
       .result-id {
@@ -180,7 +301,6 @@
         padding: 0.25rem 0.75rem;
         border-radius: 1rem;
         margin-inline-end: 0.5rem;
-        margin-bottom: 0.75rem;
       }
       .result-category {
         background-color: var(--primary-light);
@@ -190,16 +310,46 @@
         background-color: #f3f4f6;
         color: #4b5563;
       }
-      .result-desc {
-        font-size: 1rem;
-        line-height: 1.8;
-        color: var(--secondary-text-color);
+
+      mark.highlight {
+        background-color: var(--highlight-bg);
+        color: black;
+        border-radius: 3px;
+        padding: 0 2px;
       }
+
       .no-result {
         text-align: center;
-        padding: 2rem;
+        padding: 3rem 2rem;
         color: var(--secondary-text-color);
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px dashed var(--border-color);
       }
+      .no-result .icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      #load-more-container {
+        text-align: center;
+        margin-top: 1.5rem;
+      }
+      .load-more-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.7rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .load-more-btn:hover {
+        background-color: var(--primary-dark);
+      }
+
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -213,6 +363,7 @@
         color: var(--primary-color);
         text-decoration: underline;
       }
+
       #toast {
         position: fixed;
         bottom: -100px;
@@ -232,146 +383,291 @@
       #toast.show {
         bottom: 2rem;
       }
-      @media (max-width: 768px) {
-        main {
-          padding: 1.5rem 1rem;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
         }
-        .hero-section .title {
-          font-size: 2rem;
-        }
-        .search-form {
-          grid-template-columns: 1fr;
+        to {
+          opacity: 1;
+          transform: scale(1);
         }
       }
     </style>
   </head>
-  <body>
+  <body class="search-mode">
     <div id="header-placeholder"></div>
     <main>
       <div class="hero-section">
         <h1 class="title">ویکی ویپاد</h1>
-        <p class="subtitle">دسترسی مستقیم به تمامی مطالب موجود در درخت دانش</p>
       </div>
-      <div class="search-card">
-        <div class="card-content">
-          <div class="search-form">
-            <div class="form-group">
-              <span class="icon">🔍</span>
-              <input
-                type="text"
-                id="search-input"
-                placeholder="جستجو در عنوان یا توضیحات..."
-                aria-label="جستجو در ویکی"
-              />
-            </div>
-            <div class="form-group">
-              <span class="icon">🗂️</span>
-              <select id="category-filter" aria-label="فیلتر بر اساس دسته بندی">
-                <option value="">همه دسته‌ها</option>
-              </select>
-            </div>
+      <div class="search-wrapper">
+        <div class="search-bar-container">
+          <div id="active-category-container"></div>
+          <div class="search-container">
+            <span class="icon">🔍</span>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="جستجو در ویکی..."
+              aria-label="جستجو در ویکی"
+            />
           </div>
-          <div class="results" id="results-container"></div>
         </div>
+        <div class="category-filters" id="category-filters-container"></div>
       </div>
+      <div class="search-status-container">
+        <span id="search-status"></span>
+      </div>
+      <div class="results" id="results-container"></div>
+      <div id="no-result-container"></div>
+      <div id="load-more-container"></div>
       <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
     </main>
     <div id="toast">کپی شد!</div>
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script>
-      function toPersianDigits(num) {
-        return num.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
-      }
-
-      let data = [];
       const searchInput = document.getElementById("search-input");
-      const categoryFilter = document.getElementById("category-filter");
+      const categoryFilterContainer = document.getElementById(
+        "category-filters-container"
+      );
+      const activeCategoryContainer = document.getElementById(
+        "active-category-container"
+      );
       const resultsContainer = document.getElementById("results-container");
+      const noResultContainer = document.getElementById("no-result-container");
+      const loadMoreContainer = document.getElementById("load-more-container");
+      const searchStatusContainer = document.querySelector(
+        ".search-status-container"
+      ); // کانتینر وضعیت
+      const searchStatus = document.getElementById("search-status");
+      const body = document.body;
+
+      let allData = [];
+      let currentFilteredData = [];
+      let currentCategory = "";
+      let displayedItemsCount = 0;
+      const ITEMS_PER_PAGE = 6;
 
       fetch("/data/wiki.json")
         .then((res) => res.json())
         .then((json) => {
-          data = json;
+          allData = json;
           populateCategories(json);
           searchInput.placeholder = `جستجو از میان ${toPersianDigits(
-            data.length
+            allData.length
           )} متن آماده`;
         });
 
-      searchInput.addEventListener("input", filterResults);
-      categoryFilter.addEventListener("change", filterResults);
+      searchInput.addEventListener("input", () => {
+        if (searchInput.value.trim() === "") {
+          currentCategory = "";
+          categoryFilterContainer
+            .querySelectorAll(".category-pill")
+            .forEach((p) => p.classList.remove("active"));
+          const allButton = categoryFilterContainer.querySelector(
+            '.category-pill[data-value=""]'
+          );
+          if (allButton) allButton.classList.add("active");
+        }
+        handleSearch();
+      });
 
-      function populateCategories(data) {
-        const categoriesSet = new Set();
-        data.forEach((item) => {
-          (item.categories || []).forEach((cat) => categoriesSet.add(cat));
-        });
-        const categories = Array.from(categoriesSet);
-        categories.forEach((cat) => {
-          const option = document.createElement("option");
-          option.value = cat;
-          option.textContent = cat;
-          categoryFilter.appendChild(option);
-        });
+      function toPersianDigits(num) {
+        if (num === undefined || num === null) return "";
+        return num.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
       }
 
-      function filterResults() {
+      function highlightTerm(text, term) {
+        if (!term || !text) return text;
+        const regex = new RegExp(
+          `(${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+          "gi"
+        );
+        return text.replace(regex, `<mark class="highlight">$1</mark>`);
+      }
+
+      function populateCategories(data) {
+        const categoriesSet = new Set(
+          data.flatMap((item) => item.categories || [])
+        );
+        categoryFilterContainer.innerHTML = "";
+        const allButton = createCategoryPill("همه دسته‌ها", "");
+        allButton.classList.add("active");
+        categoryFilterContainer.appendChild(allButton);
+        categoriesSet.forEach((cat) =>
+          categoryFilterContainer.appendChild(createCategoryPill(cat, cat))
+        );
+      }
+
+      function createCategoryPill(text, value) {
+        const pill = document.createElement("button");
+        pill.className = "category-pill";
+        pill.textContent = text;
+        pill.dataset.value = value;
+        pill.addEventListener("click", () => handleCategoryClick(pill));
+        return pill;
+      }
+
+      function handleCategoryClick(clickedPill) {
+        currentCategory = clickedPill.dataset.value;
+        categoryFilterContainer
+          .querySelectorAll(".category-pill")
+          .forEach((p) => p.classList.remove("active"));
+        const originalPill = Array.from(categoryFilterContainer.children).find(
+          (p) => p.dataset.value === currentCategory
+        );
+        if (originalPill) originalPill.classList.add("active");
+        handleSearch();
+      }
+
+      function handleSearch() {
         const term = searchInput.value.trim().toLowerCase();
-        const category = categoryFilter.value;
-        if (term === "" && category === "") {
+        const isSearchActive = term !== "" || currentCategory !== "";
+
+        body.classList.toggle("search-mode", !isSearchActive);
+        updateActiveCategoryPill(isSearchActive);
+        searchStatusContainer.classList.remove("visible"); // مخفی کردن کانتینر وضعیت
+        noResultContainer.innerHTML = "";
+
+        if (!isSearchActive) {
           resultsContainer.innerHTML = "";
+          loadMoreContainer.innerHTML = "";
           return;
         }
 
-        const filtered = data.filter((item) => {
+        currentFilteredData = allData.filter((item) => {
           const matchesTerm =
             term === "" ||
             item.title.toLowerCase().includes(term) ||
             item.description.toLowerCase().includes(term) ||
             (item.id && item.id.toString().includes(term));
           const matchesCategory =
-            category === "" ||
-            (item.categories && item.categories.includes(category));
+            currentCategory === "" ||
+            (item.categories && item.categories.includes(currentCategory));
           return matchesTerm && matchesCategory;
         });
 
-        resultsContainer.innerHTML = "";
+        displayedItemsCount = 0;
+        loadMoreResults();
+      }
 
-        if (filtered.length === 0) {
-          resultsContainer.innerHTML =
-            '<div class="no-result">نتیجه‌ای یافت نشد.</div>';
-          return;
+      function loadMoreResults() {
+        if (displayedItemsCount === 0) resultsContainer.innerHTML = "";
+        noResultContainer.innerHTML = "";
+        const term = searchInput.value.trim().toLowerCase();
+        const newItemsToShow = currentFilteredData.slice(
+          displayedItemsCount,
+          displayedItemsCount + ITEMS_PER_PAGE
+        );
+
+        if (newItemsToShow.length === 0 && displayedItemsCount === 0) {
+          noResultContainer.innerHTML = `<div class="no-result"><div class="icon">🤷‍♂️</div><div>نتیجه‌ای یافت نشد.</div><small>لطفا عبارت دیگری را جستجو کنید.</small></div>`;
+          searchStatusContainer.classList.remove("visible");
+        } else {
+          newItemsToShow.forEach((item, index) => {
+            const resultCard = createResultCard(
+              item,
+              term,
+              displayedItemsCount + index
+            );
+            resultsContainer.appendChild(resultCard);
+          });
+          searchStatusContainer.classList.add("visible"); // نمایش کانتینر وضعیت
         }
 
-        filtered.forEach((item) => {
-          const box = document.createElement("div");
-          box.className = "result-item";
-          box.innerHTML = `
-      <div class="result-title">${item.title}</div>
-      <div class="result-category">دسته‌ها: ${(item.categories || []).join(
-        "، "
-      )}</div>
-      <div class="result-id">آیدی: ${toPersianDigits(item.id)}</div>
-      <div class="result-desc">${item.description.replace(/\n/g, "<br>")}</div>
-      `;
-          box.addEventListener("click", () => {
-            navigator.clipboard
-              .writeText(item.description)
-              .then(() => {
-                showToast("محتوا کپی شد!");
-                box.style.backgroundColor = "#e6fff4";
-                setTimeout(() => {
-                  box.style.backgroundColor = "#ffffff";
-                }, 800);
-              })
-              .catch((err) => {
-                console.error("خطا در کپی:", err);
-                showToast("کپی نشد!");
-              });
-          });
-          resultsContainer.appendChild(box);
+        displayedItemsCount += newItemsToShow.length;
+
+        searchStatus.textContent = `نمایش ${toPersianDigits(
+          displayedItemsCount
+        )} از ${toPersianDigits(currentFilteredData.length)} نتیجه`;
+        updateLoadMoreButton();
+      }
+
+      function updateLoadMoreButton() {
+        loadMoreContainer.innerHTML = "";
+        if (displayedItemsCount < currentFilteredData.length) {
+          const button = document.createElement("button");
+          button.textContent = "بارگذاری بیشتر";
+          button.className = "load-more-btn";
+          button.onclick = loadMoreResults;
+          loadMoreContainer.appendChild(button);
+        }
+      }
+
+      function updateActiveCategoryPill(isSearchActive) {
+        activeCategoryContainer.innerHTML = "";
+        if (isSearchActive) {
+          const activePill = categoryFilterContainer.querySelector(
+            ".category-pill.active"
+          );
+          if (activePill && activePill.dataset.value !== "") {
+            const clonedPill = activePill.cloneNode(true);
+            clonedPill.classList.add("pill-in-place");
+
+            clonedPill.addEventListener("click", () => {
+              currentCategory = "";
+              categoryFilterContainer
+                .querySelectorAll(".category-pill")
+                .forEach((p) => p.classList.remove("active"));
+              const allButton = categoryFilterContainer.querySelector(
+                '.category-pill[data-value=""]'
+              );
+              if (allButton) allButton.classList.add("active");
+              handleSearch();
+            });
+
+            activeCategoryContainer.appendChild(clonedPill);
+          }
+        }
+      }
+
+      function createResultCard(item, term, index) {
+        const card = document.createElement("div");
+        card.className = "result-item";
+        card.setAttribute("tabindex", "0");
+        card.style.animationDelay = `${(index % (ITEMS_PER_PAGE * 2)) * 0.05}s`;
+
+        card.innerHTML = `
+            <div class="result-title">${highlightTerm(item.title, term)}</div>
+            <div class="result-meta">
+                <span class="result-category">${(item.categories || []).join(
+                  "، "
+                )}</span>
+                <span class="result-id">آیدی: ${toPersianDigits(item.id)}</span>
+            </div>
+            <div class="result-desc">${highlightTerm(
+              item.description.replace(/\n/g, "<br>"),
+              term
+            )}</div>
+        `;
+        card.addEventListener("click", () =>
+          copyToClipboard(item.description, card)
+        );
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            copyToClipboard(item.description, card);
+          }
         });
+        return card;
+      }
+
+      function copyToClipboard(text, element) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            showToast("محتوا کپی شد!");
+            element.style.borderColor = "var(--primary-dark)";
+            setTimeout(() => {
+              element.style.borderColor = "";
+            }, 800);
+          })
+          .catch((err) => {
+            console.error("خطا در کپی:", err);
+            showToast("کپی نشد!");
+          });
       }
 
       function showToast(message = "کپی شد!") {
