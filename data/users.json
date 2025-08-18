@@ -441,7 +441,7 @@
     "id": 207,
     "name": "عسل صباغی",
     "username": "a.sabaghi",
-    "password_hash": ""
+    "password_hash": "$2y$10$ibbhXwlcK7qlEBUBczSeR.dpecZWFsUcBTyqgO/94mrrek6U9naWO"
   },
   {
     "id": 208,
@@ -465,13 +465,13 @@
     "id": 211,
     "name": "فرهاد رسائی",
     "username": "f.rasaei",
-    "password_hash": ""
+    "password_hash": "$2y$10$5JpXvQ0cnF93okmxrojWCOnJA.bMJC.x3K51GoEnpJMsIN1djrA5a"
   },
   {
     "id": 212,
     "name": "الناز شریفات",
     "username": "e.sharifat",
-    "password_hash": ""
+    "password_hash": "$2y$10$QAmwy4MytU3NQWSuG5lhX.CS7EpSR6QStQkFItYCgM2YQUUCrJFCi"
   },
   {
     "id": 213,
