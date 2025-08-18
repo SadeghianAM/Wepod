@@ -79,7 +79,6 @@ try {
     $count = count($newExpertsData);
 
     echo json_encode(['success' => true, 'message' => "موفقیت: اطلاعات {$count} کارشناس به‌روزرسانی شد ({$bytesWritten} بایت). مسیر فایل: " . $filePath]);
-
 } catch (Exception $e) {
     http_response_code(400); // Bad Request, as it's likely a data format issue
     echo json_encode(['success' => false, 'message' => 'خطا: ' . $e->getMessage()]);
@@ -210,4 +209,3 @@ function parseScheduleText(string $text): array
     }
     return $expertsById;
 }
-?>

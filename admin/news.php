@@ -499,7 +499,9 @@ require __DIR__ . '/../php/auth_check.php';
         const response = await fetch("/data/save-news-alerts.php", {
           // ❗️ آدرس فایل PHP جدید
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(jsonData, null, 2),
         });
         const result = await response.json();

@@ -6,4 +6,3 @@ header('Content-Type: application/json');
 setcookie('jwt_token', '', time() - 3600, '/');
 
 echo json_encode(['message' => 'خروج با موفقیت انجام شد.']);
-?>

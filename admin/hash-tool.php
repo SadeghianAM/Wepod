@@ -274,7 +274,9 @@ require __DIR__ . '/../php/auth_check.php';
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ password: password }),
+            body: JSON.stringify({
+              password: password
+            }),
           });
 
           if (!response.ok) {

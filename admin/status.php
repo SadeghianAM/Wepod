@@ -529,9 +529,9 @@ require __DIR__ . '/../php/auth_check.php';
       }
       jsonData.forEach((item, index) => {
         const card = document.createElement("div");
-        const statusClass = item.status
-          ? item.status.replace(/\s/g, "-")
-          : "unknown-status";
+        const statusClass = item.status ?
+          item.status.replace(/\s/g, "-") :
+          "unknown-status";
         card.classList.add("news-alert-box", statusClass);
         card.innerHTML = `
             <h3>${item.name}</h3>

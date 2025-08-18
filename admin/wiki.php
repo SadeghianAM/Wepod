@@ -494,7 +494,9 @@ require __DIR__ . '/../php/auth_check.php';
         const response = await fetch("/data/save-wiki.php", {
           // ❗️ آدرس فایل PHP جدید
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(jsonData, null, 2),
         });
         const result = await response.json();
@@ -523,7 +525,7 @@ require __DIR__ . '/../php/auth_check.php';
     }
 
     closeButton.onclick = closeModal;
-    window.onclick = function (event) {
+    window.onclick = function(event) {
       if (event.target == itemModal) closeModal();
     };
     cancelEditBtn.onclick = closeModal;
@@ -536,13 +538,13 @@ require __DIR__ . '/../php/auth_check.php';
         const q = searchValue.trim().toLowerCase();
         filtered = jsonData.filter(
           (item) =>
-            (item.title && item.title.toLowerCase().includes(q)) ||
-            (item.description &&
-              item.description.toLowerCase().includes(q)) ||
-            (item.categories &&
-              Array.isArray(item.categories) &&
-              item.categories.some((c) => c.toLowerCase().includes(q))) ||
-            (item.id && String(item.id).includes(q))
+          (item.title && item.title.toLowerCase().includes(q)) ||
+          (item.description &&
+            item.description.toLowerCase().includes(q)) ||
+          (item.categories &&
+            Array.isArray(item.categories) &&
+            item.categories.some((c) => c.toLowerCase().includes(q))) ||
+          (item.id && String(item.id).includes(q))
         );
       }
       if (filtered.length === 0) {
@@ -645,9 +647,9 @@ require __DIR__ . '/../php/auth_check.php';
       itemForm.reset();
       descriptionTextarea.value = "";
       const maxId =
-        jsonData.length > 0
-          ? Math.max(...jsonData.map((i) => i.id || 0))
-          : 0;
+        jsonData.length > 0 ?
+        Math.max(...jsonData.map((i) => i.id || 0)) :
+        0;
       idInput.value = maxId + 1;
       modalTitle.textContent = "افزودن پیام جدید";
       renderCategoryCheckboxes([]);

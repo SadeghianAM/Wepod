@@ -30,4 +30,3 @@ if (!$is_authorized) {
     header('Location: /admin/login.html');
     exit();
 }
-?>

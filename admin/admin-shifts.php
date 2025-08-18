@@ -497,23 +497,142 @@ require __DIR__ . '/../php/auth_check.php';
     let nextColorIndex = 0;
 
     /* ===== Jalali helpers ===== */
-    function jalaliToGregorian(jy, jm, jd) { var sal_a, gy, gm, gd, days; jy += 1595; days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186); gy = 400 * ~~(days / 146097); days %= 146097; if (days > 36524) { gy += 100 * ~~(--days / 36524); days %= 36524; if (days >= 365) days++; } gy += 4 * ~~(days / 1461); days %= 1461; if (days > 365) { gy += ~~((days - 1) / 365); days = (days - 1) % 365; } gd = days + 1; sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm]; return new Date(gy, gm - 1, gd); }
-    function toPersian(date) { const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/"); return parts.map((part) => parseInt(part, 10)); }
-    function pad2(n) { return String(n).padStart(2, "0"); }
-    function formatJalaliDisplay(jy, jm, jd) { return `${jy}/${pad2(jm)}/${pad2(jd)}`; }
-    function formatISO(date) { return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`; }
-    function isJalaliLeap(jy) { return ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 < 682; }
-    function jalaliMonthLength(jy, jm) { if (jm <= 6) return 31; if (jm <= 11) return 30; return isJalaliLeap(jy) ? 30 : 29; }
+    function jalaliToGregorian(jy, jm, jd) {
+      var sal_a, gy, gm, gd, days;
+      jy += 1595;
+      days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
+      gy = 400 * ~~(days / 146097);
+      days %= 146097;
+      if (days > 36524) {
+        gy += 100 * ~~(--days / 36524);
+        days %= 36524;
+        if (days >= 365) days++;
+      }
+      gy += 4 * ~~(days / 1461);
+      days %= 1461;
+      if (days > 365) {
+        gy += ~~((days - 1) / 365);
+        days = (days - 1) % 365;
+      }
+      gd = days + 1;
+      sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+      return new Date(gy, gm - 1, gd);
+    }
+
+    function toPersian(date) {
+      const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
+      return parts.map((part) => parseInt(part, 10));
+    }
+
+    function pad2(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function formatJalaliDisplay(jy, jm, jd) {
+      return `${jy}/${pad2(jm)}/${pad2(jd)}`;
+    }
+
+    function formatISO(date) {
+      return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+    }
+
+    function isJalaliLeap(jy) {
+      return ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 < 682;
+    }
+
+    function jalaliMonthLength(jy, jm) {
+      if (jm <= 6) return 31;
+      if (jm <= 11) return 30;
+      return isJalaliLeap(jy) ? 30 : 29;
+    }
 
     /* ===== Vanilla Jalali DatePicker (no deps) ===== */
     class JalaliDatePicker {
-      constructor(inputId, altId) { this.input = document.getElementById(inputId); this.alt = document.getElementById(altId); if (!this.input || !this.alt) return; const gNow = new Date(); const [jy, jm, jd] = toPersian(gNow); this.jy = jy; this.jm = jm; this.jd = jd; this.pop = document.createElement("div"); this.pop.className = "jdp-popover jdp-hidden"; document.body.appendChild(this.pop); this.boundClickOutside = (e) => { if (!this.pop.contains(e.target) && e.target !== this.input) { this.hide(); } }; this.input.addEventListener("focus", () => this.show()); this.input.addEventListener("click", () => this.show()); window.addEventListener("resize", () => this.position()); }
-      show() { this.render(); this.position(); this.pop.classList.remove("jdp-hidden"); setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0); }
-      hide() { this.pop.classList.add("jdp-hidden"); document.removeEventListener("mousedown", this.boundClickOutside); }
-      position() { const rect = this.input.getBoundingClientRect(); this.pop.style.top = window.scrollY + rect.bottom + 6 + "px"; this.pop.style.left = window.scrollX + rect.left + "px"; }
-      nav(delta) { this.jm += delta; if (this.jm < 1) { this.jm = 12; this.jy--; } if (this.jm > 12) { this.jm = 1; this.jy++; } this.render(); }
-      render() { const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"]; const firstG = jalaliToGregorian(this.jy, this.jm, 1); const firstWeekday = (firstG.getDay() + 1) % 7; const daysInMonth = jalaliMonthLength(this.jy, this.jm); let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat("fa-IR", { month: "long" }).format(firstG)} ${new Intl.DateTimeFormat("fa-IR", { year: "numeric" }).format(firstG)}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${weekDays.map((w) => `<div class="jdp-weekday">${w}</div>`).join("")}`; for (let i = 0; i < firstWeekday; i++) { html += `<div class="jdp-day other"></div>`; } for (let d = 1; d <= daysInMonth; d++) { html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`; } html += `</div>`; this.pop.innerHTML = html; this.pop.querySelectorAll("[data-nav]").forEach((btn) => { btn.addEventListener("click", (e) => this.nav(parseInt(e.currentTarget.dataset.nav, 10))); }); this.pop.querySelectorAll("[data-day]").forEach((cell) => { cell.addEventListener("click", (e) => { const d = parseInt(e.currentTarget.dataset.day, 10); const gDate = jalaliToGregorian(this.jy, this.jm, d); this.input.value = formatJalaliDisplay(this.jy, this.jm, d); this.alt.value = formatISO(gDate); this.hide(); if (typeof applyFilters === "function") applyFilters(); }); }); }
-      setInitialFromGregorian(date) { const [jy, jm, jd] = toPersian(date); this.jy = jy; this.jm = jm; this.jd = jd; this.input.value = formatJalaliDisplay(jy, jm, jd); this.alt.value = formatISO(date); }
+      constructor(inputId, altId) {
+        this.input = document.getElementById(inputId);
+        this.alt = document.getElementById(altId);
+        if (!this.input || !this.alt) return;
+        const gNow = new Date();
+        const [jy, jm, jd] = toPersian(gNow);
+        this.jy = jy;
+        this.jm = jm;
+        this.jd = jd;
+        this.pop = document.createElement("div");
+        this.pop.className = "jdp-popover jdp-hidden";
+        document.body.appendChild(this.pop);
+        this.boundClickOutside = (e) => {
+          if (!this.pop.contains(e.target) && e.target !== this.input) {
+            this.hide();
+          }
+        };
+        this.input.addEventListener("focus", () => this.show());
+        this.input.addEventListener("click", () => this.show());
+        window.addEventListener("resize", () => this.position());
+      }
+      show() {
+        this.render();
+        this.position();
+        this.pop.classList.remove("jdp-hidden");
+        setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0);
+      }
+      hide() {
+        this.pop.classList.add("jdp-hidden");
+        document.removeEventListener("mousedown", this.boundClickOutside);
+      }
+      position() {
+        const rect = this.input.getBoundingClientRect();
+        this.pop.style.top = window.scrollY + rect.bottom + 6 + "px";
+        this.pop.style.left = window.scrollX + rect.left + "px";
+      }
+      nav(delta) {
+        this.jm += delta;
+        if (this.jm < 1) {
+          this.jm = 12;
+          this.jy--;
+        }
+        if (this.jm > 12) {
+          this.jm = 1;
+          this.jy++;
+        }
+        this.render();
+      }
+      render() {
+        const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+        const firstG = jalaliToGregorian(this.jy, this.jm, 1);
+        const firstWeekday = (firstG.getDay() + 1) % 7;
+        const daysInMonth = jalaliMonthLength(this.jy, this.jm);
+        let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat("fa-IR", { month: "long" }).format(firstG)} ${new Intl.DateTimeFormat("fa-IR", { year: "numeric" }).format(firstG)}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${weekDays.map((w) => `<div class="jdp-weekday">${w}</div>`).join("")}`;
+        for (let i = 0; i < firstWeekday; i++) {
+          html += `<div class="jdp-day other"></div>`;
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
+          html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`;
+        }
+        html += `</div>`;
+        this.pop.innerHTML = html;
+        this.pop.querySelectorAll("[data-nav]").forEach((btn) => {
+          btn.addEventListener("click", (e) => this.nav(parseInt(e.currentTarget.dataset.nav, 10)));
+        });
+        this.pop.querySelectorAll("[data-day]").forEach((cell) => {
+          cell.addEventListener("click", (e) => {
+            const d = parseInt(e.currentTarget.dataset.day, 10);
+            const gDate = jalaliToGregorian(this.jy, this.jm, d);
+            this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
+            this.alt.value = formatISO(gDate);
+            this.hide();
+            if (typeof applyFilters === "function") applyFilters();
+          });
+        });
+      }
+      setInitialFromGregorian(date) {
+        const [jy, jm, jd] = toPersian(date);
+        this.jy = jy;
+        this.jm = jm;
+        this.jd = jd;
+        this.input.value = formatJalaliDisplay(jy, jm, jd);
+        this.alt.value = formatISO(date);
+      }
     }
 
     document.addEventListener("DOMContentLoaded", initializePage);
@@ -614,10 +733,18 @@ require __DIR__ . '/../php/auth_check.php';
       const status = shiftEntry || 'unknown';
       let displayText = status;
       switch (status) {
-        case 'on-duty': displayText = 'حضور'; break;
-        case 'off': displayText = 'عدم حضور'; break;
-        case 'leave': displayText = 'مرخصی'; break;
-        case 'unknown': displayText = '-'; break;
+        case 'on-duty':
+          displayText = 'حضور';
+          break;
+        case 'off':
+          displayText = 'عدم حضور';
+          break;
+        case 'leave':
+          displayText = 'مرخصی';
+          break;
+        case 'unknown':
+          displayText = '-';
+          break;
       }
 
       return {
@@ -856,17 +983,60 @@ require __DIR__ . '/../php/auth_check.php';
       }
       loader.style.display = "none";
 
-      const dailyOnDutyCounts = {}; const dailyOffDutyCounts = {}; const dailyLeaveCounts = {};
-      const totalOnDutyByDate = {}; const totalOffDutyByDate = {}; const totalLeaveByDate = {};
+      const dailyOnDutyCounts = {};
+      const dailyOffDutyCounts = {};
+      const dailyLeaveCounts = {};
+      const totalOnDutyByDate = {};
+      const totalOffDutyByDate = {};
+      const totalLeaveByDate = {};
       const uniqueShiftTimes = [...new Set(allExperts.map((e) => e["shifts-time"]).filter(Boolean))].sort();
-      datesToRender.forEach((date) => { dailyOnDutyCounts[date] = {}; dailyOffDutyCounts[date] = {}; dailyLeaveCounts[date] = {}; uniqueShiftTimes.forEach((shift) => { dailyOnDutyCounts[date][shift] = 0; dailyOffDutyCounts[date][shift] = 0; dailyLeaveCounts[date][shift] = 0; }); totalOnDutyByDate[date] = 0; totalOffDutyByDate[date] = 0; totalLeaveByDate[date] = 0; allExperts.forEach((expert) => { const shiftDetails = getShiftDetails(expert.shifts[date]); const shiftTime = expert["shifts-time"]; const status = shiftDetails.status; if (shiftTime) { if (status === 'off' || (status === 'swap' && shiftDetails.displayText.startsWith('عدم'))) { dailyOffDutyCounts[date][shiftTime]++; } else if (status === 'leave') { dailyLeaveCounts[date][shiftTime]++; } else if (status !== 'unknown') { dailyOnDutyCounts[date][shiftTime]++; } } if (status === 'off' || (status === 'swap' && shiftDetails.displayText.startsWith('عدم'))) { totalOffDutyByDate[date]++; } else if (status === 'leave') { totalLeaveByDate[date]++; } else if (status !== 'unknown') { totalOnDutyByDate[date]++; } }); });
+      datesToRender.forEach((date) => {
+        dailyOnDutyCounts[date] = {};
+        dailyOffDutyCounts[date] = {};
+        dailyLeaveCounts[date] = {};
+        uniqueShiftTimes.forEach((shift) => {
+          dailyOnDutyCounts[date][shift] = 0;
+          dailyOffDutyCounts[date][shift] = 0;
+          dailyLeaveCounts[date][shift] = 0;
+        });
+        totalOnDutyByDate[date] = 0;
+        totalOffDutyByDate[date] = 0;
+        totalLeaveByDate[date] = 0;
+        allExperts.forEach((expert) => {
+          const shiftDetails = getShiftDetails(expert.shifts[date]);
+          const shiftTime = expert["shifts-time"];
+          const status = shiftDetails.status;
+          if (shiftTime) {
+            if (status === 'off' || (status === 'swap' && shiftDetails.displayText.startsWith('عدم'))) {
+              dailyOffDutyCounts[date][shiftTime]++;
+            } else if (status === 'leave') {
+              dailyLeaveCounts[date][shiftTime]++;
+            } else if (status !== 'unknown') {
+              dailyOnDutyCounts[date][shiftTime]++;
+            }
+          }
+          if (status === 'off' || (status === 'swap' && shiftDetails.displayText.startsWith('عدم'))) {
+            totalOffDutyByDate[date]++;
+          } else if (status === 'leave') {
+            totalLeaveByDate[date]++;
+          } else if (status !== 'unknown') {
+            totalOnDutyByDate[date]++;
+          }
+        });
+      });
 
       let tableHtml = `<table><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>`;
       datesToRender.forEach((date) => {
         const d = new Date(date);
-        const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
-        const month = d.toLocaleDateString("fa-IR", { month: "short" });
-        const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
+        const day = d.toLocaleDateString("fa-IR", {
+          day: "numeric"
+        });
+        const month = d.toLocaleDateString("fa-IR", {
+          month: "short"
+        });
+        const weekday = d.toLocaleDateString("fa-IR", {
+          weekday: "short"
+        });
         tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
       });
       tableHtml += "</tr></thead><tbody>";
@@ -883,7 +1053,12 @@ require __DIR__ . '/../php/auth_check.php';
           if (shiftDetails.isSwap) {
             statusClass = 'status-swap';
           } else {
-            const classMap = { 'on-duty': 'status-on-duty', 'off': 'status-off', 'leave': 'status-special', 'unknown': 'status-unknown' };
+            const classMap = {
+              'on-duty': 'status-on-duty',
+              'off': 'status-off',
+              'leave': 'status-special',
+              'unknown': 'status-unknown'
+            };
             statusClass = classMap[shiftDetails.status] || 'status-special';
           }
           tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}">
@@ -894,8 +1069,43 @@ require __DIR__ . '/../php/auth_check.php';
       });
 
       const totalColumns = datesToRender.length + 3;
-      if (uniqueShiftTimes.length > 0) { tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">خلاصه وضعیت به تفکیک شیفت</td></tr>`; uniqueShiftTimes.forEach((shiftTime) => { const summaryRowStyle = getShiftStyle(shiftTime); tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>حاضرین در شیفت ${shiftTime}</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count">${dailyOnDutyCounts[date][shiftTime] || 0}</span></td>`; }); tableHtml += `</tr>`; tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>عدم حضور در شیفت ${shiftTime}</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${dailyOffDutyCounts[date][shiftTime] || 0}</span></td>`; }); tableHtml += `</tr>`; tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>مرخصی در شیفت ${shiftTime}</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${dailyLeaveCounts[date][shiftTime] || 0}</span></td>`; }); tableHtml += `</tr>`; }); }
-      tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">جمع‌بندی کل روزانه</td></tr>`; tableHtml += `<tr class="summary-row"><td style="background-color: #E8F5E9;">مجموع کل کارشناسان حاضر</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count">${totalOnDutyByDate[date] || 0}</span></td>`; }); tableHtml += `</tr>`; tableHtml += `<tr class="summary-row"><td style="background-color: #FFEBEE;">مجموع کل عدم حضور</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${totalOffDutyByDate[date] || 0}</span></td>`; }); tableHtml += `</tr>`; tableHtml += `<tr class="summary-row"><td style="background-color: #FFF3E0;">مجموع کل مرخصی</td><td>-</td><td>-</td>`; datesToRender.forEach((date) => { tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${totalLeaveByDate[date] || 0}</span></td>`; }); tableHtml += `</tr>`;
+      if (uniqueShiftTimes.length > 0) {
+        tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">خلاصه وضعیت به تفکیک شیفت</td></tr>`;
+        uniqueShiftTimes.forEach((shiftTime) => {
+          const summaryRowStyle = getShiftStyle(shiftTime);
+          tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>حاضرین در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+          datesToRender.forEach((date) => {
+            tableHtml += `<td><span class="summary-count">${dailyOnDutyCounts[date][shiftTime] || 0}</span></td>`;
+          });
+          tableHtml += `</tr>`;
+          tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>عدم حضور در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+          datesToRender.forEach((date) => {
+            tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${dailyOffDutyCounts[date][shiftTime] || 0}</span></td>`;
+          });
+          tableHtml += `</tr>`;
+          tableHtml += `<tr class="summary-row"><td ${summaryRowStyle}>مرخصی در شیفت ${shiftTime}</td><td>-</td><td>-</td>`;
+          datesToRender.forEach((date) => {
+            tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${dailyLeaveCounts[date][shiftTime] || 0}</span></td>`;
+          });
+          tableHtml += `</tr>`;
+        });
+      }
+      tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">جمع‌بندی کل روزانه</td></tr>`;
+      tableHtml += `<tr class="summary-row"><td style="background-color: #E8F5E9;">مجموع کل کارشناسان حاضر</td><td>-</td><td>-</td>`;
+      datesToRender.forEach((date) => {
+        tableHtml += `<td><span class="summary-count">${totalOnDutyByDate[date] || 0}</span></td>`;
+      });
+      tableHtml += `</tr>`;
+      tableHtml += `<tr class="summary-row"><td style="background-color: #FFEBEE;">مجموع کل عدم حضور</td><td>-</td><td>-</td>`;
+      datesToRender.forEach((date) => {
+        tableHtml += `<td><span class="summary-count" style="color: #dc3545;">${totalOffDutyByDate[date] || 0}</span></td>`;
+      });
+      tableHtml += `</tr>`;
+      tableHtml += `<tr class="summary-row"><td style="background-color: #FFF3E0;">مجموع کل مرخصی</td><td>-</td><td>-</td>`;
+      datesToRender.forEach((date) => {
+        tableHtml += `<td><span class="summary-count" style="color: #ffc107; text-shadow: 1px 1px 1px #fff;">${totalLeaveByDate[date] || 0}</span></td>`;
+      });
+      tableHtml += `</tr>`;
 
       tableHtml += "</tbody></table>";
       container.innerHTML = tableHtml;

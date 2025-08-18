@@ -248,7 +248,7 @@ require __DIR__ . '/../php/auth_check.php';
     // Listener for the main form submission (update/save)
     document
       .getElementById("shiftForm")
-      .addEventListener("submit", async function (e) {
+      .addEventListener("submit", async function(e) {
         e.preventDefault(); // Prevent page refresh
 
         const form = e.target;
@@ -295,7 +295,7 @@ require __DIR__ . '/../php/auth_check.php';
     // Listener for the clear data button
     document
       .getElementById("clearButton")
-      .addEventListener("click", async function (e) {
+      .addEventListener("click", async function(e) {
         if (
           !confirm(
             "آیا از پاک کردن تمام اطلاعات مطمئن هستید؟ این عمل غیرقابل بازگشت است."

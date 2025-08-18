@@ -21,4 +21,3 @@ if (file_put_contents($file_path, $data) !== false) {
     http_response_code(500); // ارسال کد خطای سرور
     echo json_encode(['success' => false, 'message' => 'خطا در ذخیره‌سازی فایل روی سرور. لطفا دسترسی‌های فایل (Permissions) را بررسی کنید.']);
 }
-?>

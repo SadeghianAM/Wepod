@@ -51,4 +51,3 @@ foreach ($users as $user) {
 
 http_response_code(404);
 echo json_encode(['message' => 'کاربر یافت نشد.']);
-?>
