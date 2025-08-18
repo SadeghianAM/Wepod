@@ -1,4 +1,7 @@
 <?php
+
+require __DIR__ . '/../php/auth_check.php';
+
 // Set the correct header for JSON response, ensuring UTF-8 encoding for Persian characters.
 header('Content-Type: application/json; charset=utf-8');
 

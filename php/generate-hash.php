@@ -1,4 +1,5 @@
 <?php
+require __DIR__ . '/../php/auth_check.php';
 
 header('Content-Type: application/json');
 
@@ -20,5 +21,3 @@ try {
     http_response_code(500); // Internal Server Error
     echo json_encode(['error' => 'خطای داخلی سرور هنگام ساخت هش.']);
 }
-
-?>
