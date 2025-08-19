@@ -221,6 +221,31 @@ require __DIR__ . '/../php/auth_check.php';
       background-color: #5a6268;
     }
 
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .btn-excel {
+      background-color: #28a745;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+    }
+
+    .btn-excel:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+
     .table-container {
       width: 100%;
       overflow-x: auto;
@@ -386,6 +411,12 @@ require __DIR__ . '/../php/auth_check.php';
       h2 {
         font-size: 1.3rem;
       }
+
+      .table-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+      }
     }
 
     @media (max-width: 480px) {
@@ -483,7 +514,10 @@ require __DIR__ . '/../php/auth_check.php';
       </form>
     </div>
 
-    <h2>لیست اختلالات ثبت‌شده</h2>
+    <div class="table-header">
+      <h2>لیست اختلالات ثبت‌شده</h2>
+      <button id="exportExcelBtn" class="btn-excel">📊 خروجی Excel</button>
+    </div>
     <div class="table-container">
       <table>
         <thead>
@@ -689,6 +723,8 @@ require __DIR__ . '/../php/auth_check.php';
       }
     }
 
+
+
     /* ===== Main Application Logic ===== */
     document.addEventListener("DOMContentLoaded", () => {
       const API_URL = "/php/update-disruptions.php";
@@ -698,6 +734,7 @@ require __DIR__ . '/../php/auth_check.php';
       const recordIdInput = document.getElementById("recordId");
       const clearBtn = document.getElementById("clearBtn");
       const subjectSelect = document.getElementById("subject");
+      const exportExcelBtn = document.getElementById("exportExcelBtn");
 
       const startDateInput = document.getElementById("startDate");
       const startTimeInput = document.getElementById("startTime");
@@ -706,6 +743,108 @@ require __DIR__ . '/../php/auth_check.php';
       const totalDurationInput = document.getElementById("totalDuration");
 
       let currentRecords = [];
+
+      /* ===== Excel Export Function ===== */
+      function exportToExcel() {
+        console.log('Export button clicked'); // Debug log
+        console.log('Current records:', currentRecords); // Debug log
+
+        if (!currentRecords || currentRecords.length === 0) {
+          alert('هیچ داده‌ای برای خروجی وجود ندارد');
+          return;
+        }
+
+        // Create Excel content as HTML table
+        let excelContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:x="urn:schemas-microsoft-com:office:excel"
+              xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            /* START: Changes for RTL Sheet and Middle Align */
+            body { direction: rtl; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: center;
+                vertical-align: middle; /* This line middle-aligns the content */
+            }
+            /* END: Changes */
+            th { background-color: #e6f7f2; font-weight: bold; }
+            .description-cell { text-align: right; max-width: 300px; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+                <th>روز</th>
+                <th>موضوع</th>
+                <th>وضعیت</th>
+                <th>تاریخ شروع</th>
+                <th>ساعت شروع</th>
+                <th>تاریخ پایان</th>
+                <th>ساعت پایان</th>
+                <th>مجموع زمان</th>
+                <th>تیم گزارش‌دهنده</th>
+                <th>توضیح</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+        currentRecords.forEach(record => {
+          const durationDisplay = record.endDate && record.endTime && record.totalDuration ?
+            record.totalDuration : "—";
+          const startDateJalali = record.startDate ?
+            new Date(record.startDate).toLocaleDateString("fa-IR") : "—";
+          const endDateJalali = record.endDate ?
+            new Date(record.endDate).toLocaleDateString("fa-IR") : "—";
+
+          excelContent += `
+              <tr>
+                <td>${record.dayOfWeek || "—"}</td>
+                <td>${record.subject || "—"}</td>
+                <td>${record.status || "—"}</td>
+                <td>${startDateJalali}</td>
+                <td>${record.startTime || "—"}</td>
+                <td>${endDateJalali}</td>
+                <td>${record.endTime || "—"}</td>
+                <td>${durationDisplay}</td>
+                <td>${record.reportingTeam || "—"}</td>
+                <td class="description-cell">${record.description || "—"}</td>
+              </tr>`;
+        });
+
+        excelContent += `
+            </tbody>
+          </table>
+        </body>
+        </html>`;
+
+        // Create and download file
+        const blob = new Blob([excelContent], {
+          type: 'application/vnd.ms-excel;charset=utf-8'
+        });
+
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+
+        // Generate filename with current date
+        const now = new Date();
+        const jalaliDate = now.toLocaleDateString("fa-IR").replace(/\//g, '-');
+        link.setAttribute('download', `اختلالات-مرکز-تماس-${jalaliDate}.xls`);
+
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        console.log('Excel export completed'); // Debug log
+      }
 
       const subjects = [
         "اختلال در اپلیکیشن",
@@ -768,6 +907,9 @@ require __DIR__ . '/../php/auth_check.php';
 
       new JalaliDatePicker("startDateDisplay", "startDate");
       new JalaliDatePicker("endDateDisplay", "endDate");
+
+      // Excel Export Event Listener
+      exportExcelBtn.addEventListener("click", exportToExcel);
 
       async function loadRecords() {
         try {
