@@ -43,9 +43,10 @@ require __DIR__ . '/../php/auth_check.php';
     }
 
     .main-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
+      /* display: grid;  <-- This was changed */
+      /* grid-template-columns: 1fr 1fr; <-- This was changed */
+      column-count: 2;
+      column-gap: 2rem;
       align-items: start;
     }
 
@@ -105,7 +106,6 @@ require __DIR__ . '/../php/auth_check.php';
     .news-alert-box {
       background: #eafff4;
       padding: 1.2rem 1.5rem;
-      margin-bottom: 0.5rem;
       border-radius: 0.75rem;
       border-right: 4px solid #00ae70;
       transition: background 0.3s, border-color 0.3s;
@@ -113,6 +113,9 @@ require __DIR__ . '/../php/auth_check.php';
       box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
       cursor: pointer;
       position: relative;
+      /* New properties for column layout */
+      break-inside: avoid;
+      margin-bottom: 1.5rem;
     }
 
     .news-alert-box:hover {
@@ -250,9 +253,6 @@ require __DIR__ . '/../php/auth_check.php';
       cursor: pointer;
       font-size: 1.1rem;
       font-weight: 600;
-      margin-bottom: 25px;
-      display: block;
-      width: fit-content;
       box-shadow: 0 4px 10px rgba(0, 174, 112, 0.2);
       transition: background-color 0.2s, transform 0.2s;
     }
@@ -299,14 +299,6 @@ require __DIR__ . '/../php/auth_check.php';
       background-color: #c82333;
     }
 
-    .button-group-top {
-      display: flex;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
     .back-link {
       display: block;
       margin-top: 2rem;
@@ -328,7 +320,6 @@ require __DIR__ . '/../php/auth_check.php';
       border: 1.5px solid #00ae70;
       border-radius: 0.75rem;
       font-size: 1.1rem;
-      margin-bottom: 10px;
       outline: none;
       transition: border-color 0.2s;
       background: #fcfcfc;
@@ -398,22 +389,53 @@ require __DIR__ . '/../php/auth_check.php';
       font-size: 0.95rem !important;
       cursor: pointer;
     }
+
+    /* New style for the load more button */
+    #load-more-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: block;
+      margin: 2rem auto 0;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    #load-more-btn:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    #load-more-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
   </style>
 </head>
 
 <body>
   <div id="header-placeholder"></div>
   <main>
-    <div class="button-group-top">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 25px; flex-wrap: wrap;">
       <button id="add-new-item-btn">➕ افزودن پیام جدید</button>
-    </div>
-    <div style="width: 100%; margin-bottom: 10px">
-      <input type="text" id="search-input" placeholder="جستجو در عنوان یا توضیحات..." />
+      <div style="flex-grow: 1; min-width: 250px;">
+        <input type="text" id="search-input" placeholder="جستجو در عنوان، متن، دسته‌بندی یا ID..." />
+      </div>
     </div>
 
     <div id="item-list" class="main-content"></div>
+
+    <div id="load-more-container"></div>
+
     <a href="/admin/index.php" class="back-link">بازگشت به بخش مدیریت</a>
   </main>
+
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="close-button">×</span>
@@ -421,8 +443,7 @@ require __DIR__ . '/../php/auth_check.php';
       <form id="itemForm">
         <input type="hidden" id="itemId" />
         <label for="id-input">ID:</label>
-        <input type="number" id="id-input" name="id" required min="1"
-          style="direction: ltr; text-align: left; margin-bottom: 18px" />
+        <input type="number" id="id-input" name="id" required min="1" style="direction: ltr; text-align: left; margin-bottom: 18px" />
         <label for="title">عنوان پیام:</label>
         <input type="text" id="title" name="title" required />
         <label>دسته‌بندی‌ها:</label>
@@ -436,45 +457,27 @@ require __DIR__ . '/../php/auth_check.php';
       </form>
     </div>
   </div>
+
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
   <script>
     let jsonData = [];
     let currentItemIndex = -1;
     let searchValue = "";
+    let currentPage = 1;
+    const itemsPerPage = 10;
 
-    // دسته‌بندی‌های از پیش تعریف شده
     const availableCategories = [
-      "عمومی",
-      "احراز هویت",
-      "اعتبار سنجی",
-      "تنظیمات امنیت حساب",
-      "تغییر شماره تلفن همراه",
-      "عدم دریافت پیامک",
-      "کارت فیزیکی",
-      "کارت و حساب دیجیتال",
-      "مسدودی و رفع مسدودی حساب",
-      "انتقال وجه",
-      "خدمات قبض",
-      "شارژ و بسته اینترنت",
-      "تسهیلات برآیند",
-      "تسهیلات برآیند چک یار",
-      "تسهیلات پشتوانه",
-      "تسهیلات پیش درآمد",
-      "تسهیلات پیمان",
-      "تسهیلات تکلیفی",
-      "تسهیلات سازمانی",
-      "بیمه پاسارگاد",
-      "چک",
-      "خدمات چکاد",
-      "صندوق های سرمایه گذاری",
-      "طرح سرمایه گذاری رویش",
-      "دعوت از دوستان",
-      "هدیه دیجیتال",
-      "وی کلاب",
+      "عمومی", "احراز هویت", "اعتبار سنجی", "تنظیمات امنیت حساب", "تغییر شماره تلفن همراه",
+      "عدم دریافت پیامک", "کارت فیزیکی", "کارت و حساب دیجیتال", "مسدودی و رفع مسدودی حساب",
+      "انتقال وجه", "خدمات قبض", "شارژ و بسته اینترنت", "تسهیلات برآیند", "تسهیلات برآیند چک یار",
+      "تسهیلات پشتوانه", "تسهیلات پیش درآمد", "تسهیلات پیمان", "تسهیلات تکلیفی",
+      "تسهیلات سازمانی", "بیمه پاسارگاد", "چک", "خدمات چکاد", "صندوق های سرمایه گذاری",
+      "طرح سرمایه گذاری رویش", "دعوت از دوستان", "هدیه دیجیتال", "وی کلاب",
     ];
 
     const itemListDiv = document.getElementById("item-list");
+    const loadMoreContainer = document.getElementById("load-more-container");
     const itemModal = document.getElementById("itemModal");
     const closeButton = document.querySelector(".close-button");
     const itemForm = document.getElementById("itemForm");
@@ -488,11 +491,9 @@ require __DIR__ . '/../php/auth_check.php';
       "categories-checkbox-container"
     );
 
-    // --- تابع جدید برای ذخیره خودکار در سرور ---
     async function saveDataToServer() {
       try {
         const response = await fetch("/data/save-wiki.php", {
-          // ❗️ آدرس فایل PHP جدید
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -508,7 +509,6 @@ require __DIR__ . '/../php/auth_check.php';
       }
     }
 
-    // Modal functions
     function openModal() {
       itemModal.style.display = "block";
       if (descriptionTextarea) descriptionTextarea.focus();
@@ -530,9 +530,11 @@ require __DIR__ . '/../php/auth_check.php';
     };
     cancelEditBtn.onclick = closeModal;
 
-    // Render items with search filter
     function renderItems() {
+      // Clear only the list on re-render, button is handled separately
       itemListDiv.innerHTML = "";
+      loadMoreContainer.innerHTML = "";
+
       let filtered = jsonData;
       if (searchValue.trim()) {
         const q = searchValue.trim().toLowerCase();
@@ -547,45 +549,63 @@ require __DIR__ . '/../php/auth_check.php';
           (item.id && String(item.id).includes(q))
         );
       }
+
       if (filtered.length === 0) {
         itemListDiv.innerHTML =
-          '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">موردی برای نمایش وجود ندارد.</p>';
+          '<p style="text-align: center; column-span: all; margin-top: 50px; font-size: 1.2rem; color: #555;">موردی برای نمایش وجود ندارد.</p>';
         return;
       }
 
-      // مرتب‌سازی بر اساس ID
       filtered.sort((a, b) => (a.id > b.id ? 1 : -1));
 
-      filtered.forEach((item) => {
-        // پیدا کردن ایندکس واقعی آیتم در آرایه اصلی برای ویرایش و حذف
+      const itemsToShow = filtered.slice(0, currentPage * itemsPerPage);
+
+      itemsToShow.forEach((item) => {
         const originalIndex = jsonData.findIndex(
           (originalItem) => originalItem.id === item.id
         );
 
         const card = document.createElement("div");
         card.classList.add("news-alert-box");
-        const descriptionHtml = (item.description || "").replace(
-          /\n/g,
-          "<br>"
-        );
+        const descriptionHtml = (item.description || "").replace(/\n/g, "<br>");
+        const categoriesHtml =
+          item.categories && item.categories.length ?
+          item.categories.join("، ") :
+          "بدون دسته‌بندی";
+
         card.innerHTML = `
-            <h3 style="margin-bottom:6px">
-              ${item.title || "بدون عنوان"}
-              <span style="font-size:0.92rem; color:#999; margin-right:7px;">[ID: ${item.id || "-"
-          }]</span>
-            </h3>
-            <p style="font-size:0.96rem; color:#7c7c7c; margin:0 0 7px 0;"><strong>دسته‌بندی‌ها:</strong> ${item.categories && item.categories.length
-            ? item.categories.join("، ")
-            : "-"
-          }</p>
-            <div style="margin-bottom:10px">${descriptionHtml}</div>
-            <div class="actions">
-              <button class="edit-btn" data-index="${originalIndex}">ویرایش</button>
-              <button class="delete-btn" data-index="${originalIndex}">حذف</button>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px;">
+                <h3 style="margin: 0; flex-grow: 1; font-size: 1.15rem; font-weight: 700; color: #111;">
+                    ${item.title || "بدون عنوان"}
+                </h3>
+                <div class="actions" style="margin-top: 0; padding-top: 0; border-top: none; flex-shrink: 0;">
+                    <button class="edit-btn" data-index="${originalIndex}">ویرایش</button>
+                    <button class="delete-btn" data-index="${originalIndex}">حذف</button>
+                </div>
             </div>
-          `;
+            <div style="margin-bottom: 15px; font-size: 0.9rem; color: #555;">
+                <span><strong>ID:</strong> <span style="color: #008250; font-weight: 600;">${item.id || "-"}</span></span>
+                <span style="margin-right: 15px;"><strong>دسته‌بندی‌ها:</strong> ${categoriesHtml}</span>
+            </div>
+            <div style="line-height: 1.7; color: #333; font-size: 1rem; border-top: 1px dashed #c0e8d9; padding-top: 15px;">
+                ${descriptionHtml}
+            </div>
+            `;
         itemListDiv.appendChild(card);
       });
+
+      if (itemsToShow.length < filtered.length) {
+        const loadMoreBtn = document.createElement("button");
+        loadMoreBtn.id = "load-more-btn";
+        loadMoreBtn.textContent = "بارگذاری بیشتر";
+        loadMoreBtn.onclick = () => {
+          currentPage++;
+          // Instead of re-rendering everything, you can choose to append.
+          // But re-rendering is simpler to manage with search.
+          renderItems();
+        };
+        loadMoreContainer.appendChild(loadMoreBtn);
+      }
 
       document.querySelectorAll(".edit-btn").forEach((button) => {
         button.addEventListener("click", (e) => {
@@ -602,13 +622,12 @@ require __DIR__ . '/../php/auth_check.php';
       });
     }
 
-    // Search
     searchInput.addEventListener("input", (e) => {
       searchValue = e.target.value;
+      currentPage = 1; // Reset to the first page on new search
       renderItems();
     });
 
-    // Category Checkbox functions
     function renderCategoryCheckboxes(selectedCategories = []) {
       categoriesCheckboxContainer.innerHTML = "";
       availableCategories.forEach((category) => {
@@ -628,7 +647,6 @@ require __DIR__ . '/../php/auth_check.php';
       });
     }
 
-    // Edit
     function editItem(index) {
       currentItemIndex = index;
       const item = jsonData[index];
@@ -641,7 +659,6 @@ require __DIR__ . '/../php/auth_check.php';
       openModal();
     }
 
-    // Add
     addNewItemBtn.addEventListener("click", () => {
       currentItemIndex = -1;
       itemForm.reset();
@@ -656,7 +673,6 @@ require __DIR__ . '/../php/auth_check.php';
       openModal();
     });
 
-    // --- فرم ذخیره با قابلیت ذخیره خودکار ---
     itemForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const selectedCategories = Array.from(
@@ -688,21 +704,20 @@ require __DIR__ . '/../php/auth_check.php';
       } else {
         jsonData[currentItemIndex] = newItem;
       }
+      currentPage = 1; // Reset to page 1 to see the new/edited item
       renderItems();
       closeModal();
-      saveDataToServer(); // 🚀 ذخیره خودکار
+      saveDataToServer();
     });
 
-    // --- تابع حذف با قابلیت ذخیره خودکار ---
     function deleteItem(index) {
       if (confirm("آیا مطمئن هستید که می‌خواهید این پیام را حذف کنید؟")) {
         jsonData.splice(index, 1);
         renderItems();
-        saveDataToServer(); // 🚀 ذخیره خودکار
+        saveDataToServer();
       }
     }
 
-    // --- بارگذاری اولیه JSON ---
     async function loadInitialJson() {
       try {
         const response = await fetch(
@@ -719,6 +734,7 @@ require __DIR__ . '/../php/auth_check.php';
         alert("خطا در بارگذاری اولیه فایل JSON.");
         jsonData = [];
       } finally {
+        currentPage = 1;
         renderItems();
       }
     }
