@@ -1233,10 +1233,18 @@ require __DIR__ . '/../php/auth_check.php';
         </div>
         <div class="tp-columns"></div>
         <div class="tp-arrows">
-          <button type="button" class="tp-arrow-btn" data-h="-1">⬆️ ساعت</button>
-          <button type="button" class="tp-arrow-btn" data-h="+1">⬇️ ساعت</button>
-          <button type="button" class="tp-arrow-btn" data-m="-1">⬆️ دقیقه</button>
-          <button type="button" class="tp-arrow-btn" data-m="+1">⬇️ دقیقه</button>
+          <button type="button" class="tp-arrow-btn" data-m="-1">
+            ⬆️ دقیقه
+          </button>
+          <button type="button" class="tp-arrow-btn" data-m="+1">
+            ⬇️ دقیقه
+          </button>
+          <button type="button" class="tp-arrow-btn" data-h="-1">
+            ⬆️ ساعت
+          </button>
+          <button type="button" class="tp-arrow-btn" data-h="+1">
+            ⬇️ ساعت
+          </button>
         </div>
         <div class="tp-quick">
           ${[0,15,30,45].map(v=>`<button type="button" class="tp-quick-btn" data-qm="${v}">:${String(v).padStart(2,"0")}</button>`).join("")}
