@@ -51,39 +51,29 @@ require __DIR__ . '/../php/auth_check.php';
             flex-direction: column;
         }
 
-        a {
-            text-decoration: none;
-            transition: all 0.2s ease-in-out;
-        }
-
-        header,
-        footer {
+        header {
             background: var(--primary-color);
             color: var(--header-text);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             box-shadow: 0 2px 6px var(--shadow-color-light);
-            position: relative;
             z-index: 10;
-            flex-shrink: 0;
-        }
-
-        header {
             height: 70px;
+            padding: 0 2rem;
         }
 
         header h1 {
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--header-text);
-            margin-bottom: 0;
         }
 
-        footer {
-            height: 60px;
-            font-size: 0.85rem;
-            margin-top: auto;
+        header a {
+            color: var(--header-text);
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-decoration: none;
         }
 
         main {
@@ -116,6 +106,10 @@ require __DIR__ . '/../php/auth_check.php';
             margin-bottom: 2rem;
         }
 
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
         label {
             display: block;
             margin-bottom: 8px;
@@ -124,22 +118,28 @@ require __DIR__ . '/../php/auth_check.php';
             font-size: 0.95rem;
         }
 
-        textarea {
+        select,
+        textarea,
+        input[type="date"] {
             width: 100%;
-            min-height: 250px;
             padding: 10px 12px;
-            margin-bottom: 18px;
             border: 1px solid var(--border-color);
             border-radius: 0.5rem;
             font-size: 1rem;
             box-sizing: border-box;
             background-color: #fcfcfc;
             transition: border-color 0.2s;
+        }
+
+        textarea {
+            min-height: 250px;
             direction: ltr;
             text-align: left;
         }
 
-        textarea:focus {
+        select:focus,
+        textarea:focus,
+        input[type="date"]:focus {
             border-color: var(--primary-color);
             outline: none;
         }
@@ -196,28 +196,65 @@ require __DIR__ . '/../php/auth_check.php';
 </head>
 
 <body>
-    <div id="header-placeholder"></div>
+    <header>
+        <h1>پنل ادمین</h1>
+        <a href="/reports/index.php">بازگشت به داشبورد</a>
+    </header>
     <main>
         <div class="form-container">
             <h1>سامانه به‌روزرسانی گزارش‌ها</h1>
             <p class="description">
-                اطلاعات کپی شده از فایل اکسل را در کادر زیر وارد کرده و دکمه ذخیره را بزنید.
+                ابتدا نوع گزارش را انتخاب کرده، سپس اطلاعات را در کادر زیر وارد و دکمه ذخیره را بزنید.
             </p>
             <form id="reportForm">
-                <label for="excel_data">محتوای گزارش:</label>
-                <textarea id="excel_data" name="excel_data" required placeholder="داده‌های کپی شده از اکسل را اینجا جای‌گذاری کنید..."></textarea>
+                <div class="form-group">
+                    <label for="report_type">نوع گزارش:</label>
+                    <select id="report_type" name="report_type" required>
+                        <option value="" disabled selected>لطفا یک مورد را انتخاب کنید</option>
+                        <option value="call_metrics">گزارش معیارهای تماس</option>
+                        <option value="presence_duration">گزارش مدت حضور</option>
+                        <option value="off_queue_duration">گزارش مدت خروج از صف</option>
+                        <option value="one_star_ratings">گزارش امتیاز ۱ داده شده</option>
+                        <option value="calls_over_5_min">گزارش مکالمات بالای ۵ دقیقه</option>
+                        <option value="missed_calls">گزارش تماس بی‌پاسخ</option>
+                        <option value="outbound_calls">گزارش تماس خروجی</option>
+                        <option value="no_call_reason">گزارش عدم ثبت دلیل تماس</option>
+                        <option value="tickets_count">گزارش تعداد تیکت</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="date-picker-group" style="display: none;">
+                    <label for="report_date">تاریخ گزارش:</label>
+                    <input type="date" id="report_date" name="report_date">
+                </div>
+
+                <div class="form-group">
+                    <label for="excel_data">محتوای گزارش:</label>
+                    <textarea id="excel_data" name="excel_data" required placeholder="داده‌های کپی شده از اکسل را اینجا جای‌گذاری کنید..."></textarea>
+                </div>
                 <button type="submit">ذخیره تغییرات</button>
             </form>
             <div id="response" class="response-message"></div>
         </div>
     </main>
-    <div id="footer-placeholder"></div>
 
-    <script src="/js/header.js"></script>
     <script>
+        const reportTypeSelect = document.getElementById("report_type");
+        const datePickerGroup = document.getElementById("date-picker-group");
+        const datePickerInput = document.getElementById("report_date");
+
+        reportTypeSelect.addEventListener("change", function() {
+            if (this.value === 'tickets_count') {
+                datePickerGroup.style.display = 'block';
+                datePickerInput.required = true;
+            } else {
+                datePickerGroup.style.display = 'none';
+                datePickerInput.required = false;
+            }
+        });
+
         document.getElementById("reportForm").addEventListener("submit", async function(e) {
             e.preventDefault();
-
             const form = e.target;
             const formData = new FormData(form);
             const responseDiv = document.getElementById("response");
@@ -232,18 +269,11 @@ require __DIR__ . '/../php/auth_check.php';
                     method: "POST",
                     body: formData,
                 });
+                if (!response.ok) throw new Error(`خطای سرور: ${response.statusText}`);
 
-                if (!response.ok) {
-                    throw new Error(`خطای سرور: ${response.statusText}`);
-                }
                 const result = await response.json();
-
                 responseDiv.textContent = result.message;
-                if (result.success) {
-                    responseDiv.className = "response-message success";
-                } else {
-                    responseDiv.className = "response-message error";
-                }
+                responseDiv.className = result.success ? "response-message success" : "response-message error";
                 responseDiv.style.display = "block";
 
             } catch (error) {

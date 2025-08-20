@@ -1,1 +1,22 @@
-{}
+{
+  "164": {
+    "2025-08-19": {
+      "answered_calls": 115,
+      "total_talk_time": "2:30:45",
+      "avg_talk_time": "0:01:18",
+      "max_talk_time": "0:05:22",
+      "avg_rating": 4.6,
+      "ratings_count": 40,
+      "presence_duration": "8:05:10",
+      "off_queue_duration": "0:45:20",
+      "one_star_ratings": 2,
+      "calls_over_5_min": 7,
+      "missed_calls": 5,
+      "outbound_calls": 12,
+      "no_call_reason": 3,
+      "tickets_count": 22,
+      "fams_count": 8,
+      "jira_count": 4
+    }
+  }
+}

@@ -256,13 +256,23 @@ if (verify_jwt($token, JWT_SECRET)) {
         const agentData = <?php echo json_encode($agentData); ?>;
         const labels = {
             answered_calls: "پاسخ داده شده",
-            total_talk_time: "مجموع مکالمه (ثانیه)",
-            avg_talk_time: "میانگین مکالمه (ثانیه)",
-            max_talk_time: "بیشترین زمان مکالمه (ثانیه)",
+            total_talk_time: "مجموع مکالمه",
+            avg_talk_time: "میانگین مکالمه",
+            max_talk_time: "بیشترین زمان مکالمه",
             avg_rating: "میانگین امتیاز",
             ratings_count: "تعداد امتیاز",
-            outbound_calls: "تماس خروجی"
+            presence_duration: "مدت حضور",
+            off_queue_duration: "مدت خروج از صف",
+            one_star_ratings: "امتیاز ۱ داده شده",
+            calls_over_5_min: "مکالمات بالای ۵ دقیقه",
+            missed_calls: "تعداد تماس بی پاسخ",
+            outbound_calls: "تعداد تماس خروجی",
+            no_call_reason: "عدم ثبت دلیل تماس",
+            tickets_count: "تعداد تیکت",
+            fams_count: "تعداد FAMS",
+            jira_count: "تعداد جیرا"
         };
+        const timeBasedMetrics = ['total_talk_time', 'avg_talk_time', 'max_talk_time', 'presence_duration', 'off_queue_duration'];
         const charts = {};
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -278,6 +288,14 @@ if (verify_jwt($token, JWT_SECRET)) {
             yesterday.setDate(yesterday.getDate() - 1);
             displayDailyReport(formatDate(yesterday));
         });
+
+        function formatSeconds(seconds) {
+            if (isNaN(seconds) || seconds < 0) return "00:00:00";
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
+        }
 
         function destroyCharts() {
             Object.keys(charts).forEach(key => {
@@ -296,10 +314,12 @@ if (verify_jwt($token, JWT_SECRET)) {
             if (data) {
                 let html = '<div class="report-grid">';
                 for (const key in data) {
+                    const value = data[key];
+                    const displayValue = timeBasedMetrics.includes(key) ? formatSeconds(value) : value.toLocaleString();
                     html += `
                         <div class="metric-card">
                             <h3>${labels[key] || key}</h3>
-                            <p>${data[key].toLocaleString()}</p>
+                            <p>${displayValue}</p>
                         </div>`;
                 }
                 html += '</div>';
@@ -335,12 +355,12 @@ if (verify_jwt($token, JWT_SECRET)) {
                 const dayData = agentData[date];
                 if (dayData) {
                     summary.daysWithData++;
-                    summary.answered_calls += dayData.answered_calls;
-                    summary.total_talk_time += dayData.total_talk_time;
-                    summary.ratings_count += dayData.ratings_count;
-                    summary.avg_rating += dayData.avg_rating;
-                    chartData.answered.push(dayData.answered_calls);
-                    chartData.ratings.push(dayData.avg_rating);
+                    summary.answered_calls += dayData.answered_calls || 0;
+                    summary.total_talk_time += dayData.total_talk_time || 0;
+                    summary.ratings_count += dayData.ratings_count || 0;
+                    summary.avg_rating += dayData.avg_rating || 0;
+                    chartData.answered.push(dayData.answered_calls || 0);
+                    chartData.ratings.push(dayData.avg_rating || 0);
                 } else {
                     chartData.answered.push(0);
                     chartData.ratings.push(0);
@@ -355,7 +375,7 @@ if (verify_jwt($token, JWT_SECRET)) {
                 <h2 class="summary-title">خلاصه عملکرد ۷ روز گذشته</h2>
                 <div class="report-grid">
                     <div class="metric-card"><h3>مجموع تماس پاسخ داده شده</h3><p>${summary.answered_calls.toLocaleString()}</p></div>
-                    <div class="metric-card"><h3>مجموع مکالمات (ثانیه)</h3><p>${summary.total_talk_time.toLocaleString()}</p></div>
+                    <div class="metric-card"><h3>مجموع مکالمات</h3><p>${formatSeconds(summary.total_talk_time)}</p></div>
                     <div class="metric-card"><h3>میانگین امتیاز</h3><p>${summary.avg_rating}</p></div>
                 </div>
                 <div class="charts-container" style="margin-top: 2.5rem;">
