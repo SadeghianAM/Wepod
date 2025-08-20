@@ -51,30 +51,44 @@ require __DIR__ . '/../php/auth_check.php';
             flex-direction: column;
         }
 
-        header {
+        a {
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* --- New Header and Footer Styles --- */
+        header,
+        footer {
             background: var(--primary-color);
             color: var(--header-text);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             box-shadow: 0 2px 6px var(--shadow-color-light);
+            position: relative;
             z-index: 10;
+            flex-shrink: 0;
+        }
+
+        header {
             height: 70px;
-            padding: 0 2rem;
         }
 
         header h1 {
             font-size: 1.2rem;
             font-weight: 700;
             color: var(--header-text);
+            margin-bottom: 0;
         }
 
-        header a {
-            color: var(--header-text);
-            font-weight: 500;
-            font-size: 0.9rem;
-            text-decoration: none;
+        footer {
+            height: 60px;
+            font-size: 0.85rem;
+            margin-top: auto;
         }
+
+        /* --- End of New Styles --- */
+
 
         main {
             padding: 1.5rem;
@@ -196,10 +210,7 @@ require __DIR__ . '/../php/auth_check.php';
 </head>
 
 <body>
-    <header>
-        <h1>پنل ادمین</h1>
-        <a href="/reports/index.php">بازگشت به داشبورد</a>
-    </header>
+    <div id="header-placeholder"></div>
     <main>
         <div class="form-container">
             <h1>سامانه به‌روزرسانی گزارش‌ها</h1>
@@ -237,7 +248,9 @@ require __DIR__ . '/../php/auth_check.php';
             <div id="response" class="response-message"></div>
         </div>
     </main>
+    <div id="footer-placeholder"></div>
 
+    <script src="/js/header.js"></script>
     <script>
         const reportTypeSelect = document.getElementById("report_type");
         const datePickerGroup = document.getElementById("date-picker-group");

@@ -1,8 +1,16 @@
-<!-- header.html -->
 <header>
-  <span id="today-date"></span>
-  <h1 id="page-title">وی هاب</h1>
-  <span id="current-time"></span>
+  <div class="header-right">
+    <span id="today-date"></span>
+    <span id="current-time"></span>
+  </div>
+
+  <div class="header-center">
+    <h1 id="page-title">وی هاب</h1>
+  </div>
+
+  <div class="header-left">
+    <div id="user-info-placeholder"></div>
+  </div>
 </header>
 
 <style>
@@ -12,41 +20,146 @@
     height: 70px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
     box-shadow: 0 2px 6px rgba(0, 174, 112, 0.1);
+    direction: rtl;
     position: relative;
   }
-  header h1 {
+
+  .header-left,
+  .header-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .header-right {
+    gap: 15px;
+    font-size: 1rem;
+    opacity: 0.85;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .header-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .header-center h1 {
     font-size: 1.2rem;
     font-weight: 700;
     margin: 0;
-  }
-  #today-date {
-    position: absolute;
-    right: 1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1rem;
-    color: #fff;
-    opacity: 0.85;
-    font-weight: 500;
     white-space: nowrap;
   }
-  #current-time {
-    position: absolute;
-    left: 1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1rem;
-    color: #fff;
-    opacity: 0.85;
-    font-weight: 500;
-    white-space: nowrap;
+
+  #user-info-container {
+    position: relative;
+    cursor: pointer;
+    direction: rtl;
   }
-  @media (max-width: 480px) {
-    #today-date,
-    #current-time {
-      display: none;
-    }
+
+  #user-name-display {
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    font-weight: bold;
+  }
+
+  #user-name-display:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  #logout-popup {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    /* تغییر اصلی اینجا اعمال شد
+      پاپ‌آپ از سمت چپ باز می‌شود تا از صفحه خارج نشود
+    */
+    left: 0;
+    width: 250px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 1001;
+    color: #333;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  #logout-popup.show {
+    display: block;
+  }
+
+  .popup-header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background-color: #f8f9fa;
+  }
+
+  .user-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #00ae70;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 12px;
+    flex-shrink: 0;
+  }
+
+  .user-details .user-name {
+    font-weight: bold;
+    font-size: 15px;
+    color: #212529;
+    margin: 0;
+  }
+
+  .user-details .user-id {
+    font-size: 13px;
+    color: #6c757d;
+    margin: 4px 0 0 0;
+  }
+
+  #logout-button {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background-color: transparent;
+    border: none;
+    border-top: 1px solid #e9ecef;
+    color: #dc3545;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: "Vazirmatn", sans-serif;
+    transition: background-color 0.2s;
+    text-align: right;
+  }
+
+  #logout-button:hover {
+    background-color: #fdf2f3;
+  }
+
+  #login-button {
+      padding: 8px 16px;
+      color: #00ae70;
+      background-color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+  }
+
+  @media (max-width: 768px) {
+    .header-right { display: none; }
   }
 </style>

@@ -22,77 +22,6 @@ const persianMonths = [
   "اسفند",
 ];
 
-// یک فلگ برای اینکه مطمئن شویم استایل‌ها فقط یک بار به صفحه اضافه می‌شوند
-let stylesInjected = false;
-
-/**
- * استایل‌های مربوط به باکس اطلاعات کاربر را به صورت داینامیک به <head> اضافه می‌کند
- */
-function injectUserInfoStyles() {
-  if (stylesInjected) return; // اگر استایل‌ها قبلاً اضافه شده‌اند، دوباره کاری نکن
-
-  const css = `
-    #user-info-box {
-      position: fixed;
-      top: 80px;
-      left: 10px;
-      background-color: #ffffff;
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      font-family: "Vazirmatn", sans-serif;
-      z-index: 1000;
-      direction: rtl;
-      min-width: 220px;
-      text-align: center;
-    }
-    #user-info-box p {
-      margin: 0 0 8px 0;
-      font-size: 14px;
-      color: #343a40;
-    }
-    #user-info-box p strong {
-      font-weight: bold;
-      margin-left: 5px;
-    }
-    /* استایل مشترک برای هر دو دکمه */
-    #logout-button, #login-button {
-      width: 100%;
-      padding: 8px;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      font-family: "Vazirmatn", sans-serif;
-      transition: background-color 0.3s;
-    }
-    /* استایل دکمه خروج (قرمز) */
-    #logout-button {
-      background-color: #dc3545;
-      margin-top: 8px;
-    }
-    #logout-button:hover {
-      background-color: #c82333;
-    }
-    /* استایل دکمه ورود (سبز) */
-    #login-button {
-      background-color: #079863;
-    }
-    #login-button:hover {
-      background-color: #068456;
-    }
-  `;
-
-  const styleElement = document.createElement("style");
-  styleElement.type = "text/css";
-  styleElement.appendChild(document.createTextNode(css));
-  document.head.appendChild(styleElement);
-  stylesInjected = true;
-}
-
 function toJalali(gy, gm, gd) {
   const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
   let jy = gy > 1600 ? 979 : 0;
@@ -141,7 +70,7 @@ function getCurrentTimePersian() {
   const now = new Date();
   const h = now.getHours().toString().padStart(2, "0");
   const m = now.getMinutes().toString().padStart(2, "0");
-  return `ساعت ${toPersianDigits(h)}:${toPersianDigits(m)}`;
+  return toPersianDigits(`${h}:${m}`);
 }
 
 function setupHeader(title) {
@@ -174,38 +103,59 @@ async function logout() {
 }
 
 async function checkLoginStatus() {
+  const placeholder = document.getElementById("user-info-placeholder");
+  if (!placeholder) return;
+
   try {
     const response = await fetch("/php/get-user-info.php");
 
-    // اگر کاربر لاگین کرده باشد
     if (response.ok) {
       const userData = await response.json();
-      injectUserInfoStyles();
-      const userInfoBox = document.createElement("div");
-      userInfoBox.id = "user-info-box";
-      userInfoBox.innerHTML = `
-        <p><strong>نام:</strong> ${userData.name}</p>
-        <p><strong>داخلی:</strong> ${toPersianDigits(userData.id)}</p>
-        <button id="logout-button">خروج از وی هاب</button>
+      const avatarLetter = userData.name ? userData.name.trim()[0] : "؟";
+
+      placeholder.innerHTML = `
+        <div id="user-info-container">
+          <span id="user-name-display">${userData.name}</span>
+          <div id="logout-popup">
+            <div class="popup-header">
+                <div class="user-avatar-large">${avatarLetter}</div>
+                <div class="user-details">
+                    <p class="user-name">${userData.name}</p>
+                    <p class="user-id">داخلی: ${toPersianDigits(
+                      userData.id
+                    )}</p>
+                </div>
+            </div>
+            <button id="logout-button">خروج از حساب</button>
+          </div>
+        </div>
       `;
-      document.body.prepend(userInfoBox);
+
+      const container = document.getElementById("user-info-container");
+      const popup = document.getElementById("logout-popup");
+
+      container.addEventListener("click", (event) => {
+        event.stopPropagation();
+        popup.classList.toggle("show");
+      });
+
       document
         .getElementById("logout-button")
         .addEventListener("click", logout);
-    }
-    // اگر کاربر لاگین نکرده باشد
-    else {
-      injectUserInfoStyles();
-      const loginBox = document.createElement("div");
-      loginBox.id = "user-info-box";
-      loginBox.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
-      document.body.prepend(loginBox);
+
+      document.addEventListener("click", () => {
+        if (popup.classList.contains("show")) {
+          popup.classList.remove("show");
+        }
+      });
+    } else {
+      placeholder.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
       document.getElementById("login-button").addEventListener("click", () => {
         window.location.href = "/login.html";
       });
     }
   } catch (error) {
-    console.error("Error checking login status:", error);
+    console.error("خطا در بررسی وضعیت ورود:", error);
   }
 }
 
@@ -227,10 +177,9 @@ async function loadLayout() {
     const footerData = await footerRes.text();
     document.getElementById("footer-placeholder").innerHTML = footerData;
 
-    // پس از بارگذاری کامل لایوت، وضعیت لاگین را بررسی کن
     await checkLoginStatus();
   } catch (error) {
-    console.error("Error loading layout components:", error);
+    console.error("خطا در بارگذاری اجزای لایوت:", error);
   }
 }
 
