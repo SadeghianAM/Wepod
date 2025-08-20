@@ -56,13 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['report_type']) && !e
         $reportType = $_POST['report_type'];
         $pastedData = trim($_POST['excel_data']);
         $lines = explode("\n", $pastedData);
-
         $jsonFile = __DIR__ . '/../data/reports.json';
         $existingData = file_exists($jsonFile) ? json_decode(file_get_contents($jsonFile), true) : [];
-
-        if (json_last_error() !== JSON_ERROR_NONE && !is_array($existingData)) {
-            $existingData = [];
-        }
+        if (!is_array($existingData)) $existingData = [];
 
         $processedCount = 0;
 
@@ -76,7 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['report_type']) && !e
                     if (count($columns) < 9) continue;
 
                     $agentId = trim($columns[0]);
-
                     $shamsi_date_parts = explode('/', trim($columns[2]));
                     if (count($shamsi_date_parts) != 3) continue;
                     $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
@@ -101,14 +96,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['report_type']) && !e
                     if (empty(trim($line))) continue;
                     $columns = explode("\t", trim($line));
                     if (!is_numeric(trim($columns[0]))) continue;
-                    if (count($columns) < 10) continue;
+                    if (count($columns) < 4) continue;
 
                     $agentId = trim($columns[0]);
-                    $shamsi_date_parts = explode('/', trim($columns[7]));
+                    $shamsi_date_parts = explode('/', trim($columns[2]));
                     if (count($shamsi_date_parts) != 3) continue;
                     $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
 
-                    $presenceDuration = (int)str_replace(',', '', $columns[8]);
+                    $presenceDuration = (int)str_replace(',', '', $columns[3]);
 
                     if (!isset($existingData[$agentId])) $existingData[$agentId] = [];
                     if (!isset($existingData[$agentId][$date])) $existingData[$agentId][$date] = [];
@@ -122,14 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['report_type']) && !e
                     if (empty(trim($line))) continue;
                     $columns = explode("\t", trim($line));
                     if (!is_numeric(trim($columns[0]))) continue;
-                    if (count($columns) < 9) continue;
+                    if (count($columns) < 4) continue;
 
                     $agentId = trim($columns[0]);
-                    $shamsi_date_parts = explode('/', trim($columns[7]));
+                    $shamsi_date_parts = explode('/', trim($columns[2]));
                     if (count($shamsi_date_parts) != 3) continue;
                     $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
 
-                    $offQueueDuration = (int)str_replace(',', '', $columns[8]);
+                    $offQueueDuration = (int)str_replace(',', '', $columns[3]);
 
                     if (!isset($existingData[$agentId])) $existingData[$agentId] = [];
                     if (!isset($existingData[$agentId][$date])) $existingData[$agentId][$date] = [];
@@ -156,7 +151,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['report_type']) && !e
                     if (empty(trim($line))) continue;
                     $columns = explode("\t", trim($line));
                     if (count($columns) < 3) continue;
-
                     if (is_numeric(trim($columns[$config['id_col']]))) {
                         $shamsi_date_parts = explode('/', trim($columns[$config['date_col']]));
                         if (count($shamsi_date_parts) != 3) continue;
@@ -221,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['report_type']) && !e
 
             case 'tickets_count':
                 if (empty($_POST['report_date'])) throw new Exception("برای این نوع گزارش، انتخاب تاریخ الزامی است.");
-                $date = $_POST['report_date']; // This is already Gregorian from the date picker
+                $date = $_POST['report_date'];
 
                 $usersFile = __DIR__ . '/../data/users.json';
                 if (!file_exists($usersFile)) throw new Exception("فایل users.json یافت نشد.");

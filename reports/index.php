@@ -45,15 +45,14 @@ if (verify_jwt($token, JWT_SECRET)) {
             --primary-color: #00ae70;
             --primary-dark: #089863;
             --primary-light: #e6f7f2;
-            --bg-color: #f8fcf9;
-            --text-color: #222;
-            --secondary-text-color: #555;
+            --bg-color: #f7f9fc;
+            --text-color: #333;
+            --secondary-text-color: #6c757d;
             --card-bg: #ffffff;
             --header-text: #ffffff;
-            --shadow-color-light: rgba(0, 174, 112, 0.07);
-            --shadow-color-medium: rgba(0, 174, 112, 0.12);
-            --border-radius: 0.75rem;
-            --border-color: #e9e9e9;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --border-radius: 0.8rem;
+            --border-color: #e9ecef;
         }
 
         @font-face {
@@ -88,7 +87,7 @@ if (verify_jwt($token, JWT_SECRET)) {
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px var(--shadow-color-light);
+            box-shadow: 0 2px 10px var(--shadow-color);
             position: relative;
             z-index: 10;
             flex-shrink: 0;
@@ -111,19 +110,19 @@ if (verify_jwt($token, JWT_SECRET)) {
 
         main {
             flex-grow: 1;
-            padding: 2rem 1rem;
-            max-width: 1200px;
+            padding: 2rem 1.5rem;
+            max-width: 1300px;
             width: 100%;
             margin: 0 auto;
         }
 
         .dashboard-header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
 
         .dashboard-header h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--primary-dark);
             margin-bottom: 0.5rem;
@@ -140,32 +139,52 @@ if (verify_jwt($token, JWT_SECRET)) {
             gap: 0.75rem;
             margin-bottom: 2.5rem;
             flex-wrap: wrap;
+            background-color: var(--card-bg);
+            padding: 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            width: fit-content;
+            margin-inline: auto;
         }
 
         #date-nav button {
             font-size: 0.9rem;
-            padding: 0.5rem 1.2rem;
-            border-radius: 100px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
+            padding: 0.6rem 1.4rem;
+            border-radius: 50px;
+            background-color: transparent;
+            border: none;
             color: var(--secondary-text-color);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
         #date-nav button:hover {
-            background-color: #f0f0f0;
-            border-color: #ccc;
+            color: var(--primary-dark);
         }
 
         #date-nav button.active {
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
-            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: var(--header-text);
+            box-shadow: 0 2px 8px rgba(0, 174, 112, 0.3);
             font-weight: 600;
         }
 
-        .report-grid {
+        .metric-group {
+            margin-bottom: 2.5rem;
+        }
+
+        .metric-group-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            padding-right: 1rem;
+            border-right: 4px solid var(--primary-color);
+        }
+
+        .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
@@ -175,66 +194,65 @@ if (verify_jwt($token, JWT_SECRET)) {
             background: var(--card-bg);
             border-radius: var(--border-radius);
             padding: 1.5rem;
-            box-shadow: 0 3px 8px var(--shadow-color-light);
+            box-shadow: 0 4px 20px var(--shadow-color);
             border: 1px solid var(--border-color);
-            border-inline-start: 5px solid var(--primary-color);
-            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: all 0.3s ease;
         }
 
         .metric-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px var(--shadow-color-medium);
-            border-inline-start-color: var(--primary-dark);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         }
 
-        .metric-card h3 {
-            font-size: 1rem;
-            font-weight: 600;
+        .metric-card .emoji-container {
+            font-size: 2.2rem;
+            background-color: var(--primary-light);
+            height: 60px;
+            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            line-height: 1;
+            padding-top: 10px;
+        }
+
+        .metric-card .content h3 {
+            font-size: 0.95rem;
+            font-weight: 500;
             color: var(--secondary-text-color);
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
-        .metric-card p {
-            font-size: 2rem;
-            font-weight: 800;
+        .metric-card .content p {
+            font-size: 1.8rem;
+            font-weight: 700;
             color: var(--text-color);
+            line-height: 1.2;
+        }
+
+        .metric-card .content p.no-value-text {
+            font-size: 1rem;
+            font-weight: 400;
+            font-style: italic;
         }
 
         .charts-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
+            margin-top: 2.5rem;
         }
 
         .chart-card {
             background: var(--card-bg);
             border-radius: var(--border-radius);
             padding: 1.5rem;
-            box-shadow: 0 3px 8px var(--shadow-color-light);
+            box-shadow: 0 4px 20px var(--shadow-color);
             border: 1px solid var(--border-color);
-        }
-
-        .summary-title {
-            text-align: center;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-bottom: 2rem;
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: var(--secondary-text-color);
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            border: 1px dashed var(--border-color);
         }
     </style>
 </head>
@@ -254,23 +272,89 @@ if (verify_jwt($token, JWT_SECRET)) {
     <script src="/js/header.js"></script>
     <script>
         const agentData = <?php echo json_encode($agentData); ?>;
+        const metricsConfig = {
+            performance: {
+                title: "عملکرد کلی تماس‌ها",
+                keys: ["answered_calls", "total_talk_time", "avg_talk_time", "max_talk_time", "missed_calls", "outbound_calls", "calls_over_5_min"]
+            },
+            quality: {
+                title: "کیفیت و بازخورد",
+                keys: ["avg_rating", "ratings_count", "one_star_ratings"]
+            },
+            productivity: {
+                title: "بهره‌وری و مدیریت زمان",
+                keys: ["presence_duration", "off_queue_duration"]
+            },
+            tasks: {
+                title: "سایر وظایف",
+                keys: ["tickets_count", "fams_count", "jira_count", "no_call_reason"]
+            }
+        };
         const labels = {
-            answered_calls: "پاسخ داده شده",
-            total_talk_time: "مجموع مکالمه",
-            avg_talk_time: "میانگین مکالمه",
-            max_talk_time: "بیشترین زمان مکالمه",
-            avg_rating: "میانگین امتیاز",
-            ratings_count: "تعداد امتیاز",
-            presence_duration: "مدت حضور",
-            off_queue_duration: "مدت خروج از صف",
-            one_star_ratings: "امتیاز ۱ داده شده",
-            calls_over_5_min: "مکالمات بالای ۵ دقیقه",
-            missed_calls: "تعداد تماس بی پاسخ",
-            outbound_calls: "تعداد تماس خروجی",
-            no_call_reason: "عدم ثبت دلیل تماس",
-            tickets_count: "تعداد تیکت",
-            fams_count: "تعداد FAMS",
-            jira_count: "تعداد جیرا"
+            answered_calls: {
+                title: "پاسخ داده شده",
+                emoji: "📞"
+            },
+            total_talk_time: {
+                title: "مجموع مکالمه",
+                emoji: "⏱️"
+            },
+            avg_talk_time: {
+                title: "میانگین مکالمه",
+                emoji: "⏳"
+            },
+            max_talk_time: {
+                title: "بیشترین زمان مکالمه",
+                emoji: "⌛️"
+            },
+            avg_rating: {
+                title: "میانگین امتیاز",
+                emoji: "⭐"
+            },
+            ratings_count: {
+                title: "تعداد امتیاز",
+                emoji: "👥"
+            },
+            presence_duration: {
+                title: "مدت حضور",
+                emoji: "👤"
+            },
+            off_queue_duration: {
+                title: "مدت خروج از صف",
+                emoji: "🚶‍♂️"
+            },
+            one_star_ratings: {
+                title: "امتیاز ۱ داده شده",
+                emoji: "🌟"
+            },
+            calls_over_5_min: {
+                title: "مکالمات بالای ۵ دقیقه",
+                emoji: "⏰"
+            },
+            missed_calls: {
+                title: "تماس بی پاسخ",
+                emoji: "📵"
+            },
+            outbound_calls: {
+                title: "تماس خروجی",
+                emoji: "📲"
+            },
+            no_call_reason: {
+                title: "عدم ثبت دلیل تماس",
+                emoji: "❓"
+            },
+            tickets_count: {
+                title: "تعداد تیکت",
+                emoji: "🎟️"
+            },
+            fams_count: {
+                title: "تعداد FAMS",
+                emoji: "📄"
+            },
+            jira_count: {
+                title: "تعداد جیرا",
+                emoji: "✅"
+            }
         };
         const timeBasedMetrics = ['total_talk_time', 'avg_talk_time', 'max_talk_time', 'presence_duration', 'off_queue_duration'];
         const charts = {};
@@ -298,9 +382,7 @@ if (verify_jwt($token, JWT_SECRET)) {
         }
 
         function destroyCharts() {
-            Object.keys(charts).forEach(key => {
-                if (charts[key]) charts[key].destroy();
-            });
+            Object.values(charts).forEach(chart => chart?.destroy());
         }
 
         function formatDate(date) {
@@ -310,41 +392,51 @@ if (verify_jwt($token, JWT_SECRET)) {
         function displayDailyReport(date) {
             destroyCharts();
             const reportContent = document.getElementById('report-content');
-            const data = agentData[date];
-            if (data) {
-                let html = '<div class="report-grid">';
-                for (const key in data) {
-                    const value = data[key];
-                    const displayValue = timeBasedMetrics.includes(key) ? formatSeconds(value) : value.toLocaleString();
-                    html += `
-                        <div class="metric-card">
-                            <h3>${labels[key] || key}</h3>
-                            <p>${displayValue}</p>
-                        </div>`;
-                }
-                html += '</div>';
-                reportContent.innerHTML = html;
-            } else {
-                reportContent.innerHTML = '<div class="no-data">گزارشی برای این روز ثبت نشده است.</div>';
+            const dataForDay = agentData[date];
+            let html = '';
+            for (const group in metricsConfig) {
+                const {
+                    title,
+                    keys
+                } = metricsConfig[group];
+                html += `<div class="metric-group"><h2 class="metric-group-title">${title}</h2><div class="kpi-grid">`;
+                keys.forEach(key => {
+                    const hasValue = dataForDay && dataForDay[key] !== undefined && dataForDay[key] !== null;
+                    let displayValue, p_class = "";
+                    if (hasValue) {
+                        const value = dataForDay[key];
+                        displayValue = timeBasedMetrics.includes(key) ? formatSeconds(value) : value.toLocaleString();
+                    } else {
+                        displayValue = "(داده‌ای ثبت نشده)";
+                        p_class = "no-value-text";
+                    }
+                    html += `<div class="metric-card"><div class="emoji-container">${labels[key].emoji}</div><div class="content"><h3>${labels[key].title}</h3><p class="${p_class}">${displayValue}</p></div></div>`;
+                });
+                html += `</div></div>`;
             }
+            reportContent.innerHTML = html;
             updateActiveButton(date);
         }
 
         function displaySummaryReport() {
             destroyCharts();
             const reportContent = document.getElementById('report-content');
-            const dates = getLastNDays(7);
+            const dates = getLastNDays(7).reverse();
             const summary = {
                 answered_calls: 0,
                 total_talk_time: 0,
                 ratings_count: 0,
-                avg_rating: 0,
-                daysWithData: 0
+                total_rating_sum: 0,
+                tickets_count: 0,
+                fams_count: 0,
+                jira_count: 0
             };
             const chartData = {
                 labels: [],
                 answered: [],
-                ratings: []
+                ratings: [],
+                callsOver5Min: [],
+                avgTalkTime: []
             };
 
             dates.forEach(date => {
@@ -354,74 +446,112 @@ if (verify_jwt($token, JWT_SECRET)) {
                 }));
                 const dayData = agentData[date];
                 if (dayData) {
-                    summary.daysWithData++;
                     summary.answered_calls += dayData.answered_calls || 0;
                     summary.total_talk_time += dayData.total_talk_time || 0;
                     summary.ratings_count += dayData.ratings_count || 0;
-                    summary.avg_rating += dayData.avg_rating || 0;
+                    summary.total_rating_sum += (dayData.avg_rating || 0) * (dayData.ratings_count || 0);
+                    summary.tickets_count += dayData.tickets_count || 0;
+                    summary.fams_count += dayData.fams_count || 0;
+                    summary.jira_count += dayData.jira_count || 0;
                     chartData.answered.push(dayData.answered_calls || 0);
                     chartData.ratings.push(dayData.avg_rating || 0);
+                    chartData.callsOver5Min.push(dayData.calls_over_5_min || 0);
+                    chartData.avgTalkTime.push(dayData.avg_talk_time || 0);
                 } else {
                     chartData.answered.push(0);
                     chartData.ratings.push(0);
+                    chartData.callsOver5Min.push(0);
+                    chartData.avgTalkTime.push(0);
                 }
             });
 
-            if (summary.daysWithData > 0) {
-                summary.avg_rating = (summary.avg_rating / summary.daysWithData).toFixed(2);
-            }
+            const finalAvgRating = summary.ratings_count > 0 ? (summary.total_rating_sum / summary.ratings_count).toFixed(2) : 0;
 
             let html = `
-                <h2 class="summary-title">خلاصه عملکرد ۷ روز گذشته</h2>
-                <div class="report-grid">
-                    <div class="metric-card"><h3>مجموع تماس پاسخ داده شده</h3><p>${summary.answered_calls.toLocaleString()}</p></div>
-                    <div class="metric-card"><h3>مجموع مکالمات</h3><p>${formatSeconds(summary.total_talk_time)}</p></div>
-                    <div class="metric-card"><h3>میانگین امتیاز</h3><p>${summary.avg_rating}</p></div>
+                <div class="metric-group">
+                    <h2 class="metric-group-title">خلاصه عملکرد ۷ روز گذشته</h2>
+                    <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="metric-card"><div class="emoji-container">📞</div><div class="content"><h3>مجموع تماس پاسخ داده شده</h3><p>${summary.answered_calls.toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">⏱️</div><div class="content"><h3>مجموع مکالمات</h3><p>${formatSeconds(summary.total_talk_time)}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">⭐</div><div class="content"><h3>میانگین امتیاز کل</h3><p>${finalAvgRating}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">🎟️</div><div class="content"><h3>مجموع تیکت</h3><p>${summary.tickets_count.toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">📄</div><div class="content"><h3>مجموع FAMS</h3><p>${summary.fams_count.toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">✅</div><div class="content"><h3>مجموع جیرا</h3><p>${summary.jira_count.toLocaleString()}</p></div></div>
+                    </div>
                 </div>
-                <div class="charts-container" style="margin-top: 2.5rem;">
+                <div class="charts-container" style="grid-template-columns: repeat(2, 1fr);">
                     <div class="chart-card"><canvas id="callsChart"></canvas></div>
                     <div class="chart-card"><canvas id="ratingsChart"></canvas></div>
+                    <div class="chart-card"><canvas id="callsOver5MinChart"></canvas></div>
+                    <div class="chart-card"><canvas id="avgTalkTimeChart"></canvas></div>
                 </div>`;
             reportContent.innerHTML = html;
-            drawChart('callsChart', 'bar', chartData.labels.reverse(), [{
+
+            drawChart('callsChart', 'bar', chartData.labels, [{
                 label: 'تماس پاسخ داده شده',
-                data: chartData.answered.reverse(),
-                backgroundColor: 'rgba(0, 174, 112, 0.7)'
+                data: chartData.answered,
+                backgroundColor: 'rgba(0, 174, 112, 0.7)',
+                borderRadius: 5
             }]);
             drawChart('ratingsChart', 'line', chartData.labels, [{
-                label: 'میانگین امتیاز',
-                data: chartData.ratings.reverse(),
-                borderColor: 'rgba(0, 174, 112, 1)',
-                backgroundColor: 'rgba(0, 174, 112, 0.1)',
+                label: 'میانگین امتیاز روزانه',
+                data: chartData.ratings,
+                borderColor: 'rgba(255, 159, 64, 1)',
+                backgroundColor: 'rgba(255, 159, 64, 0.1)',
                 fill: true,
-                tension: 0.1
+                tension: 0.4
             }]);
+            drawChart('callsOver5MinChart', 'bar', chartData.labels, [{
+                label: 'مکالمات بالای ۵ دقیقه',
+                data: chartData.callsOver5Min,
+                backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                borderRadius: 5
+            }]);
+            drawChart('avgTalkTimeChart', 'line', chartData.labels, [{
+                label: 'میانگین مکالمه (ثانیه)',
+                data: chartData.avgTalkTime,
+                borderColor: 'rgba(13, 110, 253, 1)',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]);
+
             updateActiveButton('summary');
         }
 
         function drawChart(canvasId, type, labels, datasets) {
             const ctx = document.getElementById(canvasId).getContext('2d');
+            Chart.defaults.font.family = 'Vazirmatn';
             charts[canvasId] = new Chart(ctx, {
-                type,
+                type: type,
                 data: {
                     labels,
                     datasets
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             position: 'top',
                             labels: {
                                 font: {
-                                    family: 'Vazirmatn'
+                                    size: 14
                                 }
                             }
                         }
                     },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
                         }
                     }
                 }
@@ -440,12 +570,13 @@ if (verify_jwt($token, JWT_SECRET)) {
 
         function createNavButtons() {
             const nav = document.getElementById('date-nav');
-            let buttonsHtml = '<button id="btn-summary">خلاصه ۷ روز گذشته</button>';
+            let buttonsHtml = '<button id="btn-summary">خلاصه ۷ روز</button>';
             const dates = getLastNDays(7);
             dates.forEach(date => {
                 const dateFa = new Date(date).toLocaleDateString('fa-IR', {
                     weekday: 'long',
-                    day: 'numeric'
+                    day: 'numeric',
+                    month: 'long'
                 });
                 buttonsHtml += `<button id="btn-${date}" data-date="${date}">${dateFa}</button>`;
             });

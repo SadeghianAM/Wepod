@@ -1,22 +1,897 @@
 {
+  "103": {
+    "2025-08-19": {
+      "answered_calls": 40,
+      "total_talk_time": 7237,
+      "avg_talk_time": 181,
+      "max_talk_time": 591,
+      "avg_rating": 5,
+      "ratings_count": 9,
+      "presence_duration": 7778,
+      "off_queue_duration": 555,
+      "calls_over_5_min": 6,
+      "outbound_calls": 2,
+      "tickets_count": 1
+    }
+  },
+  "116": {
+    "2025-08-19": {
+      "answered_calls": 4,
+      "total_talk_time": 447,
+      "avg_talk_time": 112,
+      "max_talk_time": 178,
+      "avg_rating": 5,
+      "ratings_count": 1,
+      "presence_duration": 504,
+      "missed_calls": 7,
+      "no_call_reason": 1,
+      "tickets_count": 1
+    }
+  },
+  "124": {
+    "2025-08-19": {
+      "answered_calls": 12,
+      "total_talk_time": 2071,
+      "avg_talk_time": 173,
+      "max_talk_time": 417,
+      "avg_rating": 5,
+      "ratings_count": 2,
+      "presence_duration": 2416,
+      "off_queue_duration": 440,
+      "calls_over_5_min": 1,
+      "outbound_calls": 3,
+      "tickets_count": 183
+    }
+  },
+  "125": {
+    "2025-08-19": {
+      "answered_calls": 91,
+      "total_talk_time": 14488,
+      "avg_talk_time": 159,
+      "max_talk_time": 410,
+      "avg_rating": 5,
+      "ratings_count": 15,
+      "presence_duration": 16009,
+      "off_queue_duration": 2160,
+      "calls_over_5_min": 4,
+      "missed_calls": 1,
+      "outbound_calls": 6,
+      "no_call_reason": 9,
+      "tickets_count": 210
+    }
+  },
+  "128": {
+    "2025-08-19": {
+      "answered_calls": 84,
+      "total_talk_time": 15343,
+      "avg_talk_time": 183,
+      "max_talk_time": 525,
+      "avg_rating": 4,
+      "ratings_count": 14,
+      "presence_duration": 15921,
+      "off_queue_duration": 2119,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 7,
+      "outbound_calls": 4,
+      "tickets_count": 213
+    }
+  },
+  "142": {
+    "2025-08-19": {
+      "answered_calls": 166,
+      "total_talk_time": 24801,
+      "avg_talk_time": 149,
+      "max_talk_time": 406,
+      "avg_rating": 5,
+      "ratings_count": 26,
+      "presence_duration": 28566,
+      "off_queue_duration": 3950,
+      "calls_over_5_min": 5,
+      "no_call_reason": 2,
+      "tickets_count": 47
+    }
+  },
+  "143": {
+    "2025-08-19": {
+      "answered_calls": 15,
+      "total_talk_time": 2517,
+      "avg_talk_time": 168,
+      "max_talk_time": 355,
+      "avg_rating": 5,
+      "ratings_count": 4,
+      "presence_duration": 2415,
+      "off_queue_duration": 1822,
+      "calls_over_5_min": 1,
+      "outbound_calls": 2,
+      "tickets_count": 205
+    }
+  },
+  "144": {
+    "2025-08-19": {
+      "answered_calls": 62,
+      "total_talk_time": 9526,
+      "avg_talk_time": 154,
+      "max_talk_time": 387,
+      "avg_rating": 4,
+      "ratings_count": 10,
+      "presence_duration": 10421,
+      "off_queue_duration": 1062,
+      "one_star_ratings": 2,
+      "calls_over_5_min": 3,
+      "no_call_reason": 1,
+      "tickets_count": 120
+    }
+  },
+  "146": {
+    "2025-08-19": {
+      "answered_calls": 24,
+      "total_talk_time": 3149,
+      "avg_talk_time": 131,
+      "max_talk_time": 281,
+      "avg_rating": 4,
+      "ratings_count": 6,
+      "presence_duration": 3808,
+      "off_queue_duration": 1777,
+      "one_star_ratings": 2,
+      "outbound_calls": 7,
+      "tickets_count": 232
+    }
+  },
+  "149": {
+    "2025-08-19": {
+      "answered_calls": 28,
+      "total_talk_time": 4100,
+      "avg_talk_time": 146,
+      "max_talk_time": 288,
+      "avg_rating": 5,
+      "ratings_count": 1,
+      "presence_duration": 4338,
+      "off_queue_duration": 19533,
+      "outbound_calls": 2,
+      "no_call_reason": 1,
+      "tickets_count": 144
+    }
+  },
+  "151": {
+    "2025-08-19": {
+      "answered_calls": 136,
+      "total_talk_time": 25746,
+      "avg_talk_time": 189,
+      "max_talk_time": 531,
+      "avg_rating": 5,
+      "ratings_count": 19,
+      "presence_duration": 28014,
+      "off_queue_duration": 3645,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 13,
+      "missed_calls": 2,
+      "no_call_reason": 2,
+      "tickets_count": 67
+    }
+  },
+  "153": {
+    "2025-08-19": {
+      "answered_calls": 99,
+      "total_talk_time": 16253,
+      "avg_talk_time": 164,
+      "max_talk_time": 390,
+      "avg_rating": 3,
+      "ratings_count": 8,
+      "presence_duration": 17671,
+      "off_queue_duration": 3064,
+      "one_star_ratings": 3,
+      "calls_over_5_min": 4,
+      "no_call_reason": 1,
+      "tickets_count": 22
+    }
+  },
+  "155": {
+    "2025-08-19": {
+      "answered_calls": 138,
+      "total_talk_time": 21517,
+      "avg_talk_time": 156,
+      "max_talk_time": 402,
+      "avg_rating": 5,
+      "ratings_count": 17,
+      "presence_duration": 24709,
+      "off_queue_duration": 3455,
+      "calls_over_5_min": 6,
+      "missed_calls": 1,
+      "no_call_reason": 1,
+      "tickets_count": 124
+    }
+  },
+  "156": {
+    "2025-08-19": {
+      "answered_calls": 37,
+      "total_talk_time": 6539,
+      "avg_talk_time": 177,
+      "max_talk_time": 295,
+      "avg_rating": 5,
+      "ratings_count": 7,
+      "presence_duration": 7155,
+      "off_queue_duration": 1964,
+      "tickets_count": 202
+    }
+  },
+  "160": {
+    "2025-08-19": {
+      "answered_calls": 3,
+      "total_talk_time": 497,
+      "avg_talk_time": 166,
+      "max_talk_time": 264,
+      "avg_rating": 5,
+      "ratings_count": 1,
+      "presence_duration": 530,
+      "tickets_count": 17
+    }
+  },
+  "161": {
+    "2025-08-19": {
+      "answered_calls": 126,
+      "total_talk_time": 16703,
+      "avg_talk_time": 133,
+      "max_talk_time": 486,
+      "avg_rating": 5,
+      "ratings_count": 20,
+      "presence_duration": 23065,
+      "off_queue_duration": 1987,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 4,
+      "missed_calls": 1,
+      "no_call_reason": 6,
+      "tickets_count": 290
+    }
+  },
+  "162": {
+    "2025-08-19": {
+      "answered_calls": 21,
+      "total_talk_time": 2983,
+      "avg_talk_time": 142,
+      "max_talk_time": 327,
+      "avg_rating": 5,
+      "ratings_count": 5,
+      "presence_duration": 3390,
+      "calls_over_5_min": 1,
+      "tickets_count": 43
+    }
+  },
+  "163": {
+    "2025-08-19": {
+      "answered_calls": 84,
+      "total_talk_time": 14317,
+      "avg_talk_time": 170,
+      "max_talk_time": 481,
+      "avg_rating": 5,
+      "ratings_count": 1,
+      "presence_duration": 15940,
+      "off_queue_duration": 2885,
+      "calls_over_5_min": 10,
+      "no_call_reason": 1,
+      "tickets_count": 171
+    }
+  },
   "164": {
     "2025-08-19": {
-      "answered_calls": 115,
-      "total_talk_time": "2:30:45",
-      "avg_talk_time": "0:01:18",
-      "max_talk_time": "0:05:22",
-      "avg_rating": 4.6,
-      "ratings_count": 40,
-      "presence_duration": "8:05:10",
-      "off_queue_duration": "0:45:20",
+      "answered_calls": 71,
+      "total_talk_time": 10625,
+      "avg_talk_time": 150,
+      "max_talk_time": 440,
+      "avg_rating": 4,
+      "ratings_count": 10,
+      "presence_duration": 11697,
+      "off_queue_duration": 591,
+      "calls_over_5_min": 5,
+      "missed_calls": 1,
+      "outbound_calls": 1,
+      "no_call_reason": 7,
+      "tickets_count": 15
+    }
+  },
+  "165": {
+    "2025-08-19": {
+      "answered_calls": 187,
+      "total_talk_time": 24346,
+      "avg_talk_time": 130,
+      "max_talk_time": 376,
+      "avg_rating": 5,
+      "ratings_count": 34,
+      "presence_duration": 27210,
+      "off_queue_duration": 3444,
       "one_star_ratings": 2,
+      "calls_over_5_min": 2,
+      "missed_calls": 2,
+      "no_call_reason": 9,
+      "tickets_count": 187
+    }
+  },
+  "166": {
+    "2025-08-19": {
+      "answered_calls": 139,
+      "total_talk_time": 25442,
+      "avg_talk_time": 183,
+      "max_talk_time": 885,
+      "avg_rating": 5,
+      "ratings_count": 17,
+      "presence_duration": 27890,
+      "off_queue_duration": 4112,
+      "calls_over_5_min": 18,
+      "missed_calls": 3,
+      "no_call_reason": 5,
+      "tickets_count": 51
+    }
+  },
+  "167": {
+    "2025-08-19": {
+      "answered_calls": 56,
+      "total_talk_time": 8139,
+      "avg_talk_time": 145,
+      "max_talk_time": 294,
+      "avg_rating": 4,
+      "ratings_count": 6,
+      "presence_duration": 9337,
+      "off_queue_duration": 2311,
+      "one_star_ratings": 2,
+      "outbound_calls": 3,
+      "tickets_count": 223
+    }
+  },
+  "168": {
+    "2025-08-19": {
+      "answered_calls": 125,
+      "total_talk_time": 26467,
+      "avg_talk_time": 212,
+      "max_talk_time": 527,
+      "avg_rating": 5,
+      "ratings_count": 23,
+      "presence_duration": 28134,
+      "off_queue_duration": 4042,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 17,
+      "no_call_reason": 5,
+      "tickets_count": 50
+    }
+  },
+  "169": {
+    "2025-08-19": {
+      "answered_calls": 52,
+      "total_talk_time": 13932,
+      "avg_talk_time": 268,
+      "max_talk_time": 542,
+      "avg_rating": 5,
+      "ratings_count": 12,
+      "presence_duration": 14592,
+      "off_queue_duration": 5266,
+      "calls_over_5_min": 18,
+      "missed_calls": 1,
+      "no_call_reason": 1,
+      "tickets_count": 23
+    }
+  },
+  "171": {
+    "2025-08-19": {
+      "answered_calls": 130,
+      "total_talk_time": 19855,
+      "avg_talk_time": 153,
+      "max_talk_time": 426,
+      "avg_rating": 5,
+      "ratings_count": 7,
+      "presence_duration": 20171,
+      "off_queue_duration": 2829,
       "calls_over_5_min": 7,
-      "missed_calls": 5,
-      "outbound_calls": 12,
+      "no_call_reason": 2,
+      "tickets_count": 86
+    }
+  },
+  "172": {
+    "2025-08-19": {
+      "answered_calls": 153,
+      "total_talk_time": 25871,
+      "avg_talk_time": 169,
+      "max_talk_time": 387,
+      "avg_rating": 5,
+      "ratings_count": 29,
+      "presence_duration": 28319,
+      "off_queue_duration": 3964,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 7,
+      "missed_calls": 1,
       "no_call_reason": 3,
-      "tickets_count": 22,
-      "fams_count": 8,
-      "jira_count": 4
+      "tickets_count": 153
+    }
+  },
+  "174": {
+    "2025-08-19": {
+      "answered_calls": 164,
+      "total_talk_time": 26013,
+      "avg_talk_time": 159,
+      "max_talk_time": 488,
+      "avg_rating": 5,
+      "ratings_count": 31,
+      "presence_duration": 28219,
+      "off_queue_duration": 4896,
+      "one_star_ratings": 3,
+      "calls_over_5_min": 8,
+      "missed_calls": 1,
+      "tickets_count": 92
+    }
+  },
+  "175": {
+    "2025-08-19": {
+      "answered_calls": 164,
+      "total_talk_time": 26821,
+      "avg_talk_time": 164,
+      "max_talk_time": 415,
+      "avg_rating": 5,
+      "ratings_count": 31,
+      "presence_duration": 28900,
+      "off_queue_duration": 4005,
+      "calls_over_5_min": 7,
+      "no_call_reason": 3,
+      "tickets_count": 125
+    }
+  },
+  "176": {
+    "2025-08-19": {
+      "answered_calls": 163,
+      "total_talk_time": 26512,
+      "avg_talk_time": 163,
+      "max_talk_time": 591,
+      "avg_rating": 5,
+      "ratings_count": 13,
+      "presence_duration": 28540,
+      "off_queue_duration": 4179,
+      "calls_over_5_min": 11,
+      "no_call_reason": 3,
+      "tickets_count": 97
+    }
+  },
+  "177": {
+    "2025-08-19": {
+      "answered_calls": 11,
+      "total_talk_time": 1739,
+      "avg_talk_time": 158,
+      "max_talk_time": 266,
+      "avg_rating": 5,
+      "ratings_count": 1,
+      "presence_duration": 2244,
+      "tickets_count": 43
+    }
+  },
+  "178": {
+    "2025-08-19": {
+      "answered_calls": 123,
+      "total_talk_time": 25500,
+      "avg_talk_time": 207,
+      "max_talk_time": 818,
+      "avg_rating": 4,
+      "ratings_count": 13,
+      "presence_duration": 29114,
+      "off_queue_duration": 3538,
+      "calls_over_5_min": 18,
+      "no_call_reason": 7,
+      "tickets_count": 126
+    }
+  },
+  "179": {
+    "2025-08-19": {
+      "answered_calls": 113,
+      "total_talk_time": 23001,
+      "avg_talk_time": 204,
+      "max_talk_time": 888,
+      "avg_rating": 5,
+      "ratings_count": 7,
+      "presence_duration": 20407,
+      "off_queue_duration": 3029,
+      "calls_over_5_min": 18,
+      "missed_calls": 2,
+      "no_call_reason": 3,
+      "tickets_count": 110
+    }
+  },
+  "181": {
+    "2025-08-19": {
+      "answered_calls": 156,
+      "total_talk_time": 19335,
+      "avg_talk_time": 124,
+      "max_talk_time": 364,
+      "avg_rating": 5,
+      "ratings_count": 36,
+      "presence_duration": 26137,
+      "off_queue_duration": 2117,
+      "one_star_ratings": 3,
+      "calls_over_5_min": 5,
+      "no_call_reason": 5,
+      "tickets_count": 176
+    }
+  },
+  "182": {
+    "2025-08-19": {
+      "answered_calls": 156,
+      "total_talk_time": 27526,
+      "avg_talk_time": 176,
+      "max_talk_time": 581,
+      "avg_rating": 5,
+      "ratings_count": 35,
+      "presence_duration": 30028,
+      "off_queue_duration": 3080,
+      "calls_over_5_min": 18,
+      "missed_calls": 6,
+      "no_call_reason": 4,
+      "tickets_count": 100
+    }
+  },
+  "185": {
+    "2025-08-19": {
+      "answered_calls": 106,
+      "total_talk_time": 20821,
+      "avg_talk_time": 196,
+      "max_talk_time": 626,
+      "avg_rating": 5,
+      "ratings_count": 31,
+      "presence_duration": 17901,
+      "off_queue_duration": 2702,
+      "calls_over_5_min": 12,
+      "tickets_count": 170
+    }
+  },
+  "186": {
+    "2025-08-19": {
+      "answered_calls": 147,
+      "total_talk_time": 25822,
+      "avg_talk_time": 176,
+      "max_talk_time": 400,
+      "avg_rating": 5,
+      "ratings_count": 17,
+      "presence_duration": 18461,
+      "off_queue_duration": 3136,
+      "one_star_ratings": 2,
+      "calls_over_5_min": 16,
+      "missed_calls": 2,
+      "outbound_calls": 1,
+      "no_call_reason": 3,
+      "tickets_count": 95
+    }
+  },
+  "187": {
+    "2025-08-19": {
+      "answered_calls": 68,
+      "total_talk_time": 9573,
+      "avg_talk_time": 141,
+      "max_talk_time": 274,
+      "avg_rating": 5,
+      "ratings_count": 12,
+      "presence_duration": 10861,
+      "off_queue_duration": 2338,
+      "missed_calls": 1,
+      "no_call_reason": 2,
+      "tickets_count": 163
+    }
+  },
+  "188": {
+    "2025-08-19": {
+      "answered_calls": 137,
+      "total_talk_time": 24236,
+      "avg_talk_time": 177,
+      "max_talk_time": 531,
+      "avg_rating": 5,
+      "ratings_count": 17,
+      "presence_duration": 26525,
+      "off_queue_duration": 4411,
+      "calls_over_5_min": 14,
+      "missed_calls": 2,
+      "no_call_reason": 10,
+      "tickets_count": 76
+    }
+  },
+  "189": {
+    "2025-08-19": {
+      "answered_calls": 128,
+      "total_talk_time": 18470,
+      "avg_talk_time": 144,
+      "max_talk_time": 421,
+      "avg_rating": 5,
+      "ratings_count": 23,
+      "presence_duration": 20563,
+      "off_queue_duration": 2403,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 5,
+      "tickets_count": 166
+    }
+  },
+  "190": {
+    "2025-08-19": {
+      "answered_calls": 111,
+      "total_talk_time": 26228,
+      "avg_talk_time": 236,
+      "max_talk_time": 519,
+      "avg_rating": 5,
+      "ratings_count": 20,
+      "presence_duration": 27588,
+      "off_queue_duration": 4888,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 29,
+      "tickets_count": 62
+    }
+  },
+  "191": {
+    "2025-08-19": {
+      "answered_calls": 103,
+      "total_talk_time": 16920,
+      "avg_talk_time": 164,
+      "max_talk_time": 437,
+      "avg_rating": 5,
+      "ratings_count": 3,
+      "presence_duration": 18141,
+      "off_queue_duration": 2730,
+      "calls_over_5_min": 7,
+      "no_call_reason": 6,
+      "tickets_count": 280
+    }
+  },
+  "193": {
+    "2025-08-19": {
+      "answered_calls": 143,
+      "total_talk_time": 27299,
+      "avg_talk_time": 191,
+      "max_talk_time": 343,
+      "avg_rating": 5,
+      "ratings_count": 26,
+      "presence_duration": 22622,
+      "off_queue_duration": 2969,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 5,
+      "no_call_reason": 14,
+      "tickets_count": 71
+    }
+  },
+  "194": {
+    "2025-08-19": {
+      "answered_calls": 26,
+      "total_talk_time": 4541,
+      "avg_talk_time": 175,
+      "max_talk_time": 607,
+      "avg_rating": 5,
+      "ratings_count": 3,
+      "calls_over_5_min": 4,
+      "tickets_count": 60
+    }
+  },
+  "197": {
+    "2025-08-19": {
+      "answered_calls": 184,
+      "total_talk_time": 29057,
+      "avg_talk_time": 158,
+      "max_talk_time": 506,
+      "avg_rating": 5,
+      "ratings_count": 28,
+      "presence_duration": 31526,
+      "off_queue_duration": 3988,
+      "calls_over_5_min": 9,
+      "no_call_reason": 8,
+      "tickets_count": 211
+    }
+  },
+  "198": {
+    "2025-08-19": {
+      "answered_calls": 163,
+      "total_talk_time": 27336,
+      "avg_talk_time": 168,
+      "max_talk_time": 669,
+      "avg_rating": 3.67,
+      "ratings_count": 6,
+      "presence_duration": 29947,
+      "off_queue_duration": 3118,
+      "one_star_ratings": 2,
+      "calls_over_5_min": 15,
+      "missed_calls": 1,
+      "no_call_reason": 2,
+      "tickets_count": 82
+    }
+  },
+  "199": {
+    "2025-08-19": {
+      "answered_calls": 169,
+      "total_talk_time": 25448,
+      "avg_talk_time": 151,
+      "max_talk_time": 379,
+      "avg_rating": 4.33,
+      "ratings_count": 18,
+      "presence_duration": 28018,
+      "off_queue_duration": 3607,
+      "one_star_ratings": 2,
+      "calls_over_5_min": 5,
+      "missed_calls": 3,
+      "tickets_count": 154
+    }
+  },
+  "201": {
+    "2025-08-19": {
+      "answered_calls": 155,
+      "total_talk_time": 25277,
+      "avg_talk_time": 163,
+      "max_talk_time": 497,
+      "avg_rating": 4.91,
+      "ratings_count": 23,
+      "presence_duration": 24033,
+      "off_queue_duration": 2324,
+      "calls_over_5_min": 10,
+      "tickets_count": 266
+    }
+  },
+  "202": {
+    "2025-08-19": {
+      "answered_calls": 140,
+      "total_talk_time": 26427,
+      "avg_talk_time": 189,
+      "max_talk_time": 709,
+      "avg_rating": 4.38,
+      "ratings_count": 13,
+      "presence_duration": 27680,
+      "off_queue_duration": 3444,
+      "one_star_ratings": 2,
+      "calls_over_5_min": 15,
+      "tickets_count": 86
+    }
+  },
+  "203": {
+    "2025-08-19": {
+      "answered_calls": 63,
+      "total_talk_time": 10392,
+      "avg_talk_time": 165,
+      "max_talk_time": 433,
+      "avg_rating": 5,
+      "ratings_count": 17,
+      "presence_duration": 11475,
+      "off_queue_duration": 2005,
+      "calls_over_5_min": 3,
+      "tickets_count": 371
+    }
+  },
+  "204": {
+    "2025-08-19": {
+      "answered_calls": 146,
+      "total_talk_time": 25709,
+      "avg_talk_time": 176,
+      "max_talk_time": 626,
+      "avg_rating": 4.83,
+      "ratings_count": 12,
+      "presence_duration": 27848,
+      "off_queue_duration": 3875,
+      "calls_over_5_min": 11,
+      "no_call_reason": 2,
+      "tickets_count": 154
+    }
+  },
+  "205": {
+    "2025-08-19": {
+      "answered_calls": 127,
+      "total_talk_time": 27112,
+      "avg_talk_time": 213,
+      "max_talk_time": 737,
+      "avg_rating": 4.91,
+      "ratings_count": 23,
+      "presence_duration": 28948,
+      "off_queue_duration": 3570,
+      "calls_over_5_min": 13,
+      "no_call_reason": 2,
+      "tickets_count": 114
+    }
+  },
+  "206": {
+    "2025-08-19": {
+      "answered_calls": 128,
+      "total_talk_time": 27289,
+      "avg_talk_time": 213,
+      "max_talk_time": 562,
+      "avg_rating": 4.5,
+      "ratings_count": 20,
+      "presence_duration": 20061,
+      "off_queue_duration": 3228,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 19,
+      "no_call_reason": 4,
+      "tickets_count": 122
+    }
+  },
+  "207": {
+    "2025-08-19": {
+      "answered_calls": 118,
+      "total_talk_time": 22871,
+      "avg_talk_time": 194,
+      "max_talk_time": 684,
+      "avg_rating": 4.68,
+      "ratings_count": 25,
+      "presence_duration": 24239,
+      "off_queue_duration": 3151,
+      "one_star_ratings": 2,
+      "calls_over_5_min": 17,
+      "no_call_reason": 2
+    }
+  },
+  "210": {
+    "2025-08-19": {
+      "answered_calls": 145,
+      "total_talk_time": 24345,
+      "avg_talk_time": 168,
+      "max_talk_time": 498,
+      "avg_rating": 4.59,
+      "ratings_count": 22,
+      "presence_duration": 25095,
+      "off_queue_duration": 2850,
+      "one_star_ratings": 2,
+      "calls_over_5_min": 15,
+      "missed_calls": 16,
+      "no_call_reason": 15,
+      "tickets_count": 94
+    }
+  },
+  "211": {
+    "2025-08-19": {
+      "answered_calls": 94,
+      "total_talk_time": 22284,
+      "avg_talk_time": 237,
+      "max_talk_time": 754,
+      "avg_rating": 4.56,
+      "ratings_count": 9,
+      "presence_duration": 23633,
+      "off_queue_duration": 3630,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 27
+    }
+  },
+  "212": {
+    "2025-08-19": {
+      "answered_calls": 140,
+      "total_talk_time": 21629,
+      "avg_talk_time": 154,
+      "max_talk_time": 637,
+      "avg_rating": 4.44,
+      "ratings_count": 9,
+      "presence_duration": 23593,
+      "off_queue_duration": 3599,
+      "one_star_ratings": 1,
+      "calls_over_5_min": 8,
+      "missed_calls": 2,
+      "no_call_reason": 23
+    }
+  },
+  "213": {
+    "2025-08-19": {
+      "answered_calls": 131,
+      "total_talk_time": 24258,
+      "avg_talk_time": 185,
+      "max_talk_time": 892,
+      "avg_rating": 5,
+      "ratings_count": 19,
+      "presence_duration": 26028,
+      "off_queue_duration": 3908,
+      "calls_over_5_min": 16,
+      "missed_calls": 1,
+      "no_call_reason": 2
+    }
+  },
+  "134": {
+    "2025-08-19": {
+      "outbound_calls": 17,
+      "tickets_count": 7
+    }
+  },
+  "113": {
+    "2025-08-19": {
+      "outbound_calls": 1,
+      "tickets_count": 24
+    }
+  },
+  "117": {
+    "2025-08-19": {
+      "outbound_calls": 16,
+      "tickets_count": 85
+    }
+  },
+  "105": {
+    "2025-08-19": {
+      "tickets_count": 50
     }
   }
 }
