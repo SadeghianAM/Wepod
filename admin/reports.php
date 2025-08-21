@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth('admin', '/auth/login.html');
+
+// Load existing report data to populate the management section
+$jsonFile = __DIR__ . '/../data/reports.json';
+$existingData = file_exists($jsonFile) ? json_decode(file_get_contents($jsonFile), true) : [];
+if (!is_array($existingData)) $existingData = [];
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -8,7 +13,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>به‌روزرسانی گزارش‌ها</title>
+    <title>مدیریت و به‌روزرسانی گزارش‌ها</title>
     <style>
         :root {
             --primary-color: #00ae70;
@@ -16,6 +21,10 @@ $claims = requireAuth('admin', '/auth/login.html');
             --primary-light: #e6f7f2;
             --danger-color: #dc3545;
             --danger-dark: #c82333;
+            --danger-light: #f8d7da;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+            --info-light: #cff4fc;
             --bg-color: #f8fcf9;
             --text-color: #222;
             --secondary-text-color: #555;
@@ -57,7 +66,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             transition: all 0.2s ease-in-out;
         }
 
-        /* --- New Header and Footer Styles --- */
         header,
         footer {
             background: var(--primary-color);
@@ -88,8 +96,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             margin-top: auto;
         }
 
-        /* --- End of New Styles --- */
-
 
         main {
             padding: 1.5rem;
@@ -99,7 +105,8 @@ $claims = requireAuth('admin', '/auth/login.html');
             flex-grow: 1;
         }
 
-        .form-container {
+        .form-container,
+        .management-container {
             background-color: var(--card-bg);
             border-radius: var(--border-radius);
             padding: 2rem;
@@ -107,12 +114,22 @@ $claims = requireAuth('admin', '/auth/login.html');
             border-top: 4px solid var(--primary-color);
         }
 
-        h1 {
+        .management-container {
+            margin-top: 2rem;
+            border-top-color: #4a90e2;
+        }
+
+        h1,
+        h2 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
             color: var(--primary-color);
             text-align: center;
             font-weight: 700;
+        }
+
+        .management-container h2 {
+            color: #4a90e2;
         }
 
         .description {
@@ -123,6 +140,17 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         .form-group {
             margin-bottom: 1.5rem;
+        }
+
+        .flex-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .flex-group .form-group {
+            flex-grow: 1;
+            margin-bottom: 0;
         }
 
         label {
@@ -173,8 +201,25 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
 
         button:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
+            transform: none !important;
+        }
+
+        button.btn-secondary {
+            background-color: #6c757d;
+        }
+
+        button.btn-secondary:hover:not(:disabled) {
+            background-color: #5a6268;
+        }
+
+        button.btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        button.btn-danger:hover:not(:disabled) {
+            background-color: var(--danger-dark);
         }
 
         button[type="submit"] {
@@ -208,7 +253,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             border: 1px solid #ff0040;
         }
 
-        /* --- NEW: Styles for instructions box --- */
         .instructions-box {
             background-color: #f0f7ff;
             border: 1px solid #cce2ff;
@@ -236,7 +280,133 @@ $claims = requireAuth('admin', '/auth/login.html');
             margin-top: 8px;
         }
 
-        /* --- End of NEW Styles --- */
+        /* --- Modal Styles --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 1000px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            margin-bottom: 0;
+        }
+
+        .close-button {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+        }
+
+        #preview-summary {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+
+        #preview-summary.valid {
+            background-color: var(--primary-light);
+        }
+
+        #preview-summary.invalid {
+            background-color: var(--danger-light);
+        }
+
+        .preview-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            text-align: left;
+            direction: ltr;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+
+        tr.valid-row {
+            background-color: #e6f7f2;
+        }
+
+        tr.invalid-row {
+            background-color: #f8d7da;
+        }
+
+        tr.invalid-row td:last-child {
+            color: var(--danger-dark);
+            font-weight: 500;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        #view-data-pre {
+            background-color: #2d2d2d;
+            color: #f1f1f1;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            max-height: 300px;
+            overflow: auto;
+            direction: ltr;
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-top: 1rem;
+            display: none;
+        }
     </style>
 </head>
 
@@ -276,47 +446,167 @@ $claims = requireAuth('admin', '/auth/login.html');
                     <label for="excel_data">محتوای گزارش:</label>
                     <textarea id="excel_data" name="excel_data" required placeholder="داده‌های کپی شده از اکسل را اینجا جای‌گذاری کنید..."></textarea>
                 </div>
-                <button type="submit">ذخیره تغییرات</button>
+                <div class="flex-group">
+                    <button type="button" id="previewBtn">پیش‌نمایش و اعتبارسنجی</button>
+                    <button type="submit" id="submitBtn" disabled>ذخیره تغییرات</button>
+                </div>
             </form>
             <div id="response" class="response-message"></div>
         </div>
+
+        <div class="management-container">
+            <h2>مدیریت داده‌های موجود</h2>
+            <div class="flex-group">
+                <div class="form-group">
+                    <label for="agent_select">انتخاب کارشناس:</label>
+                    <select id="agent_select">
+                        <option value="">ابتدا یک کارشناس انتخاب کنید</option>
+                        <?php
+                        $agentIds = array_keys($existingData);
+                        sort($agentIds, SORT_NUMERIC);
+                        foreach ($agentIds as $agentId) {
+                            echo "<option value='{$agentId}'>{$agentId}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="date_select">انتخاب تاریخ:</label>
+                    <select id="date_select" disabled>
+                        <option value="">ابتدا کارشناس را انتخاب کنید</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex-group" style="margin-top: 1rem;">
+                <button type="button" id="viewDataBtn" class="btn-secondary" disabled>نمایش داده</button>
+                <button type="button" id="deleteDataBtn" class="btn-danger" disabled>حذف رکورد روزانه</button>
+            </div>
+            <pre id="view-data-pre"></pre>
+        </div>
     </main>
+
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>پیش‌نمایش داده‌ها</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div id="preview-summary"></div>
+            <div class="preview-table-container">
+                <table id="preview-table">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
     <div id="footer-placeholder"></div>
 
     <script src="/js/header.js"></script>
     <script>
+        const existingData = <?php echo json_encode($existingData); ?>;
+
+        // Form Elements
         const reportTypeSelect = document.getElementById("report_type");
         const datePickerGroup = document.getElementById("date-picker-group");
         const datePickerInput = document.getElementById("report_date");
-        // NEW: Reference to the instructions box
         const instructionsBox = document.getElementById("report-instructions");
+        const excelDataTextarea = document.getElementById("excel_data");
+        const reportForm = document.getElementById("reportForm");
+        const responseDiv = document.getElementById("response");
+        const submitButton = document.getElementById("submitBtn");
 
-        // NEW: Object to hold instruction texts
+        // Preview Elements
+        const previewButton = document.getElementById("previewBtn");
+        const previewModal = document.getElementById("previewModal");
+        const closeModal = document.querySelector(".close-button");
+        const previewSummaryDiv = document.getElementById("preview-summary");
+        const previewTableBody = document.querySelector("#preview-table tbody");
+        const previewTableHeader = document.querySelector("#preview-table thead");
+
+        // Management Elements
+        const agentSelect = document.getElementById('agent_select');
+        const dateSelect = document.getElementById('date_select');
+        const viewDataBtn = document.getElementById('viewDataBtn');
+        const deleteDataBtn = document.getElementById('deleteDataBtn');
+        const viewDataPre = document.getElementById('view-data-pre');
+
         const instructions = {
-            call_metrics: `<strong>شیت:</strong> ورودی<br>
-                           <strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - پاسخ داده شده - مجموع مکالمه - میانگین مکالمه - بیشترین زمان مکالمه - میانگین امتیاز - تعداد امتیاز<br>
-                           <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
-            presence_duration: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - مدت حضور<br>
-                                <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
-            off_queue_duration: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - مدت خروج از صف<br>
-                                 <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
-            one_star_ratings: `<strong>ستون‌ها:</strong> تاریخ تماس - وضعیت - تعداد<br>
-                               <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
-            calls_over_5_min: `<strong>ستون‌ها:</strong> تاریخ تماس - کد اپراتور - نام اپراتور<br>
-                               <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
-            missed_calls: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ<br>
-                           <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
-            outbound_calls: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ<br>
-                             <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
-            no_call_reason: `<strong>ستون‌ها:</strong> تاریخ تماس - کاربر<br>
-                             <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
-            tickets_count: `<strong>ستون‌ها:</strong> اقدام کننده عملیات - COUNTA of اقدام کننده عملیات`
+            call_metrics: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - پاسخ داده شده - مجموع مکالمه - میانگین مکالمه - بیشترین زمان مکالمه - میانگین امتیاز - تعداد امتیاز`,
+            presence_duration: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - مدت حضور`,
+            off_queue_duration: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - مدت خروج از صف`,
+            one_star_ratings: `<strong>ستون‌ها:</strong> تاریخ تماس - کد اپراتور - نام اپراتور`,
+            calls_over_5_min: `<strong>ستون‌ها:</strong> تاریخ تماس - کد اپراتور - نام اپراتور`,
+            missed_calls: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ`,
+            outbound_calls: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ`,
+            no_call_reason: `<strong>ستون‌ها:</strong> تاریخ تماس - کاربر`,
+            tickets_count: `<strong>ستون‌ها:</strong> اقدام کننده عملیات - تعداد تیکت`
         };
 
-        reportTypeSelect.addEventListener("change", function() {
-            const selectedValue = this.value;
+        const validators = {
+            _isNumeric: (val) => val && /^\d+$/.test(val.trim()),
+            _isShamsiDate: (val) => val && /^\d{4}\/\d{2}\/\d{2}$/.test(val.trim()),
 
-            // Handle date picker visibility (existing logic)
+            call_metrics: {
+                minCols: 9,
+                validate: (cols) => validators._isNumeric(cols[0]) && validators._isShamsiDate(cols[2])
+            },
+            presence_duration: {
+                minCols: 4,
+                validate: (cols) => validators._isNumeric(cols[0]) && validators._isShamsiDate(cols[2])
+            },
+            off_queue_duration: {
+                minCols: 4,
+                validate: (cols) => validators._isNumeric(cols[0]) && validators._isShamsiDate(cols[2])
+            },
+            one_star_ratings: {
+                minCols: 3,
+                config: {
+                    id_col: 1,
+                    date_col: 0
+                },
+                validate: (cols, config) => validators._isNumeric(cols[config.id_col]) && validators._isShamsiDate(cols[config.date_col])
+            },
+            calls_over_5_min: {
+                minCols: 3,
+                config: {
+                    id_col: 1,
+                    date_col: 0
+                },
+                validate: (cols, config) => validators._isNumeric(cols[config.id_col]) && validators._isShamsiDate(cols[config.date_col])
+            },
+            missed_calls: {
+                minCols: 3,
+                config: {
+                    id_col: 0,
+                    date_col: 2
+                },
+                validate: (cols, config) => validators._isNumeric(cols[config.id_col]) && validators._isShamsiDate(cols[config.date_col])
+            },
+            outbound_calls: {
+                minCols: 3,
+                config: {
+                    id_col: 0,
+                    date_col: 2
+                },
+                validate: (cols, config) => validators._isNumeric(cols[config.id_col]) && validators._isShamsiDate(cols[config.date_col])
+            },
+            no_call_reason: {
+                minCols: 2,
+                validate: (cols) => validators._isShamsiDate(cols[0])
+            },
+            tickets_count: {
+                minCols: 2,
+                validate: (cols) => cols[0].trim().length > 0 && validators._isNumeric(cols[1])
+            }
+        };
+
+        function updateFormUI() {
+            const selectedValue = reportTypeSelect.value;
+            submitButton.disabled = true; // Always disable submit button on change, force preview
+
             if (selectedValue === 'tickets_count') {
                 datePickerGroup.style.display = 'block';
                 datePickerInput.required = true;
@@ -325,7 +615,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 datePickerInput.required = false;
             }
 
-            // NEW: Handle instructions visibility and content
             if (instructions[selectedValue]) {
                 instructionsBox.innerHTML = instructions[selectedValue];
                 instructionsBox.style.display = 'block';
@@ -333,14 +622,81 @@ $claims = requireAuth('admin', '/auth/login.html');
                 instructionsBox.style.display = 'none';
                 instructionsBox.innerHTML = '';
             }
+        }
+
+        reportTypeSelect.addEventListener("change", updateFormUI);
+
+        previewButton.addEventListener("click", () => {
+            const reportType = reportTypeSelect.value;
+            const data = excelDataTextarea.value;
+            if (!reportType || !data.trim()) {
+                alert("لطفا نوع گزارش و محتوای آن را وارد کنید.");
+                return;
+            }
+            if (reportType === 'tickets_count' && !datePickerInput.value) {
+                alert("لطفا برای گزارش تعداد تیکت، تاریخ را مشخص کنید.");
+                return;
+            }
+
+            const validator = validators[reportType];
+            const lines = data.trim().split("\n");
+            let validCount = 0;
+            let invalidCount = 0;
+
+            let tableHTML = "";
+            let headerHTML = "<tr>";
+            const headerTitles = instructions[reportType].replace(/<strong>.*?<\/strong>/g, '').replace(/<em>.*?<\/em>/g, '').split(' - ').map(s => s.trim());
+            headerTitles.forEach(title => headerHTML += `<th>${title}</th>`);
+            headerHTML += `<th>وضعیت</th></tr>`;
+            previewTableHeader.innerHTML = headerHTML;
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const columns = line.split(/\t+/);
+                let isValid = false;
+                let reason = "تعداد ستون‌ها نامعتبر است.";
+
+                if (columns.length >= validator.minCols) {
+                    if (validator.validate(columns, validator.config)) {
+                        isValid = true;
+                        reason = "معتبر";
+                    } else {
+                        reason = "فرمت داده‌های ستون کلیدی (کد یا تاریخ) اشتباه است.";
+                    }
+                }
+
+                tableHTML += `<tr class="${isValid ? 'valid-row' : 'invalid-row'}">`;
+                columns.forEach(col => tableHTML += `<td>${col}</td>`);
+                tableHTML += `<td>${reason}</td></tr>`;
+
+                if (isValid) validCount++;
+                else invalidCount++;
+            });
+
+            previewTableBody.innerHTML = tableHTML;
+            previewSummaryDiv.innerHTML = `تعداد ردیف‌های معتبر: ${validCount} <br> تعداد ردیف‌های نامعتبر: ${invalidCount}`;
+
+            if (invalidCount === 0 && validCount > 0) {
+                previewSummaryDiv.className = "valid";
+                submitButton.disabled = false;
+            } else {
+                previewSummaryDiv.className = "invalid";
+                submitButton.disabled = true;
+            }
+
+            previewModal.style.display = "block";
         });
 
-        document.getElementById("reportForm").addEventListener("submit", async function(e) {
+        closeModal.onclick = () => previewModal.style.display = "none";
+        window.onclick = (event) => {
+            if (event.target == previewModal) {
+                previewModal.style.display = "none";
+            }
+        };
+
+        reportForm.addEventListener("submit", async function(e) {
             e.preventDefault();
-            const form = e.target;
-            const formData = new FormData(form);
-            const responseDiv = document.getElementById("response");
-            const submitButton = form.querySelector('button[type="submit"]');
+            const formData = new FormData(reportForm);
 
             responseDiv.style.display = "none";
             submitButton.disabled = true;
@@ -358,13 +714,101 @@ $claims = requireAuth('admin', '/auth/login.html');
                 responseDiv.className = result.success ? "response-message success" : "response-message error";
                 responseDiv.style.display = "block";
 
+                if (result.success) {
+                    setTimeout(() => window.location.reload(), 2000); // Reload to get fresh data
+                }
+
             } catch (error) {
                 responseDiv.textContent = `یک خطای غیرمنتظره رخ داد: ${error.message}`;
                 responseDiv.className = "response-message error";
                 responseDiv.style.display = "block";
             } finally {
-                submitButton.disabled = false;
                 submitButton.textContent = "ذخیره تغییرات";
+                // Keep it disabled after submit to force re-validation
+            }
+        });
+
+        // --- Management Logic ---
+        agentSelect.addEventListener('change', () => {
+            const agentId = agentSelect.value;
+            dateSelect.innerHTML = '<option value="">...بارگذاری تاریخ‌ها</option>';
+            dateSelect.disabled = true;
+            viewDataBtn.disabled = true;
+            deleteDataBtn.disabled = true;
+            viewDataPre.style.display = 'none';
+
+            if (agentId && existingData[agentId]) {
+                const dates = Object.keys(existingData[agentId]).sort().reverse();
+                let options = '<option value="">یک تاریخ انتخاب کنید</option>';
+                dates.forEach(date => {
+                    const dateFa = new Date(date).toLocaleDateString('fa-IR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    options += `<option value="${date}">${dateFa} (${date})</option>`;
+                });
+                dateSelect.innerHTML = options;
+                dateSelect.disabled = false;
+            } else {
+                dateSelect.innerHTML = '<option value="">ابتدا کارشناس را انتخاب کنید</option>';
+            }
+        });
+
+        dateSelect.addEventListener('change', () => {
+            const canProceed = agentSelect.value && dateSelect.value;
+            viewDataBtn.disabled = !canProceed;
+            deleteDataBtn.disabled = !canProceed;
+            viewDataPre.style.display = 'none';
+        });
+
+        viewDataBtn.addEventListener('click', () => {
+            const agentId = agentSelect.value;
+            const date = dateSelect.value;
+            if (agentId && date && existingData[agentId][date]) {
+                const dataToShow = existingData[agentId][date];
+                viewDataPre.textContent = JSON.stringify(dataToShow, null, 2);
+                viewDataPre.style.display = 'block';
+            }
+        });
+
+        deleteDataBtn.addEventListener('click', async () => {
+            const agentId = agentSelect.value;
+            const date = dateSelect.value;
+            if (!agentId || !date) return;
+
+            const dateFa = new Date(date).toLocaleDateString('fa-IR');
+            if (!confirm(`آیا از حذف تمام داده‌های کارشناس ${agentId} در تاریخ ${dateFa} مطمئن هستید؟ این عمل غیرقابل بازگشت است.`)) {
+                return;
+            }
+
+            deleteDataBtn.disabled = true;
+            deleteDataBtn.textContent = 'در حال حذف...';
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'delete_report');
+                formData.append('agent_id', agentId);
+                formData.append('date', date);
+
+                const response = await fetch('/php/process_reports.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error(`خطای سرور: ${response.statusText}`);
+
+                const result = await response.json();
+                alert(result.message);
+
+                if (result.success) {
+                    window.location.reload();
+                }
+
+            } catch (error) {
+                alert(`خطا در حذف داده‌ها: ${error.message}`);
+            } finally {
+                deleteDataBtn.textContent = 'حذف رکورد روزانه';
+                // Button will be re-enabled on selection change
             }
         });
     </script>
