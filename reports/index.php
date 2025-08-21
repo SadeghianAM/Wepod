@@ -1,13 +1,14 @@
 <?php
-// ✅ Auth via auth middleware (no manual JWT handling here)
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth(null, '/auth/login.html');
 
-// Agent identifier: prefer 'sub', then 'id', then 'username'
 $agentId = $claims['sub'] ?? ($claims['id'] ?? ($claims['username'] ?? null));
 $agentData = [];
 
-// Load reports.json (try common locations)
 if ($agentId) {
     $candidates = [
         __DIR__ . '/../data/reports.json',
@@ -31,6 +32,9 @@ if ($agentId) {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>داشبورد عملکرد کارشناس</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -261,11 +265,15 @@ if ($agentId) {
         <div id="report-content"></div>
     </main>
     <div id="footer-placeholder"></div>
-
-    <script src="/js/header.js"></script>
+    <script src="/js/header.js?v=1.0"></script>
     <script>
+        function fetchNoCache(url, options = {}) {
+            const timestamp = new Date().getTime();
+            const separator = url.includes("?") ? "&" : "?";
+            const urlWithCacheBust = `${url}${separator}t=${timestamp}`;
+            return fetch(urlWithCacheBust, options);
+        }
         const agentData = <?php echo json_encode($agentData, JSON_UNESCAPED_UNICODE); ?>;
-
         const metricsConfig = {
             performance: {
                 title: "عملکرد کلی تماس‌ها",
@@ -354,12 +362,8 @@ if ($agentId) {
         const charts = {};
 
         document.addEventListener('DOMContentLoaded', () => {
-            // ✅ دریافت نام کاربر از API جدید (کوکی HttpOnly به‌صورت خودکار ارسال می‌شود)
-            fetch('/auth/get-user-info.php', {
-                    credentials: 'same-origin',
-                    headers: {
-                        'Cache-Control': 'no-store'
-                    }
+            fetchNoCache('/auth/get-user-info.php', {
+                    credentials: 'same-origin'
                 })
                 .then(res => res.ok ? res.json() : Promise.reject(res))
                 .then(payload => {
@@ -474,7 +478,6 @@ if ($agentId) {
             });
 
             const finalAvgRating = summary.ratings_count > 0 ? (summary.total_rating_sum / summary.ratings_count).toFixed(2) : 0;
-
             let html = `
                 <div class="metric-group">
                     <h2 class="metric-group-title">خلاصه عملکرد ۷ روز گذشته</h2>
@@ -523,7 +526,6 @@ if ($agentId) {
                 fill: true,
                 tension: 0.4
             }]);
-
             updateActiveButton('summary');
         }
 
