@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>ویکی ویپاد - وی هاب</title>
     <style>
       :root {
@@ -72,7 +78,6 @@
         font-size: 0.85rem;
         margin-top: auto;
       }
-
       main {
         flex-grow: 1;
         padding: 2rem 1rem;
@@ -89,7 +94,6 @@
       body:not(.search-mode) main {
         justify-content: flex-start;
       }
-
       .hero-section {
         text-align: center;
         margin-bottom: 1.5rem;
@@ -138,7 +142,6 @@
         border-color: var(--primary-color);
         box-shadow: 0 4px 12px var(--shadow-color-medium);
       }
-
       #active-category-container {
         transition: all 0.4s ease;
       }
@@ -168,7 +171,6 @@
         opacity: 1;
         color: var(--danger-dark);
       }
-
       .category-filters {
         display: flex;
         justify-content: center;
@@ -208,8 +210,6 @@
       .pill-in-place {
         animation: fadeIn 0.5s ease forwards;
       }
-
-      /* --- استایل اصلاح‌شده برای پنهان‌سازی بخش وضعیت جستجو --- */
       .search-status-container {
         text-align: center;
         overflow: hidden;
@@ -220,7 +220,7 @@
         margin-bottom: 0;
       }
       .search-status-container.visible {
-        max-height: 50px; /* ارتفاع کافی برای نمایش محتوا */
+        max-height: 50px;
         opacity: 1;
         margin-top: 2.5rem;
         margin-bottom: 1.5rem;
@@ -235,7 +235,6 @@
         border-radius: 50px;
         border: 1px solid #cceee4;
       }
-
       .results {
         column-count: 2;
         column-gap: 1.5rem;
@@ -247,7 +246,6 @@
           column-count: 1;
         }
       }
-
       .result-item {
         background: var(--card-bg);
         border-radius: var(--border-radius);
@@ -278,7 +276,6 @@
           transform: translateY(0);
         }
       }
-
       .result-title {
         font-size: 1.2rem;
         font-weight: 700;
@@ -310,14 +307,12 @@
         background-color: #f3f4f6;
         color: #4b5563;
       }
-
       mark.highlight {
         background-color: var(--highlight-bg);
         color: black;
         border-radius: 3px;
         padding: 0 2px;
       }
-
       .no-result {
         text-align: center;
         padding: 3rem 2rem;
@@ -330,7 +325,6 @@
         font-size: 3rem;
         margin-bottom: 1rem;
       }
-
       #load-more-container {
         text-align: center;
         margin-top: 1.5rem;
@@ -349,7 +343,6 @@
       .load-more-btn:hover {
         background-color: var(--primary-dark);
       }
-
       .back-link {
         display: block;
         margin-top: 2rem;
@@ -363,7 +356,6 @@
         color: var(--primary-color);
         text-decoration: underline;
       }
-
       #toast {
         position: fixed;
         bottom: -100px;
@@ -426,8 +418,14 @@
     </main>
     <div id="toast">کپی شد!</div>
     <div id="footer-placeholder"></div>
-    <script src="/js/header.js"></script>
+    <script src="/js/header.js?v=1.0"></script>
     <script>
+      function fetchNoCache(url, options = {}) {
+        const timestamp = new Date().getTime();
+        const separator = url.includes("?") ? "&" : "?";
+        const urlWithCacheBust = `${url}${separator}t=${timestamp}`;
+        return fetch(urlWithCacheBust, options);
+      }
       const searchInput = document.getElementById("search-input");
       const categoryFilterContainer = document.getElementById(
         "category-filters-container"
@@ -440,17 +438,16 @@
       const loadMoreContainer = document.getElementById("load-more-container");
       const searchStatusContainer = document.querySelector(
         ".search-status-container"
-      ); // کانتینر وضعیت
+      );
       const searchStatus = document.getElementById("search-status");
       const body = document.body;
-
       let allData = [];
       let currentFilteredData = [];
       let currentCategory = "";
       let displayedItemsCount = 0;
       const ITEMS_PER_PAGE = 6;
 
-      fetch("/data/wiki.json")
+      fetchNoCache("/data/wiki.json")
         .then((res) => res.json())
         .then((json) => {
           allData = json;
@@ -525,18 +522,15 @@
       function handleSearch() {
         const term = searchInput.value.trim().toLowerCase();
         const isSearchActive = term !== "" || currentCategory !== "";
-
         body.classList.toggle("search-mode", !isSearchActive);
         updateActiveCategoryPill(isSearchActive);
-        searchStatusContainer.classList.remove("visible"); // مخفی کردن کانتینر وضعیت
+        searchStatusContainer.classList.remove("visible");
         noResultContainer.innerHTML = "";
-
         if (!isSearchActive) {
           resultsContainer.innerHTML = "";
           loadMoreContainer.innerHTML = "";
           return;
         }
-
         currentFilteredData = allData.filter((item) => {
           const matchesTerm =
             term === "" ||
@@ -548,7 +542,6 @@
             (item.categories && item.categories.includes(currentCategory));
           return matchesTerm && matchesCategory;
         });
-
         displayedItemsCount = 0;
         loadMoreResults();
       }
@@ -561,7 +554,6 @@
           displayedItemsCount,
           displayedItemsCount + ITEMS_PER_PAGE
         );
-
         if (newItemsToShow.length === 0 && displayedItemsCount === 0) {
           noResultContainer.innerHTML = `<div class="no-result"><div class="icon">🤷‍♂️</div><div>نتیجه‌ای یافت نشد.</div><small>لطفا عبارت دیگری را جستجو کنید.</small></div>`;
           searchStatusContainer.classList.remove("visible");
@@ -574,11 +566,9 @@
             );
             resultsContainer.appendChild(resultCard);
           });
-          searchStatusContainer.classList.add("visible"); // نمایش کانتینر وضعیت
+          searchStatusContainer.classList.add("visible");
         }
-
         displayedItemsCount += newItemsToShow.length;
-
         searchStatus.textContent = `نمایش ${toPersianDigits(
           displayedItemsCount
         )} از ${toPersianDigits(currentFilteredData.length)} نتیجه`;
@@ -605,7 +595,6 @@
           if (activePill && activePill.dataset.value !== "") {
             const clonedPill = activePill.cloneNode(true);
             clonedPill.classList.add("pill-in-place");
-
             clonedPill.addEventListener("click", () => {
               currentCategory = "";
               categoryFilterContainer
@@ -617,7 +606,6 @@
               if (allButton) allButton.classList.add("active");
               handleSearch();
             });
-
             activeCategoryContainer.appendChild(clonedPill);
           }
         }
@@ -628,20 +616,24 @@
         card.className = "result-item";
         card.setAttribute("tabindex", "0");
         card.style.animationDelay = `${(index % (ITEMS_PER_PAGE * 2)) * 0.05}s`;
-
         card.innerHTML = `
-            <div class="result-title">${highlightTerm(item.title, term)}</div>
-            <div class="result-meta">
-                <span class="result-category">${(item.categories || []).join(
-                  "، "
-                )}</span>
-                <span class="result-id">آیدی: ${toPersianDigits(item.id)}</span>
-            </div>
-            <div class="result-desc">${highlightTerm(
-              item.description.replace(/\n/g, "<br>"),
-              term
-            )}</div>
-        `;
+                  <div class="result-title">${highlightTerm(
+                    item.title,
+                    term
+                  )}</div>
+                  <div class="result-meta">
+                      <span class="result-category">${(
+                        item.categories || []
+                      ).join("، ")}</span>
+                      <span class="result-id">آیدی: ${toPersianDigits(
+                        item.id
+                      )}</span>
+                  </div>
+                  <div class="result-desc">${highlightTerm(
+                    item.description.replace(/\n/g, "<br>"),
+                    term
+                  )}</div>
+              `;
         card.addEventListener("click", () =>
           copyToClipboard(item.description, card)
         );

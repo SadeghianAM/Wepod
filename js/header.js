@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+  function fetchNoCache(url, options = {}) {
+    const timestamp = new Date().getTime();
+    const separator = url.includes("?") ? "&" : "?";
+    const urlWithCacheBust = `${url}${separator}t=${timestamp}`;
+    return fetch(urlWithCacheBust, options);
+  }
+
   async function initializeApp() {
     try {
       await loadLayout();
@@ -9,42 +16,35 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       return;
     }
-
-    await checkLoginStatus(); // UPDATED
-
+    await checkLoginStatus();
     setupHeader();
-
     loadMainContent();
   }
 
   async function loadLayout() {
     const headerPlaceholder = document.getElementById("header-placeholder");
     const footerPlaceholder = document.getElementById("footer-placeholder");
-
     if (!headerPlaceholder || !footerPlaceholder) {
       console.error(
         "Critical Error: Header or Footer placeholder not found in HTML."
       );
       throw new Error("Missing placeholder elements.");
     }
-
     const [headerRes, footerRes] = await Promise.all([
-      fetch("/header.html").catch((e) => {
+      fetchNoCache("/header.html").catch((e) => {
         console.error("Failed to fetch header.html:", e);
         return null;
       }),
-      fetch("/footer.html").catch((e) => {
+      fetchNoCache("/footer.html").catch((e) => {
         console.error("Failed to fetch footer.html:", e);
         return null;
       }),
     ]);
-
     if (headerRes && headerRes.ok) {
       headerPlaceholder.innerHTML = await headerRes.text();
     } else {
       headerPlaceholder.innerHTML = `<header style="background-color: #d93025; color: white; text-align: center; padding: 1rem;">خطا: فایل header.html یافت نشد.</header>`;
     }
-
     if (footerRes && footerRes.ok) {
       footerPlaceholder.innerHTML = await footerRes.text();
     } else {
@@ -66,11 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================
   // Auth (auth / HttpOnly)
   // ==========================
-
-  // UPDATED: سیستم خروج بر اساس کوکی HttpOnly
   async function logout() {
     try {
-      await fetch("/auth/logout.php?json=1", { credentials: "same-origin" });
+      await fetchNoCache("/auth/logout.php?json=1", {
+        credentials: "same-origin",
+      }); // MODIFIED
     } catch (e) {
       console.warn("Logout request failed (ignored):", e);
     }
@@ -80,12 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "/auth/login.html";
   }
 
-  // UPDATED: وضعیت لاگین از /auth/get-user-info.php (با ارسال خودکار کوکی)
   async function checkLoginStatus() {
     const placeholder = document.getElementById("user-info-placeholder");
     if (!placeholder) return;
-
-    // کمک‌تابع: اولین فیلد موجود را از چند نامِ محتمل برمی‌گرداند
     const pick = (obj, ...keys) => {
       for (const k of keys) {
         if (obj && typeof obj[k] === "string" && obj[k].trim() !== "")
@@ -94,28 +91,21 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return "";
     };
-
     try {
-      const response = await fetch("/auth/get-user-info.php", {
+      const response = await fetchNoCache("/auth/get-user-info.php", {
+        // MODIFIED
         credentials: "same-origin",
-        headers: { "Cache-Control": "no-store" },
       });
-
       if (response.ok) {
         const payload = await response.json();
         if (!payload || !payload.ok || !payload.user) {
           throw new Error("Invalid user info payload");
         }
-
         const u = payload.user;
-
-        // نام: اولویت با name/fullName/displayName، سپس username
         const name =
           pick(u, "name", "fullName", "displayName") ||
           pick(u, "username") ||
           "کاربر";
-
-        // داخلی کارشناس: چند نام رایج + fallback به id
         const internal =
           pick(
             u,
@@ -126,44 +116,36 @@ document.addEventListener("DOMContentLoaded", () => {
             "phone_extension",
             "phoneExt"
           ) || pick(u, "id");
-
         const avatarLetter = (name || "؟").trim().charAt(0) || "؟";
-
         placeholder.innerHTML = `
           <div id="user-info-container">
             <span id="user-name-display">${name}</span>
             <div id="logout-popup">
               <div class="popup-header">
-                  <div class="user-avatar-large">${avatarLetter}</div>
-                  <div class="user-details">
-                      <p class="user-name">${name}</p>
-                      <p class="user-id">داخلی: ${toPersianDigits(internal)}</p>
-                  </div>
+                <div class="user-avatar-large">${avatarLetter}</div>
+                <div class="user-details">
+                  <p class="user-name">${name}</p>
+                  <p class="user-id">داخلی: ${toPersianDigits(internal)}</p>
+                </div>
               </div>
               <button id="logout-button">خروج از حساب</button>
             </div>
-          </div>
-        `;
-
+          </div>`;
         const container = document.getElementById("user-info-container");
         const popup = document.getElementById("logout-popup");
-
         container.addEventListener("click", (event) => {
           event.stopPropagation();
           popup.classList.toggle("show");
         });
-
         document
           .getElementById("logout-button")
           .addEventListener("click", logout);
-
         document.addEventListener("click", () => {
           if (popup.classList.contains("show")) {
             popup.classList.remove("show");
           }
         });
       } else {
-        // لاگین نیست → دکمهٔ ورود
         placeholder.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
         document
           .getElementById("login-button")
@@ -185,7 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================
   // Utils (Jalali / Persian)
   // ==========================
-
   const weekdays = [
     "یک‌شنبه",
     "دوشنبه",
@@ -209,7 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "بهمن",
     "اسفند",
   ];
-
   function toJalali(gy, gm, gd) {
     const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
     let jy = gy > 1600 ? 979 : 0;
@@ -238,16 +218,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30);
     return [jy, jm, jd];
   }
-
   function toPersianDigits(str) {
     if (str === null || str === undefined) return "";
     return str.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
   }
-
   function pad(num) {
     return num.toString().padStart(2, "0");
   }
-
   function toPersianTimeStr(totalMin) {
     let h = Math.floor(totalMin / 60);
     let m = totalMin % 60;
@@ -256,12 +233,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (h > 0) return `${toPersianDigits(h)} ساعت`;
     return `${toPersianDigits(m)} دقیقه`;
   }
-
   function isHolidayJalali(jy, jm, jd, holidays) {
     const dateStr = `${jy}-${pad(jm)}-${pad(jd)}`;
     return holidays.some((h) => h.date === dateStr);
   }
-
   function setupHeader() {
     const dateElem = document.getElementById("today-date");
     const timeElem = document.getElementById("current-time");
@@ -291,13 +266,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================
   // Business widgets
   // ==========================
-
   async function updateCardTrackingInfo() {
     const container = document.getElementById("card-tracking-info");
     if (!container) return;
     container.innerHTML = "در حال محاسبه تاریخ پیگیری کارت...";
     try {
-      const response = await fetch("/data/holidays-1404.json");
+      const response = await fetchNoCache("/data/holidays-1404.json"); // MODIFIED
       const holidays = await response.json();
       const holidayDates = new Set(holidays.map((h) => h.date));
       let businessDaysToCount = 14;
@@ -344,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
     let holidays = [];
     try {
-      const res = await fetch("/data/holidays-1404.json");
+      const res = await fetchNoCache("/data/holidays-1404.json"); // MODIFIED
       holidays = await res.json();
     } catch (e) {
       statusDiv.innerHTML =
@@ -494,7 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function setupPayaaCycleStatus() {
     let holidays = [];
     try {
-      const res = await fetch("/data/holidays-1404.json");
+      const res = await fetchNoCache("/data/holidays-1404.json"); // MODIFIED
       holidays = await res.json();
     } catch (e) {
       console.error("Failed to load holidays for Payaa cycle:", e);
@@ -541,7 +515,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!serviceStatusDiv) return;
     serviceStatusDiv.innerHTML = "در حال بارگذاری وضعیت سرویس‌ها...";
     try {
-      const response = await fetch("/data/service-status.json");
+      const response = await fetchNoCache("/data/service-status.json"); // MODIFIED
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       const services = await response.json();
@@ -575,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!newsAlertsDiv) return;
     newsAlertsDiv.innerHTML = "در حال بارگذاری اطلاعیه‌ها...";
     try {
-      const response = await fetch("/data/news-alerts.json");
+      const response = await fetchNoCache("/data/news-alerts.json"); // MODIFIED
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       const alerts = await response.json();
@@ -598,7 +572,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const dateTimeString = parts.join(" ");
             startDateTimeInfo = `<p style="font-size:0.9em; color:#666; margin-top:5px; margin-bottom:0;">شروع: ${dateTimeString}</p>`;
           }
-
           if (alert.endDate || alert.endTime) {
             const parts = [];
             if (alert.endDate) {

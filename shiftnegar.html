@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>برنامه شیفت‌ها</title>
     <style>
       :root {
@@ -376,7 +382,6 @@
         text-align: center;
         font-weight: 500;
       }
-      /* extra for swap details */
       .shift-info.status-swap {
         color: var(--swap-text-color);
       }
@@ -447,7 +452,6 @@
       }
     </style>
   </head>
-
   <body>
     <div id="header-placeholder"></div>
     <main>
@@ -457,7 +461,6 @@
         </button>
         <button id="my-shift-tab" class="tab-button">شیفت من</button>
       </div>
-
       <div id="monthly-view" class="tab-content active">
         <h1>برنامه شیفت ماهانه</h1>
         <div class="filters-container">
@@ -493,13 +496,20 @@
         <div id="loader">در حال بارگذاری اطلاعات...</div>
         <div id="schedule-container" class="table-container"></div>
       </div>
-
       <div id="my-shift-view" class="tab-content"></div>
     </main>
     <div id="footer-placeholder"></div>
 
-    <script src="/js/header.js"></script>
+    <script src="/js/header.js?v=1.0"></script>
+
     <script>
+      function fetchNoCache(url, options = {}) {
+        const timestamp = new Date().getTime();
+        const separator = url.includes("?") ? "&" : "?";
+        const urlWithCacheBust = `${url}${separator}t=${timestamp}`;
+        return fetch(urlWithCacheBust, options);
+      }
+
       let allExperts = [];
       let allAvailableDates = [];
       let currentCalendarDate = new Date();
@@ -514,12 +524,11 @@
       ];
       let nextColorIndex = 0;
 
-      // ============ NEW: auth auth helper ============
       async function getLoggedInUser() {
         try {
-          const res = await fetch("/auth/get-user-info.php", {
+          // ✅ MODIFIED: Using fetchNoCache
+          const res = await fetchNoCache("/auth/get-user-info.php", {
             credentials: "same-origin",
-            headers: { "Cache-Control": "no-store" },
           });
           if (!res.ok) return null;
           const data = await res.json();
@@ -528,15 +537,12 @@
           return null;
         }
       }
-      // ===================================================
 
       let startWorkMap = null;
       async function getStartWorkMap() {
         if (startWorkMap) return startWorkMap;
         try {
-          const res = await fetch(
-            "/data/start-work.json?v=" + new Date().getTime()
-          );
+          const res = await fetchNoCache("/data/start-work.json");
           if (!res.ok)
             throw new Error(
               `فایل start-work.json یافت نشد (کد: ${res.status})`
@@ -705,10 +711,8 @@
           let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat(
             "fa-IR",
             { month: "long" }
-          ).format(firstG)} ${new Intl.DateTimeFormat("fa-IR", {
-            year: "numeric",
-          }).format(
-            firstG
+          ).format(firstG)} ${new Intl.NumberFormat("fa-IR").format(
+            this.jy
           )}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${weekDays
             .map((w) => `<div class="jdp-weekday">${w}</div>`)
             .join("")}`;
@@ -753,9 +757,8 @@
         setupTabs();
         const loader = document.getElementById("loader");
         try {
-          const response = await fetch(
-            "/data/shifts.json?v=" + new Date().getTime()
-          );
+          // ✅ MODIFIED: Using fetchNoCache
+          const response = await fetchNoCache("/data/shifts.json");
           if (!response.ok)
             throw new Error(
               `فایل shifts.json یافت نشد (کد: ${response.status})`
@@ -806,28 +809,23 @@
         );
       }
 
-      // ====== UPDATED: no localStorage/JWT parsing; use auth get-user-info ======
       async function handleMyShiftTabClick() {
         const myShiftContainer = document.getElementById("my-shift-view");
         const user = await getLoggedInUser();
-
         if (!user) {
           myShiftContainer.innerHTML = `<div class="not-logged-in">
-              <p>برای مشاهده شیفت شخصی خود، لطفاً ابتدا وارد شوید.</p>
-              <a href="/auth/login.html">رفتن به صفحه ورود</a>
-            </div>`;
+                    <p>برای مشاهده شیفت شخصی خود، لطفاً ابتدا وارد شوید.</p>
+                    <a href="/auth/login.html">رفتن به صفحه ورود</a>
+                  </div>`;
           return;
         }
-
         const userId = user.id ?? user.sub ?? user.userId ?? null;
         let userShiftData = null;
-
         if (userId !== null) {
           userShiftData = allExperts.find(
             (expert) => String(expert.id) === String(userId)
           );
         }
-        // fallback: اگر در داده‌ها username ذخیره شده باشد
         if (!userShiftData && user.username) {
           userShiftData = allExperts.find(
             (expert) =>
@@ -835,35 +833,33 @@
               String(user.username).toLowerCase()
           );
         }
-
         if (!userShiftData) {
           myShiftContainer.innerHTML = `<div class="not-logged-in">
-              <p>اطلاعات شیفت برای شما در سیستم یافت نشد.</p>
-            </div>`;
+                    <p>اطلاعات شیفت برای شما در سیستم یافت نشد.</p>
+                  </div>`;
           return;
         }
-
         const swMap = await getStartWorkMap();
         const startInfo = swMap.get(String(userId)) || null;
         renderMyShiftView(userShiftData, startInfo);
       }
-      // ============================================================================
 
       function renderMyShiftView(userData, startInfo) {
         const container = document.getElementById("my-shift-view");
         const monthName = currentCalendarDate.toLocaleDateString("fa-IR", {
           month: "long",
         });
-        const year = currentCalendarDate.toLocaleDateString("fa-IR", {
-          year: "numeric",
-        });
+        const year = new Intl.NumberFormat("fa-IR").format(
+          currentCalendarDate.toLocaleDateString("fa-IR-u-nu-latn", {
+            year: "numeric",
+          })
+        );
         const prevMonthDate = new Date(currentCalendarDate);
         prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
         const nextMonthDate = new Date(currentCalendarDate);
         nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
         const hasPrevShifts = hasShiftsInMonth(prevMonthDate, userData.shifts);
         const hasNextShifts = hasShiftsInMonth(nextMonthDate, userData.shifts);
-
         const breakTime = userData["break-time"];
         let breakLabel = "ساعت استراحت";
         let breakValue = breakTime || "تعیین نشده";
@@ -872,7 +868,6 @@
           if (endTime)
             breakLabel = endTime <= "17:00" ? "🌮 تایم ناهار" : "🌮 تایم شام";
         }
-
         let startWorkText =
           startInfo && startInfo.start_work ? startInfo.start_work : null;
         let startWorkDays = null;
@@ -884,37 +879,35 @@
             startWorkDays = diffDaysInclusive(gStart, new Date());
           }
         }
-
         container.innerHTML = `
-          <h1>تقویم شیفت من</h1>
-          <div id="user-shift-info">
-            <p>👤 کارشناس: <span>${userData.name}</span></p>
-            <p>⏰ ساعت شیفت: <span>${
-              userData["shifts-time"] || "تعیین نشده"
-            }</span></p>
-            <p>${breakLabel}: <span>${breakValue}</span></p>
-            ${
-              startWorkText
-                ? `<p>📅 داتینی از تاریخ: <span>${startWorkText}</span></p><p><span>🚀 ${(
-                    startWorkDays ?? 0
-                  ).toLocaleString("fa-IR")}</span> روزه که داتینی هستی</p>`
-                : ``
-            }
-          </div>
-
-          <div id="calendar-controls">
-            <button id="prev-month" ${
-              hasPrevShifts ? "" : "disabled"
-            }>&rarr; ماه قبل</button>
-            <span id="current-month-year">${monthName} ${year}</span>
-            <button id="next-month" ${
-              hasNextShifts ? "" : "disabled"
-            }>ماه بعد &larr;</button>
-          </div>
-
-          <div id="calendar-container"></div>
-        `;
-
+                <h1>تقویم شیفت من</h1>
+                <div id="user-shift-info">
+                  <p>👤 کارشناس: <span>${userData.name}</span></p>
+                  <p>⏰ ساعت شیفت: <span>${
+                    userData["shifts-time"] || "تعیین نشده"
+                  }</span></p>
+                  <p>${breakLabel}: <span>${breakValue}</span></p>
+                  ${
+                    startWorkText
+                      ? `<p>📅 داتینی از تاریخ: <span>${startWorkText}</span></p><p><span>🚀 ${new Intl.NumberFormat(
+                          "fa-IR"
+                        ).format(
+                          startWorkDays ?? 0
+                        )}</span> روزه که داتینی هستی</p>`
+                      : ""
+                  }
+                </div>
+                <div id="calendar-controls">
+                  <button id="prev-month" ${
+                    hasPrevShifts ? "" : "disabled"
+                  }>&rarr; ماه قبل</button>
+                  <span id="current-month-year">${monthName} ${year}</span>
+                  <button id="next-month" ${
+                    hasNextShifts ? "" : "disabled"
+                  }>ماه بعد &larr;</button>
+                </div>
+                <div id="calendar-container"></div>
+              `;
         document.getElementById("prev-month").addEventListener("click", () => {
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
           renderMyShiftView(userData, startInfo);
@@ -923,7 +916,6 @@
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
           renderMyShiftView(userData, startInfo);
         });
-
         renderCalendar(currentCalendarDate, userData.shifts);
       }
 
@@ -944,10 +936,7 @@
         );
         const [pYear, pMonth] = toPersian(date);
         const firstDayOfPersianMonth = jalaliToGregorian(pYear, pMonth, 1);
-        const isLeap =
-          toPersian(jalaliToGregorian(pYear + 1, 1, 1))[0] - pYear > 1;
-        const daysInMonth =
-          pMonth < 7 ? 31 : pMonth < 12 ? 30 : isLeap ? 30 : 29;
+        const daysInMonth = jalaliMonthLength(pYear, pMonth);
         const lastDayOfPersianMonth = jalaliToGregorian(
           pYear,
           pMonth,
@@ -964,15 +953,10 @@
         const offsetToFriday = (5 - endDayOfWeek + 7) % 7;
         calendarEndDate.setDate(calendarEndDate.getDate() + offsetToFriday);
         let loopDate = new Date(calendarStartDate);
-
         while (loopDate <= calendarEndDate) {
-          const [currentPYear, currentPMonth] = toPersian(loopDate);
+          const [, currentPMonth] = toPersian(loopDate);
           const isOtherMonth = currentPMonth !== pMonth;
-          const y = loopDate.getFullYear();
-          const m = String(loopDate.getMonth() + 1).padStart(2, "0");
-          const d = String(loopDate.getDate()).padStart(2, "0");
-          const dateString = `${y}-${m}-${d}`;
-
+          const dateString = formatISO(loopDate);
           const shiftDetails = getShiftDetails(shiftsData[dateString]);
           let statusClass = "";
           let statusText = shiftDetails.displayText;
@@ -1002,20 +986,20 @@
             statusClass = classMap[shiftDetails.status] || "status-special";
           }
           if (shiftDetails.status === "unknown") statusText = "";
-
           html += `<div class="calendar-day ${
             isOtherMonth ? "other-month" : ""
           }">
-              <div class="day-number">${loopDate.toLocaleDateString("fa-IR", {
-                day: "numeric",
-              })}</div>
-              ${
-                statusText
-                  ? `<div class="shift-info ${statusClass}">${statusText}</div>`
-                  : ""
-              }
-              ${extraDetailsHtml}
-            </div>`;
+                    <div class="day-number">${loopDate.toLocaleDateString(
+                      "fa-IR",
+                      { day: "numeric" }
+                    )}</div>
+                    ${
+                      statusText
+                        ? `<div class="shift-info ${statusClass}">${statusText}</div>`
+                        : ""
+                    }
+                    ${extraDetailsHtml}
+                  </div>`;
           loopDate.setDate(loopDate.getDate() + 1);
         }
         html += "</div>";
@@ -1134,12 +1118,13 @@
           tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size:.8rem;color:#6c757d;font-weight:400;">${date}</span></th>`;
         });
         tableHtml += "</tr></thead><tbody>";
-
         expertsToRender.forEach((expert, index) => {
           const shiftTime = expert["shifts-time"] || "-";
           const breakTime = expert["break-time"] || "-";
           const shiftStyle = getShiftStyle(shiftTime);
-          tableHtml += `<tr><td>${index + 1}</td><td>${
+          tableHtml += `<tr><td>${new Intl.NumberFormat("fa-IR").format(
+            index + 1
+          )}</td><td>${
             expert.name
           }</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
           datesToRender.forEach((date) => {
@@ -1160,7 +1145,6 @@
           });
           tableHtml += "</tr>";
         });
-
         tableHtml += "</tbody></table>";
         container.innerHTML = tableHtml;
       }
