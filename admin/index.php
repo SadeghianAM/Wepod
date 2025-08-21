@@ -8,27 +8,22 @@ $claims = requireAuth('admin', '/auth/login.html');
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>بخش مدیریت - وی هاب</title>
+  <title>پنل مدیریت - وی هاب</title>
   <style>
     :root {
       --primary-color: #00ae70;
       --primary-dark: #089863;
       --primary-light: #e6f7f2;
-      --bg-color: #f8fcf9;
-      --text-color: #222;
+      --bg-color: #f7f9fa;
+      /* Slightly more neutral background */
+      --text-color: #1a1a1a;
+      /* Darker text for better contrast */
       --secondary-text-color: #555;
       --card-bg: #ffffff;
       --header-text: #ffffff;
-      --shadow-color-light: rgba(0, 174, 112, 0.07);
-      --shadow-color-medium: rgba(0, 174, 112, 0.12);
-      --danger-color: #d93025;
-      --danger-bg: #fce8e6;
-      --orange-color: #f9ab00;
-      /* A more pleasant orange */
-      --orange-bg: #feefc3;
-      --yellow-color: #f9ab00;
-      /* For Paya Cycle */
-      --yellow-bg: #feefc3;
+      --shadow-color-light: rgba(0, 120, 80, 0.06);
+      /* Adjusted shadow color */
+      --shadow-color-medium: rgba(0, 120, 80, 0.1);
       --border-radius: 0.75rem;
       --border-color: #e9e9e9;
     }
@@ -58,7 +53,12 @@ $claims = requireAuth('admin', '/auth/login.html');
       flex-direction: column;
     }
 
-    /* --- HEADER & FOOTER (Shared) --- */
+    a {
+      text-decoration: none;
+      transition: all 0.2s ease-in-out;
+    }
+
+    /* --- HEADER & FOOTER Styles (Unchanged as requested) --- */
     header,
     footer {
       background: var(--primary-color);
@@ -112,123 +112,141 @@ $claims = requireAuth('admin', '/auth/login.html');
       background-color: rgba(255, 255, 255, 0.15);
     }
 
+    /* --- Main Content Styles (Redesigned) --- */
     main {
       flex-grow: 1;
-      padding: 2rem;
+      padding: 2.5rem 2rem;
+      /* Increased padding */
       max-width: 1200px;
       width: 100%;
       margin: 0 auto;
     }
 
-    /* --- Layout for Admin page (single column) --- */
-    .main-content {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    ul {
-      list-style: none;
-    }
-
-    a {
-      text-decoration: none;
-      transition: all 0.2s ease-in-out;
-    }
-
-    /* === Tools Column Structure (from base file) === */
-    .tool-card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      border: 1px solid var(--border-color);
-      box-shadow: 0 4px 15px var(--shadow-color-light);
-      margin-bottom: 2rem;
-      overflow: hidden;
-    }
-
-    .tool-card h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      padding: 0.9rem 1.5rem;
-      background-color: var(--bg-color);
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
       color: var(--primary-dark);
-      border-bottom: 1px solid var(--border-color);
     }
 
-    .tool-card .card-content {
-      padding: 1.5rem;
+    .page-subtitle {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--secondary-text-color);
+      margin-bottom: 2.5rem;
+    }
+
+    .search-container {
+      margin-bottom: 2rem;
+      max-width: 600px;
     }
 
     #tools-search {
       width: 100%;
       font-size: 1rem;
-      padding: 0.7em 1em;
-      border-radius: 0.6em;
-      border: 1.5px solid #ddd;
-      margin-bottom: 1.5rem;
+      padding: 0.8em 1.2em;
+      border-radius: var(--border-radius);
+      border: 1.5px solid var(--border-color);
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
+      background-color: var(--card-bg);
     }
 
     #tools-search:focus {
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+      box-shadow: 0 0 0 4px rgba(0, 174, 112, 0.15);
     }
 
     .tools-grid {
+      list-style: none;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      padding: 0;
+      /* Resetting ul padding */
     }
 
-    .tools-grid li a {
+    .tool-card a {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 1.2rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1.75rem;
       background-color: var(--card-bg);
-      border-radius: 0.6rem;
-      color: var(--text-color);
-      font-weight: 600;
-      font-size: 1rem;
+      border-radius: var(--border-radius);
       border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px var(--shadow-color-light);
+      color: var(--text-color);
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
     }
 
-    .tools-grid li a:hover {
+    .tool-card a:hover {
+      transform: translateY(-5px);
       border-color: var(--primary-color);
+      box-shadow: 0 8px 25px var(--shadow-color-medium);
       color: var(--primary-dark);
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+    }
+
+    .tool-icon {
+      font-size: 2rem;
+      /* Larger icons */
+      line-height: 1;
+    }
+
+    .tool-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    #no-results {
+      display: none;
+      /* Hidden by default */
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--secondary-text-color);
+      font-size: 1.1rem;
+      font-weight: 500;
+      border: 2px dashed var(--border-color);
+      border-radius: var(--border-radius);
     }
 
     /* --- Responsive Design --- */
-    @media (max-width: 600px) {
-      main {
-        padding: 1.5rem;
+    @media (max-width: 768px) {
+      .tools-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       }
 
-      .tools-grid {
-        grid-template-columns: 1fr;
+      .page-title {
+        font-size: 1.6rem;
+      }
+
+      main {
+        padding: 2rem 1.5rem;
       }
     }
 
     @media (max-width: 480px) {
-      main {
-        padding: 1rem;
+      .tools-grid {
+        grid-template-columns: 1fr;
       }
 
+      main {
+        padding: 1.5rem 1rem;
+      }
+
+      .page-title {
+        font-size: 1.4rem;
+      }
+
+      .page-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+
+      /* Hiding header elements on small screens as per original design */
       #today-date,
       #user-info {
         display: none;
-      }
-
-      .tool-card h2 {
-        padding: 0.8rem 1rem;
-        font-size: 1rem;
-      }
-
-      .tool-card .card-content {
-        padding: 1rem;
       }
     }
   </style>
@@ -236,32 +254,107 @@ $claims = requireAuth('admin', '/auth/login.html');
 
 <body>
   <div id="header-placeholder"></div>
+
   <main>
-    <div class="main-content">
-      <div class="column column-tools">
-        <input type="text" id="tools-search" placeholder="جستجو در ابزارها..." aria-label="جستجو در ابزارها" />
-        <div class="tool-card">
-          <h2>🛠️ ابزارها</h2>
-          <div class="card-content">
-            <ul class="tools-grid" id="tools-list">
-              <li><a href="/admin/status.php">ویرایش وضعیت سرویس ها</a></li>
-              <li><a href="/admin/news.php">ویرایش اطلاعیه ها</a></li>
-              <li><a href="/admin/wiki.php">ویرایش ویکی</a></li>
-              <li>
-                <a href="/admin/process_shifts.php">به‌روزرسانی برنامه شیفت‌ها</a>
-              </li>
-              <li><a href="/admin/admin-shifts.php">مدیریت شیفت ها</a></li>
-              <li><a href="/admin/reports.php">مدیریت داشبورد عملکرد</a></li>
-              <li><a href="/admin/disruptions.php">مدیریت اختلالات</a></li>
-              <li><a href="/admin/hash-tool.php">ابزار تولید هش</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
+    <h1 class="page-title">پنل مدیریت وی هاب</h1>
+    <p class="page-subtitle">ابزارهای مورد نیاز خود را از اینجا پیدا و مدیریت کنید.</p>
+
+    <div class="search-container">
+      <input type="text" id="tools-search" placeholder="جستجوی سریع ابزار..." aria-label="جستجو در ابزارها" />
+    </div>
+
+    <ul class="tools-grid" id="tools-list">
+      <li class="tool-card">
+        <a href="/admin/status.php">
+          <span class="tool-icon">📊</span>
+          <span class="tool-title">ویرایش وضعیت سرویس‌ها</span>
+        </a>
+      </li>
+      <li class="tool-card">
+        <a href="/admin/news.php">
+          <span class="tool-icon">📢</span>
+          <span class="tool-title">ویرایش اطلاعیه‌ها</span>
+        </a>
+      </li>
+      <li class="tool-card">
+        <a href="/admin/wiki.php">
+          <span class="tool-icon">📚</span>
+          <span class="tool-title">ویرایش ویکی</span>
+        </a>
+      </li>
+      <li class="tool-card">
+        <a href="/admin/process_shifts.php">
+          <span class="tool-icon">⚙️</span>
+          <span class="tool-title">به‌روزرسانی برنامه شیفت‌ها</span>
+        </a>
+      </li>
+      <li class="tool-card">
+        <a href="/admin/admin-shifts.php">
+          <span class="tool-icon">🗓️</span>
+          <span class="tool-title">مدیریت شیفت‌ها</span>
+        </a>
+      </li>
+      <li class="tool-card">
+        <a href="/admin/reports.php">
+          <span class="tool-icon">📈</span>
+          <span class="tool-title">مدیریت داشبورد عملکرد</span>
+        </a>
+      </li>
+      <li class="tool-card">
+        <a href="/admin/disruptions.php">
+          <span class="tool-icon">⚠️</span>
+          <span class="tool-title">مدیریت اختلالات</span>
+        </a>
+      </li>
+      <li class="tool-card">
+        <a href="/admin/hash-tool.php">
+          <span class="tool-icon">🔒</span>
+          <span class="tool-title">ابزار تولید هش</span>
+        </a>
+      </li>
+    </ul>
+    <div id="no-results">
+      <p>هیچ ابزاری با عبارت جستجو شده مطابقت ندارد.</p>
     </div>
   </main>
+
   <div id="footer-placeholder"></div>
+
   <script src="/js/header.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('tools-search');
+      const toolsList = document.getElementById('tools-list');
+      const toolCards = toolsList.getElementsByClassName('tool-card');
+      const noResultsMessage = document.getElementById('no-results');
+
+      searchInput.addEventListener('input', function() {
+        const filter = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        for (let i = 0; i < toolCards.length; i++) {
+          const card = toolCards[i];
+          const title = card.querySelector('.tool-title').textContent.toLowerCase();
+
+          if (title.includes(filter)) {
+            card.style.display = '';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        }
+
+        // Show or hide the 'no results' message
+        if (visibleCount === 0) {
+          toolsList.style.display = 'none';
+          noResultsMessage.style.display = 'block';
+        } else {
+          toolsList.style.display = 'grid'; // Ensure grid layout is restored
+          noResultsMessage.style.display = 'none';
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>

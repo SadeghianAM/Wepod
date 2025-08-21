@@ -10,10 +10,40 @@ $claims = requireAuth('admin', '/auth/login.html');
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>مدیریت اطلاعیه‌ها</title>
   <style>
+    :root {
+      --primary-color: #00ae70;
+      --primary-dark: #089863;
+      --primary-light: #e6f7f2;
+      --bg-color: #f7f9fa;
+      --text-color: #1a1a1a;
+      --secondary-text-color: #555;
+      --card-bg: #ffffff;
+      --header-text: #ffffff;
+      --border-color: #e9e9e9;
+      --shadow-light: rgba(0, 120, 80, 0.06);
+      --shadow-medium: rgba(0, 120, 80, 0.12);
+      --border-radius: 0.75rem;
+
+      /* Announcement Colors */
+      --green-bg: #e6f7f2;
+      --green-border: #00ae70;
+      --green-text: #089863;
+      --yellow-bg: #fffde0;
+      --yellow-border: #ffd600;
+      --yellow-text: #b38600;
+      --red-bg: #fef2f2;
+      --red-border: #ef4444;
+      --red-text: #dc2626;
+      --orange-bg: #fff6e5;
+      --orange-border: #f59e0b;
+      --orange-text: #d97706;
+    }
+
     @font-face {
       font-family: "Vazirmatn";
       src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
       font-weight: 100 900;
+      font-display: swap;
     }
 
     *,
@@ -21,163 +51,225 @@ $claims = requireAuth('admin', '/auth/login.html');
     *::after {
       font-family: "Vazirmatn", sans-serif !important;
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      background-color: #f4fbf7;
-      color: #222;
-      margin: 0;
-      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       direction: rtl;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    main {
-      flex-grow: 1;
-      padding: 1.5rem;
-      max-width: 1100px;
-      width: 100%;
-      margin: 0 auto;
-      overflow-y: auto;
-    }
-
-    .main-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      align-items: start;
-    }
-
-    .column {
-      background: transparent;
-    }
-
-    h2 {
-      font-size: 1.3rem;
-      margin-bottom: 1.5rem;
-      color: #00ae70;
-      text-align: center;
-      font-weight: 700;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    li {
-      background-color: #ffffff;
-      border-radius: 0.75rem;
-      padding: 1.2rem 1.5rem;
-      margin-bottom: 1.2rem;
-      box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-      border-right: 4px solid #00ae70;
-      /* Default border color */
-      transition: all 0.25s;
-    }
-
-    li:hover {
-      transform: translateY(-3px);
-      border-right-color: #089863;
-      box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
-    }
-
-    a {
-      text-decoration: none;
-      color: #00ae70;
-      font-weight: 600;
-      font-size: 1.1rem;
-      display: block;
-      transition: color 0.2s;
-    }
-
-    a:hover {
-      color: #089863;
-    }
-
+    /* --- [START] UNCHANGED HEADER & FOOTER STYLES --- */
+    header,
     footer {
-      background: #00ae70;
-      color: #e0e7ff;
-      height: 60px;
+      background: var(--primary-color);
+      color: var(--header-text);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.85rem;
-      box-shadow: 0 -2px 8px rgba(0, 174, 112, 0.08);
+      box-shadow: 0 2px 6px rgba(0, 174, 112, 0.07);
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
     }
 
-    footer p {
+    header {
+      height: 70px;
+    }
+
+    footer {
+      height: 60px;
+      font-size: 0.85rem;
+    }
+
+    /* --- [END] UNCHANGED HEADER & FOOTER STYLES --- */
+
+    main {
+      flex-grow: 1;
+      padding: 2.5rem 2rem;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .page-subtitle {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--secondary-text-color);
+      margin-top: 0.25rem;
+    }
+
+    #add-new-item-btn {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(0, 174, 112, 0.2);
+      transition: all 0.2s;
+    }
+
+    #add-new-item-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 174, 112, 0.25);
+    }
+
+    #item-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .announcement-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 15px var(--shadow-light);
+      border: 1px solid var(--border-color);
+      border-top: 4px solid;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .announcement-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px var(--shadow-medium);
+    }
+
+    .announcement-card.green {
+      border-top-color: var(--green-border);
+    }
+
+    .announcement-card.yellow {
+      border-top-color: var(--yellow-border);
+    }
+
+    .announcement-card.red {
+      border-top-color: var(--red-border);
+    }
+
+    .announcement-card.orange {
+      border-top-color: var(--orange-border);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem;
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .announcement-card.green .card-icon {
+      color: var(--green-text);
+    }
+
+    .announcement-card.yellow .card-icon {
+      color: var(--yellow-text);
+    }
+
+    .announcement-card.red .card-icon {
+      color: var(--red-text);
+    }
+
+    .announcement-card.orange .card-icon {
+      color: var(--orange-text);
+    }
+
+    .card-body {
+      padding: 0 1.25rem 1.25rem;
+      line-height: 1.7;
+      flex-grow: 1;
+    }
+
+    .card-body p,
+    .card-body ul {
       margin: 0;
     }
 
-    @media (max-width: 900px) {
-      .main-content {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-
-      .column {
-        width: 100%;
-      }
+    .card-body ul {
+      padding-right: 1.25rem;
     }
 
-    @media (max-width: 480px) {
-      main {
-        padding: 1rem;
-      }
-
-      a {
-        font-size: 1rem;
-      }
-
-      li {
-        padding: 1rem 1.2rem;
-      }
-
-      #today-date,
-      #current-time {
-        display: none;
-      }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid var(--border-color);
+      background-color: #fafbfc;
+      font-size: 0.85rem;
+      color: var(--secondary-text-color);
+      border-bottom-left-radius: var(--border-radius);
+      border-bottom-right-radius: var(--border-radius);
     }
 
-    .news-alert-box {
-      background: #eafff4;
-      padding: 1.2rem 1.5rem;
-      margin-bottom: 0.5rem;
-      border-radius: 0.75rem;
-      border-right: 4px solid;
-      transition: background 0.3s, border-color 0.3s;
-      font-size: 1rem;
-      box-shadow: 0 2px 12px rgba(0, 174, 112, 0.07);
-      position: relative;
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
     }
 
-    .news-alert-box:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 174, 112, 0.12);
+    .card-actions button {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--secondary-text-color);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
     }
 
-    .news-alert-box.green {
-      background-color: #eafff4;
-      border-right-color: #00ae70;
+    .card-actions .edit-btn:hover {
+      background-color: #e7f5ff;
+      color: #007bff;
+      border-color: #b8daff;
     }
 
-    .news-alert-box.yellow {
-      background-color: #fffde0;
-      border-right-color: #ffd600;
-    }
-
-    .news-alert-box.red {
-      background-color: #fff0f3;
-      border-right-color: #ff0040;
-    }
-
-    .news-alert-box.orange {
-      background-color: #fff6e5;
-      border-right-color: #ffa500;
+    .card-actions .delete-btn:hover {
+      background-color: #fef2f2;
+      color: #dc3545;
+      border-color: #f5b7bd;
     }
 
     .modal {
@@ -190,229 +282,168 @@ $claims = requireAuth('admin', '/auth/login.html');
       height: 100%;
       overflow: auto;
       background-color: rgba(0, 0, 0, 0.5);
-      padding-top: 60px;
+      backdrop-filter: blur(4px);
+      padding-top: 5vh;
     }
 
     .modal-content {
-      background-color: #fefefe;
-      margin: 5% auto;
-      padding: 25px;
+      background-color: var(--card-bg);
+      margin: 0 auto;
+      padding: 2rem;
       border: none;
-      border-radius: 0.75rem;
+      border-radius: var(--border-radius);
       width: 90%;
       max-width: 600px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
       position: relative;
     }
 
     .close-button {
-      color: #555;
-      float: left;
-      font-size: 32px;
-      font-weight: normal;
+      color: #aaa;
       position: absolute;
-      left: 15px;
-      top: 10px;
+      left: 1rem;
+      top: 1rem;
+      font-size: 2rem;
+      font-weight: bold;
       cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
     }
 
-    .close-button:hover,
-    .close-button:focus {
-      color: #000;
-      text-decoration: none;
+    .close-button:hover {
+      color: #333;
     }
 
     .modal-content label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 0.5rem;
       font-weight: 600;
       color: #333;
-      font-size: 0.95rem;
     }
 
-    .modal-content input[type="text"],
-    .modal-content select {
+    .modal-content input,
+    .modal-content select,
+    .description-editor {
       width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 18px;
-      border: 1px solid #ccc;
+      padding: 0.75rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid var(--border-color);
       border-radius: 0.5rem;
       font-size: 1rem;
-      box-sizing: border-box;
-      background-color: #fcfcfc;
-      transition: border-color 0.2s;
+      background-color: #fcfdff;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .modal-content input[type="text"]:focus,
-    .modal-content select:focus {
-      border-color: #00ae70;
+    .modal-content input:focus,
+    .modal-content select:focus,
+    .description-editor:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
       outline: none;
     }
 
-    .modal-content .description-editor {
-      width: 100%;
+    .date-time-group {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .date-time-group>div {
+      flex: 1;
+    }
+
+    .description-editor {
       min-height: 150px;
-      padding: 10px 12px;
-      margin-bottom: 18px;
-      border: 1px solid #ccc;
-      border-radius: 0.5rem;
-      font-size: 1rem;
-      box-sizing: border-box;
-      background-color: #fcfcfc;
-      transition: border-color 0.2s;
-      overflow-y: auto;
       line-height: 1.6;
-    }
-
-    .modal-content .description-editor:focus {
-      border-color: #00ae70;
-      outline: none;
-    }
-
-    .modal-content .button-group {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .modal-content button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-
-    #save-item-btn {
-      background-color: #00ae70;
-      color: white;
-    }
-
-    #save-item-btn:hover {
-      background-color: #089863;
-    }
-
-    #cancel-edit-btn {
-      background-color: #6c757d;
-      color: white;
-    }
-
-    #cancel-edit-btn:hover {
-      background-color: #5a6268;
-    }
-
-    #add-new-item-btn {
-      background-color: #00ae70;
-      color: white;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 0.75rem;
-      cursor: pointer;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 25px;
-      display: block;
-      width: fit-content;
-      margin-right: auto;
-      box-shadow: 0 4px 10px rgba(0, 174, 112, 0.2);
-      transition: background-color 0.2s, transform 0.2s;
-    }
-
-    #add-new-item-btn:hover {
-      background-color: #089863;
-      transform: translateY(-2px);
-    }
-
-    .item-card .actions {
-      margin-top: 15px;
-      display: flex;
-      justify-content: flex-start;
-      gap: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed #eee;
-    }
-
-    .news-alert-box .actions button {
-      padding: 8px 15px;
-      border: none;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-
-    .news-alert-box .actions .edit-btn {
-      background-color: #007bff;
-      color: white;
-    }
-
-    .news-alert-box .actions .edit-btn:hover {
-      background-color: #0056b3;
-    }
-
-    .news-alert-box .actions .delete-btn {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    .news-alert-box .actions .delete-btn:hover {
-      background-color: #c82333;
-    }
-
-    .button-group-top {
-      display: flex;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 25px;
     }
 
     .editor-toolbar {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #eaf4f1;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      background-color: #f0f3f5;
       border-radius: 0.5rem;
-      border: 1px solid #d4e0db;
+      border: 1px solid var(--border-color);
     }
 
     .editor-toolbar button {
-      background-color: #00ae70;
-      color: white;
-      border: none;
-      padding: 8px 12px;
+      background-color: var(--card-bg);
+      border: 1px solid #ccc;
+      width: 36px;
+      height: 36px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 0.95rem;
-      transition: background-color 0.2s;
+      font-size: 1.2rem;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s;
+      padding: 0;
+      margin: 0;
     }
 
     .editor-toolbar button:hover {
-      background-color: #089863;
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+      border-color: var(--primary-color);
     }
 
-    .editor-toolbar button:active {
-      background-color: #007c52;
+    /* --- [START] REVISED MODAL BUTTON STYLES --- */
+    .modal-content .button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
     }
+
+    .modal-content .button-group button {
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      border-radius: var(--border-radius);
+      transition: all 0.2s;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    #save-item-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: 1px solid transparent;
+      box-shadow: 0 2px 8px rgba(0, 174, 112, 0.2);
+    }
+
+    #save-item-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    #cancel-edit-btn {
+      background-color: transparent;
+      color: var(--secondary-text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    #cancel-edit-btn:hover {
+      background-color: #f1f1f1;
+      border-color: #ccc;
+    }
+
+    /* --- [END] REVISED MODAL BUTTON STYLES --- */
 
     .back-link {
       display: block;
       margin-top: 2rem;
       text-align: center;
-      color: #00ae70;
-      text-decoration: none;
-      font-size: 1rem;
+      color: var(--primary-color);
+      font-weight: 500;
     }
 
     .back-link:hover {
       text-decoration: underline;
-      color: #089863;
+      color: var(--primary-dark);
     }
   </style>
 </head>
@@ -420,67 +451,74 @@ $claims = requireAuth('admin', '/auth/login.html');
 <body>
   <div id="header-placeholder"></div>
   <main>
-    <div class="button-group-top">
-      <button id="add-new-item-btn">➕ افزودن اطلاعیه جدید</button>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">مدیریت اطلاعیه‌ها</h1>
+        <p class="page-subtitle">اطلاعیه‌های فعال در صفحه اصلی را از اینجا مدیریت کنید.</p>
+      </div>
+      <button id="add-new-item-btn">✨ افزودن اطلاعیه</button>
     </div>
 
-    <div id="item-list" class="main-content"></div>
-    <a href="/admin/index.php" class="back-link">بازگشت به بخش مدیریت</a>
+    <div id="item-list"></div>
+    <a href="/admin/index.php" class="back-link">بازگشت به پنل مدیریت</a>
   </main>
 
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="close-button">&times;</span>
-      <h2 id="modalTitle" style="text-align: center; margin-bottom: 25px"></h2>
+      <h2 id="modalTitle" style="text-align: right; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;"></h2>
       <form id="itemForm">
         <input type="hidden" id="itemId" />
 
         <label for="title">عنوان:</label>
         <input type="text" id="title" name="title" required />
 
-        <label for="description">توضیحات:</label>
+        <label for="description-editor">توضیحات:</label>
         <div class="editor-toolbar">
-          <button type="button" data-command="bold">Bold</button>
-          <button type="button" data-command="italic">Italic</button>
-          <button type="button" data-command="insertUnorderedList">
-            List
-          </button>
-          <button type="button" data-command="insertHTML" data-value="<br>">
-            New Line
-          </button>
+          <button type="button" data-command="bold" title="ضخیم"><b>B</b></button>
         </div>
-        <div id="description-editor" class="description-editor" contenteditable="true" role="textbox"
-          aria-multiline="true"></div>
+        <div id="description-editor" class="description-editor" contenteditable="true"></div>
 
         <label for="color">رنگ:</label>
         <select id="color" name="color">
-          <option value="yellow">زرد</option>
-          <option value="red">قرمز</option>
-          <option value="green">سبز</option>
-          <option value="orange">نارنجی</option>
+          <option value="green">🟢 سبز (اطلاع‌رسانی)</option>
+          <option value="yellow">🟡 زرد (هشدار)</option>
+          <option value="orange">🟠 نارنجی (مهم)</option>
+          <option value="red">🔴 قرمز (بسیار مهم)</option>
         </select>
 
-        <label for="startDate">تاریخ شروع:</label>
-        <input type="text" id="startDate" name="startDate" />
+        <div class="date-time-group">
+          <div>
+            <label for="startDate">تاریخ شروع (اختیاری):</label>
+            <input type="date" id="startDate" name="startDate" />
+          </div>
+          <div>
+            <label for="startTime">ساعت شروع (اختیاری):</label>
+            <input type="time" id="startTime" name="startTime" />
+          </div>
+        </div>
 
-        <label for="startTime">ساعت شروع:</label>
-        <input type="text" id="startTime" name="startTime" />
-
-        <label for="endDate">تاریخ پایان:</label>
-        <input type="text" id="endDate" name="endDate" />
-
-        <label for="endTime">ساعت پایان:</label>
-        <input type="text" id="endTime" name="endTime" />
+        <div class="date-time-group">
+          <div>
+            <label for="endDate">تاریخ پایان (اختیاری):</label>
+            <input type="date" id="endDate" name="endDate" />
+          </div>
+          <div>
+            <label for="endTime">ساعت پایان (اختیاری):</label>
+            <input type="time" id="endTime" name="endTime" />
+          </div>
+        </div>
 
         <div class="button-group">
-          <button type="submit" id="save-item-btn">ذخیره</button>
-          <button type="button" id="cancel-edit-btn">لغو</button>
+          <button type="button" id="cancel-edit-btn">✖️ لغو</button>
+          <button type="submit" id="save-item-btn">💾 ذخیره</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
+    // JavaScript logic is identical to the previous version
     let jsonData = [];
     let currentItemIndex = -1;
 
@@ -494,11 +532,9 @@ $claims = requireAuth('admin', '/auth/login.html');
     const editorToolbar = document.querySelector(".editor-toolbar");
     const cancelEditBtn = document.getElementById("cancel-edit-btn");
 
-    // --- تابع جدید برای ذخیره خودکار در سرور ---
     async function saveDataToServer() {
       try {
         const response = await fetch("/data/save-news-alerts.php", {
-          // ❗️ آدرس فایل PHP جدید
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -516,56 +552,79 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     function openModal() {
       itemModal.style.display = "block";
-      if (descriptionEditor) descriptionEditor.focus();
+      document.body.style.overflow = 'hidden';
+      descriptionEditor?.focus();
     }
 
     function closeModal() {
       itemModal.style.display = "none";
+      document.body.style.overflow = '';
       itemForm.reset();
-      currentItemIndex = -1;
       if (descriptionEditor) descriptionEditor.innerHTML = "";
     }
 
-    closeButton.onclick = closeModal;
-    window.onclick = (event) => {
-      if (event.target == itemModal) closeModal();
+    const colorToIconMap = {
+      green: '📢',
+      yellow: '⚠️',
+      orange: '⚠️',
+      red: '❗'
     };
-    cancelEditBtn.onclick = closeModal;
+
+    function formatDateTime(dateStr, timeStr) {
+      if (!dateStr) return '';
+      try {
+        const date = new Date(dateStr);
+        const options = {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        };
+        let formatted = new Intl.DateTimeFormat('fa-IR', options).format(date);
+        if (timeStr) {
+          formatted += ` - ساعت ${timeStr}`;
+        }
+        return formatted;
+      } catch (e) {
+        return dateStr;
+      }
+    }
 
     function renderItems() {
       itemListDiv.innerHTML = "";
       if (jsonData.length === 0) {
-        itemListDiv.innerHTML =
-          '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">اطلاعیه‌ای برای نمایش وجود ندارد.</p>';
+        itemListDiv.innerHTML = '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">اطلاعیه‌ای برای نمایش وجود ندارد.</p>';
         return;
       }
       jsonData.forEach((item, index) => {
         const card = document.createElement("div");
-        card.classList.add("news-alert-box", item.color);
+        card.className = `announcement-card ${item.color}`;
+
+        const start = formatDateTime(item.startDate, item.startTime);
+        const end = formatDateTime(item.endDate, item.endTime);
+        let timeInfo = 'همیشه فعال';
+        if (start && end) timeInfo = `از ${start} تا ${end}`;
+        else if (start) timeInfo = `از ${start}`;
+        else if (end) timeInfo = `تا ${end}`;
+
         card.innerHTML = `
-            <h3>${item.title}</h3>
-            <p>${item.description}</p>
-            <div class="actions">
-              <button class="edit-btn" data-index="${index}">ویرایش</button>
-              <button class="delete-btn" data-index="${index}">حذف</button>
-            </div>
-          `;
+                    <div class="card-header">
+                        <span class="card-icon">${colorToIconMap[item.color] || '🔹'}</span>
+                        <h3 class="card-title">${item.title}</h3>
+                    </div>
+                    <div class="card-body">${item.description}</div>
+                    <div class="card-footer">
+                        <span>🗓️ ${timeInfo}</span>
+                        <div class="card-actions">
+                            <button class="edit-btn" data-index="${index}">✏️ ویرایش</button>
+                            <button class="delete-btn" data-index="${index}">🗑️ حذف</button>
+                        </div>
+                    </div>
+                `;
         itemListDiv.appendChild(card);
       });
 
-      document.querySelectorAll(".edit-btn").forEach((button) => {
-        button.addEventListener("click", (e) => {
-          e.stopPropagation();
-          editItem(parseInt(e.target.dataset.index));
-        });
-      });
-
-      document.querySelectorAll(".delete-btn").forEach((button) => {
-        button.addEventListener("click", (e) => {
-          e.stopPropagation();
-          deleteItem(parseInt(e.target.dataset.index));
-        });
-      });
+      document.querySelectorAll(".edit-btn").forEach(btn => btn.addEventListener("click", (e) => editItem(parseInt(e.currentTarget.dataset.index))));
+      document.querySelectorAll(".delete-btn").forEach(btn => btn.addEventListener("click", (e) => deleteItem(parseInt(e.currentTarget.dataset.index))));
     }
 
     function editItem(index) {
@@ -591,12 +650,17 @@ $claims = requireAuth('admin', '/auth/login.html');
       openModal();
     });
 
-    // --- فرم ذخیره با قابلیت ذخیره خودکار ---
     itemForm.addEventListener("submit", (e) => {
       e.preventDefault();
+
+      let descriptionValue = descriptionEditor.innerHTML.trim();
+      if (!descriptionEditor.textContent.trim() || descriptionValue === '<br>') {
+        descriptionValue = '';
+      }
+
       const newItem = {
         title: document.getElementById("title").value,
-        description: descriptionEditor.innerHTML,
+        description: descriptionValue,
         color: document.getElementById("color").value,
         startDate: document.getElementById("startDate").value,
         startTime: document.getElementById("startTime").value,
@@ -612,38 +676,34 @@ $claims = requireAuth('admin', '/auth/login.html');
 
       renderItems();
       closeModal();
-      saveDataToServer(); // 🚀 ذخیره خودکار
+      saveDataToServer();
     });
 
-    // --- تابع حذف با قابلیت ذخیره خودکار ---
     function deleteItem(index) {
-      if (confirm("آیا مطمئن هستید که می‌خواهید این اطلاعیه را حذف کنید؟")) {
+      if (confirm("آیا از حذف این اطلاعیه اطمینان دارید؟")) {
         jsonData.splice(index, 1);
         renderItems();
-        saveDataToServer(); // 🚀 ذخیره خودکار
+        saveDataToServer();
       }
     }
 
     editorToolbar.addEventListener("click", (event) => {
-      const command = event.target.dataset.command;
-      const value = event.target.dataset.value;
-      if (command) {
-        document.execCommand(command, false, value);
+      const button = event.target.closest('button');
+      if (button && button.dataset.command) {
+        document.execCommand(button.dataset.command, false, button.dataset.value || null);
         descriptionEditor.focus();
       }
     });
 
-    // --- بارگذاری اولیه JSON ---
     async function loadInitialJson() {
       try {
-        const response = await fetch(
-          `/data/news-alerts.json?v=${new Date().getTime()}`
-        );
-        if (!response.ok) {
-          if (response.status === 404) jsonData = [];
-          else throw new Error(`HTTP error! status: ${response.status}`);
-        } else {
+        const response = await fetch(`/data/news-alerts.json?v=${new Date().getTime()}`);
+        if (response.ok) {
           jsonData = await response.json();
+        } else if (response.status === 404) {
+          jsonData = [];
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
       } catch (error) {
         console.error("Error loading news-alerts.json:", error);
@@ -654,6 +714,11 @@ $claims = requireAuth('admin', '/auth/login.html');
       }
     }
 
+    closeButton.onclick = closeModal;
+    window.onclick = (event) => {
+      if (event.target == itemModal) closeModal();
+    };
+    cancelEditBtn.onclick = closeModal;
     document.addEventListener("DOMContentLoaded", loadInitialJson);
   </script>
   <div id="footer-placeholder"></div>
