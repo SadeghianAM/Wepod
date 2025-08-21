@@ -1,5 +1,6 @@
 <?php
-require __DIR__ . '/../php/auth_check.php';
+require_once __DIR__ . '/../auth/require-auth.php';
+$claims = requireAuth('admin', '/auth/login.html');
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -250,6 +251,7 @@ require __DIR__ . '/../php/auth_check.php';
                 <a href="/admin/process_shifts.php">به‌روزرسانی برنامه شیفت‌ها</a>
               </li>
               <li><a href="/admin/admin-shifts.php">مدیریت شیفت ها</a></li>
+              <li><a href="/admin/reports.php">مدیریت داشبورد عملکرد</a></li>
               <li><a href="/admin/disruptions.php">مدیریت اختلالات</a></li>
               <li><a href="/admin/hash-tool.php">ابزار تولید هش</a></li>
             </ul>

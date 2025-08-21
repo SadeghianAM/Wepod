@@ -1,35 +1,28 @@
 <?php
-require_once __DIR__ . '/../php/jwt-functions.php';
+// ✅ Auth via auth middleware (no manual JWT handling here)
+require_once __DIR__ . '/../auth/require-auth.php';
+$claims = requireAuth(null, '/auth/login.html');
 
-if (!isset($_COOKIE['jwt_token'])) {
-    header('Location: /login.html');
-    exit;
-}
-$token = $_COOKIE['jwt_token'];
-$agentId = null;
+// Agent identifier: prefer 'sub', then 'id', then 'username'
+$agentId = $claims['sub'] ?? ($claims['id'] ?? ($claims['username'] ?? null));
 $agentData = [];
 
-if (verify_jwt($token, JWT_SECRET)) {
-    $payload = get_payload($token);
-    $agentId = $payload['id'] ?? null;
-
-    if ($agentId) {
-        $jsonFile = __DIR__ . '/../data/reports.json';
+// Load reports.json (try common locations)
+if ($agentId) {
+    $candidates = [
+        __DIR__ . '/../data/reports.json',
+        dirname(__DIR__) . '/data/reports.json',
+        __DIR__ . '/../../data/reports.json'
+    ];
+    foreach ($candidates as $jsonFile) {
         if (file_exists($jsonFile)) {
             $allData = json_decode(file_get_contents($jsonFile), true);
-            if (isset($allData[$agentId])) {
+            if (is_array($allData) && isset($allData[$agentId])) {
                 $agentData = $allData[$agentId];
             }
+            break;
         }
-    } else {
-        setcookie('jwt_token', '', time() - 3600, '/');
-        header('Location: /login.html');
-        exit;
     }
-} else {
-    setcookie('jwt_token', '', time() - 3600, '/');
-    header('Location: /login.html');
-    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -271,7 +264,8 @@ if (verify_jwt($token, JWT_SECRET)) {
 
     <script src="/js/header.js"></script>
     <script>
-        const agentData = <?php echo json_encode($agentData); ?>;
+        const agentData = <?php echo json_encode($agentData, JSON_UNESCAPED_UNICODE); ?>;
+
         const metricsConfig = {
             performance: {
                 title: "عملکرد کلی تماس‌ها",
@@ -360,13 +354,27 @@ if (verify_jwt($token, JWT_SECRET)) {
         const charts = {};
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('/php/get-user-info.php').then(res => res.json()).then(data => {
-                if (data.name) {
-                    document.getElementById('agent-name-display').textContent = `گزارش‌های روزانه شما، ${data.name}`;
-                }
-            }).catch(err => {
-                document.getElementById('agent-name-display').textContent = 'اطلاعات کاربری یافت نشد.';
-            });
+            // ✅ دریافت نام کاربر از API جدید (کوکی HttpOnly به‌صورت خودکار ارسال می‌شود)
+            fetch('/auth/get-user-info.php', {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Cache-Control': 'no-store'
+                    }
+                })
+                .then(res => res.ok ? res.json() : Promise.reject(res))
+                .then(payload => {
+                    if (payload && payload.ok && payload.user) {
+                        const u = payload.user;
+                        const name = u.name || u.fullName || u.displayName || u.username || 'کاربر';
+                        document.getElementById('agent-name-display').textContent = `گزارش‌های روزانه شما، ${name}`;
+                    } else {
+                        document.getElementById('agent-name-display').textContent = 'اطلاعات کاربری یافت نشد.';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('agent-name-display').textContent = 'اطلاعات کاربری یافت نشد.';
+                });
+
             createNavButtons();
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
@@ -405,7 +413,7 @@ if (verify_jwt($token, JWT_SECRET)) {
                     let displayValue, p_class = "";
                     if (hasValue) {
                         const value = dataForDay[key];
-                        displayValue = timeBasedMetrics.includes(key) ? formatSeconds(value) : value.toLocaleString();
+                        displayValue = timeBasedMetrics.includes(key) ? formatSeconds(value) : Number(value).toLocaleString();
                     } else {
                         displayValue = "(داده‌ای ثبت نشده)";
                         p_class = "no-value-text";
@@ -471,12 +479,12 @@ if (verify_jwt($token, JWT_SECRET)) {
                 <div class="metric-group">
                     <h2 class="metric-group-title">خلاصه عملکرد ۷ روز گذشته</h2>
                     <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
-                        <div class="metric-card"><div class="emoji-container">📞</div><div class="content"><h3>مجموع تماس پاسخ داده شده</h3><p>${summary.answered_calls.toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">📞</div><div class="content"><h3>مجموع تماس پاسخ داده شده</h3><p>${Number(summary.answered_calls).toLocaleString()}</p></div></div>
                         <div class="metric-card"><div class="emoji-container">⏱️</div><div class="content"><h3>مجموع مکالمات</h3><p>${formatSeconds(summary.total_talk_time)}</p></div></div>
                         <div class="metric-card"><div class="emoji-container">⭐</div><div class="content"><h3>میانگین امتیاز کل</h3><p>${finalAvgRating}</p></div></div>
-                        <div class="metric-card"><div class="emoji-container">🎟️</div><div class="content"><h3>مجموع تیکت</h3><p>${summary.tickets_count.toLocaleString()}</p></div></div>
-                        <div class="metric-card"><div class="emoji-container">📄</div><div class="content"><h3>مجموع FAMS</h3><p>${summary.fams_count.toLocaleString()}</p></div></div>
-                        <div class="metric-card"><div class="emoji-container">✅</div><div class="content"><h3>مجموع جیرا</h3><p>${summary.jira_count.toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">🎟️</div><div class="content"><h3>مجموع تیکت</h3><p>${Number(summary.tickets_count).toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">📄</div><div class="content"><h3>مجموع FAMS</h3><p>${Number(summary.fams_count).toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">✅</div><div class="content"><h3>مجموع جیرا</h3><p>${Number(summary.jira_count).toLocaleString()}</p></div></div>
                     </div>
                 </div>
                 <div class="charts-container" style="grid-template-columns: repeat(2, 1fr);">
@@ -523,7 +531,7 @@ if (verify_jwt($token, JWT_SECRET)) {
             const ctx = document.getElementById(canvasId).getContext('2d');
             Chart.defaults.font.family = 'Vazirmatn';
             charts[canvasId] = new Chart(ctx, {
-                type: type,
+                type,
                 data: {
                     labels,
                     datasets
@@ -590,9 +598,7 @@ if (verify_jwt($token, JWT_SECRET)) {
         function updateActiveButton(id) {
             document.querySelectorAll('#date-nav button').forEach(btn => btn.classList.remove('active'));
             const activeBtn = id === 'summary' ? document.getElementById('btn-summary') : document.getElementById(`btn-${id}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
+            if (activeBtn) activeBtn.classList.add('active');
         }
     </script>
 </body>

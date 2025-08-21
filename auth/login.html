@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <title>ورود به پنل مدیریت</title>
+    <title>ورود به حساب</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       @font-face {
@@ -183,8 +183,8 @@
   <body>
     <div class="login-container">
       <div class="login-header">
-        <h2>ورود به پنل مدیریت وی هاب</h2>
-        <p>برای دسترسی به پنل مدیریت، وارد شوید</p>
+        <h2>ورود به پنل وی هاب</h2>
+        <p>برای دسترسی به پنل کاربری خود، وارد شوید</p>
       </div>
 
       <form id="loginForm">
@@ -234,20 +234,21 @@
         const password = passwordInput.value;
 
         try {
-          const res = await fetch("/php/jwt-login.php", {
+          const res = await fetch("/auth/login.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
             body: JSON.stringify({ username, password }),
           });
 
           const result = await res.json();
 
           if (res.ok) {
-            localStorage.setItem("jwt", result.token);
             errorMessage.textContent = "ورود موفقیت‌آمیز بود. در حال انتقال...";
             errorMessage.style.color = "var(--primary-color)";
             setTimeout(() => {
-              window.location.href = "/admin/index.php";
+              window.location.href =
+                result && result.redirect ? result.redirect : "/";
             }, 1000);
           } else {
             errorMessage.textContent =

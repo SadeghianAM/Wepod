@@ -21,14 +21,12 @@
         --swap-color: #e8eaf6;
         --swap-text-color: #3f51b5;
       }
-
       @font-face {
         font-family: "Vazirmatn";
         src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
         font-weight: 100 900;
         font-display: swap;
       }
-
       *,
       *::before,
       *::after {
@@ -37,7 +35,6 @@
         margin: 0;
         padding: 0;
       }
-
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
@@ -46,12 +43,10 @@
         display: flex;
         flex-direction: column;
       }
-
       a {
         text-decoration: none;
         transition: all 0.2s ease-in-out;
       }
-
       header,
       footer {
         background: var(--primary-color);
@@ -64,24 +59,20 @@
         z-index: 10;
         flex-shrink: 0;
       }
-
       header {
         height: 70px;
       }
-
       header h1 {
         font-size: 1.2rem;
         font-weight: 700;
         margin-bottom: 0;
         color: var(--header-text);
       }
-
       footer {
         height: 60px;
         font-size: 0.85rem;
         margin-top: auto;
       }
-
       main {
         width: 100%;
         flex-grow: 1;
@@ -89,7 +80,6 @@
         padding: 2rem;
         box-shadow: 0 4px 20px var(--shadow-color-light);
       }
-
       h1 {
         font-size: 1.8rem;
         margin-bottom: 1.5rem;
@@ -97,7 +87,6 @@
         text-align: center;
         font-weight: 700;
       }
-
       .filters-container {
         background-color: #f1f3f5;
         padding: 1.5rem;
@@ -108,18 +97,15 @@
         gap: 1.5rem;
         align-items: flex-end;
       }
-
       .filter-group {
         display: flex;
         flex-direction: column;
       }
-
       .filter-group label {
         font-weight: 600;
         margin-bottom: 0.5rem;
         font-size: 0.9rem;
       }
-
       .filter-group input[type="text"],
       .filter-group select {
         padding: 0.75rem;
@@ -129,27 +115,23 @@
         width: 100%;
         background-color: var(--card-bg);
       }
-
       #loader {
         text-align: center;
         font-size: 1.2rem;
         color: var(--secondary-text-color);
         padding: 3rem;
       }
-
       .table-container {
         width: 100%;
         overflow-x: auto;
         border: 1px solid var(--border-color);
         border-radius: 0.5rem;
       }
-
       table {
         width: 100%;
         border-collapse: collapse;
         min-width: 960px;
       }
-
       th,
       td {
         padding: 0.9rem 1rem;
@@ -157,7 +139,6 @@
         border: 1px solid var(--border-color);
         white-space: nowrap;
       }
-
       thead th {
         background-color: var(--primary-light);
         color: var(--secondary-text-color);
@@ -167,22 +148,18 @@
         z-index: 3;
         line-height: 1.4;
       }
-
       tbody tr:nth-child(even) {
         background-color: var(--bg-color);
       }
-
       tbody tr:hover {
         background-color: var(--primary-light);
       }
-
       thead th:nth-child(1),
       tbody td:nth-child(1) {
         width: 60px;
         min-width: 60px;
         max-width: 60px;
       }
-
       thead th:nth-child(2),
       tbody td:nth-child(2) {
         width: 200px;
@@ -191,69 +168,56 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-
       thead th:nth-child(3),
       tbody td:nth-child(3) {
         width: 150px;
         min-width: 150px;
         max-width: 150px;
       }
-
       thead th:nth-child(4),
       tbody td:nth-child(4) {
         width: 150px;
         min-width: 150px;
         max-width: 150px;
       }
-
       thead th:nth-child(-n + 4),
       tbody td:nth-child(-n + 4) {
         position: sticky;
         z-index: 2;
       }
-
       thead th:nth-child(1),
       tbody td:nth-child(1) {
         right: 0;
       }
-
       thead th:nth-child(2),
       tbody td:nth-child(2) {
         right: 60px;
       }
-
       thead th:nth-child(3),
       tbody td:nth-child(3) {
         right: 260px;
       }
-
       thead th:nth-child(4),
       tbody td:nth-child(4) {
         right: 410px;
       }
-
       thead th:nth-child(-n + 4) {
         background-color: var(--primary-light);
         z-index: 4;
       }
-
       tbody td:nth-child(-n + 4) {
         background-color: var(--card-bg);
       }
-
       tbody tr:nth-child(even) td:nth-child(-n + 4) {
         background-color: var(--bg-color);
       }
-
       tbody tr:hover td:nth-child(-n + 4) {
         background-color: var(--primary-light);
       }
-
       tbody td:nth-child(2) {
         font-weight: 600;
         text-align: right;
       }
-
       .status {
         padding: 0.5em 0.7em;
         border-radius: 0.3rem;
@@ -263,35 +227,28 @@
         min-width: 80px;
         display: inline-block;
       }
-
       .status-on-duty {
         background-color: #28a745;
       }
-
       .status-off {
         background-color: #dc3545;
       }
-
       .status-unknown {
         background-color: #6c757d;
       }
-
       .status-special {
         background-color: #ffc107;
         color: #212529;
       }
-
       .status-swap {
         background-color: var(--swap-color);
         color: var(--swap-text-color);
       }
-
       .tabs-container {
         display: flex;
         border-bottom: 2px solid var(--border-color);
         margin-bottom: 2rem;
       }
-
       .tab-button {
         padding: 1rem 1.5rem;
         font-size: 1.1rem;
@@ -304,35 +261,28 @@
         transition: color 0.3s, border-color 0.3s;
         margin-left: 1rem;
       }
-
       .tab-button:hover {
         color: var(--primary-dark);
       }
-
       .tab-button.active {
         color: var(--primary-color);
         border-bottom-color: var(--primary-color);
       }
-
       .tab-content {
         display: none;
       }
-
       .tab-content.active {
         display: block;
         animation: fadeIn 0.5s ease;
       }
-
       @keyframes fadeIn {
         from {
           opacity: 0;
         }
-
         to {
           opacity: 1;
         }
       }
-
       .not-logged-in {
         text-align: center;
         padding: 3rem;
@@ -341,12 +291,10 @@
         border: 1px solid #ffeeba;
         border-radius: var(--border-radius);
       }
-
       .not-logged-in a {
         color: var(--primary-dark);
         font-weight: bold;
       }
-
       #user-shift-info {
         background-color: var(--primary-light);
         padding: 1.5rem;
@@ -357,19 +305,16 @@
         flex-wrap: wrap;
         gap: 1rem;
       }
-
       #user-shift-info span {
         font-weight: 700;
         color: var(--primary-dark);
       }
-
       #calendar-controls {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
       }
-
       #calendar-controls button {
         background-color: var(--primary-color);
         color: white;
@@ -380,23 +325,19 @@
         cursor: pointer;
         transition: background-color 0.2s, opacity 0.2s;
       }
-
       #calendar-controls button:hover {
         background-color: var(--primary-dark);
       }
-
       #calendar-controls button:disabled {
         background-color: #a5d8d1;
         opacity: 0.6;
         cursor: not-allowed;
       }
-
       #current-month-year {
         font-size: 1.5rem;
         font-weight: 700;
         color: var(--primary-dark);
       }
-
       #calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -406,7 +347,6 @@
         border-radius: var(--border-radius);
         border: 1px solid var(--border-color);
       }
-
       .calendar-header {
         text-align: center;
         font-weight: 600;
@@ -414,7 +354,6 @@
         color: var(--secondary-text-color);
         border-bottom: 2px solid var(--border-color);
       }
-
       .calendar-day {
         min-height: 120px;
         border: 1px solid #f0f0f0;
@@ -426,12 +365,10 @@
         flex-direction: column;
         gap: 0.4rem;
       }
-
       .calendar-day.other-month {
         background-color: #f8f9fa;
         color: #ced4da;
       }
-
       .calendar-day .shift-info {
         padding: 0.4rem 0.5rem;
         border-radius: 0.3rem;
@@ -439,14 +376,10 @@
         text-align: center;
         font-weight: 500;
       }
-
-      /* --- CSS CHANGE START --- */
-      /* 1. Fix swap color in calendar */
+      /* extra for swap details */
       .shift-info.status-swap {
         color: var(--swap-text-color);
       }
-
-      /* 2. Style for swapped shift details container */
       .swapped-shift-details {
         font-size: 0.8rem;
         background-color: #f0f0f0;
@@ -457,8 +390,6 @@
         border: 1px solid #ddd;
         line-height: 1.5;
       }
-      /* --- CSS CHANGE END --- */
-
       .jdp-popover {
         position: absolute;
         background: #fff;
@@ -469,7 +400,6 @@
         width: 280px;
         z-index: 9999;
       }
-
       .jdp-header {
         display: flex;
         justify-content: space-between;
@@ -478,7 +408,6 @@
         font-weight: 700;
         color: var(--primary-dark);
       }
-
       .jdp-nav-btn {
         background: var(--primary-color);
         color: #fff;
@@ -487,20 +416,17 @@
         border-radius: 0.4rem;
         cursor: pointer;
       }
-
       .jdp-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 4px;
       }
-
       .jdp-weekday {
         text-align: center;
         font-size: 0.85rem;
         color: var(--secondary-text-color);
         padding: 0.3rem 0;
       }
-
       .jdp-day {
         text-align: center;
         padding: 0.4rem 0;
@@ -509,16 +435,13 @@
         background: #fafafa;
         border: 1px solid #f0f0f0;
       }
-
       .jdp-day:hover {
         background: var(--primary-light);
       }
-
       .jdp-day.other {
         color: #bbb;
         background: #f8f9fa;
       }
-
       .jdp-hidden {
         display: none;
       }
@@ -534,39 +457,43 @@
         </button>
         <button id="my-shift-tab" class="tab-button">شیفت من</button>
       </div>
+
       <div id="monthly-view" class="tab-content active">
         <h1>برنامه شیفت ماهانه</h1>
         <div class="filters-container">
           <div class="filter-group">
-            <label for="startDate">از تاریخ:</label
-            ><input
+            <label for="startDate">از تاریخ:</label>
+            <input
               type="text"
               id="startDate"
               placeholder="انتخاب تاریخ (جلالی)"
               autocomplete="off"
-            /><input type="hidden" id="startDateAlt" />
+            />
+            <input type="hidden" id="startDateAlt" />
           </div>
           <div class="filter-group">
-            <label for="endDate">تا تاریخ:</label
-            ><input
+            <label for="endDate">تا تاریخ:</label>
+            <input
               type="text"
               id="endDate"
               placeholder="انتخاب تاریخ (جلالی)"
               autocomplete="off"
-            /><input type="hidden" id="endDateAlt" />
+            />
+            <input type="hidden" id="endDateAlt" />
           </div>
           <div class="filter-group">
-            <label for="expertSelect1">انتخاب کارشناس اول:</label
-            ><select id="expertSelect1"></select>
+            <label for="expertSelect1">انتخاب کارشناس اول:</label>
+            <select id="expertSelect1"></select>
           </div>
           <div class="filter-group">
-            <label for="expertSelect2">انتخاب کارشناس دوم:</label
-            ><select id="expertSelect2"></select>
+            <label for="expertSelect2">انتخاب کارشناس دوم:</label>
+            <select id="expertSelect2"></select>
           </div>
         </div>
         <div id="loader">در حال بارگذاری اطلاعات...</div>
         <div id="schedule-container" class="table-container"></div>
       </div>
+
       <div id="my-shift-view" class="tab-content"></div>
     </main>
     <div id="footer-placeholder"></div>
@@ -586,6 +513,23 @@
         "#E0F7FA",
       ];
       let nextColorIndex = 0;
+
+      // ============ NEW: auth auth helper ============
+      async function getLoggedInUser() {
+        try {
+          const res = await fetch("/auth/get-user-info.php", {
+            credentials: "same-origin",
+            headers: { "Cache-Control": "no-store" },
+          });
+          if (!res.ok) return null;
+          const data = await res.json();
+          return data && data.ok && data.user ? data.user : null;
+        } catch {
+          return null;
+        }
+      }
+      // ===================================================
+
       let startWorkMap = null;
       async function getStartWorkMap() {
         if (startWorkMap) return startWorkMap;
@@ -615,6 +559,7 @@
         }
         return startWorkMap;
       }
+
       function diffDaysInclusive(fromDate, toDate) {
         const d1 = new Date(
           fromDate.getFullYear(),
@@ -674,7 +619,7 @@
       }
       function toPersian(date) {
         const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
-        return parts.map((part) => parseInt(part, 10));
+        return parts.map((p) => parseInt(p, 10));
       }
       function pad2(n) {
         return String(n).padStart(2, "0");
@@ -698,6 +643,7 @@
         if (jm <= 11) return 30;
         return isJalaliLeap(jy) ? 30 : 29;
       }
+
       class JalaliDatePicker {
         constructor(inputId, altId) {
           this.input = document.getElementById(inputId);
@@ -801,6 +747,7 @@
           this.alt.value = formatISO(date);
         }
       }
+
       document.addEventListener("DOMContentLoaded", initializePage);
       async function initializePage() {
         setupTabs();
@@ -832,29 +779,24 @@
           loader.style.color = "var(--error-color)";
         }
       }
+
       function setupTabs() {
         const tabs = document.querySelectorAll(".tab-button");
         const contents = document.querySelectorAll(".tab-content");
         tabs.forEach((tab) => {
-          tab.addEventListener("click", () => {
-            tabs.forEach((item) => item.classList.remove("active"));
-            contents.forEach((content) => content.classList.remove("active"));
+          tab.addEventListener("click", async () => {
+            tabs.forEach((i) => i.classList.remove("active"));
+            contents.forEach((c) => c.classList.remove("active"));
             tab.classList.add("active");
             const activeContent = document.getElementById(
               tab.id.replace("-tab", "-view")
             );
             activeContent.classList.add("active");
-            if (tab.id === "my-shift-tab") handleMyShiftTabClick();
+            if (tab.id === "my-shift-tab") await handleMyShiftTabClick();
           });
         });
       }
-      function parseJwt(token) {
-        try {
-          return JSON.parse(atob(token.split(".")[1]));
-        } catch (e) {
-          return null;
-        }
-      }
+
       function hasShiftsInMonth(date, userShifts) {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -863,28 +805,50 @@
           shiftDate.startsWith(monthPrefix)
         );
       }
+
+      // ====== UPDATED: no localStorage/JWT parsing; use auth get-user-info ======
       async function handleMyShiftTabClick() {
         const myShiftContainer = document.getElementById("my-shift-view");
-        const token = localStorage.getItem("jwt");
-        if (!token) {
-          myShiftContainer.innerHTML = `<div class="not-logged-in"><p>برای مشاهده شیفت شخصی خود، لطفاً ابتدا وارد شوید.</p><a href="/login.html">رفتن به صفحه ورود</a></div>`;
+        const user = await getLoggedInUser();
+
+        if (!user) {
+          myShiftContainer.innerHTML = `<div class="not-logged-in">
+              <p>برای مشاهده شیفت شخصی خود، لطفاً ابتدا وارد شوید.</p>
+              <a href="/auth/login.html">رفتن به صفحه ورود</a>
+            </div>`;
           return;
         }
-        const tokenPayload = parseJwt(token);
-        const userId = tokenPayload ? tokenPayload.id : null;
-        if (!userId) {
-          myShiftContainer.innerHTML = `<div class="not-logged-in"><p>اطلاعات کاربری در توکن شما یافت نشد. لطفاً دوباره وارد شوید.</p><a href="/login.html">خروج و ورود مجدد</a></div>`;
-          return;
+
+        const userId = user.id ?? user.sub ?? user.userId ?? null;
+        let userShiftData = null;
+
+        if (userId !== null) {
+          userShiftData = allExperts.find(
+            (expert) => String(expert.id) === String(userId)
+          );
         }
-        const userShiftData = allExperts.find((expert) => expert.id == userId);
+        // fallback: اگر در داده‌ها username ذخیره شده باشد
+        if (!userShiftData && user.username) {
+          userShiftData = allExperts.find(
+            (expert) =>
+              String(expert.username || "").toLowerCase() ===
+              String(user.username).toLowerCase()
+          );
+        }
+
         if (!userShiftData) {
-          myShiftContainer.innerHTML = `<div class="not-logged-in"><p>اطلاعات شیفت برای شما در سیستم یافت نشد.</p></div>`;
+          myShiftContainer.innerHTML = `<div class="not-logged-in">
+              <p>اطلاعات شیفت برای شما در سیستم یافت نشد.</p>
+            </div>`;
           return;
         }
+
         const swMap = await getStartWorkMap();
         const startInfo = swMap.get(String(userId)) || null;
         renderMyShiftView(userShiftData, startInfo);
       }
+      // ============================================================================
+
       function renderMyShiftView(userData, startInfo) {
         const container = document.getElementById("my-shift-view");
         const monthName = currentCalendarDate.toLocaleDateString("fa-IR", {
@@ -899,6 +863,7 @@
         nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
         const hasPrevShifts = hasShiftsInMonth(prevMonthDate, userData.shifts);
         const hasNextShifts = hasShiftsInMonth(nextMonthDate, userData.shifts);
+
         const breakTime = userData["break-time"];
         let breakLabel = "ساعت استراحت";
         let breakValue = breakTime || "تعیین نشده";
@@ -907,6 +872,7 @@
           if (endTime)
             breakLabel = endTime <= "17:00" ? "🌮 تایم ناهار" : "🌮 تایم شام";
         }
+
         let startWorkText =
           startInfo && startInfo.start_work ? startInfo.start_work : null;
         let startWorkDays = null;
@@ -918,21 +884,37 @@
             startWorkDays = diffDaysInclusive(gStart, new Date());
           }
         }
-        container.innerHTML = `<h1>تقویم شیفت من</h1><div id="user-shift-info"><p>👤 کارشناس: <span>${
-          userData.name
-        }</span></p><p>⏰ ساعت شیفت: <span>${
-          userData["shifts-time"] || "تعیین نشده"
-        }</span></p><p>${breakLabel}: <span>${breakValue}</span></p>${
-          startWorkText
-            ? `<p>📅 داتینی از تاریخ: <span>${startWorkText}</span></p><p><span>🚀 ${(
-                startWorkDays ?? 0
-              ).toLocaleString("fa-IR")}</span> روزه که داتینی هستی</p>`
-            : ``
-        }</div><div id="calendar-controls"><button id="prev-month" ${
-          hasPrevShifts ? "" : "disabled"
-        }>&rarr; ماه قبل</button><span id="current-month-year">${monthName} ${year}</span><button id="next-month" ${
-          hasNextShifts ? "" : "disabled"
-        }>ماه بعد &larr;</button></div><div id="calendar-container"></div>`;
+
+        container.innerHTML = `
+          <h1>تقویم شیفت من</h1>
+          <div id="user-shift-info">
+            <p>👤 کارشناس: <span>${userData.name}</span></p>
+            <p>⏰ ساعت شیفت: <span>${
+              userData["shifts-time"] || "تعیین نشده"
+            }</span></p>
+            <p>${breakLabel}: <span>${breakValue}</span></p>
+            ${
+              startWorkText
+                ? `<p>📅 داتینی از تاریخ: <span>${startWorkText}</span></p><p><span>🚀 ${(
+                    startWorkDays ?? 0
+                  ).toLocaleString("fa-IR")}</span> روزه که داتینی هستی</p>`
+                : ``
+            }
+          </div>
+
+          <div id="calendar-controls">
+            <button id="prev-month" ${
+              hasPrevShifts ? "" : "disabled"
+            }>&rarr; ماه قبل</button>
+            <span id="current-month-year">${monthName} ${year}</span>
+            <button id="next-month" ${
+              hasNextShifts ? "" : "disabled"
+            }>ماه بعد &larr;</button>
+          </div>
+
+          <div id="calendar-container"></div>
+        `;
+
         document.getElementById("prev-month").addEventListener("click", () => {
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
           renderMyShiftView(userData, startInfo);
@@ -941,10 +923,10 @@
           currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
           renderMyShiftView(userData, startInfo);
         });
+
         renderCalendar(currentCalendarDate, userData.shifts);
       }
 
-      // --- JAVASCRIPT CHANGE START ---
       function renderCalendar(date, shiftsData) {
         const container = document.getElementById("calendar-container");
         const weekDays = [
@@ -982,6 +964,7 @@
         const offsetToFriday = (5 - endDayOfWeek + 7) % 7;
         calendarEndDate.setDate(calendarEndDate.getDate() + offsetToFriday);
         let loopDate = new Date(calendarStartDate);
+
         while (loopDate <= calendarEndDate) {
           const [currentPYear, currentPMonth] = toPersian(loopDate);
           const isOtherMonth = currentPMonth !== pMonth;
@@ -989,6 +972,7 @@
           const m = String(loopDate.getMonth() + 1).padStart(2, "0");
           const d = String(loopDate.getDate()).padStart(2, "0");
           const dateString = `${y}-${m}-${d}`;
+
           const shiftDetails = getShiftDetails(shiftsData[dateString]);
           let statusClass = "";
           let statusText = shiftDetails.displayText;
@@ -1005,10 +989,7 @@
                   originalExpert["shifts-time"] || "نامشخص";
                 const originalBreakTime =
                   originalExpert["break-time"] || "نامشخص";
-                extraDetailsHtml = `<div class="swapped-shift-details">
-                                                    <div>⏰ ${originalShiftTime}</div>
-                                                    <div>🌮 ${originalBreakTime}</div>
-                                                </div>`;
+                extraDetailsHtml = `<div class="swapped-shift-details"><div>⏰ ${originalShiftTime}</div><div>🌮 ${originalBreakTime}</div></div>`;
               }
             }
           } else {
@@ -1021,26 +1002,25 @@
             statusClass = classMap[shiftDetails.status] || "status-special";
           }
           if (shiftDetails.status === "unknown") statusText = "";
+
           html += `<div class="calendar-day ${
             isOtherMonth ? "other-month" : ""
           }">
-                    <div class="day-number">${loopDate.toLocaleDateString(
-                      "fa-IR",
-                      { day: "numeric" }
-                    )}</div>
-                    ${
-                      statusText
-                        ? `<div class="shift-info ${statusClass}">${statusText}</div>`
-                        : ""
-                    }
-                    ${extraDetailsHtml}
-                 </div>`;
+              <div class="day-number">${loopDate.toLocaleDateString("fa-IR", {
+                day: "numeric",
+              })}</div>
+              ${
+                statusText
+                  ? `<div class="shift-info ${statusClass}">${statusText}</div>`
+                  : ""
+              }
+              ${extraDetailsHtml}
+            </div>`;
           loopDate.setDate(loopDate.getDate() + 1);
         }
         html += "</div>";
         container.innerHTML = html;
       }
-      // --- JAVASCRIPT CHANGE END ---
 
       function getShiftStyle(shiftTime) {
         if (!shiftTime) return "";
@@ -1050,6 +1030,7 @@
         }
         return `style="background-color: ${shiftColorMap.get(shiftTime)};"`;
       }
+
       function populateFilterControls() {
         const t = document.getElementById("expertSelect1"),
           e = document.getElementById("expertSelect2");
@@ -1069,6 +1050,7 @@
         });
         allAvailableDates = Array.from(n).sort();
       }
+
       function applyFilters() {
         const t = document.getElementById("startDateAlt").value;
         const e = document.getElementById("endDateAlt").value;
@@ -1085,16 +1067,17 @@
             ? allExperts.filter((x) => o.has(String(x.id)))
             : [...allExperts];
         r.sort((A, B) => {
-          const stA = A["shifts-time"] || "";
-          const stB = B["shifts-time"] || "";
+          const stA = A["shifts-time"] || "",
+            stB = B["shifts-time"] || "";
           const c1 = stA.localeCompare(stB, "fa");
           if (c1 !== 0) return c1;
-          const btA = A["break-time"] || "";
-          const btB = B["break-time"] || "";
+          const btA = A["break-time"] || "",
+            btB = B["break-time"] || "";
           return btA.localeCompare(btB, "fa");
         });
         renderTable(r, a);
       }
+
       function getShiftDetails(shiftEntry) {
         if (
           typeof shiftEntry === "object" &&
@@ -1124,13 +1107,9 @@
             displayText = "-";
             break;
         }
-        return {
-          status: status,
-          displayText: displayText,
-          isSwap: false,
-          linkedTo: null,
-        };
+        return { status, displayText, isSwap: false, linkedTo: null };
       }
+
       function renderTable(expertsToRender, datesToRender) {
         const container = document.getElementById("schedule-container");
         const loader = document.getElementById("loader");
@@ -1152,9 +1131,10 @@
           const day = d.toLocaleDateString("fa-IR", { day: "numeric" });
           const month = d.toLocaleDateString("fa-IR", { month: "short" });
           const weekday = d.toLocaleDateString("fa-IR", { weekday: "short" });
-          tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size: 0.8rem; color: #6c757d; font-weight: 400;">${date}</span></th>`;
+          tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size:.8rem;color:#6c757d;font-weight:400;">${date}</span></th>`;
         });
         tableHtml += "</tr></thead><tbody>";
+
         expertsToRender.forEach((expert, index) => {
           const shiftTime = expert["shifts-time"] || "-";
           const breakTime = expert["break-time"] || "-";
@@ -1180,9 +1160,11 @@
           });
           tableHtml += "</tr>";
         });
+
         tableHtml += "</tbody></table>";
         container.innerHTML = tableHtml;
       }
+
       document.addEventListener("DOMContentLoaded", () => {
         const today = new Date();
         const nextWeek = new Date();

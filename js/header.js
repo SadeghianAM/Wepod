@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    await checkLoginStatus();
+    await checkLoginStatus(); // UPDATED
 
     setupHeader();
 
@@ -63,34 +63,81 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("tools-search")) setupToolsSearch();
   }
 
+  // ==========================
+  // Auth (auth / HttpOnly)
+  // ==========================
+
+  // UPDATED: سیستم خروج بر اساس کوکی HttpOnly
   async function logout() {
-    await fetch("/php/logout.php");
-    localStorage.removeItem("jwt");
-    window.location.href = "/login.html";
+    try {
+      await fetch("/auth/logout.php?json=1", { credentials: "same-origin" });
+    } catch (e) {
+      console.warn("Logout request failed (ignored):", e);
+    }
+    try {
+      localStorage.removeItem("jwt");
+    } catch (e) {}
+    window.location.href = "/auth/login.html";
   }
 
+  // UPDATED: وضعیت لاگین از /auth/get-user-info.php (با ارسال خودکار کوکی)
   async function checkLoginStatus() {
     const placeholder = document.getElementById("user-info-placeholder");
     if (!placeholder) return;
 
+    // کمک‌تابع: اولین فیلد موجود را از چند نامِ محتمل برمی‌گرداند
+    const pick = (obj, ...keys) => {
+      for (const k of keys) {
+        if (obj && typeof obj[k] === "string" && obj[k].trim() !== "")
+          return obj[k];
+        if (obj && typeof obj[k] === "number") return String(obj[k]);
+      }
+      return "";
+    };
+
     try {
-      const response = await fetch("/php/get-user-info.php");
+      const response = await fetch("/auth/get-user-info.php", {
+        credentials: "same-origin",
+        headers: { "Cache-Control": "no-store" },
+      });
 
       if (response.ok) {
-        const userData = await response.json();
-        const avatarLetter = userData.name ? userData.name.trim()[0] : "؟";
+        const payload = await response.json();
+        if (!payload || !payload.ok || !payload.user) {
+          throw new Error("Invalid user info payload");
+        }
+
+        const u = payload.user;
+
+        // نام: اولویت با name/fullName/displayName، سپس username
+        const name =
+          pick(u, "name", "fullName", "displayName") ||
+          pick(u, "username") ||
+          "کاربر";
+
+        // داخلی کارشناس: چند نام رایج + fallback به id
+        const internal =
+          pick(
+            u,
+            "extension",
+            "ext",
+            "internal",
+            "internal_number",
+            "phone_extension",
+            "phoneExt"
+          ) || pick(u, "id");
+
+        const avatarLetter = (name || "؟").trim().charAt(0) || "؟";
 
         placeholder.innerHTML = `
           <div id="user-info-container">
-            <span id="user-name-display">${userData.name}</span>
+            <span id="user-name-display">${name}</span>
             <div id="logout-popup">
               <div class="popup-header">
                   <div class="user-avatar-large">${avatarLetter}</div>
                   <div class="user-details">
-                      <p class="user-name">${userData.name}</p>
-                      <p class="user-id">داخلی: ${toPersianDigits(
-                        userData.id
-                      )}</p>
+                      <p class="user-name">${name}</p>
+                      <p class="user-id">داخلی: ${toPersianDigits(internal)}</p>
                   </div>
               </div>
               <button id="logout-button">خروج از حساب</button>
@@ -116,17 +163,28 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       } else {
+        // لاگین نیست → دکمهٔ ورود
         placeholder.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
         document
           .getElementById("login-button")
           .addEventListener("click", () => {
-            window.location.href = "/login.html";
+            window.location.href = "/auth/login.html";
           });
       }
     } catch (error) {
       console.error("Error checking login status:", error);
+      placeholder.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
+      const btn = document.getElementById("login-button");
+      if (btn)
+        btn.addEventListener("click", () => {
+          window.location.href = "/auth/login.html";
+        });
     }
   }
+
+  // ==========================
+  // Utils (Jalali / Persian)
+  // ==========================
 
   const weekdays = [
     "یک‌شنبه",
@@ -229,6 +287,10 @@ document.addEventListener("DOMContentLoaded", () => {
       setInterval(updateTime, 60 * 1000);
     }
   }
+
+  // ==========================
+  // Business widgets
+  // ==========================
 
   async function updateCardTrackingInfo() {
     const container = document.getElementById("card-tracking-info");
