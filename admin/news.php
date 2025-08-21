@@ -34,9 +34,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       --red-bg: #fef2f2;
       --red-border: #ef4444;
       --red-text: #dc2626;
-      --orange-bg: #fff6e5;
-      --orange-border: #f59e0b;
-      --orange-text: #d97706;
     }
 
     @font-face {
@@ -64,7 +61,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       flex-direction: column;
     }
 
-    /* --- [START] UNCHANGED HEADER & FOOTER STYLES --- */
     header,
     footer {
       background: var(--primary-color);
@@ -86,8 +82,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       height: 60px;
       font-size: 0.85rem;
     }
-
-    /* --- [END] UNCHANGED HEADER & FOOTER STYLES --- */
 
     main {
       flex-grow: 1;
@@ -175,10 +169,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       border-top-color: var(--red-border);
     }
 
-    .announcement-card.orange {
-      border-top-color: var(--orange-border);
-    }
-
     .card-header {
       display: flex;
       align-items: center;
@@ -205,10 +195,6 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     .announcement-card.red .card-icon {
       color: var(--red-text);
-    }
-
-    .announcement-card.orange .card-icon {
-      color: var(--orange-text);
     }
 
     .card-body {
@@ -334,6 +320,10 @@ $claims = requireAuth('admin', '/auth/login.html');
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
+    .modal-content input[type="text"][readonly] {
+      cursor: pointer;
+    }
+
     .modal-content input:focus,
     .modal-content select:focus,
     .description-editor:focus {
@@ -343,8 +333,10 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     .date-time-group {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 1rem;
+      align-items: end;
     }
 
     .date-time-group>div {
@@ -387,7 +379,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       border-color: var(--primary-color);
     }
 
-    /* --- [START] REVISED MODAL BUTTON STYLES --- */
     .modal-content .button-group {
       display: flex;
       justify-content: flex-end;
@@ -431,8 +422,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       border-color: #ccc;
     }
 
-    /* --- [END] REVISED MODAL BUTTON STYLES --- */
-
     .back-link {
       display: block;
       margin-top: 2rem;
@@ -445,6 +434,247 @@ $claims = requireAuth('admin', '/auth/login.html');
       text-decoration: underline;
       color: var(--primary-dark);
     }
+
+    /* --- [START] DATE & TIME PICKER STYLES --- */
+    .jdp-popover {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: .5rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+      padding: .75rem;
+      width: 280px;
+      z-index: 9999;
+    }
+
+    .jdp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .jdp-nav-btn {
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      padding: .25rem .6rem;
+      border-radius: .4rem;
+      cursor: pointer;
+    }
+
+    .jdp-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .jdp-weekday {
+      text-align: center;
+      font-size: .85rem;
+      color: var(--secondary-text-color);
+      padding: .3rem 0;
+    }
+
+    .jdp-day {
+      text-align: center;
+      padding: .4rem 0;
+      border-radius: .4rem;
+      cursor: pointer;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+    }
+
+    .jdp-day:hover {
+      background: var(--primary-light);
+    }
+
+    .jdp-day.other {
+      color: #bbb;
+      background: #f8f9fa;
+    }
+
+    .jdp-hidden {
+      display: none;
+    }
+
+    .tp-popover {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: .75rem;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .12);
+      padding: .75rem;
+      z-index: 10000;
+      min-width: 320px;
+      max-width: 360px
+    }
+
+    .tp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .5rem
+    }
+
+    .tp-title {
+      font-weight: 800;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: .4rem
+    }
+
+    .tp-title .emoji {
+      font-size: 1rem
+    }
+
+    .tp-clock {
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #2b3a32;
+      direction: ltr;
+      unicode-bidi: plaintext
+    }
+
+    .tp-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem;
+      position: relative
+    }
+
+    .tp-col-heads {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem;
+      margin: .25rem 0 .35rem
+    }
+
+    .tp-col-head {
+      text-align: center;
+      font-weight: 800;
+      color: #2b3a32;
+      background: #f5f9f7;
+      border: 1px solid #e6ece9;
+      border-radius: .5rem;
+      padding: .3rem
+    }
+
+    .hours-col {
+      grid-column: 2;
+    }
+
+    .minutes-col {
+      grid-column: 1;
+    }
+
+    .tp-col {
+      height: 180px;
+      overflow-y: auto;
+      border: 1px solid #e6ece9;
+      border-radius: .6rem;
+      background: #fafafa;
+      scroll-snap-type: y mandatory;
+      padding: .25rem
+    }
+
+    .tp-opt {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: .15rem 0;
+      border-radius: .5rem;
+      scroll-snap-align: center;
+      cursor: pointer;
+      user-select: none;
+      direction: ltr
+    }
+
+    .tp-opt:hover {
+      background: var(--primary-light)
+    }
+
+    .tp-opt.active {
+      background: #e9fff6;
+      border: 1px solid #b9f0dc;
+      font-weight: 800
+    }
+
+    .tp-arrows {
+      display: flex;
+      justify-content: space-between;
+      gap: .5rem;
+      margin: .5rem 0
+    }
+
+    .tp-arrow-btn {
+      flex: 1;
+      border: none;
+      border-radius: .5rem;
+      padding: .45rem .6rem;
+      cursor: pointer;
+      font-weight: 800;
+      background: #f0f3f2;
+      color: #2b3a32
+    }
+
+    .tp-quick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin: .4rem 0
+    }
+
+    .tp-quick-btn {
+      border: none;
+      border-radius: .5rem;
+      padding: .35rem .6rem;
+      background: #f4fbf8;
+      color: #036f4b;
+      font-weight: 800;
+      cursor: pointer
+    }
+
+    .tp-actions {
+      display: flex;
+      gap: .5rem;
+      justify-content: space-between;
+      margin-top: .5rem
+    }
+
+    .tp-btn {
+      border: none;
+      border-radius: .6rem;
+      padding: .55rem .9rem;
+      font-weight: 800;
+      cursor: pointer
+    }
+
+    .tp-btn-primary {
+      background: var(--primary-color);
+      color: #fff
+    }
+
+    .tp-btn-secondary {
+      background: #f0f3f2;
+      color: #2b3a32
+    }
+
+    .tp-btn-danger {
+      background: #fbe9e8;
+      color: #b3261e
+    }
+
+    .tp-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed
+    }
+
+    /* --- [END] DATE & TIME PICKER STYLES --- */
   </style>
 </head>
 
@@ -483,14 +713,14 @@ $claims = requireAuth('admin', '/auth/login.html');
         <select id="color" name="color">
           <option value="green">🟢 سبز (اطلاع‌رسانی)</option>
           <option value="yellow">🟡 زرد (هشدار)</option>
-          <option value="orange">🟠 نارنجی (مهم)</option>
           <option value="red">🔴 قرمز (بسیار مهم)</option>
         </select>
 
         <div class="date-time-group">
           <div>
-            <label for="startDate">تاریخ شروع (اختیاری):</label>
-            <input type="date" id="startDate" name="startDate" />
+            <label for="startDateDisplay">تاریخ شروع (اختیاری):</label>
+            <input type="text" id="startDateDisplay" placeholder="برای انتخاب کلیک کنید" autocomplete="off" readonly />
+            <input type="hidden" id="startDate" name="startDate" />
           </div>
           <div>
             <label for="startTime">ساعت شروع (اختیاری):</label>
@@ -500,8 +730,9 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         <div class="date-time-group">
           <div>
-            <label for="endDate">تاریخ پایان (اختیاری):</label>
-            <input type="date" id="endDate" name="endDate" />
+            <label for="endDateDisplay">تاریخ پایان (اختیاری):</label>
+            <input type="text" id="endDateDisplay" placeholder="برای انتخاب کلیک کنید" autocomplete="off" readonly />
+            <input type="hidden" id="endDate" name="endDate" />
           </div>
           <div>
             <label for="endTime">ساعت پایان (اختیاری):</label>
@@ -518,7 +749,347 @@ $claims = requireAuth('admin', '/auth/login.html');
   </div>
 
   <script>
-    // JavaScript logic is identical to the previous version
+    /* ===================================================
+     * START: JALALI DATE & TIME PICKER LOGIC
+     * =================================================== */
+    function jalaliToGregorian(jy, jm, jd) {
+      var sal_a, gy, gm, gd, days;
+      jy += 1595;
+      days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
+      gy = 400 * ~~(days / 146097);
+      days %= 146097;
+      if (days > 36524) {
+        gy += 100 * ~~(--days / 36524);
+        days %= 36524;
+        if (days >= 365) days++;
+      }
+      gy += 4 * ~~(days / 1461);
+      days %= 1461;
+      if (days > 365) {
+        gy += ~~((days - 1) / 365);
+        days = (days - 1) % 365;
+      }
+      gd = days + 1;
+      sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+      return new Date(gy, gm - 1, gd);
+    }
+
+    function toPersian(date) {
+      const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
+      return parts.map((part) => parseInt(part, 10));
+    }
+
+    function formatJalaliDisplay(jy, jm, jd) {
+      return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")}`;
+    }
+
+    function formatISO(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function isJalaliLeap(jy) {
+      return (((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816) < 682;
+    }
+
+    function jalaliMonthLength(jy, jm) {
+      if (jm <= 6) return 31;
+      if (jm <= 11) return 30;
+      return isJalaliLeap(jy) ? 30 : 29;
+    }
+
+    class JalaliDatePicker {
+      constructor(inputId, altId) {
+        this.input = document.getElementById(inputId);
+        this.alt = document.getElementById(altId);
+        if (!this.input || !this.alt) return;
+        const gNow = new Date();
+        const [jy, jm] = toPersian(gNow);
+        this.jy = jy;
+        this.jm = jm;
+        this.pop = document.createElement("div");
+        this.pop.className = "jdp-popover jdp-hidden";
+        document.body.appendChild(this.pop);
+        this.boundClickOutside = (e) => {
+          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide();
+        };
+        this.input.addEventListener("focus", () => this.show());
+        this.input.addEventListener("click", () => this.show());
+        window.addEventListener("resize", () => this.position());
+      }
+      show() {
+        this.render();
+        this.position();
+        this.pop.classList.remove("jdp-hidden");
+        setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0);
+      }
+      hide() {
+        this.pop.classList.add("jdp-hidden");
+        document.removeEventListener("mousedown", this.boundClickOutside);
+      }
+      position() {
+        const rect = this.input.getBoundingClientRect();
+        // MODIFIED: Position popover ABOVE the input field
+        this.pop.style.top = (window.scrollY + rect.top - this.pop.offsetHeight - 6) + "px";
+        this.pop.style.left = window.scrollX + rect.left + "px";
+        if (rect.left + 280 > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - 280 + "px";
+      }
+      nav(delta) {
+        this.jm += delta;
+        if (this.jm < 1) {
+          this.jm = 12;
+          this.jy--;
+        }
+        if (this.jm > 12) {
+          this.jm = 1;
+          this.jy++;
+        }
+        this.render();
+      }
+      render() {
+        const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+        const firstG = jalaliToGregorian(this.jy, this.jm, 1);
+        const firstWeekday = (firstG.getDay() + 1) % 7;
+        const daysInMonth = jalaliMonthLength(this.jy, this.jm);
+        let html = `<div class="jdp-header"><button type="button" class="jdp-nav-btn" data-nav="-1">«</button><div>${new Intl.DateTimeFormat("fa-IR",{month:"long"}).format(firstG)} ${new Intl.DateTimeFormat("fa-IR-u-nu-latn",{year:"numeric"}).format(firstG)}</div><button type="button" class="jdp-nav-btn" data-nav="1">»</button></div><div class="jdp-grid">${weekDays.map(w=>`<div class="jdp-weekday">${w}</div>`).join("")}`;
+        for (let i = 0; i < firstWeekday; i++) html += `<div class="jdp-day other"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`;
+        }
+        html += `</div>`;
+        this.pop.innerHTML = html;
+        this.pop.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", (e) => this.nav(parseInt(e.currentTarget.dataset.nav, 10))));
+        this.pop.querySelectorAll("[data-day]").forEach(cell => {
+          cell.addEventListener("click", (e) => {
+            const d = parseInt(e.currentTarget.dataset.day, 10);
+            const gDate = jalaliToGregorian(this.jy, this.jm, d);
+            this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
+            this.alt.value = formatISO(gDate);
+            this.alt.dispatchEvent(new Event("change", {
+              bubbles: true
+            }));
+            this.hide();
+          });
+        });
+      }
+    }
+
+    class TimePicker {
+      constructor(inputId) {
+        this.input = document.getElementById(inputId);
+        if (!this.input) return;
+        this.input.readOnly = true;
+        this.pop = document.createElement("div");
+        this.pop.className = "tp-popover";
+        this.pop.hidden = true;
+        document.body.appendChild(this.pop);
+        this.boundOutside = (e) => {
+          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide();
+        };
+        this.input.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          this.show();
+        });
+        this.input.addEventListener("focus", () => this.show());
+        this.input.addEventListener("click", () => this.show());
+        window.addEventListener("resize", () => this.position());
+      }
+      parse() {
+        const v = (this.input.value || "").trim();
+        let h = 12,
+          m = 0;
+        if (/^\d{1,2}:\d{2}$/.test(v)) {
+          const [hh, mm] = v.split(":").map(n => parseInt(n, 10));
+          h = Math.max(0, Math.min(23, hh));
+          m = Math.max(0, Math.min(59, mm));
+        }
+        this.h = h;
+        this.m = m - (m % 5);
+      }
+      position() {
+        const rect = this.input.getBoundingClientRect();
+        // MODIFIED: Position popover ABOVE the input field
+        this.pop.style.top = (window.scrollY + rect.top - this.pop.offsetHeight - 6) + "px";
+        this.pop.style.left = window.scrollX + rect.left + "px";
+        const w = this.pop.offsetWidth || 340;
+        if (rect.left + w > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - w + "px";
+      }
+      show() {
+        this.parse();
+        this.render();
+        this.position();
+        this.pop.hidden = false;
+        setTimeout(() => document.addEventListener("mousedown", this.boundOutside), 0);
+      }
+      hide() {
+        this.pop.hidden = true;
+        document.removeEventListener("mousedown", this.boundOutside);
+      }
+      setHour(h) {
+        this.h = (h + 24) % 24;
+        this.updateClock();
+        this.highlight();
+      }
+      setMinute(m) {
+        this.m = (m + 60) % 60;
+        this.updateClock();
+        this.highlight();
+      }
+      stepHour(d) {
+        this.setHour(this.h + d);
+        this.scrollToActive(this.hoursCol, this.h);
+      }
+      stepMinute(d) {
+        this.setMinute(this.m + d * 5);
+        this.scrollToActive(this.minutesCol, this.m / 5);
+      }
+      apply() {
+        const val = `${String(this.h).padStart(2,"0")}:${String(this.m).padStart(2,"0")}`;
+        this.input.value = val;
+        this.input.dispatchEvent(new Event("change", {
+          bubbles: true
+        }));
+        this.hide();
+      }
+      clear() {
+        this.input.value = "";
+        this.input.dispatchEvent(new Event("change", {
+          bubbles: true
+        }));
+        this.hide();
+      }
+      now() {
+        const d = new Date();
+        this.h = d.getHours();
+        this.m = Math.round(d.getMinutes() / 5) * 5 % 60;
+        this.updateClock();
+        this.highlight();
+        this.scrollToActive(this.hoursCol, this.h);
+        this.scrollToActive(this.minutesCol, this.m / 5);
+      }
+      updateClock() {
+        if (this.clock) this.clock.textContent = `${String(this.h).padStart(2,"0")}:${String(this.m).padStart(2,"0")}`;
+      }
+      highlight() {
+        this.pop.querySelectorAll(".tp-opt").forEach(el => el.classList.remove("active"));
+        const hEl = this.pop.querySelector(`.tp-opt[data-hour="${this.h}"]`);
+        const mEl = this.pop.querySelector(`.tp-opt[data-minute="${this.m}"]`);
+        if (hEl) hEl.classList.add("active");
+        if (mEl) mEl.classList.add("active");
+      }
+      makeColumn(type, items, extraClass) {
+        const col = document.createElement("div");
+        col.className = `tp-col ${extraClass||""}`;
+        col.setAttribute("tabindex", "0");
+        col.innerHTML = items.map(v => {
+          const attr = type === "h" ? `data-hour="${v}"` : `data-minute="${v}"`;
+          return `<div class="tp-opt" ${attr}>${String(v).padStart(2,"0")}</div>`;
+        }).join("");
+        col.addEventListener("click", (e) => {
+          const t = e.target.closest(".tp-opt");
+          if (!t) return;
+          if (type === "h") this.setHour(parseInt(t.dataset.hour, 10));
+          else this.setMinute(parseInt(t.dataset.minute, 10));
+        });
+        col.addEventListener("keydown", (e) => {
+          if (type === "h") {
+            if (e.key === "ArrowUp") {
+              e.preventDefault();
+              this.stepHour(-1);
+            }
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              this.stepHour(1);
+            }
+          } else {
+            if (e.key === "ArrowUp") {
+              e.preventDefault();
+              this.stepMinute(-1);
+            }
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              this.stepMinute(1);
+            }
+          }
+          if (e.key === "Enter") {
+            e.preventDefault();
+            this.apply();
+          }
+          if (e.key === "Escape") {
+            e.preventDefault();
+            this.hide();
+          }
+        });
+        col.addEventListener("scroll", () => {
+          clearTimeout(this._snapt);
+          this._snapt = setTimeout(() => {
+            const idx = Math.round(col.scrollTop / 36);
+            const val = type === "h" ? idx : (idx * 5);
+            if (type === "h") this.setHour(Math.max(0, Math.min(23, val)));
+            else this.setMinute(Math.max(0, Math.min(55, val)));
+          }, 120);
+        });
+        return col;
+      }
+      scrollToActive(col, index) {
+        const y = index * 36;
+        col.scrollTo({
+          top: y,
+          behavior: "smooth"
+        });
+      }
+      render() {
+        const hours = Array.from({
+          length: 24
+        }, (_, i) => i);
+        const minutes = Array.from({
+          length: 12
+        }, (_, i) => i * 5);
+        this.pop.innerHTML = `<div class="tp-header"><div class="tp-title"><span class="emoji">⏰</span><span>انتخاب ساعت</span></div><div class="tp-clock"></div></div><div class="tp-col-heads"><div class="tp-col-head minutes-head">دقیقه</div><div class="tp-col-head hours-head">ساعت</div></div><div class="tp-columns"></div><div class="tp-arrows"><button type="button" class="tp-arrow-btn" data-m="-1">⬆️ دقیقه</button><button type="button" class="tp-arrow-btn" data-m="+1">⬇️ دقیقه</button><button type="button" class="tp-arrow-btn" data-h="-1">⬆️ ساعت</button><button type="button" class="tp-arrow-btn" data-h="+1">⬇️ ساعت</button></div><div class="tp-quick">${[0,15,30,45].map(v=>`<button type="button" class="tp-quick-btn" data-qm="${v}">:${String(v).padStart(2,"0")}</button>`).join("")}</div><div class="tp-actions"><div style="display:flex;gap:.5rem"><button type="button" class="tp-btn tp-btn-secondary" data-now="1">🕒 اکنون</button><button type="button" class="tp-btn tp-btn-danger" data-clear="1">🧹 پاک</button></div><button type="button" class="tp-btn tp-btn-primary" data-apply="1">✅ ثبت</button></div>`;
+        this.clock = this.pop.querySelector(".tp-clock");
+        this.updateClock();
+        const cols = this.pop.querySelector(".tp-columns");
+        this.hoursCol = this.makeColumn("h", hours, "hours-col");
+        this.minutesCol = this.makeColumn("m", minutes, "minutes-col");
+        cols.appendChild(this.minutesCol);
+        cols.appendChild(this.hoursCol);
+        this.highlight();
+        this.scrollToActive(this.hoursCol, this.h);
+        this.scrollToActive(this.minutesCol, this.m / 5);
+        this.pop.querySelectorAll("[data-h]").forEach(b => {
+          b.addEventListener("click", () => this.stepHour(parseInt(b.dataset.h.replace("+", ""), 10)));
+        });
+        this.pop.querySelectorAll("[data-m]").forEach(b => {
+          b.addEventListener("click", () => this.stepMinute(parseInt(b.dataset.m.replace("+", ""), 10)));
+        });
+        this.pop.querySelectorAll("[data-qm]").forEach(b => {
+          b.addEventListener("click", () => {
+            this.setMinute(parseInt(b.dataset.qm, 10));
+            this.scrollToActive(this.minutesCol, this.m / 5);
+          });
+        });
+        this.pop.querySelector("[data-apply]").addEventListener("click", () => this.apply());
+        this.pop.querySelector("[data-clear]").addEventListener("click", () => this.clear());
+        this.pop.querySelector("[data-now]").addEventListener("click", () => this.now());
+      }
+    }
+    /* ===================================================
+     * END: JALALI DATE & TIME PICKER LOGIC
+     * =================================================== */
+
+    function gregorianToJalaliDisplay(isoDate) {
+      if (!isoDate || typeof isoDate !== 'string') return "";
+      try {
+        const parts = isoDate.split('-');
+        const date = new Date(parts[0], parts[1] - 1, parts[2]);
+        if (isNaN(date.getTime())) return "";
+        return date.toLocaleDateString("fa-IR");
+      } catch (e) {
+        console.error("Error converting date:", e);
+        return "";
+      }
+    }
+
     let jsonData = [];
     let currentItemIndex = -1;
 
@@ -560,13 +1131,14 @@ $claims = requireAuth('admin', '/auth/login.html');
       itemModal.style.display = "none";
       document.body.style.overflow = '';
       itemForm.reset();
+      document.getElementById('startDateDisplay').value = '';
+      document.getElementById('endDateDisplay').value = '';
       if (descriptionEditor) descriptionEditor.innerHTML = "";
     }
 
     const colorToIconMap = {
       green: '📢',
       yellow: '⚠️',
-      orange: '⚠️',
       red: '❗'
     };
 
@@ -606,20 +1178,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         else if (start) timeInfo = `از ${start}`;
         else if (end) timeInfo = `تا ${end}`;
 
-        card.innerHTML = `
-                    <div class="card-header">
-                        <span class="card-icon">${colorToIconMap[item.color] || '🔹'}</span>
-                        <h3 class="card-title">${item.title}</h3>
-                    </div>
-                    <div class="card-body">${item.description}</div>
-                    <div class="card-footer">
-                        <span>🗓️ ${timeInfo}</span>
-                        <div class="card-actions">
-                            <button class="edit-btn" data-index="${index}">✏️ ویرایش</button>
-                            <button class="delete-btn" data-index="${index}">🗑️ حذف</button>
-                        </div>
-                    </div>
-                `;
+        card.innerHTML = `<div class="card-header"><span class="card-icon">${colorToIconMap[item.color] || '🔹'}</span><h3 class="card-title">${item.title}</h3></div><div class="card-body">${item.description}</div><div class="card-footer"><span>🗓️ ${timeInfo}</span><div class="card-actions"><button class="edit-btn" data-index="${index}">✏️ ویرایش</button><button class="delete-btn" data-index="${index}">🗑️ حذف</button></div></div>`;
         itemListDiv.appendChild(card);
       });
 
@@ -635,8 +1194,10 @@ $claims = requireAuth('admin', '/auth/login.html');
       descriptionEditor.innerHTML = item.description;
       document.getElementById("color").value = item.color;
       document.getElementById("startDate").value = item.startDate;
+      document.getElementById("startDateDisplay").value = gregorianToJalaliDisplay(item.startDate);
       document.getElementById("startTime").value = item.startTime;
       document.getElementById("endDate").value = item.endDate;
+      document.getElementById("endDateDisplay").value = gregorianToJalaliDisplay(item.endDate);
       document.getElementById("endTime").value = item.endTime;
       modalTitle.textContent = "ویرایش اطلاعیه";
       openModal();
@@ -719,7 +1280,14 @@ $claims = requireAuth('admin', '/auth/login.html');
       if (event.target == itemModal) closeModal();
     };
     cancelEditBtn.onclick = closeModal;
-    document.addEventListener("DOMContentLoaded", loadInitialJson);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadInitialJson();
+      new JalaliDatePicker("startDateDisplay", "startDate");
+      new JalaliDatePicker("endDateDisplay", "endDate");
+      new TimePicker("startTime");
+      new TimePicker("endTime");
+    });
   </script>
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>

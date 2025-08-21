@@ -190,34 +190,38 @@ document.addEventListener("DOMContentLoaded", () => {
     "بهمن",
     "اسفند",
   ];
-  function toJalali(gy, gm, gd) {
-    const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-    let jy = gy > 1600 ? 979 : 0;
-    gy -= gy > 1600 ? 1600 : 621;
-    const gy2 = gm > 2 ? gy + 1 : gy;
-    let days =
+
+  function toJalali(g_y, g_m, g_d) {
+    var g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    var j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+    var gy = g_y - 1600;
+    var gm = g_m - 1;
+    var gd = g_d - 1;
+    var g_day_no =
       365 * gy +
-      Math.floor((gy2 + 3) / 4) -
-      Math.floor((gy2 + 99) / 100) +
-      Math.floor((gy2 + 399) / 400) -
-      80 +
-      gd +
-      g_d_m[gm - 1];
-    jy += 33 * Math.floor(days / 12053);
-    days %= 12053;
-    jy += 4 * Math.floor(days / 1461);
-    days %= 1461;
-    if (days > 365) {
-      jy += Math.floor((days - 1) / 365);
-      days = (days - 1) % 365;
+      Math.floor((gy + 3) / 4) -
+      Math.floor((gy + 99) / 100) +
+      Math.floor((gy + 399) / 400);
+    for (var i = 0; i < gm; ++i) g_day_no += g_days_in_month[i];
+    if (gm > 1 && ((gy % 4 == 0 && gy % 100 != 0) || gy % 400 == 0)) g_day_no++;
+    g_day_no += gd;
+    var j_day_no = g_day_no - 79;
+    var j_np = Math.floor(j_day_no / 12053);
+    j_day_no %= 12053;
+    var jy = 979 + 33 * j_np + 4 * Math.floor(j_day_no / 1461);
+    j_day_no %= 1461;
+    if (j_day_no >= 366) {
+      jy += Math.floor((j_day_no - 1) / 365);
+      j_day_no = (j_day_no - 1) % 365;
     }
-    const jm =
-      days < 186
-        ? 1 + Math.floor(days / 31)
-        : 7 + Math.floor((days - 186) / 30);
-    const jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30);
+    for (var i = 0; i < 11 && j_day_no >= j_days_in_month[i]; ++i) {
+      j_day_no -= j_days_in_month[i];
+    }
+    var jm = i + 1;
+    var jd = j_day_no + 1;
     return [jy, jm, jd];
   }
+
   function toPersianDigits(str) {
     if (str === null || str === undefined) return "";
     return str.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
@@ -237,6 +241,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const dateStr = `${jy}-${pad(jm)}-${pad(jd)}`;
     return holidays.some((h) => h.date === dateStr);
   }
+
+  // تابع کمکی برای فرمت کردن تاریخ که از تابع toJalali صحیح استفاده می‌کند
+  function formatJalaliDate(gregorianDateStr) {
+    if (!gregorianDateStr) return "";
+    const parts = gregorianDateStr.split("-");
+    if (parts.length !== 3) return toPersianDigits(gregorianDateStr);
+
+    const gy = parseInt(parts[0], 10);
+    const gm = parseInt(parts[1], 10);
+    const gd = parseInt(parts[2], 10);
+
+    const [jy, jm, jd] = toJalali(gy, gm, gd);
+    const monthName = persianMonths[jm - 1];
+
+    return toPersianDigits(`${jd} ${monthName} ${jy}`);
+  }
+
   function setupHeader() {
     const dateElem = document.getElementById("today-date");
     const timeElem = document.getElementById("current-time");
@@ -564,7 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (alert.startDate || alert.startTime) {
             const parts = [];
             if (alert.startDate) {
-              parts.push(toPersianDigits(alert.startDate));
+              parts.push(formatJalaliDate(alert.startDate));
             }
             if (alert.startTime) {
               parts.push(`ساعت ${toPersianDigits(alert.startTime)}`);
@@ -575,7 +596,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (alert.endDate || alert.endTime) {
             const parts = [];
             if (alert.endDate) {
-              parts.push(toPersianDigits(alert.endDate));
+              parts.push(formatJalaliDate(alert.endDate));
             }
             if (alert.endTime) {
               parts.push(`ساعت ${toPersianDigits(alert.endTime)}`);
