@@ -207,6 +207,36 @@ $claims = requireAuth('admin', '/auth/login.html');
             color: #c82333;
             border: 1px solid #ff0040;
         }
+
+        /* --- NEW: Styles for instructions box --- */
+        .instructions-box {
+            background-color: #f0f7ff;
+            border: 1px solid #cce2ff;
+            border-right: 4px solid #4a90e2;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.88rem;
+            color: #333;
+            line-height: 1.7;
+            display: none;
+        }
+
+        .instructions-box strong {
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .instructions-box em {
+            color: var(--danger-color);
+            font-style: normal;
+            font-weight: 500;
+            display: block;
+            margin-top: 8px;
+        }
+
+        /* --- End of NEW Styles --- */
     </style>
 </head>
 
@@ -235,6 +265,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                     </select>
                 </div>
 
+                <div id="report-instructions" class="instructions-box"></div>
+
                 <div class="form-group" id="date-picker-group" style="display: none;">
                     <label for="report_date">تاریخ گزارش:</label>
                     <input type="date" id="report_date" name="report_date">
@@ -256,14 +288,50 @@ $claims = requireAuth('admin', '/auth/login.html');
         const reportTypeSelect = document.getElementById("report_type");
         const datePickerGroup = document.getElementById("date-picker-group");
         const datePickerInput = document.getElementById("report_date");
+        // NEW: Reference to the instructions box
+        const instructionsBox = document.getElementById("report-instructions");
+
+        // NEW: Object to hold instruction texts
+        const instructions = {
+            call_metrics: `<strong>شیت:</strong> ورودی<br>
+                           <strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - پاسخ داده شده - مجموع مکالمه - میانگین مکالمه - بیشترین زمان مکالمه - میانگین امتیاز - تعداد امتیاز<br>
+                           <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
+            presence_duration: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - مدت حضور<br>
+                                <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
+            off_queue_duration: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - مدت خروج از صف<br>
+                                 <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
+            one_star_ratings: `<strong>ستون‌ها:</strong> تاریخ تماس - وضعیت - تعداد<br>
+                               <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
+            calls_over_5_min: `<strong>ستون‌ها:</strong> تاریخ تماس - کد اپراتور - نام اپراتور<br>
+                               <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
+            missed_calls: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ<br>
+                           <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
+            outbound_calls: `<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ<br>
+                             <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
+            no_call_reason: `<strong>ستون‌ها:</strong> تاریخ تماس - کاربر<br>
+                             <em>حتماً قبل از جایگذاری، ستون‌های اضافی را از شیت مربوطه حذف کنید.</em>`,
+            tickets_count: `<strong>ستون‌ها:</strong> اقدام کننده عملیات - COUNTA of اقدام کننده عملیات`
+        };
 
         reportTypeSelect.addEventListener("change", function() {
-            if (this.value === 'tickets_count') {
+            const selectedValue = this.value;
+
+            // Handle date picker visibility (existing logic)
+            if (selectedValue === 'tickets_count') {
                 datePickerGroup.style.display = 'block';
                 datePickerInput.required = true;
             } else {
                 datePickerGroup.style.display = 'none';
                 datePickerInput.required = false;
+            }
+
+            // NEW: Handle instructions visibility and content
+            if (instructions[selectedValue]) {
+                instructionsBox.innerHTML = instructions[selectedValue];
+                instructionsBox.style.display = 'block';
+            } else {
+                instructionsBox.style.display = 'none';
+                instructionsBox.innerHTML = '';
             }
         });
 
