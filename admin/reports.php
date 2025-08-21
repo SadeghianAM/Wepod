@@ -2,10 +2,22 @@
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth('admin', '/auth/login.html');
 
-// Load existing report data to populate the management section
+// Load existing report data
 $jsonFile = __DIR__ . '/../data/reports.json';
 $existingData = file_exists($jsonFile) ? json_decode(file_get_contents($jsonFile), true) : [];
 if (!is_array($existingData)) $existingData = [];
+
+// Load users.json to map agent IDs to names
+$usersFile = __DIR__ . '/../data/users.json';
+$usersData = file_exists($usersFile) ? json_decode(file_get_contents($usersFile), true) : [];
+if (!is_array($usersData)) $usersData = [];
+
+$agentNameMap = [];
+foreach ($usersData as $user) {
+    if (isset($user['id']) && isset($user['name'])) {
+        $agentNameMap[$user['id']] = $user['name'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -66,7 +78,6 @@ if (!is_array($existingData)) $existingData = [];
             transition: all 0.2s ease-in-out;
         }
 
-        /* --- [START] UNCHANGED HEADER & FOOTER STYLES --- */
         header,
         footer {
             background: var(--primary-color);
@@ -97,12 +108,9 @@ if (!is_array($existingData)) $existingData = [];
             margin-top: auto;
         }
 
-        /* --- [END] UNCHANGED HEADER & FOOTER STYLES --- */
-
         main {
             padding: 2.5rem 2rem;
             max-width: 1600px;
-            /* Increased max-width for side-by-side layout */
             width: 100%;
             margin: 0 auto;
             flex-grow: 1;
@@ -124,15 +132,12 @@ if (!is_array($existingData)) $existingData = [];
             text-align: center;
         }
 
-        /* --- [START] NEW LAYOUT STYLES --- */
         .page-layout-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2.5rem;
             align-items: start;
         }
-
-        /* --- [END] NEW LAYOUT STYLES --- */
 
         .form-card,
         .management-card {
@@ -199,7 +204,7 @@ if (!is_array($existingData)) $existingData = [];
 
         select,
         textarea,
-        input[type="date"] {
+        input[type="text"] {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid var(--border-color);
@@ -211,7 +216,7 @@ if (!is_array($existingData)) $existingData = [];
 
         select:focus,
         textarea:focus,
-        input[type="date"]:focus {
+        input[type="text"]:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
             outline: none;
@@ -314,19 +319,48 @@ if (!is_array($existingData)) $existingData = [];
             margin-top: 1rem;
         }
 
-        #view-data-pre {
-            background-color: #2d2d2d;
-            color: #f1f1f1;
-            padding: 1rem;
+        #data-sections-list {
+            border: 1px solid var(--border-color);
             border-radius: 0.5rem;
-            max-height: 300px;
-            overflow: auto;
-            direction: ltr;
-            text-align: left;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            margin-top: 1.5rem;
-            display: none;
+            padding: 1rem;
+            background-color: #fcfdff;
+            min-height: 100px;
+        }
+
+        #data-sections-list .placeholder-text {
+            color: var(--secondary-text-color);
+            text-align: center;
+            padding-top: 1.5rem;
+        }
+
+        #data-sections-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        #data-sections-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: var(--bg-color);
+            border-radius: 0.4rem;
+            border-right: 4px solid var(--info-color);
+        }
+
+        #data-sections-list li span {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .btn-delete-section {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
 
         .modal {
@@ -444,6 +478,70 @@ if (!is_array($existingData)) $existingData = [];
             font-weight: 500;
         }
 
+        .jdp-popover {
+            position: absolute;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            padding: 0.75rem;
+            width: 280px;
+            z-index: 9999;
+        }
+
+        .jdp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .jdp-nav-btn {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.4rem;
+            cursor: pointer;
+        }
+
+        .jdp-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .jdp-weekday {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--secondary-text-color);
+            padding: 0.3rem 0;
+        }
+
+        .jdp-day {
+            text-align: center;
+            padding: 0.4rem 0;
+            border-radius: 0.4rem;
+            cursor: pointer;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+        }
+
+        .jdp-day:hover {
+            background: var(--primary-light);
+        }
+
+        .jdp-day.other {
+            color: #bbb;
+            background: #f8f9fa;
+        }
+
+        .jdp-hidden {
+            display: none;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -514,8 +612,9 @@ if (!is_array($existingData)) $existingData = [];
                     <div class="step">
                         <h3 class="step-title"><span>۲</span> داده‌ها را جای‌گذاری کنید</h3>
                         <div id="date-picker-group" style="display: none; margin-bottom: 1rem;">
-                            <label for="report_date">تاریخ گزارش:</label>
-                            <input type="date" id="report_date" name="report_date">
+                            <label for="report_date_display">تاریخ گزارش:</label>
+                            <input type="text" id="report_date_display" placeholder="انتخاب تاریخ (جلالی)" autocomplete="off" />
+                            <input type="hidden" id="report_date" name="report_date" />
                         </div>
                         <textarea id="excel_data" name="excel_data" required placeholder="داده‌های کپی شده از اکسل را اینجا جای‌گذاری کنید..."></textarea>
                     </div>
@@ -545,7 +644,8 @@ if (!is_array($existingData)) $existingData = [];
                             $agentIds = array_keys($existingData);
                             sort($agentIds, SORT_NUMERIC);
                             foreach ($agentIds as $agentId) {
-                                echo "<option value='{$agentId}'>کارشناس {$agentId}</option>";
+                                $agentName = isset($agentNameMap[$agentId]) ? htmlspecialchars($agentNameMap[$agentId]) : "کارشناس {$agentId}";
+                                echo "<option value='{$agentId}'>{$agentName}</option>";
                             }
                             ?>
                         </select>
@@ -556,12 +656,10 @@ if (!is_array($existingData)) $existingData = [];
                 </div>
 
                 <div class="step">
-                    <h3 class="step-title"><span>۲</span> عملیات را انجام دهید</h3>
-                    <div class="button-group">
-                        <button type="button" id="viewDataBtn" class="btn-secondary" disabled>👁️ نمایش داده</button>
-                        <button type="button" id="deleteDataBtn" class="btn-danger" disabled>🗑️ حذف رکورد</button>
+                    <h3 class="step-title"><span>۲</span> داده مورد نظر را حذف کنید</h3>
+                    <div id="data-sections-list">
+                        <p class="placeholder-text">ابتدا کارشناس و تاریخ را انتخاب کنید تا لیست داده‌ها نمایش داده شود.</p>
                     </div>
-                    <pre id="view-data-pre"></pre>
                 </div>
             </div>
         </div>
@@ -589,7 +687,135 @@ if (!is_array($existingData)) $existingData = [];
 
     <script src="/js/header.js"></script>
     <script>
-        // The entire JavaScript logic remains the same.
+        /* ===== Jalali helpers and DatePicker Class (self-contained) ===== */
+        function jalaliToGregorian(jy, jm, jd) {
+            var sal_a, gy, gm, gd, days;
+            jy += 1595;
+            days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
+            gy = 400 * ~~(days / 146097);
+            days %= 146097;
+            if (days > 36524) {
+                gy += 100 * ~~(--days / 36524);
+                days %= 36524;
+                if (days >= 365) days++;
+            }
+            gy += 4 * ~~(days / 1461);
+            days %= 1461;
+            if (days > 365) {
+                gy += ~~((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            gd = days + 1;
+            sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+            return new Date(gy, gm - 1, gd);
+        }
+
+        function toPersian(date) {
+            const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
+            return parts.map((part) => parseInt(part, 10));
+        }
+
+        function pad2(n) {
+            return String(n).padStart(2, "0");
+        }
+
+        function formatJalaliDisplay(jy, jm, jd) {
+            return `${jy}/${pad2(jm)}/${pad2(jd)}`;
+        }
+
+        function formatISO(date) {
+            return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+        }
+
+        function isJalaliLeap(jy) {
+            return ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 < 682;
+        }
+
+        function jalaliMonthLength(jy, jm) {
+            if (jm <= 6) return 31;
+            if (jm <= 11) return 30;
+            return isJalaliLeap(jy) ? 30 : 29;
+        }
+        class JalaliDatePicker {
+            constructor(inputId, altId) {
+                this.input = document.getElementById(inputId);
+                this.alt = document.getElementById(altId);
+                if (!this.input || !this.alt) return;
+                const gNow = new Date();
+                const [jy, jm, jd] = toPersian(gNow);
+                this.jy = jy;
+                this.jm = jm;
+                this.jd = jd;
+                this.pop = document.createElement("div");
+                this.pop.className = "jdp-popover jdp-hidden";
+                document.body.appendChild(this.pop);
+                this.boundClickOutside = (e) => {
+                    if (!this.pop.contains(e.target) && e.target !== this.input) {
+                        this.hide();
+                    }
+                };
+                this.input.addEventListener("focus", () => this.show());
+                this.input.addEventListener("click", () => this.show());
+                window.addEventListener("resize", () => this.position());
+            }
+            show() {
+                this.render();
+                this.position();
+                this.pop.classList.remove("jdp-hidden");
+                setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0);
+            }
+            hide() {
+                this.pop.classList.add("jdp-hidden");
+                document.removeEventListener("mousedown", this.boundClickOutside);
+            }
+            position() {
+                const rect = this.input.getBoundingClientRect();
+                this.pop.style.top = window.scrollY + rect.bottom + 6 + "px";
+                this.pop.style.left = window.scrollX + rect.left + "px";
+            }
+            nav(delta) {
+                this.jm += delta;
+                if (this.jm < 1) {
+                    this.jm = 12;
+                    this.jy--;
+                }
+                if (this.jm > 12) {
+                    this.jm = 1;
+                    this.jy++;
+                }
+                this.render();
+            }
+            render() {
+                const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+                const firstG = jalaliToGregorian(this.jy, this.jm, 1);
+                const firstWeekday = (firstG.getDay() + 1) % 7;
+                const daysInMonth = jalaliMonthLength(this.jy, this.jm);
+                let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat("fa-IR", { month: "long" }).format(firstG)} ${new Intl.DateTimeFormat("fa-IR", { year: "numeric" }).format(firstG)}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${weekDays.map((w) => `<div class="jdp-weekday">${w}</div>`).join("")}`;
+                for (let i = 0; i < firstWeekday; i++) {
+                    html += `<div class="jdp-day other"></div>`;
+                }
+                for (let d = 1; d <= daysInMonth; d++) {
+                    html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`;
+                }
+                html += `</div>`;
+                this.pop.innerHTML = html;
+                this.pop.querySelectorAll("[data-nav]").forEach((btn) => {
+                    btn.addEventListener("click", (e) => this.nav(parseInt(e.currentTarget.dataset.nav, 10)));
+                });
+                this.pop.querySelectorAll("[data-day]").forEach((cell) => {
+                    cell.addEventListener("click", (e) => {
+                        const d = parseInt(e.currentTarget.dataset.day, 10);
+                        const gDate = jalaliToGregorian(this.jy, this.jm, d);
+                        this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
+                        this.alt.value = formatISO(gDate);
+                        this.hide();
+                    });
+                });
+            }
+        }
+
+        /* ===== Main Application Logic ===== */
         const existingData = <?php echo json_encode($existingData); ?>;
         const reportTypeSelect = document.getElementById("report_type"),
             datePickerGroup = document.getElementById("date-picker-group"),
@@ -607,9 +833,15 @@ if (!is_array($existingData)) $existingData = [];
             previewTableHeader = document.querySelector("#preview-table thead"),
             agentSelect = document.getElementById("agent_select"),
             dateSelect = document.getElementById("date_select"),
-            viewDataBtn = document.getElementById("viewDataBtn"),
-            deleteDataBtn = document.getElementById("deleteDataBtn"),
-            viewDataPre = document.getElementById("view-data-pre");
+            dataSectionsList = document.getElementById("data-sections-list");
+
+        const reportTypeNames = {};
+        document.querySelectorAll("#report_type option").forEach(option => {
+            if (option.value) {
+                reportTypeNames[option.value] = option.textContent;
+            }
+        });
+
         const instructions = {
             call_metrics: "<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - پاسخ داده شده - مجموع مکالمه - میانگین مکالمه - بیشترین زمان مکالمه - میانگین امتیاز - تعداد امتیاز",
             presence_duration: "<strong>ستون‌ها:</strong> کد اپراتور - نام اپراتور - تاریخ - مدت حضور",
@@ -682,7 +914,9 @@ if (!is_array($existingData)) $existingData = [];
             const e = reportTypeSelect.value;
             submitButton.disabled = !0, "tickets_count" === e ? (datePickerGroup.style.display = "block", datePickerInput.required = !0) : (datePickerGroup.style.display = "none", datePickerInput.required = !1), instructions[e] ? (instructionsBox.innerHTML = `ℹ️ ${instructions[e]}`, instructionsBox.style.display = "block") : (instructionsBox.style.display = "none")
         }
-        reportTypeSelect.addEventListener("change", updateFormUI), previewButton.addEventListener("click", () => {
+        reportTypeSelect.addEventListener("change", updateFormUI);
+
+        previewButton.addEventListener("click", () => {
             const e = reportTypeSelect.value,
                 t = excelDataTextarea.value;
             if (!e || !t.trim()) return void alert("لطفا نوع گزارش و محتوای آن را وارد کنید.");
@@ -701,9 +935,14 @@ if (!is_array($existingData)) $existingData = [];
                     i = "تعداد ستون‌ها نامعتبر است.";
                 t.length >= a.minCols && (a.validate(t, a.config) ? (d = !0, i = "✅ معتبر") : (i = "❌ فرمت داده اشتباه است.")), s += `<tr class="${d?"valid-row":"invalid-row"}">`, t.forEach(e => s += `<td>${e}</td>`), s += `<td>${i}</td></tr>`, d ? o++ : n++
             }), previewTableBody.innerHTML = s, previewSummaryDiv.innerHTML = `تعداد ردیف‌های معتبر: ${o} <br> تعداد ردیف‌های نامعتبر: ${n}`, 0 === n && o > 0 ? (previewSummaryDiv.className = "valid", submitButton.disabled = !1) : (previewSummaryDiv.className = "invalid", submitButton.disabled = !0), previewModal.style.display = "block"
-        }), closeModal.onclick = () => previewModal.style.display = "none", window.onclick = e => {
+        });
+
+        closeModal.onclick = () => previewModal.style.display = "none";
+        window.onclick = e => {
             e.target == previewModal && (previewModal.style.display = "none")
-        }, reportForm.addEventListener("submit", async function(e) {
+        };
+
+        reportForm.addEventListener("submit", async function(e) {
             e.preventDefault();
             const t = new FormData(reportForm);
             responseDiv.style.display = "none", submitButton.disabled = !0, submitButton.innerHTML = "در حال ذخیره...";
@@ -720,41 +959,100 @@ if (!is_array($existingData)) $existingData = [];
             } finally {
                 submitButton.innerHTML = "💾 ذخیره تغییرات"
             }
-        }), agentSelect.addEventListener("change", () => {
-            const e = agentSelect.value;
-            dateSelect.innerHTML = '<option value="">...بارگذاری تاریخ‌ها</option>', dateSelect.disabled = !0, viewDataBtn.disabled = !0, deleteDataBtn.disabled = !0, viewDataPre.style.display = "none", e && existingData[e] ? (dateSelect.innerHTML = '<option value="">یک تاریخ انتخاب کنید</option>' + Object.keys(existingData[e]).sort().reverse().map(e => `<option value="${e}">${new Date(e).toLocaleDateString("fa-IR",{year:"numeric",month:"long",day:"numeric"})} (${e})</option>`).join(""), dateSelect.disabled = !1) : (dateSelect.innerHTML = '<option value="">ابتدا کارشناس را انتخاب کنید</option>')
-        }), dateSelect.addEventListener("change", () => {
-            const e = agentSelect.value && dateSelect.value;
-            viewDataBtn.disabled = !e, deleteDataBtn.disabled = !e, viewDataPre.style.display = "none"
-        }), viewDataBtn.addEventListener("click", () => {
-            const e = agentSelect.value,
-                t = dateSelect.value;
-            e && t && existingData[e][t] && (viewDataPre.textContent = JSON.stringify(existingData[e][t], null, 2), viewDataPre.style.display = "block")
-        }), deleteDataBtn.addEventListener("click", async () => {
-            const e = agentSelect.value,
-                t = dateSelect.value;
-            if (e && t) {
-                const a = new Date(t).toLocaleDateString("fa-IR");
-                if (confirm(`آیا از حذف تمام داده‌های کارشناس ${e} در تاریخ ${a} مطمئن هستید؟ این عمل غیرقابل بازگشت است.`)) {
-                    deleteDataBtn.disabled = !0, deleteDataBtn.innerHTML = "در حال حذف...";
-                    try {
-                        const a = new FormData;
-                        a.append("action", "delete_report"), a.append("agent_id", e), a.append("date", t);
-                        const d = await fetch("/php/process_reports.php", {
-                            method: "POST",
-                            body: a
-                        });
-                        if (!d.ok) throw new Error(`خطای سرور: ${d.statusText}`);
-                        const o = await d.json();
-                        alert(o.message), o.success && window.location.reload()
-                    } catch (e) {
-                        alert(`خطا در حذف داده‌ها: ${e.message}`)
-                    } finally {
-                        deleteDataBtn.innerHTML = "🗑️ حذف رکورد"
+        });
+
+        agentSelect.addEventListener("change", () => {
+            const agentId = agentSelect.value;
+            dateSelect.innerHTML = '<option value="">...بارگذاری تاریخ‌ها</option>';
+            dateSelect.disabled = true;
+            dataSectionsList.innerHTML = '<p class="placeholder-text">ابتدا کارشناس و تاریخ را انتخاب کنید...</p>';
+
+            if (agentId && existingData[agentId]) {
+                dateSelect.innerHTML = '<option value="">یک تاریخ انتخاب کنید</option>' + Object.keys(existingData[agentId]).sort().reverse().map(date => `<option value="${date}">${new Date(date).toLocaleDateString("fa-IR",{year:"numeric",month:"long",day:"numeric"})} (${date})</option>`).join("");
+                dateSelect.disabled = false;
+            } else {
+                dateSelect.innerHTML = '<option value="">ابتدا کارشناس را انتخاب کنید</option>';
+            }
+        });
+
+        dateSelect.addEventListener("change", () => {
+            const agentId = agentSelect.value;
+            const date = dateSelect.value;
+
+            if (agentId && date && existingData[agentId] && existingData[agentId][date]) {
+                const sections = Object.keys(existingData[agentId][date]);
+                if (sections.length > 0) {
+                    let html = '<ul>';
+                    sections.forEach(sectionKey => {
+                        const sectionName = reportTypeNames[sectionKey] || sectionKey;
+                        html += `
+                            <li>
+                                <span>${sectionName}</span>
+                                <button class="btn-danger btn-delete-section"
+                                        data-action="delete-section"
+                                        data-agent-id="${agentId}"
+                                        data-date="${date}"
+                                        data-section-key="${sectionKey}">
+                                    🗑️ حذف
+                                </button>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                    dataSectionsList.innerHTML = html;
+                } else {
+                    dataSectionsList.innerHTML = '<p class="placeholder-text">هیچ داده‌ای برای این تاریخ و کارشناس یافت نشد.</p>';
+                }
+            } else {
+                dataSectionsList.innerHTML = '<p class="placeholder-text">لطفا یک تاریخ معتبر انتخاب کنید...</p>';
+            }
+        });
+
+        dataSectionsList.addEventListener('click', async (event) => {
+            const targetButton = event.target.closest('[data-action="delete-section"]');
+            if (!targetButton) return;
+
+            const {
+                agentId,
+                date,
+                sectionKey
+            } = targetButton.dataset;
+            const agentName = agentSelect.options[agentSelect.selectedIndex].text;
+            const sectionName = reportTypeNames[sectionKey] || sectionKey;
+            const dateFa = new Date(date).toLocaleDateString("fa-IR");
+
+            if (confirm(`آیا از حذف داده بخش «${sectionName}» برای کارشناس «${agentName}» در تاریخ ${dateFa} مطمئن هستید؟`)) {
+                targetButton.disabled = true;
+                targetButton.innerHTML = "در حال حذف...";
+                try {
+                    const formData = new FormData();
+                    formData.append('action', 'delete_section');
+                    formData.append('agent_id', agentId);
+                    formData.append('date', date);
+                    formData.append('section_key', sectionKey);
+
+                    const response = await fetch("/php/process_reports.php", {
+                        method: "POST",
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error(`خطای سرور: ${response.statusText}`);
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(result.message);
+                        window.location.reload();
+                    } else {
+                        throw new Error(result.message || "خطا در پردازش درخواست.");
                     }
+                } catch (error) {
+                    alert(`خطا در حذف داده: ${error.message}`);
+                    targetButton.disabled = false;
+                    targetButton.innerHTML = "🗑️ حذف";
                 }
             }
         });
+
+        new JalaliDatePicker("report_date_display", "report_date");
     </script>
 </body>
 
