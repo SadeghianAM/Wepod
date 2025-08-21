@@ -643,8 +643,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       loader.style.display = "block";
       try {
         const response = await fetch("/data/shifts.json?v=" + new Date().getTime());
-        if (!response.ok)
-          throw new Error(`فایل shifts.json یافت نشد (کد: ${response.status})`);
+        if (!response.ok) throw new Error(`فایل shifts.json یافت نشد (کد: ${response.status})`);
 
         const data = await response.json();
         allExperts = data.experts || [];
@@ -673,7 +672,7 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     function setupEventListeners() {
-      // Note: Date pickers trigger the change on the hidden 'alt' field.
+      // Date pickers trigger change on hidden alt fields
       document.getElementById("startDateAlt").addEventListener("change", applyFilters);
       document.getElementById("endDateAlt").addEventListener("change", applyFilters);
       document.getElementById("expertSelect1").addEventListener("change", applyFilters);
@@ -749,8 +748,8 @@ $claims = requireAuth('admin', '/auth/login.html');
       }
 
       return {
-        status: status,
-        displayText: displayText,
+        status,
+        displayText,
         isSwap: false,
         linkedTo: null
       };
@@ -762,8 +761,8 @@ $claims = requireAuth('admin', '/auth/login.html');
       const shiftDetails = getShiftDetails(rawShiftData);
 
       currentEditingInfo = {
-        expertId: expertId,
-        date: date,
+        expertId,
+        date,
         isSwap: shiftDetails.isSwap,
         linkedTo: shiftDetails.linkedTo
       };
@@ -839,14 +838,10 @@ $claims = requireAuth('admin', '/auth/login.html');
       dateListContainer.innerHTML = datesHtml;
     }
 
+    /* ======== UPDATED: uses cookie (HttpOnly) via credentials: "same-origin" ======== */
     async function saveShiftUpdate() {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        alert("توکن احراز هویت یافت نشد.");
-        return;
-      }
-
       const statusSelectValue = document.getElementById("shift-status-select").value;
+
       let requestBody = {};
       const isOriginallySwap = currentEditingInfo.isSwap;
       const wantsSwap = (statusSelectValue === 'swap');
@@ -864,7 +859,8 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
         const newDateY = selectedDateEl.dataset.date;
 
-        if (String(currentEditingInfo.linkedTo.expertId) === newExpertB_id && currentEditingInfo.linkedTo.date === newDateY) {
+        if (String(currentEditingInfo.linkedTo.expertId) === newExpertB_id &&
+          currentEditingInfo.linkedTo.date === newDateY) {
           alert('تغییری در جابجایی ایجاد نشده است.');
           closeEditModal();
           return;
@@ -932,12 +928,22 @@ $claims = requireAuth('admin', '/auth/login.html');
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "X-Requested-With": "fetch"
           },
+          credentials: "same-origin", // ← مهم: کوکی HttpOnly همراه درخواست ارسال شود
           body: JSON.stringify(requestBody),
         });
+
+        if (response.status === 401 || response.status === 403) {
+          // نشست نامعتبر یا دسترسی ناکافی → هدایت به صفحه ورود
+          window.location.href = "/auth/login.html";
+          return;
+        }
+
         const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "خطا در ذخیره‌سازی.");
+        if (!response.ok || result.success === false) {
+          throw new Error(result.message || "خطا در ذخیره‌سازی.");
+        }
 
         alert(result.message);
         closeEditModal();
@@ -957,7 +963,7 @@ $claims = requireAuth('admin', '/auth/login.html');
           return;
         }
         const data = await response.json();
-        allExperts = data.experts || [];
+        allExperts = (data && Array.isArray(data.experts)) ? data.experts : [];
 
         const allDatesSet = new Set();
         allExperts.forEach((expert) => {

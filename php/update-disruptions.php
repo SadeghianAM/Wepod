@@ -1,7 +1,7 @@
 <?php
 
-require __DIR__ . '/../php/auth_check.php';
-
+require_once __DIR__ . '/../auth/require-auth.php';
+$claims = requireAuth('admin', '/auth/login.html');
 // Set the correct header for JSON response, ensuring UTF-8 encoding for Persian characters.
 header('Content-Type: application/json; charset=utf-8');
 
