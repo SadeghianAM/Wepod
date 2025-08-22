@@ -849,7 +849,9 @@
         const monthName = currentCalendarDate.toLocaleDateString("fa-IR", {
           month: "long",
         });
-        const year = new Intl.NumberFormat("fa-IR").format(
+        const year = new Intl.NumberFormat("fa-IR", {
+          useGrouping: false,
+        }).format(
           currentCalendarDate.toLocaleDateString("fa-IR-u-nu-latn", {
             year: "numeric",
           })
