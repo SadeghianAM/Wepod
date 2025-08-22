@@ -242,7 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return holidays.some((h) => h.date === dateStr);
   }
 
-  // تابع کمکی برای فرمت کردن تاریخ که از تابع toJalali صحیح استفاده می‌کند
   function formatJalaliDate(gregorianDateStr) {
     if (!gregorianDateStr) return "";
     const parts = gregorianDateStr.split("-");
@@ -282,6 +281,33 @@ document.addEventListener("DOMContentLoaded", () => {
       updateTime();
       setInterval(updateTime, 60 * 1000);
     }
+
+    // START: کد جدید برای منوی موبایل
+    const menuToggle = document.getElementById("mobile-menu-toggle");
+    const mainNav = document.getElementById("main-navigation");
+
+    if (menuToggle && mainNav) {
+      menuToggle.addEventListener("click", () => {
+        mainNav.classList.toggle("active");
+      });
+
+      mainNav.addEventListener("click", (e) => {
+        if (e.target.tagName === "A") {
+          mainNav.classList.remove("active");
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (
+          !mainNav.contains(e.target) &&
+          !menuToggle.contains(e.target) &&
+          mainNav.classList.contains("active")
+        ) {
+          mainNav.classList.remove("active");
+        }
+      });
+    }
+    // END: کد جدید برای منوی موبایل
   }
 
   // ==========================
