@@ -15,17 +15,24 @@ $claims = requireAuth('admin', '/auth/login.html');
       --primary-dark: #089863;
       --primary-light: #e6f7f2;
       --bg-color: #f7f9fa;
-      /* Slightly more neutral background */
+      --card-bg: #fff;
       --text-color: #1a1a1a;
-      /* Darker text for better contrast */
-      --secondary-text-color: #555;
-      --card-bg: #ffffff;
-      --header-text: #ffffff;
-      --shadow-color-light: rgba(0, 120, 80, 0.06);
-      /* Adjusted shadow color */
-      --shadow-color-medium: rgba(0, 120, 80, 0.1);
-      --border-radius: 0.75rem;
+      --secondary-text: #555;
+      --header-text: #fff;
       --border-color: #e9e9e9;
+      --radius: 12px;
+      --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
+      --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
+      --space-1: .25rem;
+      --space-2: .5rem;
+      --space-3: .75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-7: 1.75rem;
+      --space-8: 2rem;
+      --header-h: 70px;
+      --footer-h: 60px;
     }
 
     @font-face {
@@ -38,27 +45,40 @@ $claims = requireAuth('admin', '/auth/login.html');
     *,
     *::before,
     *::after {
-      font-family: "Vazirmatn", sans-serif;
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: "Vazirmatn", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    html {
+      scroll-behavior: smooth
     }
 
     body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      direction: rtl;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      direction: rtl;
+      background: var(--bg-color);
+      color: var(--text-color);
     }
 
     a {
+      color: inherit;
       text-decoration: none;
-      transition: all 0.2s ease-in-out;
+      transition: color .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
     }
 
-    /* --- HEADER & FOOTER Styles (Unchanged as requested) --- */
+    :focus {
+      outline: none
+    }
+
+    :focus-visible {
+      outline: 3px solid rgba(0, 174, 112, .35);
+      outline-offset: 2px
+    }
+
     header,
     footer {
       background: var(--primary-color);
@@ -66,190 +86,191 @@ $claims = requireAuth('admin', '/auth/login.html');
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 6px var(--shadow-color-light);
       position: relative;
       z-index: 10;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
     }
 
     header {
-      height: 70px;
+      min-height: var(--header-h)
     }
 
     footer {
-      height: 60px;
-      font-size: 0.85rem;
+      min-height: var(--footer-h);
+      font-size: .85rem
     }
 
     header h1 {
-      font-size: 1.2rem;
       font-weight: 700;
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      white-space: nowrap;
+      max-width: 60vw;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     #today-date,
     #user-info {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1rem;
-      opacity: 0.85;
-      font-weight: 500;
+      position: static !important;
+      transform: none !important;
       white-space: nowrap;
-    }
-
-    #today-date {
-      inset-inline-start: 1.5rem;
+      opacity: .9;
+      font-weight: 500;
+      font-size: clamp(.9rem, 2vw, 1rem);
     }
 
     #user-info {
-      inset-inline-end: 1.5rem;
+      margin-inline-end: 1.5rem;
+      padding: .5rem .8rem;
+      border-radius: 8px;
       cursor: pointer;
-      padding: 0.5rem 0.8rem;
-      border-radius: 0.5rem;
-      transition: background-color 0.2s;
     }
 
     #user-info:hover {
-      background-color: rgba(255, 255, 255, 0.15);
+      background-color: rgba(255, 255, 255, .15)
     }
 
-    /* --- Main Content Styles (Redesigned) --- */
     main {
-      flex-grow: 1;
-      padding: 2.5rem 2rem;
-      /* Increased padding */
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
+      flex: 1 1 auto;
+      width: min(1200px, 100%);
+      padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem);
+      margin-inline: auto;
     }
 
     .page-title {
-      font-size: 1.8rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
       color: var(--primary-dark);
+      font-weight: 800;
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      margin-block-end: .5rem;
     }
 
     .page-subtitle {
-      font-size: 1rem;
+      color: var(--secondary-text);
       font-weight: 400;
-      color: var(--secondary-text-color);
-      margin-bottom: 2.5rem;
+      font-size: clamp(.95rem, 2.2vw, 1rem);
+      margin-block-end: 2rem;
     }
 
     .search-container {
-      margin-bottom: 2rem;
       max-width: 600px;
+      margin-block-end: 2rem
     }
 
     #tools-search {
       width: 100%;
       font-size: 1rem;
-      padding: 0.8em 1.2em;
-      border-radius: var(--border-radius);
+      padding: .8em 1.2em;
       border: 1.5px solid var(--border-color);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      transition: border-color .2s, box-shadow .2s;
     }
 
-    #tools-search:focus {
+    #tools-search:focus-visible {
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 4px rgba(0, 174, 112, 0.15);
+      box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
     }
 
     .tools-grid {
       list-style: none;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 1.5rem;
-      padding: 0;
-      /* Resetting ul padding */
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
 
     .tool-card a {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 0.75rem;
+      gap: .75rem;
       padding: 1.75rem;
-      background-color: var(--card-bg);
-      border-radius: var(--border-radius);
+      background: var(--card-bg);
       border: 1px solid var(--border-color);
-      box-shadow: 0 4px 15px var(--shadow-color-light);
-      color: var(--text-color);
-      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 15px rgba(0, 120, 80, .06);
+      will-change: transform;
     }
 
     .tool-card a:hover {
       transform: translateY(-5px);
       border-color: var(--primary-color);
-      box-shadow: 0 8px 25px var(--shadow-color-medium);
+      box-shadow: var(--shadow-md);
       color: var(--primary-dark);
     }
 
     .tool-icon {
       font-size: 2rem;
-      /* Larger icons */
-      line-height: 1;
+      line-height: 1
     }
 
     .tool-title {
       font-size: 1.1rem;
-      font-weight: 700;
+      font-weight: 700
     }
 
     #no-results {
       display: none;
-      /* Hidden by default */
       text-align: center;
       padding: 3rem 1rem;
-      color: var(--secondary-text-color);
-      font-size: 1.1rem;
+      color: var(--secondary-text);
+      font-size: 1.05rem;
       font-weight: 500;
       border: 2px dashed var(--border-color);
-      border-radius: var(--border-radius);
+      border-radius: var(--radius);
+      margin-block: 1rem;
     }
 
-    /* --- Responsive Design --- */
     @media (max-width: 768px) {
       .tools-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      }
-
-      .page-title {
-        font-size: 1.6rem;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))
       }
 
       main {
-        padding: 2rem 1.5rem;
+        padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 1.5rem)
+      }
+
+      .page-title {
+        font-size: clamp(1.2rem, 4vw, 1.6rem)
       }
     }
 
     @media (max-width: 480px) {
       .tools-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr
       }
 
       main {
-        padding: 1.5rem 1rem;
+        padding: 1.25rem 1rem
       }
 
       .page-title {
-        font-size: 1.4rem;
+        font-size: 1.4rem
       }
 
       .page-subtitle {
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
+        font-size: .9rem;
+        margin-block-end: 1.5rem
       }
 
-      /* Hiding header elements on small screens as per original design */
       #today-date,
       #user-info {
-        display: none;
+        display: none
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important
+      }
+
+      .tool-card a:hover {
+        transform: none
       }
     }
   </style>
+
 </head>
 
 <body>
@@ -344,12 +365,11 @@ $claims = requireAuth('admin', '/auth/login.html');
           }
         }
 
-        // Show or hide the 'no results' message
         if (visibleCount === 0) {
           toolsList.style.display = 'none';
           noResultsMessage.style.display = 'block';
         } else {
-          toolsList.style.display = 'grid'; // Ensure grid layout is restored
+          toolsList.style.display = 'grid';
           noResultsMessage.style.display = 'none';
         }
       });

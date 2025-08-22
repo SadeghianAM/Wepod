@@ -64,34 +64,38 @@ $claims = requireAuth('admin', '/auth/login.html');
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 6px rgba(0, 174, 112, 0.07);
       position: relative;
       z-index: 10;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
     }
 
     header {
-      height: 70px;
+      min-height: var(--header-h)
     }
 
     footer {
-      height: 60px;
-      font-size: 0.85rem;
+      min-height: var(--footer-h);
+      font-size: .85rem
     }
 
     header h1 {
-      font-size: 1.2rem;
       font-weight: 700;
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      white-space: nowrap;
+      max-width: 60vw;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     #today-date,
     #user-info {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1rem;
-      opacity: 0.85;
-      font-weight: 500;
+      position: static !important;
+      transform: none !important;
       white-space: nowrap;
+      opacity: .9;
+      font-weight: 500;
+      font-size: clamp(.9rem, 2vw, 1rem);
     }
 
     #today-date {

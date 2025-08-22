@@ -9,7 +9,7 @@
         --primary-color: #00ae70;
         --primary-dark: #089863;
         --primary-light: #e6f7f2;
-        --bg-color: #f8fcf9;
+        --bg-color: #f7f9fa;
         --text-color: #222;
         --secondary-text-color: #555;
         --card-bg: #ffffff;
@@ -30,7 +30,7 @@
       *,
       *::before,
       *::after {
-        font-family: "Vazirmatn", sans-serif !important;
+        font-family: "Vazirmatn", sans-serif;
         box-sizing: border-box;
         margin: 0;
         padding: 0;
@@ -50,7 +50,7 @@
         color: inherit;
       }
 
-      /* --- HEADER & FOOTER --- */
+      /* --- ORIGINAL HEADER & FOOTER STYLES --- */
       header,
       footer {
         background: var(--primary-color);
@@ -78,8 +78,8 @@
 
       main {
         flex-grow: 1;
-        padding: 2rem;
-        max-width: 900px;
+        padding: 2rem 1rem;
+        max-width: 1200px; /* Wider for grid */
         width: 100%;
         margin: 0 auto;
       }
@@ -90,28 +90,32 @@
         background: var(--card-bg);
         border-radius: var(--border-radius);
         border: 1px solid var(--border-color);
-        box-shadow: 0 4px 15px var(--shadow-color-light);
+        box-shadow: 0 8px 30px rgba(0, 128, 85, 0.06);
         overflow: hidden;
       }
-      .tool-card h2 {
-        font-size: 1.2rem;
-        font-weight: 700;
-        padding: 1rem 1.5rem;
-        background-color: var(--bg-color);
-        color: var(--primary-dark);
+
+      .card-header {
+        padding: 1.5rem 2rem;
         border-bottom: 1px solid var(--border-color);
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 0.75rem;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
-      .tool-card .card-content {
-        padding: 1.5rem;
+      .card-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+      }
+      .card-content {
+        padding: 1rem 2rem 2rem;
       }
 
-      /* --- Search Input --- */
+      /* --- Search Input (Redesigned) --- */
       .search-group {
         position: relative;
-        margin-bottom: 2rem;
+        min-width: 300px;
       }
       .search-group .icon {
         position: absolute;
@@ -125,72 +129,114 @@
       #lesson-search {
         width: 100%;
         font-size: 1rem;
-        padding: 0.8em 1em;
-        padding-inline-start: 2.8rem;
-        border-radius: 0.6em;
+        padding: 0.8rem 1rem;
+        padding-inline-start: 3rem;
+        border-radius: 0.6rem;
         border: 1.5px solid #ddd;
         outline: none;
         transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: var(--bg-color);
       }
       #lesson-search:focus {
         border-color: var(--primary-color);
         box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
       }
 
-      /* --- Lesson Box --- */
-      .lesson-link {
-        display: block;
+      /* --- NEW: Category & Grid System --- */
+      .category-group {
+        margin-top: 2.5rem;
       }
+      .category-group:first-child {
+        margin-top: 1rem;
+      }
+      .category-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-light);
+        display: inline-block;
+      }
+      .lessons-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.25rem;
+      }
+
+      /* --- Lesson Box (Redesigned) --- */
       .lesson-box {
         background: var(--card-bg);
         border-radius: var(--border-radius);
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 3px 8px var(--shadow-color-light);
+        padding: 1.25rem 1.5rem;
         border: 1px solid var(--border-color);
-        border-inline-start: 5px solid var(--primary-color);
-        transition: transform 0.2s ease, box-shadow 0.2s ease,
-          border-inline-start-color 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+        box-shadow: 0 4px 12px var(--shadow-color-light);
       }
       .lesson-link:hover .lesson-box {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px var(--shadow-color-medium);
-        border-inline-start-color: var(--primary-dark);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px var(--shadow-color-medium);
+        border-color: var(--primary-color);
       }
       .lesson-title {
-        font-size: 1.15rem;
-        font-weight: 700;
+        font-size: 1.1rem;
+        font-weight: 600;
         color: var(--primary-dark);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.6rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
+      }
+      .lesson-icon {
+        font-size: 1.2rem;
       }
       .lesson-content {
-        font-size: 0.95rem;
-        line-height: 1.8;
+        font-size: 0.9rem;
+        line-height: 1.7;
         color: var(--secondary-text-color);
       }
-
+      /* --- NEW: No Results Message --- */
+      #no-results-message {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--secondary-text-color);
+        font-size: 1.1rem;
+      }
       /* --- Back Link --- */
       .back-link {
-        display: block;
-        margin-top: 2rem;
+        display: inline-block;
+        margin: 2rem auto 0;
         color: var(--primary-dark);
         font-weight: 500;
         text-align: center;
         width: 100%;
-        font-size: 1rem;
-        text-decoration: none;
       }
       .back-link:hover {
         color: var(--primary-color);
         text-decoration: underline;
       }
 
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .card-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .search-group {
+          width: 100%;
+        }
+        .lessons-grid {
+          grid-template-columns: 1fr; /* Single column on mobile */
+        }
+      }
       @media (max-width: 600px) {
         main {
           padding: 1rem;
+        }
+        .card-header,
+        .card-content {
+          padding: 1rem 1.25rem;
         }
       }
     </style>
@@ -200,8 +246,8 @@
 
     <main>
       <div class="tool-card">
-        <h2>📚 لیست آموزش‌ها</h2>
-        <div class="card-content">
+        <div class="card-header">
+          <h2>📚 لیست آموزش‌ها</h2>
           <div class="search-group">
             <span class="icon">🔍</span>
             <input
@@ -210,229 +256,276 @@
               placeholder="جستجو در عنوان و محتوای آموزش‌ها..."
             />
           </div>
-
+        </div>
+        <div class="card-content">
           <div id="lessons-container">
-            <a href="general.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">🔧 خدمات عمومی و پشتیبانی</div>
-                <div class="lesson-content">
-                  اقدامات امنیتی فوری (هک)، خدمات حساب، مسدودی و بستن حساب.
-                </div>
+            <div class="category-group">
+              <h3 class="category-title">شروع به کار و حساب کاربری</h3>
+              <div class="lessons-grid">
+                <a href="about-wepod.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">ℹ️</span> درباره ویپاد
+                    </div>
+                    <div class="lesson-content">
+                      معرفی ویپاد، راهکارهای پشتیبانی، و طرح دعوت از دوستان.
+                    </div>
+                  </div>
+                </a>
+                <a href="signup.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">⚙️</span> ثبت‌نام و احراز هویت
+                    </div>
+                    <div class="lesson-content">
+                      مراحل کلی احراز هویت، خطاهای رایج و نکات کلیدی.
+                    </div>
+                  </div>
+                </a>
+                <a href="profile.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">📄</span> پروفایل و رمز عبور
+                    </div>
+                    <div class="lesson-content">
+                      مدیریت پروفایل، تغییر شماره همراه و رمز دو مرحله‌ای.
+                    </div>
+                  </div>
+                </a>
+                <a href="general.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">🔧</span> خدمات عمومی و پشتیبانی
+                    </div>
+                    <div class="lesson-content">
+                      اقدامات امنیتی فوری (هک)، خدمات حساب، مسدودی و بستن حساب.
+                    </div>
+                  </div>
+                </a>
               </div>
-            </a>
-            <a href="about-wepod.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">ℹ️ درباره ویپاد</div>
-                <div class="lesson-content">
-                  معرفی ویپاد، راهکارهای پشتیبانی، و طرح دعوت از دوستان (کد
-                  معرف).
-                </div>
+            </div>
+
+            <div class="category-group">
+              <h3 class="category-title">کارت و انتقال وجه</h3>
+              <div class="lessons-grid">
+                <a href="digital-account.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">💳</span> حساب دیجیتال و صدور
+                      کارت
+                    </div>
+                    <div class="lesson-content">
+                      افتتاح حساب دیجیتال، دریافت کارت و خطاهای استعلام سیاح.
+                    </div>
+                  </div>
+                </a>
+                <a href="physical-card.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">🛡️</span> کارت فیزیکی، رمز و
+                      مسدودی
+                    </div>
+                    <div class="lesson-content">
+                      مشکلات کارت فیزیکی، مدیریت رمز اول، فرآیندهای مسدودی.
+                    </div>
+                  </div>
+                </a>
+                <a href="regarding-SMS.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">💬</span> عیب‌یابی پیامک و رمز
+                      پویا
+                    </div>
+                    <div class="lesson-content">
+                      عیب‌یابی عمومی پیامک، عدم دریافت رمز پویا و دوعاملی.
+                    </div>
+                  </div>
+                </a>
+                <a href="Increasing-Account-Balance.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">📥</span> افزایش موجودی و خطاها
+                    </div>
+                    <div class="lesson-content">
+                      روش‌های افزایش موجودی، خطای مالکیت کارت و تراکنش ناموفق.
+                    </div>
+                  </div>
+                </a>
+                <a href="smart-transfer.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">💸</span> انتقال وجه (جامع)
+                    </div>
+                    <div class="lesson-content">
+                      انواع روش‌های انتقال، سقف‌ها، انتقال ویدئویی و عیب‌یابی.
+                    </div>
+                  </div>
+                </a>
               </div>
-            </a>
-            <a href="signup.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">⚙️ ثبت‌نام و احراز هویت</div>
-                <div class="lesson-content">
-                  مراحل کلی احراز هویت، خطاهای رایج سطوح کاربری و نکات کلیدی
-                  پشتیبانی.
-                </div>
+            </div>
+
+            <div class="category-group">
+              <h3 class="category-title">تسهیلات و اعتبارات</h3>
+              <div class="lessons-grid">
+                <a href="Credit-Scoring.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">📊</span> فرآیند اعتبارسنجی
+                    </div>
+                    <div class="lesson-content">
+                      معرفی فرآیند، هزینه‌ها و راهنمای عیب‌یابی عمومی.
+                    </div>
+                  </div>
+                </a>
+                <a href="Barayand-Loan.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">✨</span> تسهیلات برآیند
+                    </div>
+                    <div class="lesson-content">
+                      معرفی، نحوه دریافت، هزینه‌ها، مبالغ و اقساط.
+                    </div>
+                  </div>
+                </a>
+                <a href="Poshtvane-Credit.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">🚀</span> اعتبار پشتوانه
+                    </div>
+                    <div class="lesson-content">
+                      فرآیند درخواست، جدول هزینه‌ها، و قوانین بازپرداخت.
+                    </div>
+                  </div>
+                </a>
+                <a href="Peyman-Loan.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">🤝</span> تسهیلات پیمان
+                    </div>
+                    <div class="lesson-content">
+                      معرفی، پیش‌نیازها، فرآیند درخواست، هزینه‌ها و اقساط.
+                    </div>
+                  </div>
+                </a>
+                <a href="loan-marriage.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">💍</span> تسهیلات قرض‌الحسنه
+                      ازدواج
+                    </div>
+                    <div class="lesson-content">
+                      مراحل درخواست، آپلود مدارک و شرایط ضامنین.
+                    </div>
+                  </div>
+                </a>
+                <a href="loan-child.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">👶</span> تسهیلات قرض‌الحسنه
+                      فرزند
+                    </div>
+                    <div class="lesson-content">
+                      مبالغ، شرایط متقاضی و ضمانت، مدارک و فرآیند ثبت‌نام.
+                    </div>
+                  </div>
+                </a>
               </div>
-            </a>
-            <a href="videobank.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📹 بانکداری ویدئویی</div>
-                <div class="lesson-content">
-                  معرفی و نحوه دسترسی، خدمات قابل ارائه و راهنمای فنی اتصال.
-                </div>
+            </div>
+
+            <div class="category-group">
+              <h3 class="category-title">سرمایه‌گذاری و خدمات مالی</h3>
+              <div class="lessons-grid">
+                <a href="sayad-cheque-services.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">📜</span> خدمات چک صیادی
+                    </div>
+                    <div class="lesson-content">
+                      معرفی سامانه، شرح خدمات، استعلام‌ها و کارمزدها.
+                    </div>
+                  </div>
+                </a>
+                <a href="Digital-Check.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">📲</span> چک دیجیتال (چکاد و
+                      هامون)
+                    </div>
+                    <div class="lesson-content">
+                      فعال‌سازی، استفاده از چک به عنوان وثیقه و عیب‌یابی.
+                    </div>
+                  </div>
+                </a>
+                <a href="pad-third-millennium-fund.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">💰</span> صندوق هزاره سوم پاد
+                    </div>
+                    <div class="lesson-content">
+                      فرآیند سرمایه‌گذاری، محاسبه و پرداخت سود و ابطال واحدها.
+                    </div>
+                  </div>
+                </a>
+                <a href="rooyesh-savings-plan.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">🌱</span> طرح پس‌انداز رویش
+                    </div>
+                    <div class="lesson-content">
+                      معرفی طرح، سودآوری، سقف و تعداد، لغو و جزئیات سود.
+                    </div>
+                  </div>
+                </a>
               </div>
-            </a>
-            <a href="Credit-Scoring.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📊 فرآیند اعتبارسنجی</div>
-                <div class="lesson-content">
-                  معرفی فرآیند اعتبارسنجی، هزینه‌ها و راهنمای عیب‌یابی عمومی.
-                </div>
+            </div>
+            <div class="category-group">
+              <h3 class="category-title">سایر خدمات</h3>
+              <div class="lessons-grid">
+                <a href="videobank.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">📹</span> بانکداری ویدئویی
+                    </div>
+                    <div class="lesson-content">
+                      معرفی، نحوه دسترسی، خدمات قابل ارائه و راهنمای فنی.
+                    </div>
+                  </div>
+                </a>
+                <a href="insurance.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">☂️</span> خدمات بیمه پاسارگاد
+                    </div>
+                    <div class="lesson-content">
+                      معرفی انواع بیمه، بیمه شخص ثالث، و خرید اعتباری.
+                    </div>
+                  </div>
+                </a>
+                <a href="WeClub.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">🪙</span> وی‌کلاب (امتیاز سکه)
+                    </div>
+                    <div class="lesson-content">
+                      معرفی و کاربرد سکه‌ها، روش‌های کسب سکه و مثال‌های محاسبه.
+                    </div>
+                  </div>
+                </a>
+                <a href="Gift-Credit.html" class="lesson-link">
+                  <div class="lesson-box">
+                    <div class="lesson-title">
+                      <span class="lesson-icon">🎁</span> اعتبار هدیه
+                    </div>
+                    <div class="lesson-content">
+                      معرفی، فرآیند کلی، قوانین، محدودیت‌ها و عیب‌یابی.
+                    </div>
+                  </div>
+                </a>
               </div>
-            </a>
-            <a href="profile.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📄 پروفایل، تغییر شماره و رمز</div>
-                <div class="lesson-content">
-                  مدیریت اطلاعات پروفایل، فرآیند تغییر شماره همراه و رمز دو
-                  مرحله‌ای.
-                </div>
-              </div>
-            </a>
-            <a href="regarding-SMS.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">💬 عیب‌یابی پیامک و کارت</div>
-                <div class="lesson-content">
-                  عیب‌یابی عمومی پیامک، عدم دریافت رمز پویا و رمز دوعاملی و مشکل
-                  شناسایی کارت.
-                </div>
-              </div>
-            </a>
-            <a href="physical-card.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">💳 کارت فیزیکی، رمز و مسدودی</div>
-                <div class="lesson-content">
-                  مشکلات کارت فیزیکی، مدیریت رمز اول، فرآیندهای مسدودی و رفع آن.
-                </div>
-              </div>
-            </a>
-            <a href="digital-account.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">💳 حساب دیجیتال و صدور کارت</div>
-                <div class="lesson-content">
-                  آموزش افتتاح حساب دیجیتال، فرآیند دریافت کارت و خطاهای مرتبط
-                  با استعلام سیاح.
-                </div>
-              </div>
-            </a>
-            <a href="Current-Account-Opening.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📂 افتتاح حساب جاری</div>
-                <div class="lesson-content">
-                  فرآیند افتتاح حساب جاری، اعتبارسنجی، و راهنمای کلیدی پشتیبانی.
-                </div>
-              </div>
-            </a>
-            <a href="Increasing-Account-Balance.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📥 افزایش موجودی و خطاها</div>
-                <div class="lesson-content">
-                  روش‌های افزایش موجودی، خطای مالکیت کارت و عیب‌یابی تراکنش‌های
-                  ناموفق.
-                </div>
-              </div>
-            </a>
-            <a href="smart-transfer.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">💸 انتقال وجه (جامع)</div>
-                <div class="lesson-content">
-                  شرح انواع روش‌های انتقال، جدول سقف‌ها، انتقال ویدئویی و
-                  عیب‌یابی خطاها.
-                </div>
-              </div>
-            </a>
-            <a href="Barayand-Loan.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">✨ تسهیلات برآیند</div>
-                <div class="lesson-content">
-                  معرفی تسهیلات برآیند، نحوه دریافت، هزینه‌ها، مبالغ و اقساط.
-                </div>
-              </div>
-            </a>
-            <a href="Barayand-Check-Yar-Loan.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">🧾 تسهیلات برآیند چک‌یار</div>
-                <div class="lesson-content">
-                  معرفی، فرآیند درخواست، جدول هزینه‌ها و وثایق و قوانین
-                  بازپرداخت.
-                </div>
-              </div>
-            </a>
-            <a href="Poshtvane-Credit.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">🚀 اعتبار پشتوانه</div>
-                <div class="lesson-content">
-                  معرفی و فرآیند درخواست، جدول هزینه‌ها، قوانین بازپرداخت و
-                  عیب‌یابی خطاها.
-                </div>
-              </div>
-            </a>
-            <a href="Peyman-Loan.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">🤝 تسهیلات پیمان</div>
-                <div class="lesson-content">
-                  معرفی و پیش‌نیازها، فرآیند درخواست، جدول هزینه‌ها و اقساط.
-                </div>
-              </div>
-            </a>
-            <a href="loan-marriage.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📜 تسهیلات قرض‌الحسنه ازدواج</div>
-                <div class="lesson-content">
-                  معرفی و مبالغ، مراحل کلی درخواست، راهنمای آپلود مدارک و شرایط.
-                </div>
-              </div>
-            </a>
-            <a href="loan-child.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📜 تسهیلات قرض‌الحسنه فرزند</div>
-                <div class="lesson-content">
-                  معرفی و مبالغ تسهیلات، شرایط متقاضی و ضمانت، مدارک و فرآیند
-                  ثبت‌نام.
-                </div>
-              </div>
-            </a>
-            <a href="insurance.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">⚙️ خدمات بیمه پاسارگاد</div>
-                <div class="lesson-content">
-                  معرفی انواع بیمه، بیمه شخص ثالث، خطاهای متداول و خرید اعتباری
-                  بیمه.
-                </div>
-              </div>
-            </a>
-            <a href="sayad-cheque-services.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📜 خدمات چک صیادی</div>
-                <div class="lesson-content">
-                  معرفی سامانه چک صیادی، شرح خدمات، استعلام‌ها و کارمزدها.
-                </div>
-              </div>
-            </a>
-            <a href="Digital-Check.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📲 چک دیجیتال (چکاد و هامون)</div>
-                <div class="lesson-content">
-                  معرفی سامانه‌ها، مراحل فعال‌سازی، استفاده از چک به عنوان وثیقه
-                  و عیب‌یابی.
-                </div>
-              </div>
-            </a>
-            <a href="pad-third-millennium-fund.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">💰 صندوق هزاره سوم پاد</div>
-                <div class="lesson-content">
-                  معرفی صندوق، فرآیند سرمایه‌گذاری، محاسبه و پرداخت سود و ابطال
-                  واحدها.
-                </div>
-              </div>
-            </a>
-            <a href="rooyesh-savings-plan.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">🌱 طرح پس‌انداز رویش</div>
-                <div class="lesson-content">
-                  معرفی طرح، سودآوری، سقف و تعداد، لغو طرح و جزئیات محاسبه سود.
-                </div>
-              </div>
-            </a>
-            <a href="Gift-Credit.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">🎁 اعتبار هدیه</div>
-                <div class="lesson-content">
-                  معرفی و فرآیند کلی، قوانین و محدودیت‌ها، و راهنمای عیب‌یابی.
-                </div>
-              </div>
-            </a>
-            <a href="WeClub.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">🪙 وی‌کلاب (امتیاز سکه)</div>
-                <div class="lesson-content">
-                  معرفی و کاربرد سکه‌ها، روش‌های کسب سکه و مثال‌های محاسبه.
-                </div>
-              </div>
-            </a>
-            <a href="travel-refund-guarantee.html" class="lesson-link">
-              <div class="lesson-box">
-                <div class="lesson-title">📄 ضمانت‌نامه بازگشت از سفر</div>
-                <div class="lesson-content">
-                  معرفی و کاربرد، شرایط و هزینه صدور، ابطال، تمدید و تقلیل.
-                </div>
-              </div>
-            </a>
+            </div>
+          </div>
+          <div id="no-results-message" style="display: none">
+            <p>😕 موردی مطابق با جستجوی شما یافت نشد.</p>
           </div>
         </div>
       </div>
@@ -440,23 +533,44 @@
     </main>
 
     <div id="footer-placeholder"></div>
+
     <script src="/js/header.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const searchInput = document.getElementById("lesson-search");
-        const lessons = document.querySelectorAll(".lesson-link");
+        const lessonsContainer = document.getElementById("lessons-container");
+        const categories = lessonsContainer.querySelectorAll(".category-group");
+        const noResultsMessage = document.getElementById("no-results-message");
 
         searchInput.addEventListener("input", function () {
           const searchTerm = this.value.trim().toLowerCase();
+          let totalMatches = 0;
 
-          lessons.forEach((lesson) => {
-            const lessonText = lesson.textContent.toLowerCase();
-            if (lessonText.includes(searchTerm)) {
-              lesson.style.display = "block";
-            } else {
-              lesson.style.display = "none";
-            }
+          categories.forEach((category) => {
+            const lessons = category.querySelectorAll(".lesson-link");
+            let categoryHasVisibleLessons = false;
+
+            lessons.forEach((lesson) => {
+              const lessonText = lesson.textContent.toLowerCase();
+              const isMatch = lessonText.includes(searchTerm);
+
+              lesson.style.display = isMatch ? "block" : "none";
+
+              if (isMatch) {
+                categoryHasVisibleLessons = true;
+                totalMatches++;
+              }
+            });
+
+            // Hide or show the entire category group based on its content
+            category.style.display = categoryHasVisibleLessons
+              ? "block"
+              : "none";
           });
+
+          // Show or hide the 'no results' message
+          noResultsMessage.style.display =
+            totalMatches === 0 ? "block" : "none";
         });
       });
     </script>
