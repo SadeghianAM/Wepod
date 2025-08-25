@@ -1477,60 +1477,64 @@ $claims = requireAuth('admin', '/auth/login.html');
           alert("هیچ داده‌ای برای خروجی وجود ندارد");
           return;
         }
+
+        // Helper function to safely encode text for HTML contexts
+        const escapeHtml = (text) => {
+          if (text === null || typeof text === 'undefined') return '';
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        };
+
         let excelContent = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office"
-            xmlns:x="urn:schemas-microsoft-com:office:excel"
-            xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
         <meta charset="utf-8">
         <style>
-          body { direction: rtl; }
-          table { border-collapse: collapse; width: 100%; }
-          th, td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
-          th { background-color: #e6f7f2; font-weight: bold; }
-          .description-cell { text-align: right; max-width: 300px; }
+            body { direction: rtl; font-family: Tahoma, sans-serif; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
+            th { background-color: #e6f7f2; font-weight: bold; }
+            .description-cell { text-align: right; white-space: normal; max-width: 300px; }
         </style>
-      </head>
-      <body>
+    </head>
+    <body>
         <table>
-          <thead>
-            <tr>
-              <th>روز</th>
-              <th>موضوع</th>
-              <th>وضعیت</th>
-              <th>تاریخ شروع</th>
-              <th>ساعت شروع</th>
-              <th>تاریخ پایان</th>
-              <th>ساعت پایان</th>
-              <th>مجموع زمان</th>
-              <th>تیم گزارش‌دهنده</th>
-              <th>توضیح</th>
-            </tr>
-          </thead>
-          <tbody>`;
+            <thead>
+                <tr>
+                    <th>روز</th><th>موضوع</th><th>وضعیت</th><th>تاریخ شروع</th>
+                    <th>ساعت شروع</th><th>تاریخ پایان</th><th>ساعت پایان</th>
+                    <th>مجموع زمان</th><th>تیم گزارش‌دهنده</th><th>توضیح</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
         currentRecords.forEach((record) => {
-          const computed = computeDurationText(record.startDate, record.startTime, record.endDate, record.endTime);
-          const durationDisplay =
-            (record.endDate && record.endTime) ?
-            (record.totalDuration || computed || "—") :
-            "—";
+          const durationDisplay = (record.endDate && record.endTime) ? (record.totalDuration || computeDurationText(record.startDate, record.startTime, record.endDate, record.endTime) || "—") : "—";
           const startDateJalali = record.startDate ? new Date(record.startDate).toLocaleDateString("fa-IR") : "—";
           const endDateJalali = record.endDate ? new Date(record.endDate).toLocaleDateString("fa-IR") : "—";
+
+          // All data is escaped before being added to the HTML string
           excelContent += `
-          <tr>
-            <td>${record.dayOfWeek || "—"}</td>
-            <td>${record.subject || "—"}</td>
-            <td>${record.status || "—"}</td>
+        <tr>
+            <td>${escapeHtml(record.dayOfWeek)}</td>
+            <td>${escapeHtml(record.subject)}</td>
+            <td>${escapeHtml(record.status)}</td>
             <td>${startDateJalali}</td>
-            <td>${record.startTime || "—"}</td>
+            <td>${escapeHtml(record.startTime)}</td>
             <td>${endDateJalali}</td>
-            <td>${record.endTime || "—"}</td>
-            <td>${durationDisplay}</td>
-            <td>${record.reportingTeam || "—"}</td>
-            <td class="description-cell">${record.description || "—"}</td>
-          </tr>`;
+            <td>${escapeHtml(record.endTime)}</td>
+            <td>${escapeHtml(durationDisplay)}</td>
+            <td>${escapeHtml(record.reportingTeam)}</td>
+            <td class="description-cell">${escapeHtml(record.description)}</td>
+        </tr>`;
         });
+
         excelContent += `</tbody></table></body></html>`;
+
+        // The rest of the blob and download logic remains the same
         const blob = new Blob([excelContent], {
           type: "application/vnd.ms-excel;charset=utf-8"
         });
@@ -1595,9 +1599,9 @@ $claims = requireAuth('admin', '/auth/login.html');
       function renderTable(records) {
         tableBody.innerHTML = "";
         const statusClassMap = {
-          باز: "status-open",
-          "درحال رسیدگی": "status-in-progress",
-          "برطرف شده": "status-resolved"
+          'باز': "status-open",
+          'درحال رسیدگی': "status-in-progress",
+          'برطرف شده': "status-resolved"
         };
 
         if (!records || records.length === 0) {
@@ -1611,39 +1615,60 @@ $claims = requireAuth('admin', '/auth/login.html');
         } else {
           records.forEach((record) => {
             const tr = tableBody.insertRow();
-            const statusClass = statusClassMap[record.status] || "";
-            const computed = computeDurationText(record.startDate, record.startTime, record.endDate, record.endTime);
-            const durationDisplay =
-              (record.endDate && record.endTime) ?
-              (record.totalDuration || computed || "—") :
-              "—";
-            const startDateJalali = record.startDate ? new Date(record.startDate).toLocaleDateString("fa-IR") : "—";
-            const endDateJalali = record.endDate ? new Date(record.endDate).toLocaleDateString("fa-IR") : "—";
-            tr.innerHTML = `
-            <td>${record.dayOfWeek || "—"}</td>
-            <td>${record.subject || "—"}</td>
-            <td><span class="status ${statusClass}">${record.status || "—"}</span></td>
-            <td>${startDateJalali}</td>
-            <td>${record.startTime || "—"}</td>
-            <td>${endDateJalali}</td>
-            <td>${record.endTime || "—"}</td>
-            <td>${durationDisplay}</td>
-            <td>${record.reportingTeam || "—"}</td>
-            <td class="description-cell">${record.description || "—"}</td>
-            <td>
-              <button class="action-btn edit-btn" data-id="${record.id}">ویرایش</button>
-              <button class="action-btn delete-btn" data-id="${record.id}">حذف</button>
-            </td>
-          `;
+
+            // Helper to create and append a text cell safely
+            const createCell = (text) => {
+              const td = tr.insertCell();
+              td.textContent = text || "—";
+              return td;
+            };
+
+            createCell(record.dayOfWeek);
+            createCell(record.subject);
+
+            // Status Cell (with a span, created safely)
+            const statusCell = tr.insertCell();
+            const statusSpan = document.createElement('span');
+            statusSpan.className = `status ${statusClassMap[record.status] || ""}`;
+            statusSpan.textContent = record.status || "—";
+            statusCell.appendChild(statusSpan);
+
+            createCell(record.startDate ? new Date(record.startDate).toLocaleDateString("fa-IR") : "—");
+            createCell(record.startTime);
+            createCell(record.endDate ? new Date(record.endDate).toLocaleDateString("fa-IR") : "—");
+            createCell(record.endTime);
+
+            const durationDisplay = (record.endDate && record.endTime) ? (record.totalDuration || computeDurationText(record.startDate, record.startTime, record.endDate, record.endTime) || "—") : "—";
+            createCell(durationDisplay);
+
+            createCell(record.reportingTeam);
+
+            const descCell = createCell(record.description);
+            descCell.className = 'description-cell';
+
+            // Actions Cell (with buttons, created safely)
+            const actionCell = tr.insertCell();
+            const editButton = document.createElement('button');
+            editButton.className = 'action-btn edit-btn';
+            editButton.dataset.id = record.id;
+            editButton.textContent = 'ویرایش';
+            editButton.setAttribute('aria-label', `ویرایش رکورد ${record.subject}`);
+
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'action-btn delete-btn';
+            deleteButton.dataset.id = record.id;
+            deleteButton.textContent = 'حذف';
+            deleteButton.setAttribute('aria-label', `حذف رکورد ${record.subject}`);
+
+            actionCell.appendChild(editButton);
+            actionCell.appendChild(deleteButton);
           });
         }
 
-        tableBody.querySelectorAll(".edit-btn").forEach((btn) =>
-          btn.addEventListener("click", () => handleEdit(btn.dataset.id))
-        );
-        tableBody.querySelectorAll(".delete-btn").forEach((btn) =>
-          btn.addEventListener("click", () => handleDelete(btn.dataset.id, btn))
-        );
+        // Re-attach event listeners after rendering
+        tableBody.querySelectorAll(".edit-btn").forEach((btn) => btn.addEventListener("click", () => handleEdit(btn.dataset.id)));
+        tableBody.querySelectorAll(".delete-btn").forEach((btn) => btn.addEventListener("click", () => handleDelete(btn.dataset.id, btn)));
       }
 
       /* ===== CRUD Handlers ===== */
@@ -1667,7 +1692,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             method: "POST",
             body: formData
           });
-          if (!response.ok) throw new Error("خطا در ذخیره سازی اطلاعات");
+          if (!response.ok) throw new Error("به دلایل امنیتی امکان ذخیره‌سازی وجود ندارد");
           const result = await response.json();
           console.log(result.message || "Saved");
           resetForm();

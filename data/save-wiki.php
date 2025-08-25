@@ -44,7 +44,7 @@ $decoded_json_data = html_entity_decode($json_data);
 // 2. Perform the Layer 1 security check on the decoded data
 if (containsMaliciousPatterns($decoded_json_data)) {
     http_response_code(400); // Bad Request
-    echo json_encode(['success' => false, 'message' => 'Input contains forbidden or dangerous content and the request was rejected.']);
+    echo json_encode(['success' => false, 'message' => 'ورودی حاوی محتوای غیرمجاز یا خطرناک است و درخواست رد شد.']);
     exit; // Stop script execution
 }
 
