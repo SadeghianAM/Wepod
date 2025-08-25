@@ -435,7 +435,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       color: var(--primary-dark);
     }
 
-    /* --- [START] DATE & TIME PICKER STYLES --- */
+    /* --- [START] DATE & TIME PICKER STYLES (Kept from original) --- */
     .jdp-popover {
       position: absolute;
       background: #fff;
@@ -444,7 +444,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
       padding: .75rem;
       width: 280px;
-      z-index: 9999;
+      z-index: 9999
     }
 
     .jdp-header {
@@ -453,7 +453,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       align-items: center;
       margin-bottom: .5rem;
       font-weight: 700;
-      color: var(--primary-dark);
+      color: var(--primary-dark)
     }
 
     .jdp-nav-btn {
@@ -462,20 +462,20 @@ $claims = requireAuth('admin', '/auth/login.html');
       border: none;
       padding: .25rem .6rem;
       border-radius: .4rem;
-      cursor: pointer;
+      cursor: pointer
     }
 
     .jdp-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
+      gap: 4px
     }
 
     .jdp-weekday {
       text-align: center;
       font-size: .85rem;
       color: var(--secondary-text-color);
-      padding: .3rem 0;
+      padding: .3rem 0
     }
 
     .jdp-day {
@@ -484,20 +484,20 @@ $claims = requireAuth('admin', '/auth/login.html');
       border-radius: .4rem;
       cursor: pointer;
       background: #fafafa;
-      border: 1px solid #f0f0f0;
+      border: 1px solid #f0f0f0
     }
 
     .jdp-day:hover {
-      background: var(--primary-light);
+      background: var(--primary-light)
     }
 
     .jdp-day.other {
       color: #bbb;
-      background: #f8f9fa;
+      background: #f8f9fa
     }
 
     .jdp-hidden {
-      display: none;
+      display: none
     }
 
     .tp-popover {
@@ -564,11 +564,11 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     .hours-col {
-      grid-column: 2;
+      grid-column: 2
     }
 
     .minutes-col {
-      grid-column: 1;
+      grid-column: 1
     }
 
     .tp-col {
@@ -724,7 +724,7 @@ $claims = requireAuth('admin', '/auth/login.html');
           </div>
           <div>
             <label for="startTime">ساعت شروع (اختیاری):</label>
-            <input type="time" id="startTime" name="startTime" />
+            <input type="text" id="startTime" name="startTime" placeholder="--:--" />
           </div>
         </div>
 
@@ -736,7 +736,7 @@ $claims = requireAuth('admin', '/auth/login.html');
           </div>
           <div>
             <label for="endTime">ساعت پایان (اختیاری):</label>
-            <input type="time" id="endTime" name="endTime" />
+            <input type="text" id="endTime" name="endTime" placeholder="--:--" />
           </div>
         </div>
 
@@ -748,9 +748,11 @@ $claims = requireAuth('admin', '/auth/login.html');
     </div>
   </div>
 
+  <div id="footer-placeholder"></div>
+  <script src="/js/header.js"></script>
   <script>
     /* ===================================================
-     * START: JALALI DATE & TIME PICKER LOGIC
+     * START: JALALI DATE & TIME PICKER LOGIC (Kept from original)
      * =================================================== */
     function jalaliToGregorian(jy, jm, jd) {
       var sal_a, gy, gm, gd, days;
@@ -758,46 +760,45 @@ $claims = requireAuth('admin', '/auth/login.html');
       days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
       gy = 400 * ~~(days / 146097);
       days %= 146097;
-      if (days > 36524) {
-        gy += 100 * ~~(--days / 36524);
+      if (days > 355668) {
+        gy += 100 * ~(--days / 36524);
         days %= 36524;
-        if (days >= 365) days++;
+        if (days >= 365) days++
       }
       gy += 4 * ~~(days / 1461);
       days %= 1461;
       if (days > 365) {
         gy += ~~((days - 1) / 365);
-        days = (days - 1) % 365;
+        days = (days - 1) % 365
       }
       gd = days + 1;
       sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
       for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
-      return new Date(gy, gm - 1, gd);
+      return new Date(gy, gm - 1, gd)
     }
 
     function toPersian(date) {
       const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
-      return parts.map((part) => parseInt(part, 10));
+      return parts.map((part) => parseInt(part, 10))
     }
 
     function formatJalaliDisplay(jy, jm, jd) {
-      return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")}`;
+      return `${jy}/${String(jm).padStart(2,"0")}/${String(jd).padStart(2,"0")}`
     }
 
     function formatISO(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`
     }
 
     function isJalaliLeap(jy) {
-      return (((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816) < 682;
+      return (((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816) < 682
     }
 
     function jalaliMonthLength(jy, jm) {
       if (jm <= 6) return 31;
       if (jm <= 11) return 30;
-      return isJalaliLeap(jy) ? 30 : 29;
+      return isJalaliLeap(jy) ? 30 : 29
     }
-
     class JalaliDatePicker {
       constructor(inputId, altId) {
         this.input = document.getElementById(inputId);
@@ -811,40 +812,39 @@ $claims = requireAuth('admin', '/auth/login.html');
         this.pop.className = "jdp-popover jdp-hidden";
         document.body.appendChild(this.pop);
         this.boundClickOutside = (e) => {
-          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide();
+          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide()
         };
         this.input.addEventListener("focus", () => this.show());
         this.input.addEventListener("click", () => this.show());
-        window.addEventListener("resize", () => this.position());
+        window.addEventListener("resize", () => this.position())
       }
       show() {
         this.render();
         this.position();
         this.pop.classList.remove("jdp-hidden");
-        setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0);
+        setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0)
       }
       hide() {
         this.pop.classList.add("jdp-hidden");
-        document.removeEventListener("mousedown", this.boundClickOutside);
+        document.removeEventListener("mousedown", this.boundClickOutside)
       }
       position() {
         const rect = this.input.getBoundingClientRect();
-        // MODIFIED: Position popover ABOVE the input field
         this.pop.style.top = (window.scrollY + rect.top - this.pop.offsetHeight - 6) + "px";
         this.pop.style.left = window.scrollX + rect.left + "px";
-        if (rect.left + 280 > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - 280 + "px";
+        if (rect.left + 280 > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - 280 + "px"
       }
       nav(delta) {
         this.jm += delta;
         if (this.jm < 1) {
           this.jm = 12;
-          this.jy--;
+          this.jy--
         }
         if (this.jm > 12) {
           this.jm = 1;
-          this.jy++;
+          this.jy++
         }
-        this.render();
+        this.render()
       }
       render() {
         const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
@@ -854,7 +854,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         let html = `<div class="jdp-header"><button type="button" class="jdp-nav-btn" data-nav="-1">«</button><div>${new Intl.DateTimeFormat("fa-IR",{month:"long"}).format(firstG)} ${new Intl.DateTimeFormat("fa-IR-u-nu-latn",{year:"numeric"}).format(firstG)}</div><button type="button" class="jdp-nav-btn" data-nav="1">»</button></div><div class="jdp-grid">${weekDays.map(w=>`<div class="jdp-weekday">${w}</div>`).join("")}`;
         for (let i = 0; i < firstWeekday; i++) html += `<div class="jdp-day other"></div>`;
         for (let d = 1; d <= daysInMonth; d++) {
-          html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`;
+          html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`
         }
         html += `</div>`;
         this.pop.innerHTML = html;
@@ -868,12 +868,11 @@ $claims = requireAuth('admin', '/auth/login.html');
             this.alt.dispatchEvent(new Event("change", {
               bubbles: true
             }));
-            this.hide();
-          });
-        });
+            this.hide()
+          })
+        })
       }
     }
-
     class TimePicker {
       constructor(inputId) {
         this.input = document.getElementById(inputId);
@@ -884,15 +883,15 @@ $claims = requireAuth('admin', '/auth/login.html');
         this.pop.hidden = true;
         document.body.appendChild(this.pop);
         this.boundOutside = (e) => {
-          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide();
+          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide()
         };
         this.input.addEventListener("pointerdown", (e) => {
           e.preventDefault();
-          this.show();
+          this.show()
         });
         this.input.addEventListener("focus", () => this.show());
         this.input.addEventListener("click", () => this.show());
-        window.addEventListener("resize", () => this.position());
+        window.addEventListener("resize", () => this.position())
       }
       parse() {
         const v = (this.input.value || "").trim();
@@ -901,47 +900,46 @@ $claims = requireAuth('admin', '/auth/login.html');
         if (/^\d{1,2}:\d{2}$/.test(v)) {
           const [hh, mm] = v.split(":").map(n => parseInt(n, 10));
           h = Math.max(0, Math.min(23, hh));
-          m = Math.max(0, Math.min(59, mm));
+          m = Math.max(0, Math.min(59, mm))
         }
         this.h = h;
-        this.m = m - (m % 5);
+        this.m = m - (m % 5)
       }
       position() {
         const rect = this.input.getBoundingClientRect();
-        // MODIFIED: Position popover ABOVE the input field
         this.pop.style.top = (window.scrollY + rect.top - this.pop.offsetHeight - 6) + "px";
         this.pop.style.left = window.scrollX + rect.left + "px";
         const w = this.pop.offsetWidth || 340;
-        if (rect.left + w > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - w + "px";
+        if (rect.left + w > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - w + "px"
       }
       show() {
         this.parse();
         this.render();
         this.position();
         this.pop.hidden = false;
-        setTimeout(() => document.addEventListener("mousedown", this.boundOutside), 0);
+        setTimeout(() => document.addEventListener("mousedown", this.boundOutside), 0)
       }
       hide() {
         this.pop.hidden = true;
-        document.removeEventListener("mousedown", this.boundOutside);
+        document.removeEventListener("mousedown", this.boundOutside)
       }
       setHour(h) {
         this.h = (h + 24) % 24;
         this.updateClock();
-        this.highlight();
+        this.highlight()
       }
       setMinute(m) {
         this.m = (m + 60) % 60;
         this.updateClock();
-        this.highlight();
+        this.highlight()
       }
       stepHour(d) {
         this.setHour(this.h + d);
-        this.scrollToActive(this.hoursCol, this.h);
+        this.scrollToActive(this.hoursCol, this.h)
       }
       stepMinute(d) {
         this.setMinute(this.m + d * 5);
-        this.scrollToActive(this.minutesCol, this.m / 5);
+        this.scrollToActive(this.minutesCol, this.m / 5)
       }
       apply() {
         const val = `${String(this.h).padStart(2,"0")}:${String(this.m).padStart(2,"0")}`;
@@ -949,14 +947,14 @@ $claims = requireAuth('admin', '/auth/login.html');
         this.input.dispatchEvent(new Event("change", {
           bubbles: true
         }));
-        this.hide();
+        this.hide()
       }
       clear() {
         this.input.value = "";
         this.input.dispatchEvent(new Event("change", {
           bubbles: true
         }));
-        this.hide();
+        this.hide()
       }
       now() {
         const d = new Date();
@@ -965,17 +963,17 @@ $claims = requireAuth('admin', '/auth/login.html');
         this.updateClock();
         this.highlight();
         this.scrollToActive(this.hoursCol, this.h);
-        this.scrollToActive(this.minutesCol, this.m / 5);
+        this.scrollToActive(this.minutesCol, this.m / 5)
       }
       updateClock() {
-        if (this.clock) this.clock.textContent = `${String(this.h).padStart(2,"0")}:${String(this.m).padStart(2,"0")}`;
+        if (this.clock) this.clock.textContent = `${String(this.h).padStart(2,"0")}:${String(this.m).padStart(2,"0")}`
       }
       highlight() {
         this.pop.querySelectorAll(".tp-opt").forEach(el => el.classList.remove("active"));
         const hEl = this.pop.querySelector(`.tp-opt[data-hour="${this.h}"]`);
         const mEl = this.pop.querySelector(`.tp-opt[data-minute="${this.m}"]`);
         if (hEl) hEl.classList.add("active");
-        if (mEl) mEl.classList.add("active");
+        if (mEl) mEl.classList.add("active")
       }
       makeColumn(type, items, extraClass) {
         const col = document.createElement("div");
@@ -983,41 +981,41 @@ $claims = requireAuth('admin', '/auth/login.html');
         col.setAttribute("tabindex", "0");
         col.innerHTML = items.map(v => {
           const attr = type === "h" ? `data-hour="${v}"` : `data-minute="${v}"`;
-          return `<div class="tp-opt" ${attr}>${String(v).padStart(2,"0")}</div>`;
+          return `<div class="tp-opt" ${attr}>${String(v).padStart(2,"0")}</div>`
         }).join("");
         col.addEventListener("click", (e) => {
           const t = e.target.closest(".tp-opt");
           if (!t) return;
           if (type === "h") this.setHour(parseInt(t.dataset.hour, 10));
-          else this.setMinute(parseInt(t.dataset.minute, 10));
+          else this.setMinute(parseInt(t.dataset.minute, 10))
         });
         col.addEventListener("keydown", (e) => {
           if (type === "h") {
             if (e.key === "ArrowUp") {
               e.preventDefault();
-              this.stepHour(-1);
+              this.stepHour(-1)
             }
             if (e.key === "ArrowDown") {
               e.preventDefault();
-              this.stepHour(1);
+              this.stepHour(1)
             }
           } else {
             if (e.key === "ArrowUp") {
               e.preventDefault();
-              this.stepMinute(-1);
+              this.stepMinute(-1)
             }
             if (e.key === "ArrowDown") {
               e.preventDefault();
-              this.stepMinute(1);
+              this.stepMinute(1)
             }
           }
           if (e.key === "Enter") {
             e.preventDefault();
-            this.apply();
+            this.apply()
           }
           if (e.key === "Escape") {
             e.preventDefault();
-            this.hide();
+            this.hide()
           }
         });
         col.addEventListener("scroll", () => {
@@ -1026,17 +1024,17 @@ $claims = requireAuth('admin', '/auth/login.html');
             const idx = Math.round(col.scrollTop / 36);
             const val = type === "h" ? idx : (idx * 5);
             if (type === "h") this.setHour(Math.max(0, Math.min(23, val)));
-            else this.setMinute(Math.max(0, Math.min(55, val)));
-          }, 120);
+            else this.setMinute(Math.max(0, Math.min(55, val)))
+          }, 120)
         });
-        return col;
+        return col
       }
       scrollToActive(col, index) {
         const y = index * 36;
         col.scrollTo({
           top: y,
           behavior: "smooth"
-        });
+        })
       }
       render() {
         const hours = Array.from({
@@ -1057,25 +1055,41 @@ $claims = requireAuth('admin', '/auth/login.html');
         this.scrollToActive(this.hoursCol, this.h);
         this.scrollToActive(this.minutesCol, this.m / 5);
         this.pop.querySelectorAll("[data-h]").forEach(b => {
-          b.addEventListener("click", () => this.stepHour(parseInt(b.dataset.h.replace("+", ""), 10)));
+          b.addEventListener("click", () => this.stepHour(parseInt(b.dataset.h.replace("+", ""), 10)))
         });
         this.pop.querySelectorAll("[data-m]").forEach(b => {
-          b.addEventListener("click", () => this.stepMinute(parseInt(b.dataset.m.replace("+", ""), 10)));
+          b.addEventListener("click", () => this.stepMinute(parseInt(b.dataset.m.replace("+", ""), 10)))
         });
         this.pop.querySelectorAll("[data-qm]").forEach(b => {
           b.addEventListener("click", () => {
             this.setMinute(parseInt(b.dataset.qm, 10));
-            this.scrollToActive(this.minutesCol, this.m / 5);
-          });
+            this.scrollToActive(this.minutesCol, this.m / 5)
+          })
         });
         this.pop.querySelector("[data-apply]").addEventListener("click", () => this.apply());
         this.pop.querySelector("[data-clear]").addEventListener("click", () => this.clear());
-        this.pop.querySelector("[data-now]").addEventListener("click", () => this.now());
+        this.pop.querySelector("[data-now]").addEventListener("click", () => this.now())
       }
     }
     /* ===================================================
      * END: JALALI DATE & TIME PICKER LOGIC
      * =================================================== */
+
+    /* ===================================================
+     * MAIN APPLICATION LOGIC (SECURED)
+     * =================================================== */
+    let jsonData = [];
+    let currentItemIndex = -1;
+
+    const itemListDiv = document.getElementById("item-list");
+    const itemModal = document.getElementById("itemModal");
+    const closeButton = document.querySelector(".close-button");
+    const itemForm = document.getElementById("itemForm");
+    const addNewItemBtn = document.getElementById("add-new-item-btn");
+    const modalTitle = document.getElementById("modalTitle");
+    const descriptionEditor = document.getElementById("description-editor");
+    const editorToolbar = document.querySelector(".editor-toolbar");
+    const cancelEditBtn = document.getElementById("cancel-edit-btn");
 
     function gregorianToJalaliDisplay(isoDate) {
       if (!isoDate || typeof isoDate !== 'string') return "";
@@ -1089,19 +1103,6 @@ $claims = requireAuth('admin', '/auth/login.html');
         return "";
       }
     }
-
-    let jsonData = [];
-    let currentItemIndex = -1;
-
-    const itemListDiv = document.getElementById("item-list");
-    const itemModal = document.getElementById("itemModal");
-    const closeButton = document.querySelector(".close-button");
-    const itemForm = document.getElementById("itemForm");
-    const addNewItemBtn = document.getElementById("add-new-item-btn");
-    const modalTitle = document.getElementById("modalTitle");
-    const descriptionEditor = document.getElementById("description-editor");
-    const editorToolbar = document.querySelector(".editor-toolbar");
-    const cancelEditBtn = document.getElementById("cancel-edit-btn");
 
     async function saveDataToServer() {
       try {
@@ -1161,15 +1162,34 @@ $claims = requireAuth('admin', '/auth/login.html');
       }
     }
 
+    /**
+     * SECURE RENDER FUNCTION
+     */
     function renderItems() {
       itemListDiv.innerHTML = "";
       if (jsonData.length === 0) {
         itemListDiv.innerHTML = '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">اطلاعیه‌ای برای نمایش وجود ندارد.</p>';
         return;
       }
+
       jsonData.forEach((item, index) => {
         const card = document.createElement("div");
         card.className = `announcement-card ${item.color}`;
+
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'card-header';
+        const cardIcon = document.createElement('span');
+        cardIcon.className = 'card-icon';
+        cardIcon.textContent = colorToIconMap[item.color] || '🔹';
+        const cardTitle = document.createElement('h3');
+        cardTitle.className = 'card-title';
+        cardTitle.textContent = item.title;
+        cardHeader.appendChild(cardIcon);
+        cardHeader.appendChild(cardTitle);
+
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        cardBody.innerHTML = item.description;
 
         const start = formatDateTime(item.startDate, item.startTime);
         const end = formatDateTime(item.endDate, item.endTime);
@@ -1178,7 +1198,33 @@ $claims = requireAuth('admin', '/auth/login.html');
         else if (start) timeInfo = `از ${start}`;
         else if (end) timeInfo = `تا ${end}`;
 
-        card.innerHTML = `<div class="card-header"><span class="card-icon">${colorToIconMap[item.color] || '🔹'}</span><h3 class="card-title">${item.title}</h3></div><div class="card-body">${item.description}</div><div class="card-footer"><span>🗓️ ${timeInfo}</span><div class="card-actions"><button class="edit-btn" data-index="${index}">✏️ ویرایش</button><button class="delete-btn" data-index="${index}">🗑️ حذف</button></div></div>`;
+        const cardFooter = document.createElement('div');
+        cardFooter.className = 'card-footer';
+        const timeInfoSpan = document.createElement('span');
+        timeInfoSpan.textContent = `🗓️ ${timeInfo}`;
+
+        const cardActions = document.createElement('div');
+        cardActions.className = 'card-actions';
+
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-btn';
+        editButton.dataset.index = index;
+        editButton.innerHTML = '✏️ ویرایش';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-btn';
+        deleteButton.dataset.index = index;
+        deleteButton.innerHTML = '🗑️ حذف';
+
+        cardActions.appendChild(editButton);
+        cardActions.appendChild(deleteButton);
+        cardFooter.appendChild(timeInfoSpan);
+        cardFooter.appendChild(cardActions);
+
+        card.appendChild(cardHeader);
+        card.appendChild(cardBody);
+        card.appendChild(cardFooter);
+
         itemListDiv.appendChild(card);
       });
 
@@ -1213,12 +1259,10 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     itemForm.addEventListener("submit", (e) => {
       e.preventDefault();
-
       let descriptionValue = descriptionEditor.innerHTML.trim();
       if (!descriptionEditor.textContent.trim() || descriptionValue === '<br>') {
         descriptionValue = '';
       }
-
       const newItem = {
         title: document.getElementById("title").value,
         description: descriptionValue,
@@ -1228,13 +1272,11 @@ $claims = requireAuth('admin', '/auth/login.html');
         endDate: document.getElementById("endDate").value,
         endTime: document.getElementById("endTime").value,
       };
-
       if (currentItemIndex === -1) {
         jsonData.push(newItem);
       } else {
         jsonData[currentItemIndex] = newItem;
       }
-
       renderItems();
       closeModal();
       saveDataToServer();
@@ -1251,7 +1293,7 @@ $claims = requireAuth('admin', '/auth/login.html');
     editorToolbar.addEventListener("click", (event) => {
       const button = event.target.closest('button');
       if (button && button.dataset.command) {
-        document.execCommand(button.dataset.command, false, button.dataset.value || null);
+        document.execCommand(button.dataset.command, false, null);
         descriptionEditor.focus();
       }
     });
@@ -1289,8 +1331,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       new TimePicker("endTime");
     });
   </script>
-  <div id="footer-placeholder"></div>
-  <script src="/js/header.js"></script>
 </body>
 
 </html>

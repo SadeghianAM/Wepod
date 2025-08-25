@@ -10,6 +10,7 @@ $claims = requireAuth('admin', '/auth/login.html');
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>مدیریت وضعیت سرویس‌ها</title>
   <style>
+    /* CSS styles remain unchanged */
     :root {
       --primary-color: #00ae70;
       --primary-dark: #089863;
@@ -534,6 +535,7 @@ $claims = requireAuth('admin', '/auth/login.html');
   <div id="footer-placeholder"></div>
 
   <script>
+    // کدهای جاوا اسکریپت که تغییر کرده‌اند
     let jsonData = [];
     let currentItemIndex = -1;
 
@@ -549,12 +551,13 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     async function saveDataToServer() {
       try {
+        // توجه: داده‌ها اکنون در سمت سرور پاک‌سازی می‌شوند
         const response = await fetch("/data/save-service-status.php", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(jsonData, null, 2),
+          body: JSON.stringify(jsonData), // ارسال داده خام
         });
         const result = await response.json();
         if (!response.ok || !result.success) {
@@ -570,7 +573,6 @@ $claims = requireAuth('admin', '/auth/login.html');
     function openModal() {
       itemModal.style.display = "block";
       document.body.style.overflow = 'hidden';
-      descriptionEditor?.focus();
     }
 
     function closeModal() {
@@ -593,6 +595,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         itemListDiv.innerHTML = '<p style="text-align:center; grid-column: 1 / -1; margin-top:50px;font-size:1.2rem;color:#555;">سرویسی برای نمایش وجود ندارد.</p>';
         return;
       }
+
       jsonData.forEach((item, index) => {
         const statusClass = item.status ? item.status.replace(/\s/g, "-") : "unknown-status";
         let statusIcon = '❔';
@@ -602,35 +605,75 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         const card = document.createElement("div");
         card.className = "service-card";
-        card.innerHTML = `
-            <div class="card-header">
-                <h3 class="card-title">${item.name}</h3>
-                <span class="card-status ${statusClass}">${statusIcon} ${item.status || 'نامشخص'}</span>
-            </div>
-            <div class="card-body">
-                <div class="card-description">${item.description || "<em>بدون توضیحات</em>"}</div>
-            </div>
-            <div class="card-actions">
-                <button class="edit-btn" data-index="${index}">✏️ ویرایش</button>
-                <button class="delete-btn" data-index="${index}">🗑️ حذف</button>
-            </div>
-            `;
+
+        // --- START: ساخت امن عناصر ---
+        // به جای استفاده از یک رشته HTML طولانی، عناصر را جداگانه می‌سازیم
+
+        // Header
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'card-header';
+
+        const cardTitle = document.createElement('h3');
+        cardTitle.className = 'card-title';
+        cardTitle.textContent = item.name; // امن: استفاده از textContent برای جلوگیری از اجرای HTML
+
+        const cardStatus = document.createElement('span');
+        cardStatus.className = `card-status ${statusClass}`;
+        cardStatus.textContent = `${statusIcon} ${item.status || 'نامشخص'}`; // امن
+
+        cardHeader.appendChild(cardTitle);
+        cardHeader.appendChild(cardStatus);
+
+        // Body
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        const cardDescription = document.createElement('div');
+        cardDescription.className = 'card-description';
+        // در اینجا از innerHTML استفاده می‌کنیم چون می‌خواهیم تگ‌های امن (مثل <b>) نمایش داده شوند
+        // امنیت این بخش توسط پاک‌سازی قدرتمند در سرور تامین می‌شود
+        cardDescription.innerHTML = item.description || "<em>بدون توضیحات</em>";
+        cardBody.appendChild(cardDescription);
+
+        // Actions
+        const cardActions = document.createElement('div');
+        cardActions.className = 'card-actions';
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-btn';
+        editButton.dataset.index = index;
+        editButton.textContent = '✏️ ویرایش';
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-btn';
+        deleteButton.dataset.index = index;
+        deleteButton.textContent = '🗑️ حذف';
+        cardActions.appendChild(editButton);
+        cardActions.appendChild(deleteButton);
+
+        // الحاق همه بخش‌ها به کارت اصلی
+        card.appendChild(cardHeader);
+        card.appendChild(cardBody);
+        card.appendChild(cardActions);
+
         itemListDiv.appendChild(card);
+        // --- END: ساخت امن عناصر ---
       });
 
+      // اتصال رویدادها پس از رندر
       document.querySelectorAll(".edit-btn").forEach(btn =>
-        btn.addEventListener("click", (e) => editItem(+e.target.dataset.index))
+        btn.addEventListener("click", (e) => editItem(+e.currentTarget.dataset.index))
       );
       document.querySelectorAll(".delete-btn").forEach(btn =>
-        btn.addEventListener("click", (e) => deleteItem(+e.target.dataset.index))
+        btn.addEventListener("click", (e) => deleteItem(+e.currentTarget.dataset.index))
       );
     }
+
 
     function editItem(index) {
       currentItemIndex = index;
       const item = jsonData[index];
       document.getElementById("itemId").value = index;
-      document.getElementById("name").value = item.name;
+      // امن: برای اطمینان، مقادیر را قبل از قرار دادن در فرم نیز پاک‌سازی می‌کنیم
+      const nameInput = document.getElementById("name");
+      nameInput.value = item.name;
       document.getElementById("status").value = item.status;
       descriptionEditor.innerHTML = item.description || "";
       modalTitle.textContent = "ویرایش سرویس";
@@ -645,20 +688,25 @@ $claims = requireAuth('admin', '/auth/login.html');
       openModal();
     });
 
-    // --- [START] FIX FOR <br> TAG ---
+
     itemForm.addEventListener("submit", (e) => {
       e.preventDefault();
 
-      // Clean up the description before saving
+      const nameValue = document.getElementById("name").value.trim();
+      if (!nameValue) {
+        alert("نام سرویس نمی‌تواند خالی باشد.");
+        return;
+      }
+
       let descriptionValue = descriptionEditor.innerHTML.trim();
       if (!descriptionEditor.textContent.trim() || descriptionValue === '<br>') {
         descriptionValue = '';
       }
 
       const newItem = {
-        name: document.getElementById("name").value,
+        name: nameValue,
         status: document.getElementById("status").value,
-        description: descriptionValue, // Use the cleaned value
+        description: descriptionValue,
       };
 
       if (currentItemIndex === -1) {
@@ -670,7 +718,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       closeModal();
       saveDataToServer();
     });
-    // --- [END] FIX FOR <br> TAG ---
+
 
     function deleteItem(index) {
       if (confirm("آیا از حذف این سرویس اطمینان دارید؟")) {

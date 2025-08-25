@@ -10,6 +10,7 @@ $claims = requireAuth('admin', '/auth/login.html');
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>مدیریت اسکریپت‌ها و پیام‌های آماده</title>
   <style>
+    /* All previous styles remain unchanged */
     :root {
       --primary-color: #00ae70;
       --primary-dark: #089863;
@@ -264,6 +265,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     .card-description {
       line-height: 1.7;
       color: var(--text-color);
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
     .card-footer {
@@ -548,21 +551,16 @@ $claims = requireAuth('admin', '/auth/login.html');
       <h1 class="page-title">مدیریت پیام‌های آماده</h1>
       <p class="page-subtitle">پیام‌ها و اسکریپت‌های پاسخگویی را از اینجا جستجو، ویرایش و مدیریت کنید.</p>
     </div>
-
     <div class="action-bar">
       <button id="add-new-item-btn">✨ افزودن پیام جدید</button>
       <div class="search-container">
         <input type="text" id="search-input" placeholder="جستجو در عنوان، متن، دسته‌بندی یا ID..." />
       </div>
     </div>
-
     <div id="item-list" style="margin-top: 2rem;"></div>
-
     <div id="load-more-container"></div>
-
     <a href="/admin/index.php" class="back-link">بازگشت به پنل مدیریت</a>
   </main>
-
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <span class="close-button">×</span>
@@ -584,10 +582,11 @@ $claims = requireAuth('admin', '/auth/login.html');
       </form>
     </div>
   </div>
-
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
   <script>
+    // --- JAVASCRIPT LOGIC ---
+    // Global variables and constants
     let jsonData = [];
     let currentItemIndex = -1;
     let searchValue = "";
@@ -611,8 +610,10 @@ $claims = requireAuth('admin', '/auth/login.html');
     const descriptionTextarea = document.getElementById("description-textarea");
     const categoriesCheckboxContainer = document.getElementById("categories-checkbox-container");
 
+
     async function saveDataToServer() {
       try {
+        // Data is now sanitized server-side.
         const response = await fetch("/data/save-wiki.php", {
           method: "POST",
           headers: {
@@ -621,30 +622,19 @@ $claims = requireAuth('admin', '/auth/login.html');
           body: JSON.stringify(jsonData, null, 2),
         });
         const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "خطای سرور");
+        if (!response.ok) throw new Error(result.message || "Server Error");
         console.log(result.message);
       } catch (error) {
         console.error("Error saving data:", error);
-        alert("خطا در ذخیره اطلاعات: " + error.message);
+        alert("Error saving data: " + error.message);
       }
     }
 
-    function openModal() {
-      itemModal.style.display = "block";
-      document.body.style.overflow = 'hidden';
-      titleInput.focus();
-    }
-
-    function closeModal() {
-      itemModal.style.display = "none";
-      document.body.style.overflow = '';
-      itemForm.reset();
-    }
-
     function copyToClipboard(text, button) {
+      // This function is now safer because the text it receives is sanitized.
       navigator.clipboard.writeText(text).then(() => {
         const originalText = button.innerHTML;
-        button.innerHTML = '✅ کپی شد!';
+        button.innerHTML = '✅ Copied!';
         button.classList.add('copied');
         setTimeout(() => {
           button.innerHTML = originalText;
@@ -652,10 +642,14 @@ $claims = requireAuth('admin', '/auth/login.html');
         }, 1500);
       }).catch(err => {
         console.error('Failed to copy text: ', err);
-        alert('خطا در کپی کردن متن.');
+        alert('Failed to copy text.');
       });
     }
 
+    /**
+     * * * * MAJOR SECURITY CHANGE IN THIS FUNCTION * * * *
+     * This function now builds DOM elements programmatically to prevent XSS.
+     */
     function renderItems() {
       if (currentPage === 1) itemListDiv.innerHTML = "";
       loadMoreContainer.innerHTML = "";
@@ -672,7 +666,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       }
 
       if (filtered.length === 0) {
-        itemListDiv.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; margin-top: 50px; font-size: 1.2rem; color: #555;">موردی برای نمایش وجود ندارد.</p>';
+        itemListDiv.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; margin-top: 50px; font-size: 1.2rem; color: #555;">No items to display.</p>';
         return;
       }
 
@@ -686,42 +680,93 @@ $claims = requireAuth('admin', '/auth/login.html');
         const originalIndex = jsonData.findIndex(originalItem => originalItem.id === item.id);
         const card = document.createElement("div");
         card.className = "script-card";
-        card.dataset.id = item.id;
+        card.dataset.id = String(item.id);
 
-        const categoriesHtml = (item.categories && item.categories.length) ?
-          item.categories.map(cat => `<span class="category-pill">${cat}</span>`).join('') :
-          '<span class="category-pill" style="opacity: 0.7;">بدون دسته‌بندی</span>';
+        // --- START: Secure DOM Element Creation ---
+        // Header
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'card-header';
+        const cardTitle = document.createElement('h3');
+        cardTitle.className = 'card-title';
+        cardTitle.textContent = item.title || "No Title"; // SAFE: using textContent
+        cardHeader.appendChild(cardTitle);
 
-        const descriptionHtml = (item.description || "").replace(/\n/g, "<br>");
+        // Meta
+        const cardMeta = document.createElement('div');
+        cardMeta.className = 'card-meta';
+        const cardId = document.createElement('span');
+        cardId.className = 'card-id';
+        cardId.textContent = `ID: ${item.id || "-"}`; // SAFE
+        const cardCategories = document.createElement('div');
+        cardCategories.className = 'card-categories';
+        if (item.categories && item.categories.length) {
+          item.categories.forEach(cat => {
+            const pill = document.createElement('span');
+            pill.className = 'category-pill';
+            pill.textContent = cat; // SAFE
+            cardCategories.appendChild(pill);
+          });
+        } else {
+          const pill = document.createElement('span');
+          pill.className = 'category-pill';
+          pill.style.opacity = '0.7';
+          pill.textContent = 'No Category';
+          cardCategories.appendChild(pill);
+        }
+        cardMeta.appendChild(cardId);
+        cardMeta.appendChild(cardCategories);
 
-        // --- [START] HTML CHANGE ---
-        card.innerHTML = `
-            <div class="card-header">
-                <h3 class="card-title">${item.title || "بدون عنوان"}</h3>
-            </div>
-            <div class="card-meta">
-                <span class="card-id">ID: ${item.id || "-"}</span>
-                <div class="card-categories">${categoriesHtml}</div>
-            </div>
-            <div class="card-body">
-                <div class="card-description">${descriptionHtml}</div>
-            </div>
-            <div class="card-footer">
-                <div class="card-actions">
-                    <button class="edit-btn" title="ویرایش" data-index="${originalIndex}">✏️</button>
-                    <button class="delete-btn" title="حذف" data-index="${originalIndex}">🗑️</button>
-                </div>
-                <button class="copy-btn" data-description="${item.description}">📋 کپی متن</button>
-            </div>
-        `;
-        // --- [END] HTML CHANGE ---
+        // Body
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        const cardDescription = document.createElement('div');
+        cardDescription.className = 'card-description';
+        cardDescription.textContent = item.description || ""; // SAFE: textContent respects newlines due to CSS `white-space: pre-wrap`
+        cardBody.appendChild(cardDescription);
+
+        // Footer
+        const cardFooter = document.createElement('div');
+        cardFooter.className = 'card-footer';
+        const cardActions = document.createElement('div');
+        cardActions.className = 'card-actions';
+
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-btn';
+        editButton.title = 'Edit';
+        editButton.dataset.index = originalIndex;
+        editButton.innerHTML = '✏️'; // Static emoji, safe
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-btn';
+        deleteButton.title = 'Delete';
+        deleteButton.dataset.index = originalIndex;
+        deleteButton.innerHTML = '🗑️'; // Static emoji, safe
+
+        cardActions.appendChild(editButton);
+        cardActions.appendChild(deleteButton);
+
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-btn';
+        copyButton.dataset.description = item.description; // Safe now because data is sanitized plain text
+        copyButton.innerHTML = '📋 Copy Text';
+
+        cardFooter.appendChild(cardActions);
+        cardFooter.appendChild(copyButton);
+
+        // Append all parts to the main card
+        card.appendChild(cardHeader);
+        card.appendChild(cardMeta);
+        card.appendChild(cardBody);
+        card.appendChild(cardFooter);
+
         itemListDiv.appendChild(card);
+        // --- END: Secure DOM Element Creation ---
       });
 
       if (itemsToShow.length < filtered.length) {
         const loadMoreBtn = document.createElement("button");
         loadMoreBtn.id = "load-more-btn";
-        loadMoreBtn.textContent = "نمایش موارد بیشتر";
+        loadMoreBtn.textContent = "Load More";
         loadMoreBtn.onclick = () => {
           currentPage++;
           renderItems();
@@ -729,9 +774,26 @@ $claims = requireAuth('admin', '/auth/login.html');
         loadMoreContainer.appendChild(loadMoreBtn);
       }
 
+      // Re-attach event listeners
       document.querySelectorAll(".edit-btn").forEach(button => button.onclick = (e) => editItem(parseInt(e.currentTarget.dataset.index)));
       document.querySelectorAll(".delete-btn").forEach(button => button.onclick = (e) => deleteItem(parseInt(e.currentTarget.dataset.index)));
       document.querySelectorAll('.copy-btn').forEach(button => button.onclick = (e) => copyToClipboard(e.currentTarget.dataset.description, e.currentTarget));
+    }
+
+    // --- Other functions (modal handling, form submission, etc.) ---
+    // These functions remain largely the same, but are now safer because they
+    // interact with a securely rendered DOM and sanitized data.
+
+    function openModal() {
+      itemModal.style.display = "block";
+      document.body.style.overflow = 'hidden';
+      titleInput.focus();
+    }
+
+    function closeModal() {
+      itemModal.style.display = "none";
+      document.body.style.overflow = '';
+      itemForm.reset();
     }
 
     searchInput.addEventListener("input", (e) => {
@@ -765,7 +827,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       idInput.value = item.id || "";
       titleInput.value = item.title || "";
       descriptionTextarea.value = item.description || "";
-      modalTitle.textContent = "ویرایش پیام";
+      modalTitle.textContent = "Edit Message";
       renderCategoryCheckboxes(item.categories || []);
       openModal();
     }
@@ -775,7 +837,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       itemForm.reset();
       const maxId = jsonData.length > 0 ? Math.max(...jsonData.map(i => i.id || 0)) : 0;
       idInput.value = maxId + 1;
-      modalTitle.textContent = "افزودن پیام جدید";
+      modalTitle.textContent = "Add New Message";
       renderCategoryCheckboxes([]);
       openModal();
     });
@@ -783,18 +845,24 @@ $claims = requireAuth('admin', '/auth/login.html');
     itemForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const selectedCategories = Array.from(categoriesCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-      if (selectedCategories.length === 0) {
-        alert("لطفاً حداقل یک دسته‌بندی را انتخاب کنید.");
+
+      if (!titleInput.value.trim()) {
+        alert("Title cannot be empty.");
         return;
       }
+      if (selectedCategories.length === 0) {
+        alert("Please select at least one category.");
+        return;
+      }
+
       const newItem = {
         id: parseInt(idInput.value, 10),
-        title: titleInput.value,
+        title: titleInput.value, // Will be sanitized on the server
         categories: selectedCategories,
-        description: descriptionTextarea.value,
+        description: descriptionTextarea.value, // Will be sanitized on the server
       };
       if (jsonData.some((item, idx) => item.id === newItem.id && idx !== currentItemIndex)) {
-        alert("این ID قبلاً استفاده شده است. لطفاً یک ID یکتا وارد کنید.");
+        alert("This ID is already in use. Please enter a unique ID.");
         return;
       }
       if (currentItemIndex === -1) {
@@ -809,7 +877,7 @@ $claims = requireAuth('admin', '/auth/login.html');
     });
 
     function deleteItem(index) {
-      if (confirm("آیا از حذف این پیام اطمینان دارید؟")) {
+      if (confirm("Are you sure you want to delete this message?")) {
         jsonData.splice(index, 1);
         currentPage = 1;
         renderItems();
@@ -829,7 +897,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
       } catch (error) {
         console.error("Error loading wiki.json:", error);
-        alert("خطا در بارگذاری اولیه فایل JSON.");
+        alert("Error loading initial JSON file.");
         jsonData = [];
       } finally {
         currentPage = 1;
