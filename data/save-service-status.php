@@ -4,33 +4,79 @@ $claims = requireAuth('admin', '/auth/login.html');
 
 header('Content-Type: application/json; charset=utf-8');
 
-// 1. دریافت دیتای خام
+// --- لایه امنیتی ۱: رد کردن درخواست‌های آشکارا مخرب ---
+
+/**
+ * Checks if the input string contains common and dangerous XSS patterns.
+ * @param string $input The raw input string (the entire JSON body).
+ * @return bool
+ */
+function containsMaliciousPatterns($input)
+{
+    $patterns = [
+        '/<script/i',           // Script tags
+        '/onerror\s*=/i',       // onerror event
+        '/onload\s*=/i',        // onload event
+        '/onmouseover\s*=/i',   // onmouseover event
+        '/javascript\s*:/i',    // javascript: protocol
+        '/<iframe/i',           // Iframe tags
+        '/<svg/i',               // SVG tags
+    ];
+
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $input)) {
+            return true; // Malicious pattern found
+        }
+    }
+    return false; // Input appears safe
+}
+
+// 1. Get the raw data
 $json_data = file_get_contents('php://input');
+
+// --- خط کد جدید و اصلاحی ---
+// Decode any HTML entities (&lt;, &gt;, etc.) back to their original characters (<, >)
+// This ensures the security check works even if the browser encodes the input.
+$decoded_json_data = html_entity_decode($json_data);
+// --- پایان خط کد اصلاحی ---
+
+// 2. Perform the Layer 1 security check on the decoded data
+if (containsMaliciousPatterns($decoded_json_data)) {
+    http_response_code(400); // Bad Request
+    echo json_encode(['success' => false, 'message' => 'Input contains forbidden or dangerous content and the request was rejected.']);
+    exit; // Stop script execution
+}
+
+
+// --- لایه امنیتی ۲: پاک‌سازی دقیق ورودی‌ها ---
+
+// 3. Decode the JSON data for processing
+// We use the original $json_data here to correctly handle legitimate encoded characters if needed.
 $items = json_decode($json_data, true);
 
-// 2. بررسی اینکه آیا JSON معتبر است یا خیر
+// Check if JSON is valid
 if (json_last_error() !== JSON_ERROR_NONE) {
     http_response_code(400); // Bad Request
-    echo json_encode(['success' => false, 'message' => 'داده‌های ارسالی فرمت JSON معتبری ندارند.']);
+    echo json_encode(['success' => false, 'message' => 'The submitted data is not in a valid JSON format.']);
     exit;
 }
 
-// 3. پاک‌سازی داده‌ها (مهم‌ترین بخش)
+// 4. Sanitize the data
 $sanitized_items = [];
 if (is_array($items)) {
     foreach ($items as $item) {
-        // نام سرویس: فقط متن ساده مجاز است. تمام تگ‌های HTML حذف می‌شوند.
+        // Sanitize name: only plain text is allowed, all HTML tags are stripped.
         $sanitized_name = isset($item['name']) ? strip_tags((string)$item['name']) : '';
 
-        // وضعیت: باید یکی از مقادیر مجاز باشد.
+        // Sanitize status: must be one of the allowed values.
         $allowed_statuses = ['فعال', 'غیرفعال', 'اختلال در عملکرد'];
         $sanitized_status = isset($item['status']) && in_array($item['status'], $allowed_statuses) ? $item['status'] : 'نامشخص';
 
-        // توضیحات: فقط تگ‌های امن و بی‌خطر مجاز هستند.
+        // Sanitize description: only safe, harmless tags are allowed.
         $allowed_tags = '<b><strong><i><em><u><ul><ol><li>';
         $sanitized_description = isset($item['description']) ? strip_tags((string)$item['description'], $allowed_tags) : '';
 
-        // فقط آیتم‌هایی که نام دارند را اضافه می‌کنیم
+        // Only add items that have a name.
         if (!empty(trim($sanitized_name))) {
             $sanitized_items[] = [
                 'name' => $sanitized_name,
@@ -41,14 +87,13 @@ if (is_array($items)) {
     }
 }
 
-
-// 4. تبدیل آرایه پاک‌سازی شده به JSON و ذخیره آن
-$file_path = __DIR__ . '/service-status.json'; // استفاده از مسیر مطلق برای امنیت بیشتر
+// 5. Convert the sanitized array to JSON and save it
+$file_path = __DIR__ . '/service-status.json';
 $final_json_data = json_encode($sanitized_items, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
 if (file_put_contents($file_path, $final_json_data) !== false) {
-    echo json_encode(['success' => true, 'message' => 'اطلاعات با موفقیت روی سرور ذخیره شد.']);
+    echo json_encode(['success' => true, 'message' => 'Information was successfully saved on the server.']);
 } else {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'خطا در ذخیره‌سازی فایل روی سرور.']);
+    echo json_encode(['success' => false, 'message' => 'Error saving the file on the server.']);
 }

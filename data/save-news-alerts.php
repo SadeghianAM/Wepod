@@ -4,39 +4,67 @@ $claims = requireAuth('admin', '/auth/login.html');
 
 header('Content-Type: application/json; charset=utf-8');
 
-// 1. دریافت و رمزگشایی داده‌های JSON
+// --- لایه امنیتی ۱: رد کردن درخواست‌های آشکارا مخرب ---
+
+function containsMaliciousPatterns($input)
+{
+    $patterns = [
+        '/<script/i',
+        '/onerror\s*=/i',
+        '/onload\s*=/i',
+        '/onmouseover\s*=/i',
+        '/javascript\s*:/i',
+        '/<iframe/i',
+        '/<svg/i',
+        '/<\?php/i',
+    ];
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $input)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ۱. دریافت دیتای خام
 $json_data = file_get_contents('php://input');
+
+// --- خط کد جدید و اصلاحی ---
+// داده‌های کدگذاری شده را به حالت اولیه برمی‌گردانیم تا الگوها قابل شناسایی باشند
+$decoded_json_data = html_entity_decode($json_data);
+// --- پایان خط کد اصلاحی ---
+
+
+// ۲. اجرای بررسی امنیتی لایه اول روی داده‌های رمزگشایی شده
+if (containsMaliciousPatterns($decoded_json_data)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'ورودی حاوی محتوای غیرمجاز یا خطرناک است و درخواست رد شد.']);
+    exit;
+}
+
+// --- لایه امنیتی ۲: پاک‌سازی دقیق ورودی‌ها (بدون تغییر) ---
+
 $items = json_decode($json_data, true);
 
-// 2. بررسی اعتبار JSON
 if (json_last_error() !== JSON_ERROR_NONE) {
-    http_response_code(400); // Bad Request
+    http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'داده ارسالی معتبر نیست.']);
     exit;
 }
 
-// 3. پاک‌سازی و اعتبارسنجی داده‌ها
 $sanitized_items = [];
 if (is_array($items)) {
     foreach ($items as $item) {
-        // Title: باید متن ساده باشد. تمام تگ‌های HTML به معادل امن تبدیل می‌شوند.
         $sanitized_title = isset($item['title']) ? htmlspecialchars(trim($item['title']), ENT_QUOTES, 'UTF-8') : '';
-
-        // Description: فقط تگ‌های <b> و <strong> مجاز هستند. بقیه حذف می‌شوند.
         $sanitized_description = isset($item['description']) ? strip_tags($item['description'], '<b><strong>') : '';
-
-        // Color: باید یکی از مقادیر مجاز باشد.
         $allowed_colors = ['green', 'yellow', 'red'];
         $sanitized_color = isset($item['color']) && in_array($item['color'], $allowed_colors) ? $item['color'] : 'green';
 
-        // اعتبارسنجی فرمت تاریخ (YYYY-MM-DD)
         $validate_date = function ($date_str) {
             if (empty($date_str)) return '';
             $d = DateTime::createFromFormat('Y-m-d', $date_str);
             return $d && $d->format('Y-m-d') === $date_str ? $date_str : '';
         };
-
-        // اعتبارسنجی فرمت زمان (HH:MM)
         $validate_time = function ($time_str) {
             if (empty($time_str)) return '';
             return preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $time_str) ? $time_str : '';
@@ -47,7 +75,6 @@ if (is_array($items)) {
         $sanitized_endDate = $validate_date($item['endDate'] ?? '');
         $sanitized_endTime = $validate_time($item['endTime'] ?? '');
 
-        // فقط اطلاعیه‌هایی که عنوان دارند را ذخیره می‌کنیم.
         if (!empty($sanitized_title)) {
             $sanitized_items[] = [
                 'title' => $sanitized_title,
@@ -62,7 +89,6 @@ if (is_array($items)) {
     }
 }
 
-// 4. ذخیره داده‌های پاک‌شده
 $file_path = __DIR__ . '/news-alerts.json';
 $final_json_data = json_encode($sanitized_items, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
