@@ -10,18 +10,13 @@ $agentId = $claims['sub'] ?? ($claims['id'] ?? ($claims['username'] ?? null));
 $agentData = [];
 
 if ($agentId) {
-    $candidates = [
-        __DIR__ . '/../data/reports.json',
-        dirname(__DIR__) . '/data/reports.json',
-        __DIR__ . '/../../data/reports.json'
-    ];
-    foreach ($candidates as $jsonFile) {
-        if (file_exists($jsonFile)) {
-            $allData = json_decode(file_get_contents($jsonFile), true);
-            if (is_array($allData) && isset($allData[$agentId])) {
-                $agentData = $allData[$agentId];
-            }
-            break;
+    // A single, reliable path to the reports file
+    $jsonFile = __DIR__ . '/../data/reports.json';
+
+    if (file_exists($jsonFile)) {
+        $allData = json_decode(file_get_contents($jsonFile), true);
+        if (is_array($allData) && isset($allData[$agentId])) {
+            $agentData = $allData[$agentId];
         }
     }
 }
@@ -175,7 +170,6 @@ if ($agentId) {
         .metric-group-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-color);
             margin-bottom: 1.5rem;
             padding-right: 1rem;
             border-right: 4px solid var(--primary-color);
@@ -267,17 +261,12 @@ if ($agentId) {
     <div id="footer-placeholder"></div>
     <script src="/js/header.js?v=1.0"></script>
     <script>
-        function fetchNoCache(url, options = {}) {
-            const timestamp = new Date().getTime();
-            const separator = url.includes("?") ? "&" : "?";
-            const urlWithCacheBust = `${url}${separator}t=${timestamp}`;
-            return fetch(urlWithCacheBust, options);
-        }
         const agentData = <?php echo json_encode($agentData, JSON_UNESCAPED_UNICODE); ?>;
+
         const metricsConfig = {
             performance: {
                 title: "عملکرد کلی تماس‌ها",
-                keys: ["answered_calls", "total_talk_time", "avg_talk_time", "max_talk_time", "missed_calls", "outbound_calls", "calls_over_5_min"]
+                keys: ["incoming_calls", "total_talk_time_in", "avg_talk_time_in", "max_talk_time_in", "outbound_calls", "avg_talk_time_out", "missed_calls", "calls_over_5_min"]
             },
             quality: {
                 title: "کیفیت و بازخورد",
@@ -285,28 +274,29 @@ if ($agentId) {
             },
             productivity: {
                 title: "بهره‌وری و مدیریت زمان",
-                keys: ["presence_duration", "off_queue_duration"]
+                keys: ["presence_duration", "break_duration", "no_call_reason"]
             },
             tasks: {
                 title: "سایر وظایف",
-                keys: ["tickets_count", "fams_count", "jira_count", "no_call_reason"]
+                keys: ["tickets_count", "famas_count", "jira_count"]
             }
         };
+
         const labels = {
-            answered_calls: {
-                title: "پاسخ داده شده",
+            incoming_calls: {
+                title: "تماس ورودی",
                 emoji: "📞"
             },
-            total_talk_time: {
-                title: "مجموع مکالمه",
+            total_talk_time_in: {
+                title: "مجموع مکالمه (ورودی)",
                 emoji: "⏱️"
             },
-            avg_talk_time: {
-                title: "میانگین مکالمه",
+            avg_talk_time_in: {
+                title: "میانگین مکالمه (ورودی)",
                 emoji: "⏳"
             },
-            max_talk_time: {
-                title: "بیشترین زمان مکالمه",
+            max_talk_time_in: {
+                title: "بیشترین مکالمه (ورودی)",
                 emoji: "⌛️"
             },
             avg_rating: {
@@ -321,12 +311,12 @@ if ($agentId) {
                 title: "مدت حضور",
                 emoji: "👤"
             },
-            off_queue_duration: {
-                title: "مدت خروج از صف",
+            break_duration: {
+                title: "مدت استراحت",
                 emoji: "🚶‍♂️"
             },
             one_star_ratings: {
-                title: "امتیاز ۱ داده شده",
+                title: "امتیاز ۱",
                 emoji: "🌟"
             },
             calls_over_5_min: {
@@ -341,6 +331,10 @@ if ($agentId) {
                 title: "تماس خروجی",
                 emoji: "📲"
             },
+            avg_talk_time_out: {
+                title: "میانگین مکالمه (خروجی)",
+                emoji: "📊"
+            },
             no_call_reason: {
                 title: "عدم ثبت دلیل تماس",
                 emoji: "❓"
@@ -349,8 +343,8 @@ if ($agentId) {
                 title: "تعداد تیکت",
                 emoji: "🎟️"
             },
-            fams_count: {
-                title: "تعداد FAMS",
+            famas_count: {
+                title: "تعداد فمس",
                 emoji: "📄"
             },
             jira_count: {
@@ -358,11 +352,13 @@ if ($agentId) {
                 emoji: "✅"
             }
         };
-        const timeBasedMetrics = ['total_talk_time', 'avg_talk_time', 'max_talk_time', 'presence_duration', 'off_queue_duration'];
+
+        const timeBasedMetrics = ['total_talk_time_in', 'avg_talk_time_in', 'max_talk_time_in', 'avg_talk_time_out', 'presence_duration', 'break_duration'];
+
         const charts = {};
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetchNoCache('/auth/get-user-info.php', {
+            fetch('/auth/get-user-info.php', {
                     credentials: 'same-origin'
                 })
                 .then(res => res.ok ? res.json() : Promise.reject(res))
@@ -375,9 +371,7 @@ if ($agentId) {
                         document.getElementById('agent-name-display').textContent = 'اطلاعات کاربری یافت نشد.';
                     }
                 })
-                .catch(() => {
-                    document.getElementById('agent-name-display').textContent = 'اطلاعات کاربری یافت نشد.';
-                });
+                .catch(() => document.getElementById('agent-name-display').textContent = 'اطلاعات کاربری یافت نشد.');
 
             createNavButtons();
             const yesterday = new Date();
@@ -413,6 +407,7 @@ if ($agentId) {
                 } = metricsConfig[group];
                 html += `<div class="metric-group"><h2 class="metric-group-title">${title}</h2><div class="kpi-grid">`;
                 keys.forEach(key => {
+                    if (!labels[key]) return;
                     const hasValue = dataForDay && dataForDay[key] !== undefined && dataForDay[key] !== null;
                     let displayValue, p_class = "";
                     if (hasValue) {
@@ -435,17 +430,17 @@ if ($agentId) {
             const reportContent = document.getElementById('report-content');
             const dates = getLastNDays(7).reverse();
             const summary = {
-                answered_calls: 0,
-                total_talk_time: 0,
+                incoming_calls: 0,
+                total_talk_time_in: 0,
                 ratings_count: 0,
                 total_rating_sum: 0,
                 tickets_count: 0,
-                fams_count: 0,
+                famas_count: 0,
                 jira_count: 0
             };
             const chartData = {
                 labels: [],
-                answered: [],
+                incoming: [],
                 ratings: [],
                 callsOver5Min: [],
                 avgTalkTime: []
@@ -458,19 +453,20 @@ if ($agentId) {
                 }));
                 const dayData = agentData[date];
                 if (dayData) {
-                    summary.answered_calls += dayData.answered_calls || 0;
-                    summary.total_talk_time += dayData.total_talk_time || 0;
+                    summary.incoming_calls += dayData.incoming_calls || 0;
+                    summary.total_talk_time_in += dayData.total_talk_time_in || 0;
                     summary.ratings_count += dayData.ratings_count || 0;
                     summary.total_rating_sum += (dayData.avg_rating || 0) * (dayData.ratings_count || 0);
                     summary.tickets_count += dayData.tickets_count || 0;
-                    summary.fams_count += dayData.fams_count || 0;
+                    summary.famas_count += dayData.famas_count || 0;
                     summary.jira_count += dayData.jira_count || 0;
-                    chartData.answered.push(dayData.answered_calls || 0);
+
+                    chartData.incoming.push(dayData.incoming_calls || 0);
                     chartData.ratings.push(dayData.avg_rating || 0);
                     chartData.callsOver5Min.push(dayData.calls_over_5_min || 0);
-                    chartData.avgTalkTime.push(dayData.avg_talk_time || 0);
+                    chartData.avgTalkTime.push(dayData.avg_talk_time_in || 0);
                 } else {
-                    chartData.answered.push(0);
+                    chartData.incoming.push(0);
                     chartData.ratings.push(0);
                     chartData.callsOver5Min.push(0);
                     chartData.avgTalkTime.push(0);
@@ -478,29 +474,31 @@ if ($agentId) {
             });
 
             const finalAvgRating = summary.ratings_count > 0 ? (summary.total_rating_sum / summary.ratings_count).toFixed(2) : 0;
+            // --- START: MODIFIED LINE ---
             let html = `
                 <div class="metric-group">
                     <h2 class="metric-group-title">خلاصه عملکرد ۷ روز گذشته</h2>
                     <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
-                        <div class="metric-card"><div class="emoji-container">📞</div><div class="content"><h3>مجموع تماس پاسخ داده شده</h3><p>${Number(summary.answered_calls).toLocaleString()}</p></div></div>
-                        <div class="metric-card"><div class="emoji-container">⏱️</div><div class="content"><h3>مجموع مکالمات</h3><p>${formatSeconds(summary.total_talk_time)}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">📞</div><div class="content"><h3>مجموع تماس ورودی</h3><p>${Number(summary.incoming_calls).toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">⏱️</div><div class="content"><h3>مجموع مکالمات ورودی</h3><p>${formatSeconds(summary.total_talk_time_in)}</p></div></div>
                         <div class="metric-card"><div class="emoji-container">⭐</div><div class="content"><h3>میانگین امتیاز کل</h3><p>${finalAvgRating}</p></div></div>
                         <div class="metric-card"><div class="emoji-container">🎟️</div><div class="content"><h3>مجموع تیکت</h3><p>${Number(summary.tickets_count).toLocaleString()}</p></div></div>
-                        <div class="metric-card"><div class="emoji-container">📄</div><div class="content"><h3>مجموع FAMS</h3><p>${Number(summary.fams_count).toLocaleString()}</p></div></div>
+                        <div class="metric-card"><div class="emoji-container">📄</div><div class="content"><h3>مجموع فمس</h3><p>${Number(summary.famas_count).toLocaleString()}</p></div></div>
                         <div class="metric-card"><div class="emoji-container">✅</div><div class="content"><h3>مجموع جیرا</h3><p>${Number(summary.jira_count).toLocaleString()}</p></div></div>
                     </div>
                 </div>
-                <div class="charts-container" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="charts-container" style="grid-template-columns: 1fr 1fr;">
                     <div class="chart-card"><canvas id="callsChart"></canvas></div>
                     <div class="chart-card"><canvas id="ratingsChart"></canvas></div>
                     <div class="chart-card"><canvas id="callsOver5MinChart"></canvas></div>
                     <div class="chart-card"><canvas id="avgTalkTimeChart"></canvas></div>
                 </div>`;
+            // --- END: MODIFIED LINE ---
             reportContent.innerHTML = html;
 
             drawChart('callsChart', 'bar', chartData.labels, [{
-                label: 'تماس پاسخ داده شده',
-                data: chartData.answered,
+                label: 'تماس ورودی',
+                data: chartData.incoming,
                 backgroundColor: 'rgba(0, 174, 112, 0.7)',
                 borderRadius: 5
             }]);
@@ -519,13 +517,14 @@ if ($agentId) {
                 borderRadius: 5
             }]);
             drawChart('avgTalkTimeChart', 'line', chartData.labels, [{
-                label: 'میانگین مکالمه (ثانیه)',
+                label: 'میانگین مکالمه ورودی (ثانیه)',
                 data: chartData.avgTalkTime,
                 borderColor: 'rgba(13, 110, 253, 1)',
                 backgroundColor: 'rgba(13, 110, 253, 0.1)',
                 fill: true,
                 tension: 0.4
             }]);
+
             updateActiveButton('summary');
         }
 
@@ -569,24 +568,24 @@ if ($agentId) {
         }
 
         function getLastNDays(n) {
-            const dates = [];
-            for (let i = 0; i < n; i++) {
+            return Array.from({
+                length: n
+            }, (_, i) => {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
-                dates.push(formatDate(d));
-            }
-            return dates;
+                return formatDate(d);
+            });
         }
 
         function createNavButtons() {
             const nav = document.getElementById('date-nav');
-            let buttonsHtml = '<button id="btn-summary">خلاصه ۷ روز</button>';
             const dates = getLastNDays(7);
+            let buttonsHtml = '<button id="btn-summary">خلاصه ۷ روز</button>';
             dates.forEach(date => {
                 const dateFa = new Date(date).toLocaleDateString('fa-IR', {
                     weekday: 'long',
                     day: 'numeric',
-                    month: 'long'
+                    month: 'short'
                 });
                 buttonsHtml += `<button id="btn-${date}" data-date="${date}">${dateFa}</button>`;
             });

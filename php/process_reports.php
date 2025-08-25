@@ -6,7 +6,6 @@ header('Content-Type: application/json; charset=utf-8');
 
 /**
  * Converts a Jalali (Shamsi) date to a Gregorian date.
- * (The function remains unchanged)
  */
 function jalali_to_gregorian($jy, $jm, $jd)
 {
@@ -43,6 +42,18 @@ function jalali_to_gregorian($jy, $jm, $jd)
     return sprintf('%04d-%02d-%02d', $gy, $gm, $gd);
 }
 
+/**
+ * Converts a time string like HH:MM:SS to total seconds.
+ */
+function time_to_seconds($time_str)
+{
+    $parts = explode(':', $time_str);
+    if (count($parts) === 3) {
+        return (int)$parts[0] * 3600 + (int)$parts[1] * 60 + (int)$parts[2];
+    }
+    return 0;
+}
+
 $response = [
     'success' => false,
     'message' => 'درخواست نامعتبر است.'
@@ -55,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existingData = file_exists($jsonFile) ? json_decode(file_get_contents($jsonFile), true) : [];
         if (!is_array($existingData)) $existingData = [];
 
-        // --- NEW: Handle Delete Action ---
+        // --- Handle Delete Action ---
         if ($action === 'delete_report') {
             $agentId = $_POST['agent_id'] ?? null;
             $date = $_POST['date'] ?? null;
@@ -63,12 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$agentId || !$date) throw new Exception("کد کارشناس و تاریخ برای حذف الزامی است.");
             if (!isset($existingData[$agentId][$date])) throw new Exception("هیچ رکوردی برای این کارشناس در تاریخ مشخص شده یافت نشد.");
 
-            // Create a backup before modifying
-            if (file_exists($jsonFile)) copy($jsonFile, $jsonFile . '.bak');
+            if (file_exists($jsonFile)) copy($jsonFile, $jsonFile . '.bak.' . time());
 
             unset($existingData[$agentId][$date]);
 
-            // If agent has no more dates, remove the agent key
             if (empty($existingData[$agentId])) {
                 unset($existingData[$agentId]);
             }
@@ -76,207 +85,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             file_put_contents($jsonFile, json_encode($existingData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
             $response = ['success' => true, 'message' => "رکورد با موفقیت حذف شد."];
         }
-        // --- Process New Report (Existing Logic) ---
-        elseif ($action === 'process_report' && !empty($_POST['report_type']) && !empty($_POST['excel_data'])) {
-            $reportType = $_POST['report_type'];
+        // --- Process New Unified Report ---
+        elseif ($action === 'process_report' && !empty($_POST['excel_data'])) {
             $pastedData = trim($_POST['excel_data']);
             $lines = explode("\n", $pastedData);
             $processedCount = 0;
+            $MIN_COLUMNS = 21;
 
-            // The entire switch-case block from the original file goes here
-            // It is large, so I will omit it for brevity, but it should be copied and pasted here.
-            // No changes are needed inside the switch-case block itself.
-            // START of switch-case block
-            switch ($reportType) {
-                case 'call_metrics':
-                    foreach ($lines as $line) {
-                        $trimmedLine = trim($line);
-                        if (empty($trimmedLine)) continue;
-                        $columns = preg_split('/\t+/', $trimmedLine);
-                        if (!is_numeric(trim($columns[0]))) continue;
-                        if (count($columns) < 9) continue;
+            foreach ($lines as $line) {
+                $trimmedLine = trim($line);
+                if (empty($trimmedLine)) continue;
 
-                        $agentId = trim($columns[0]);
-                        $shamsi_date_parts = explode('/', trim($columns[2]));
-                        if (count($shamsi_date_parts) != 3) continue;
-                        $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
+                $columns = preg_split('/\t+/', $trimmedLine);
+                if (count($columns) < $MIN_COLUMNS) continue;
 
-                        $reportData = [
-                            "answered_calls"  => (int)str_replace(',', '', $columns[3]),
-                            "total_talk_time" => (int)str_replace(',', '', $columns[4]),
-                            "avg_talk_time"   => (int)str_replace(',', '', $columns[5]),
-                            "max_talk_time"   => (int)str_replace(',', '', $columns[6]),
-                            "avg_rating"      => (float)$columns[7],
-                            "ratings_count"   => (int)str_replace(',', '', $columns[8])
-                        ];
+                $agentId = trim($columns[0]);
+                if (!is_numeric($agentId)) continue;
 
-                        if (!isset($existingData[$agentId][$date])) $existingData[$agentId][$date] = [];
-                        $existingData[$agentId][$date] = array_merge($existingData[$agentId][$date], $reportData);
-                        $processedCount++;
-                    }
-                    break;
+                $shamsi_date_parts = explode('/', trim($columns[2]));
+                if (count($shamsi_date_parts) != 3) continue;
+                $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
 
-                case 'presence_duration':
-                    foreach ($lines as $line) {
-                        if (empty(trim($line))) continue;
-                        $columns = explode("\t", trim($line));
-                        if (!is_numeric(trim($columns[0]))) continue;
-                        if (count($columns) < 4) continue;
+                $reportData = [
+                    "incoming_calls" => (int)trim($columns[3]),
+                    "total_talk_time_in" => time_to_seconds(trim($columns[4])),
+                    "avg_talk_time_in" => time_to_seconds(trim($columns[5])),
+                    "max_talk_time_in" => time_to_seconds(trim($columns[6])),
+                    "ratings_count" => (int)trim($columns[7]),
+                    "avg_rating" => (float)trim($columns[8]),
+                    "presence_duration" => time_to_seconds(trim($columns[9])),
+                    "break_duration" => time_to_seconds(trim($columns[10])),
+                    "missed_calls" => (int)trim($columns[11]),
+                    "outbound_calls" => (int)trim($columns[12]),
+                    "avg_talk_time_out" => time_to_seconds(trim($columns[13])),
+                    "tickets_count" => (int)trim($columns[14]),
+                    "chat_count" => (int)trim($columns[15]),
+                    "famas_count" => (int)trim($columns[16]),
+                    "jira_count" => (int)trim($columns[17]),
+                    "one_star_ratings" => (int)trim($columns[18]),
+                    "calls_over_5_min" => (int)trim($columns[19]),
+                    "no_call_reason" => (int)trim($columns[20]),
+                ];
 
-                        $agentId = trim($columns[0]);
-                        $shamsi_date_parts = explode('/', trim($columns[2]));
-                        if (count($shamsi_date_parts) != 3) continue;
-                        $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
-
-                        $presenceDuration = (int)str_replace(',', '', $columns[3]);
-
-                        if (!isset($existingData[$agentId])) $existingData[$agentId] = [];
-                        if (!isset($existingData[$agentId][$date])) $existingData[$agentId][$date] = [];
-                        $existingData[$agentId][$date]['presence_duration'] = $presenceDuration;
-                        $processedCount++;
-                    }
-                    break;
-
-                case 'off_queue_duration':
-                    foreach ($lines as $line) {
-                        if (empty(trim($line))) continue;
-                        $columns = explode("\t", trim($line));
-                        if (!is_numeric(trim($columns[0]))) continue;
-                        if (count($columns) < 4) continue;
-
-                        $agentId = trim($columns[0]);
-                        $shamsi_date_parts = explode('/', trim($columns[2]));
-                        if (count($shamsi_date_parts) != 3) continue;
-                        $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
-
-                        $offQueueDuration = (int)str_replace(',', '', $columns[3]);
-
-                        if (!isset($existingData[$agentId])) $existingData[$agentId] = [];
-                        if (!isset($existingData[$agentId][$date])) $existingData[$agentId][$date] = [];
-                        $existingData[$agentId][$date]['off_queue_duration'] = $offQueueDuration;
-                        $processedCount++;
-                    }
-                    break;
-
-                case 'one_star_ratings':
-                case 'calls_over_5_min':
-                case 'missed_calls':
-                case 'outbound_calls':
-                    $dailyCounts = [];
-                    $countingConfigs = [
-                        'one_star_ratings' => ['key' => 'one_star_ratings', 'date_col' => 0, 'id_col' => 1],
-                        'calls_over_5_min' => ['key' => 'calls_over_5_min', 'date_col' => 0, 'id_col' => 1],
-                        'missed_calls'     => ['key' => 'missed_calls',     'date_col' => 2, 'id_col' => 0],
-                        'outbound_calls'   => ['key' => 'outbound_calls',   'date_col' => 2, 'id_col' => 0]
-                    ];
-                    $config = $countingConfigs[$reportType];
-                    $metricKey = $config['key'];
-
-                    foreach ($lines as $line) {
-                        if (empty(trim($line))) continue;
-                        $columns = explode("\t", trim($line));
-                        if (count($columns) < 3) continue;
-                        if (is_numeric(trim($columns[$config['id_col']]))) {
-                            $shamsi_date_parts = explode('/', trim($columns[$config['date_col']]));
-                            if (count($shamsi_date_parts) != 3) continue;
-                            $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
-
-                            $agentId = trim($columns[$config['id_col']]);
-
-                            if (!isset($dailyCounts[$date])) $dailyCounts[$date] = [];
-                            if (!isset($dailyCounts[$date][$agentId])) $dailyCounts[$date][$agentId] = 0;
-                            $dailyCounts[$date][$agentId]++;
-                        }
-                    }
-
-                    foreach ($dailyCounts as $date => $agentStats) {
-                        foreach ($agentStats as $agentId => $count) {
-                            if (!isset($existingData[$agentId])) $existingData[$agentId] = [];
-                            if (!isset($existingData[$agentId][$date])) $existingData[$agentId][$date] = [];
-                            $existingData[$agentId][$date][$metricKey] = $count;
-                            $processedCount++;
-                        }
-                    }
-                    break;
-
-                case 'no_call_reason':
-                    $usersFile = __DIR__ . '/../data/users.json';
-                    if (!file_exists($usersFile)) throw new Exception("فایل users.json یافت نشد.");
-                    $users = json_decode(file_get_contents($usersFile), true);
-                    $nameToIdMap = [];
-                    foreach ($users as $user) {
-                        $nameToIdMap[$user['name']] = $user['id'];
-                    }
-                    $dailyCounts = [];
-                    foreach ($lines as $line) {
-                        if (empty(trim($line))) continue;
-                        $columns = explode("\t", trim($line));
-                        if (count($columns) < 2) continue;
-                        if (strpos($columns[0], '/') === false) continue;
-
-                        $shamsi_date_parts = explode('/', trim($columns[0]));
-                        if (count($shamsi_date_parts) != 3) continue;
-                        $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
-
-                        $agentName = trim($columns[1]);
-
-                        if (isset($nameToIdMap[$agentName])) {
-                            $agentId = $nameToIdMap[$agentName];
-                            if (!isset($dailyCounts[$date])) $dailyCounts[$date] = [];
-                            if (!isset($dailyCounts[$date][$agentId])) $dailyCounts[$date][$agentId] = 0;
-                            $dailyCounts[$date][$agentId]++;
-                        }
-                    }
-
-                    foreach ($dailyCounts as $date => $agentStats) {
-                        foreach ($agentStats as $agentId => $count) {
-                            if (!isset($existingData[$agentId])) $existingData[$agentId] = [];
-                            if (!isset($existingData[$agentId][$date])) $existingData[$agentId][$date] = [];
-                            $existingData[$agentId][$date]['no_call_reason'] = $count;
-                            $processedCount++;
-                        }
-                    }
-                    break;
-
-                case 'tickets_count':
-                    if (empty($_POST['report_date'])) throw new Exception("برای این نوع گزارش، انتخاب تاریخ الزامی است.");
-                    $date = $_POST['report_date'];
-
-                    $usersFile = __DIR__ . '/../data/users.json';
-                    if (!file_exists($usersFile)) throw new Exception("فایل users.json یافت نشد.");
-                    $users = json_decode(file_get_contents($usersFile), true);
-                    $nameToIdMap = [];
-                    foreach ($users as $user) {
-                        $nameToIdMap[$user['name']] = $user['id'];
-                    }
-                    foreach ($lines as $line) {
-                        if (empty(trim($line))) continue;
-                        $columns = explode("\t", trim($line));
-                        if (count($columns) < 2) continue;
-                        $agentName = trim($columns[0]);
-                        $ticketCount = (int)$columns[1];
-                        if (isset($nameToIdMap[$agentName])) {
-                            $agentId = $nameToIdMap[$agentName];
-                            if (!isset($existingData[$agentId])) $existingData[$agentId] = [];
-                            if (!isset($existingData[$agentId][$date])) $existingData[$agentId][$date] = [];
-                            $existingData[$agentId][$date]['tickets_count'] = $ticketCount;
-                            $processedCount++;
-                        }
-                    }
-                    break;
+                if (!isset($existingData[$agentId])) $existingData[$agentId] = [];
+                // Overwrite existing data for that day with the new unified record
+                $existingData[$agentId][$date] = $reportData;
+                $processedCount++;
             }
-            // END of switch-case block
 
             if ($processedCount > 0) {
-                // --- NEW: Create a backup before saving ---
                 if (file_exists($jsonFile)) {
-                    copy($jsonFile, $jsonFile . '.bak');
+                    copy($jsonFile, $jsonFile . '.bak.' . time());
                 }
                 file_put_contents($jsonFile, json_encode($existingData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
                 $response['success'] = true;
-                $response['message'] = "داده‌ها با موفقیت پردازش و ذخیره شدند.";
+                $response['message'] = "{$processedCount} ردیف داده با موفقیت پردازش و ذخیره شد.";
             } else {
-                $response['message'] = "هیچ ردیف معتبری برای پردازش یافت نشد. لطفاً فرمت داده‌ها و نوع گزارش انتخابی را بررسی کنید.";
+                $response['message'] = "هیچ ردیف معتبری برای پردازش یافت نشد. لطفاً فرمت داده‌ها را بررسی کنید.";
             }
         }
     } catch (Exception $e) {
