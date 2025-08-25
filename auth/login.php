@@ -193,6 +193,7 @@ $role = in_array($unameForRole, ADMIN_USERNAMES, true) ? 'admin' : 'user';
 // Build JWT
 $now = time();
 $claims = [
+  'jti'      => bin2hex(random_bytes(16)), // <-- تغییر کلیدی در اینجا اعمال شده است
   'sub'      => isset($user['id']) ? $user['id'] : $unameForRole,
   'username' => $unameForRole,
   'role'     => $role,

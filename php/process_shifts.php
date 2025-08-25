@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 if (isset($_POST['action']) && $_POST['action'] === 'clear') {
     try {
         $bytesWritten = clearMasterJsonFile($filePath);
-        echo json_encode(['success' => true, 'message' => "موفقیت: {$bytesWritten} بایت در فایل نوشته شد. مسیر فایل: " . $filePath]);
+        echo json_encode(['success' => true, 'message' => "موفقیت: {$bytesWritten} بایت در فایل نوشته شد."]);
     } catch (Exception $e) {
         http_response_code(500); // Internal Server Error
         echo json_encode(['success' => false, 'message' => 'خطا در پاک کردن فایل: ' . $e->getMessage()]);
@@ -79,7 +79,7 @@ try {
     $bytesWritten = updateMasterJsonFile($filePath, $newExpertsData);
     $count = count($newExpertsData);
 
-    echo json_encode(['success' => true, 'message' => "موفقیت: اطلاعات {$count} کارشناس به‌روزرسانی شد ({$bytesWritten} بایت). مسیر فایل: " . $filePath]);
+    echo json_encode(['success' => true, 'message' => "موفقیت: اطلاعات {$count} کارشناس به‌روزرسانی شد ({$bytesWritten} بایت)."]);
 } catch (Exception $e) {
     http_response_code(400); // Bad Request, as it's likely a data format issue
     echo json_encode(['success' => false, 'message' => 'خطا: ' . $e->getMessage()]);

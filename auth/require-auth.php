@@ -40,9 +40,25 @@ if (!function_exists('requireAuth')) {
 
     $claims = isset($verify['claims']) && is_array($verify['claims']) ? $verify['claims'] : array();
 
+    // --- بررسی لیست سیاه (بخش جدید برای افزایش امنیت) ---
+    if (isset($claims['jti'])) {
+      $denylist_path = dirname(__DIR__) . '/data/token_denylist.json';
+      if (file_exists($denylist_path)) {
+        $denylist = json_decode(file_get_contents($denylist_path), true) ?: [];
+        if (isset($denylist[$claims['jti']])) {
+          // توکن در لیست سیاه است و باطل شده، کاربر را خارج کن
+          header('Location: ' . $redirect);
+          exit();
+        }
+      }
+    }
+    // --- پایان بررسی لیست سیاه ---
+
     // Optional role check
     if ($requiredRole !== null) {
       if (!isset($claims['role']) || $claims['role'] !== $requiredRole) {
+        // اگر نقش کاربر مجاز نبود، به صفحه لاگین هدایت شود
+        http_response_code(403); // Forbidden
         header('Location: ' . $redirect);
         exit();
       }
