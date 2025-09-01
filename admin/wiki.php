@@ -585,17 +585,21 @@ $claims = requireAuth('admin', '/auth/login.html');
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
   <script>
-    // --- JAVASCRIPT LOGIC ---
-    // Global variables and constants
     let jsonData = [];
     let currentItemIndex = -1;
     let searchValue = "";
     let currentPage = 1;
     const itemsPerPage = 9;
 
-    const availableCategories = ["عمومی", "احراز هویت", "اعتبار سنجی", "تنظیمات امنیت حساب", "تغییر شماره تلفن همراه", "عدم دریافت پیامک", "کارت فیزیکی", "کارت و حساب دیجیتال", "مسدودی و رفع مسدودی حساب", "انتقال وجه", "خدمات قبض", "شارژ و بسته اینترنت", "تسهیلات برآیند", "تسهیلات برآیند چک یار", "تسهیلات پشتوانه", "تسهیلات پیش درآمد", "تسهیلات پیمان", "تسهیلات تکلیفی", "تسهیلات سازمانی", "بیمه پاسارگاد", "چک", "خدمات چکاد", "صندوق های سرمایه گذاری", "طرح سرمایه گذاری رویش", "دعوت از دوستان", "هدیه دیجیتال", "وی کلاب"];
+    const availableCategories = [
+      "عمومی", "احراز هویت", "اعتبار سنجی", "تنظیمات امنیت حساب", "تغییر شماره تلفن همراه",
+      "عدم دریافت پیامک", "کارت فیزیکی", "کارت و حساب دیجیتال", "مسدودی و رفع مسدودی حساب",
+      "انتقال وجه", "خدمات قبض", "شارژ و بسته اینترنت", "تسهیلات برآیند", "تسهیلات برآیند چک یار",
+      "تسهیلات پشتوانه", "تسهیلات پیش درآمد", "تسهیلات پیمان", "تسهیلات تکلیفی", "تسهیلات سازمانی",
+      "بیمه پاسارگاد", "چک", "خدمات چکاد", "صندوق های سرمایه گذاری", "طرح سرمایه گذاری رویش",
+      "دعوت از دوستان", "هدیه دیجیتال", "وی کلاب"
+    ];
 
-    // DOM Elements
     const itemListDiv = document.getElementById("item-list");
     const loadMoreContainer = document.getElementById("load-more-container");
     const itemModal = document.getElementById("itemModal");
@@ -610,10 +614,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     const descriptionTextarea = document.getElementById("description-textarea");
     const categoriesCheckboxContainer = document.getElementById("categories-checkbox-container");
 
-
     async function saveDataToServer() {
       try {
-        // Data is now sanitized server-side.
         const response = await fetch("/data/save-wiki.php", {
           method: "POST",
           headers: {
@@ -622,34 +624,29 @@ $claims = requireAuth('admin', '/auth/login.html');
           body: JSON.stringify(jsonData, null, 2),
         });
         const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Server Error");
+        if (!response.ok) throw new Error(result.message || "خطای سرور");
         console.log(result.message);
       } catch (error) {
-        console.error("Error saving data:", error);
-        alert("Error saving data: " + error.message);
+        console.error("خطا در ذخیره‌سازی داده‌ها:", error);
+        alert("خطا در ذخیره‌سازی داده‌ها: " + error.message);
       }
     }
 
     function copyToClipboard(text, button) {
-      // This function is now safer because the text it receives is sanitized.
       navigator.clipboard.writeText(text).then(() => {
         const originalText = button.innerHTML;
-        button.innerHTML = '✅ Copied!';
+        button.innerHTML = '✅ کپی شد!';
         button.classList.add('copied');
         setTimeout(() => {
           button.innerHTML = originalText;
           button.classList.remove('copied');
         }, 1500);
       }).catch(err => {
-        console.error('Failed to copy text: ', err);
-        alert('Failed to copy text.');
+        console.error('ناموفق در کپی متن: ', err);
+        alert('کپی متن انجام نشد.');
       });
     }
 
-    /**
-     * * * * MAJOR SECURITY CHANGE IN THIS FUNCTION * * * *
-     * This function now builds DOM elements programmatically to prevent XSS.
-     */
     function renderItems() {
       if (currentPage === 1) itemListDiv.innerHTML = "";
       loadMoreContainer.innerHTML = "";
@@ -666,7 +663,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       }
 
       if (filtered.length === 0) {
-        itemListDiv.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; margin-top: 50px; font-size: 1.2rem; color: #555;">No items to display.</p>';
+        itemListDiv.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; margin-top: 50px; font-size: 1.2rem; color: #555;">موردی برای نمایش نیست.</p>';
         return;
       }
 
@@ -682,49 +679,44 @@ $claims = requireAuth('admin', '/auth/login.html');
         card.className = "script-card";
         card.dataset.id = String(item.id);
 
-        // --- START: Secure DOM Element Creation ---
-        // Header
         const cardHeader = document.createElement('div');
         cardHeader.className = 'card-header';
         const cardTitle = document.createElement('h3');
         cardTitle.className = 'card-title';
-        cardTitle.textContent = item.title || "No Title"; // SAFE: using textContent
+        cardTitle.textContent = item.title || "بدون عنوان";
         cardHeader.appendChild(cardTitle);
 
-        // Meta
         const cardMeta = document.createElement('div');
         cardMeta.className = 'card-meta';
         const cardId = document.createElement('span');
         cardId.className = 'card-id';
-        cardId.textContent = `ID: ${item.id || "-"}`; // SAFE
+        cardId.textContent = `شناسه: ${item.id || "-"}`;
         const cardCategories = document.createElement('div');
         cardCategories.className = 'card-categories';
         if (item.categories && item.categories.length) {
           item.categories.forEach(cat => {
             const pill = document.createElement('span');
             pill.className = 'category-pill';
-            pill.textContent = cat; // SAFE
+            pill.textContent = cat;
             cardCategories.appendChild(pill);
           });
         } else {
           const pill = document.createElement('span');
           pill.className = 'category-pill';
           pill.style.opacity = '0.7';
-          pill.textContent = 'No Category';
+          pill.textContent = 'بدون دسته‌بندی';
           cardCategories.appendChild(pill);
         }
         cardMeta.appendChild(cardId);
         cardMeta.appendChild(cardCategories);
 
-        // Body
         const cardBody = document.createElement('div');
         cardBody.className = 'card-body';
         const cardDescription = document.createElement('div');
         cardDescription.className = 'card-description';
-        cardDescription.textContent = item.description || ""; // SAFE: textContent respects newlines due to CSS `white-space: pre-wrap`
+        cardDescription.textContent = item.description || "";
         cardBody.appendChild(cardDescription);
 
-        // Footer
         const cardFooter = document.createElement('div');
         cardFooter.className = 'card-footer';
         const cardActions = document.createElement('div');
@@ -732,41 +724,39 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         const editButton = document.createElement('button');
         editButton.className = 'edit-btn';
-        editButton.title = 'Edit';
+        editButton.title = 'ویرایش';
         editButton.dataset.index = originalIndex;
-        editButton.innerHTML = '✏️'; // Static emoji, safe
+        editButton.innerHTML = '✏️';
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-btn';
-        deleteButton.title = 'Delete';
+        deleteButton.title = 'حذف';
         deleteButton.dataset.index = originalIndex;
-        deleteButton.innerHTML = '🗑️'; // Static emoji, safe
+        deleteButton.innerHTML = '🗑️';
 
         cardActions.appendChild(editButton);
         cardActions.appendChild(deleteButton);
 
         const copyButton = document.createElement('button');
         copyButton.className = 'copy-btn';
-        copyButton.dataset.description = item.description; // Safe now because data is sanitized plain text
-        copyButton.innerHTML = '📋 Copy Text';
+        copyButton.dataset.description = item.description;
+        copyButton.innerHTML = '📋 کپی متن';
 
         cardFooter.appendChild(cardActions);
         cardFooter.appendChild(copyButton);
 
-        // Append all parts to the main card
         card.appendChild(cardHeader);
         card.appendChild(cardMeta);
         card.appendChild(cardBody);
         card.appendChild(cardFooter);
 
         itemListDiv.appendChild(card);
-        // --- END: Secure DOM Element Creation ---
       });
 
       if (itemsToShow.length < filtered.length) {
         const loadMoreBtn = document.createElement("button");
         loadMoreBtn.id = "load-more-btn";
-        loadMoreBtn.textContent = "Load More";
+        loadMoreBtn.textContent = "نمایش بیشتر";
         loadMoreBtn.onclick = () => {
           currentPage++;
           renderItems();
@@ -774,15 +764,10 @@ $claims = requireAuth('admin', '/auth/login.html');
         loadMoreContainer.appendChild(loadMoreBtn);
       }
 
-      // Re-attach event listeners
       document.querySelectorAll(".edit-btn").forEach(button => button.onclick = (e) => editItem(parseInt(e.currentTarget.dataset.index)));
       document.querySelectorAll(".delete-btn").forEach(button => button.onclick = (e) => deleteItem(parseInt(e.currentTarget.dataset.index)));
       document.querySelectorAll('.copy-btn').forEach(button => button.onclick = (e) => copyToClipboard(e.currentTarget.dataset.description, e.currentTarget));
     }
-
-    // --- Other functions (modal handling, form submission, etc.) ---
-    // These functions remain largely the same, but are now safer because they
-    // interact with a securely rendered DOM and sanitized data.
 
     function openModal() {
       itemModal.style.display = "block";
@@ -827,7 +812,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       idInput.value = item.id || "";
       titleInput.value = item.title || "";
       descriptionTextarea.value = item.description || "";
-      modalTitle.textContent = "Edit Message";
+      modalTitle.textContent = "ویرایش پیام";
       renderCategoryCheckboxes(item.categories || []);
       openModal();
     }
@@ -837,7 +822,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       itemForm.reset();
       const maxId = jsonData.length > 0 ? Math.max(...jsonData.map(i => i.id || 0)) : 0;
       idInput.value = maxId + 1;
-      modalTitle.textContent = "Add New Message";
+      modalTitle.textContent = "افزودن پیام جدید";
       renderCategoryCheckboxes([]);
       openModal();
     });
@@ -847,24 +832,26 @@ $claims = requireAuth('admin', '/auth/login.html');
       const selectedCategories = Array.from(categoriesCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
 
       if (!titleInput.value.trim()) {
-        alert("Title cannot be empty.");
+        alert("عنوان نمی‌تواند خالی باشد.");
         return;
       }
       if (selectedCategories.length === 0) {
-        alert("Please select at least one category.");
+        alert("لطفاً دست‌کم یک دسته‌بندی انتخاب کنید.");
         return;
       }
 
       const newItem = {
         id: parseInt(idInput.value, 10),
-        title: titleInput.value, // Will be sanitized on the server
+        title: titleInput.value,
         categories: selectedCategories,
-        description: descriptionTextarea.value, // Will be sanitized on the server
+        description: descriptionTextarea.value,
       };
+
       if (jsonData.some((item, idx) => item.id === newItem.id && idx !== currentItemIndex)) {
-        alert("This ID is already in use. Please enter a unique ID.");
+        alert("این شناسه قبلاً استفاده شده است. لطفاً یک شناسه منحصربه‌فرد وارد کنید.");
         return;
       }
+
       if (currentItemIndex === -1) {
         jsonData.push(newItem);
       } else {
@@ -877,7 +864,7 @@ $claims = requireAuth('admin', '/auth/login.html');
     });
 
     function deleteItem(index) {
-      if (confirm("Are you sure you want to delete this message?")) {
+      if (confirm("آیا از حذف این پیام مطمئن هستید؟")) {
         jsonData.splice(index, 1);
         currentPage = 1;
         renderItems();
@@ -896,8 +883,8 @@ $claims = requireAuth('admin', '/auth/login.html');
           throw new Error(`HTTP error! status: ${response.status}`);
         }
       } catch (error) {
-        console.error("Error loading wiki.json:", error);
-        alert("Error loading initial JSON file.");
+        console.error("خطا در بارگذاری wiki.json:", error);
+        alert("خطا در بارگذاری فایل JSON اولیه.");
         jsonData = [];
       } finally {
         currentPage = 1;
@@ -905,7 +892,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       }
     }
 
-    // Initial setup
     closeButton.onclick = closeModal;
     window.onclick = function(event) {
       if (event.target == itemModal) closeModal();
