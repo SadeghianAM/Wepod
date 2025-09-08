@@ -295,6 +295,11 @@ $claims = requireAuth(null, '/auth/login.html');
       color: #212529;
     }
 
+    .status-remote {
+      background-color: #ede7f6;
+      color: #5e35b1;
+    }
+
     .status-swap {
       background-color: var(--swap-color);
       color: var(--swap-text-color);
@@ -1070,6 +1075,7 @@ $claims = requireAuth(null, '/auth/login.html');
         } else {
           const classMap = {
             "on-duty": "status-on-duty",
+            remote: "status-remote",
             off: "status-off",
             leave: "status-special",
             unknown: "status-unknown",
@@ -1139,8 +1145,7 @@ $claims = requireAuth(null, '/auth/login.html');
       );
       let r =
         o.size > 0 ?
-        allExperts.filter((x) => o.has(String(x.id))) :
-        [...allExperts];
+        allExperts.filter((x) => o.has(String(x.id))) : [...allExperts];
       r.sort((A, B) => {
         const stA = A["shifts-time"] || "",
           stB = B["shifts-time"] || "";
@@ -1172,6 +1177,9 @@ $claims = requireAuth(null, '/auth/login.html');
         case "on-duty":
           displayText = "حضور";
           break;
+        case "remote":
+          displayText = "دورکاری";
+          break;
         case "off":
           displayText = "عدم حضور";
           break;
@@ -1186,7 +1194,7 @@ $claims = requireAuth(null, '/auth/login.html');
         status,
         displayText,
         isSwap: false,
-        linkedTo: null
+        linkedTo: null,
       };
     }
 
@@ -1209,13 +1217,13 @@ $claims = requireAuth(null, '/auth/login.html');
       datesToRender.forEach((date) => {
         const d = new Date(date);
         const day = d.toLocaleDateString("fa-IR", {
-          day: "numeric"
+          day: "numeric",
         });
         const month = d.toLocaleDateString("fa-IR", {
-          month: "short"
+          month: "short",
         });
         const weekday = d.toLocaleDateString("fa-IR", {
-          weekday: "short"
+          weekday: "short",
         });
         tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size:.8rem;color:#6c757d;font-weight:400;">${date}</span></th>`;
       });
@@ -1237,6 +1245,7 @@ $claims = requireAuth(null, '/auth/login.html');
           } else {
             const classMap = {
               "on-duty": "status-on-duty",
+              remote: "status-remote",
               off: "status-off",
               leave: "status-special",
               unknown: "status-unknown",

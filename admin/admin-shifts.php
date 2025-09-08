@@ -173,6 +173,11 @@ $claims = requireAuth('admin', '/auth/login.html');
       color: #212529;
     }
 
+    .status-remote {
+      background-color: #ede7f6;
+      color: #5e35b1;
+    }
+
     .status-swap {
       background-color: var(--swap-color);
       color: var(--swap-text-color);
@@ -453,6 +458,7 @@ $claims = requireAuth('admin', '/auth/login.html');
           <label for="shift-status-select">انتخاب وضعیت</label>
           <select id="shift-status-select">
             <option value="on-duty">حضور</option>
+            <option value="remote">دورکار</option>
             <option value="off">عدم حضور</option>
             <option value="leave">مرخصی</option>
             <option value="swap">جابجایی شیفت</option>
@@ -736,6 +742,9 @@ $claims = requireAuth('admin', '/auth/login.html');
         case 'on-duty':
           displayText = 'حضور';
           break;
+        case 'remote':
+          displayText = 'دورکار';
+          break;
         case 'off':
           displayText = 'عدم حضور';
           break;
@@ -783,7 +792,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         swapGroup.style.display = "block";
         populateSwapExpertSelect(shiftDetails.linkedTo.expertId);
         populateSwapDates(shiftDetails.linkedTo.expertId, shiftDetails.linkedTo.date);
-      } else if (['on-duty', 'off', 'leave'].includes(shiftDetails.status)) {
+      } else if (['on-duty', 'off', 'leave', 'remote'].includes(shiftDetails.status)) {
         statusSelect.value = shiftDetails.status;
       } else if (shiftDetails.status !== 'unknown') {
         statusSelect.value = 'custom';
@@ -1062,6 +1071,7 @@ $claims = requireAuth('admin', '/auth/login.html');
           } else {
             const classMap = {
               'on-duty': 'status-on-duty',
+              'remote': 'status-remote',
               'off': 'status-off',
               'leave': 'status-special',
               'unknown': 'status-unknown'
