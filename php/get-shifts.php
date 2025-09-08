@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../auth/require-auth.php';
-$claims = requireAuth('admin', '/auth/login.html');
+requireAuth('admin');
 
 $filePath = __DIR__ . '/../data/shifts.json';
 

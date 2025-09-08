@@ -1,0 +1,7 @@
+<Files "shifts.json">
+    Require all denied
+</Files>
+
+<Files "users.json">
+    Require all denied
+</Files>
