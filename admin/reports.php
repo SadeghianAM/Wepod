@@ -27,6 +27,7 @@ foreach ($usersData as $user) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>مدیریت گزارش‌ها</title>
     <style>
+        /* CSS styles remain unchanged */
         :root {
             --primary-color: #00ae70;
             --primary-dark: #089863;
@@ -496,8 +497,9 @@ foreach ($usersData as $user) {
                             $agentIds = array_keys($existingData);
                             sort($agentIds, SORT_NUMERIC);
                             foreach ($agentIds as $agentId) {
-                                $agentName = isset($agentNameMap[$agentId]) ? htmlspecialchars($agentNameMap[$agentId]) : "کارشناس {$agentId}";
-                                echo "<option value='{$agentId}'>{$agentName}</option>";
+                                // --- امنیت: استفاده از htmlspecialchars برای جلوگیری از XSS در نام کارشناس ---
+                                $agentName = isset($agentNameMap[$agentId]) ? htmlspecialchars($agentNameMap[$agentId]) : "کارشناس " . htmlspecialchars($agentId);
+                                echo "<option value='" . htmlspecialchars($agentId) . "'>{$agentName}</option>";
                             }
                             ?>
                         </select>
@@ -536,7 +538,6 @@ foreach ($usersData as $user) {
     <script>
         const existingData = <?php echo json_encode($existingData); ?>;
         const agentNameMap = <?php echo json_encode($agentNameMap); ?>;
-        // *** FIX: Added 'chat_count' to the labels ***
         const METRIC_LABELS = {
             incoming_calls: "تماس ورودی",
             total_talk_time_in: "مجموع مکالمه ورودی",
@@ -567,20 +568,41 @@ foreach ($usersData as $user) {
         const previewButton = document.getElementById("previewBtn");
         const previewModal = document.getElementById("previewModal");
 
+        // --- لایه امنیتی: جایگزینی innerHTML با ساخت امن عناصر DOM ---
         previewButton.addEventListener("click", () => {
             const pastedData = document.getElementById("excel_data").value.trim();
             if (!pastedData) return showToast('لطفا محتوای گزارش را وارد کنید.', 'error');
+
             const lines = pastedData.split("\n");
             let validRows = 0,
                 invalidRows = 0;
-            let tableHeaderHTML = "<tr>" + UNIFIED_HEADERS.map(h => `<th>${h}</th>`).join('') + "<th>وضعیت</th></tr>";
-            document.querySelector("#preview-table thead").innerHTML = tableHeaderHTML;
-            let tableBodyHTML = "";
+
+            const tableHead = document.querySelector("#preview-table thead");
+            const tableBody = document.querySelector("#preview-table tbody");
+            tableHead.innerHTML = ''; // Clear previous content
+            tableBody.innerHTML = ''; // Clear previous content
+
+            // Create header row securely
+            const headerRow = document.createElement('tr');
+            UNIFIED_HEADERS.forEach(h => {
+                const th = document.createElement('th');
+                th.textContent = h;
+                headerRow.appendChild(th);
+            });
+            const thStatus = document.createElement('th');
+            thStatus.textContent = "وضعیت";
+            headerRow.appendChild(thStatus);
+            tableHead.appendChild(headerRow);
+
+            // Create body rows securely
             lines.forEach(line => {
                 if (!line.trim()) return;
                 const columns = line.split(/\t+/);
+                const row = document.createElement('tr');
+
                 let isValid = false;
                 let statusMsg = "تعداد ستون‌ها نامعتبر است.";
+
                 if (columns.length >= 21) {
                     const agentId = columns[0].trim();
                     const date = columns[2].trim();
@@ -591,14 +613,25 @@ foreach ($usersData as $user) {
                         statusMsg = "❌ کد اپراتور یا فرمت تاریخ اشتباه است.";
                     }
                 }
-                tableBodyHTML += `<tr class="${isValid ? "valid-row" : "invalid-row"}">` + columns.map(c => `<td>${c}</td>`).join('') + `<td>${statusMsg}</td></tr>`;
+
+                row.className = isValid ? "valid-row" : "invalid-row";
+                columns.forEach(c => {
+                    const td = document.createElement('td');
+                    td.textContent = c; // Use textContent for safety
+                    row.appendChild(td);
+                });
+                const tdStatus = document.createElement('td');
+                tdStatus.textContent = statusMsg;
+                row.appendChild(tdStatus);
+                tableBody.appendChild(row);
+
                 isValid ? validRows++ : invalidRows++;
             });
-            const previewTableBody = document.querySelector("#preview-table tbody");
+
             const previewSummaryDiv = document.getElementById("preview-summary");
             const submitButton = document.getElementById("submitBtn");
-            previewTableBody.innerHTML = tableBodyHTML;
-            previewSummaryDiv.innerHTML = `ردیف‌های معتبر: ${validRows} <br> ردیف‌های نامعتبر: ${invalidRows}`;
+            previewSummaryDiv.textContent = `ردیف‌های معتبر: ${validRows} | ردیف‌های نامعتبر: ${invalidRows}`;
+
             if (invalidRows === 0 && validRows > 0) {
                 previewSummaryDiv.className = "valid";
                 submitButton.disabled = false;
@@ -608,6 +641,7 @@ foreach ($usersData as $user) {
             }
             previewModal.style.display = "block";
         });
+
         document.querySelector(".close-button").onclick = () => previewModal.style.display = "none";
         window.onclick = e => {
             if (e.target == previewModal) previewModal.style.display = "none";
@@ -628,22 +662,28 @@ foreach ($usersData as $user) {
 
         agentSelect.addEventListener("change", () => {
             const agentId = agentSelect.value;
-            dateSelect.innerHTML = '<option value="">...بارگذاری</option>';
+            dateSelect.innerHTML = ''; // Clear existing options
             dateSelect.disabled = true;
             dataRecordDisplay.innerHTML = '<p class="placeholder-text">برای مشاهده داده‌ها، تاریخ را انتخاب کنید.</p>';
+
             if (agentId && existingData[agentId]) {
+                // --- لایه امنیتی: ساخت امن لیست تاریخ‌ها ---
+                let defaultOption = new Option("یک تاریخ انتخاب کنید", "");
+                dateSelect.appendChild(defaultOption);
+
                 const dates = Object.keys(existingData[agentId]).sort().reverse();
-                let optionsHTML = '<option value="">یک تاریخ انتخاب کنید</option>';
                 dates.forEach(date => {
                     const jalaliDate = new Date(date).toLocaleDateString("fa-IR");
-                    optionsHTML += `<option value="${date}">${jalaliDate}</option>`;
+                    // new Option(text, value) is a safe way to create options
+                    dateSelect.appendChild(new Option(jalaliDate, date));
                 });
-                dateSelect.innerHTML = optionsHTML;
                 dateSelect.disabled = false;
             } else {
-                dateSelect.innerHTML = '<option value="">ابتدا کارشناس را انتخاب کنید</option>';
+                let defaultOption = new Option("ابتدا کارشناس را انتخاب کنید", "");
+                dateSelect.appendChild(defaultOption);
             }
         });
+
         dateSelect.addEventListener("change", () => {
             const agentId = agentSelect.value;
             const date = dateSelect.value;
@@ -654,35 +694,58 @@ foreach ($usersData as $user) {
             }
         });
 
-        // *** FIX: This function now renders all possible metrics, not just existing ones ***
+        // --- لایه امنیتی: بازنویسی کامل تابع برای ساخت امن عناصر به جای innerHTML ---
         const renderReportDetails = (agentId, date) => {
-            const record = existingData[agentId]?.[date] || {}; // Use empty object as fallback
-            let html = '<ul>';
+            const record = existingData[agentId]?.[date] || {};
+            dataRecordDisplay.innerHTML = ''; // Clear previous content
+            const ul = document.createElement('ul');
 
-            // Iterate over the master list of labels to ensure all are shown
             for (const key of Object.keys(METRIC_LABELS)) {
                 const label = METRIC_LABELS[key];
-                const rawValue = record[key] ?? (TIME_BASED_METRICS.includes(key) ? 0 : 0); // Default to 0 if not present
+                const rawValue = record[key] ?? 0;
                 const displayValue = TIME_BASED_METRICS.includes(key) ? formatSeconds(rawValue) : rawValue;
 
-                html += `
-                    <li class="metric-item" data-metric-key="${key}">
-                        <span class="name">${label}</span>
-                        <div class="value">
-                            <span>${displayValue}</span>
-                            <input type="text" value="${displayValue}" />
-                        </div>
-                        <div class="actions">
-                            <button class="btn-icon btn-edit-metric" title="ویرایش">✏️</button>
-                            <button class="btn-icon btn-delete-metric" title="حذف">🗑️</button>
-                            <button class="btn-icon btn-save-metric" title="ذخیره">✔️</button>
-                            <button class="btn-icon btn-cancel-edit" title="لغو">❌</button>
-                        </div>
-                    </li>`;
+                const li = document.createElement('li');
+                li.className = 'metric-item';
+                li.dataset.metricKey = key;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'name';
+                nameSpan.textContent = label;
+
+                const valueDiv = document.createElement('div');
+                valueDiv.className = 'value';
+                const valueSpan = document.createElement('span');
+                valueSpan.textContent = displayValue;
+                const valueInput = document.createElement('input');
+                valueInput.type = 'text';
+                valueInput.value = displayValue;
+                valueDiv.append(valueSpan, valueInput);
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'actions';
+
+                const createButton = (className, title, text) => {
+                    const btn = document.createElement('button');
+                    btn.className = `btn-icon ${className}`;
+                    btn.title = title;
+                    btn.textContent = text;
+                    return btn;
+                };
+
+                actionsDiv.append(
+                    createButton('btn-edit-metric', 'ویرایش', '✏️'),
+                    createButton('btn-delete-metric', 'حذف', '🗑️'),
+                    createButton('btn-save-metric', 'ذخیره', '✔️'),
+                    createButton('btn-cancel-edit', 'لغو', '❌')
+                );
+
+                li.append(nameSpan, valueDiv, actionsDiv);
+                ul.appendChild(li);
             }
-            html += '</ul>';
-            dataRecordDisplay.innerHTML = html;
+            dataRecordDisplay.appendChild(ul);
         };
+
 
         dataRecordDisplay.addEventListener('click', async (e) => {
             const agentId = agentSelect.value;

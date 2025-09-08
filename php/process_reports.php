@@ -4,11 +4,39 @@ $claims = requireAuth('admin', '/auth/login.html');
 
 header('Content-Type: application/json; charset=utf-8');
 
+// --- لایه امنیتی ۱: رد کردن درخواست‌های آشکارا مخرب ---
+
+/**
+ * Checks if the input string contains common and dangerous XSS patterns.
+ * @param string $input The raw input string.
+ * @return bool
+ */
+function containsMaliciousPatterns($input)
+{
+    $patterns = [
+        '/<script/i',         // Script tags
+        '/onerror\s*=/i',     // onerror event
+        '/onload\s*=/i',      // onload event
+        '/onmouseover\s*=/i', // onmouseover event
+        '/javascript\s*:/i',  // javascript: protocol
+        '/<iframe/i',         // Iframe tags
+        '/<svg/i',            // SVG tags
+    ];
+
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $input)) {
+            return true; // Malicious pattern found
+        }
+    }
+    return false; // Input appears safe
+}
+
 /**
  * Converts a Jalali (Shamsi) date to a Gregorian date.
  */
 function jalali_to_gregorian($jy, $jm, $jd)
 {
+    // ... (rest of the function is unchanged)
     $g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     $j_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
     $jy -= 979;
@@ -59,8 +87,20 @@ $jsonFile = __DIR__ . '/../data/reports.json';
 $time_based_metrics = ['total_talk_time_in', 'avg_talk_time_in', 'max_talk_time_in', 'avg_talk_time_out', 'presence_duration', 'break_duration'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // --- اجرای لایه امنیتی ۱ ---
+    // Check all incoming POST data for malicious patterns.
+    foreach ($_POST as $key => $value) {
+        // We decode entities to catch attacks like '&lt;script&gt;'
+        if (is_string($value) && containsMaliciousPatterns(html_entity_decode($value))) {
+            http_response_code(400); // Bad Request
+            echo json_encode(['success' => false, 'message' => 'ورودی حاوی محتوای غیرمجاز یا خطرناک است و درخواست رد شد.']);
+            exit; // Stop script execution
+        }
+    }
+
     try {
-        $action = $_POST['action'] ?? null;
+        // --- لایه امنیتی ۲: پاک‌سازی ورودی‌ها قبل از استفاده ---
+        $action = isset($_POST['action']) ? strip_tags($_POST['action']) : null;
         if (!$action) throw new Exception("عملیات مشخص نشده است.");
 
         $existingData = file_exists($jsonFile) ? json_decode(file_get_contents($jsonFile), true) : [];
@@ -75,7 +115,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         switch ($action) {
             case 'process_report':
                 if (empty($_POST['excel_data'])) throw new Exception("داده‌ای برای پردازش ارسال نشده است.");
-                $pastedData = trim($_POST['excel_data']);
+
+                // --- لایه امنیتی ۲: پاک‌سازی ورودی اصلی ---
+                $pastedData = strip_tags(trim($_POST['excel_data']));
+
                 $lines = explode("\n", $pastedData);
                 $processedCount = 0;
                 $MIN_COLUMNS = 21;
@@ -94,7 +137,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (count($shamsi_date_parts) != 3) continue;
                     $date = jalali_to_gregorian($shamsi_date_parts[0], $shamsi_date_parts[1], $shamsi_date_parts[2]);
 
-                    // *** FIX: Added 'chat_count' from column 15 ***
                     $reportData = [
                         "incoming_calls" => (int)trim($columns[3]),
                         "total_talk_time_in" => time_to_seconds(trim($columns[4])),
@@ -108,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         "outbound_calls" => (int)trim($columns[12]),
                         "avg_talk_time_out" => time_to_seconds(trim($columns[13])),
                         "tickets_count" => (int)trim($columns[14]),
-                        "chat_count" => (int)trim($columns[15]), // <-- ADDED THIS LINE
+                        "chat_count" => (int)trim($columns[15]),
                         "famas_count" => (int)trim($columns[16]),
                         "jira_count" => (int)trim($columns[17]),
                         "one_star_ratings" => (int)trim($columns[18]),
@@ -129,15 +171,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             case 'edit_metric':
-                $agentId = $_POST['agent_id'] ?? null;
-                $date = $_POST['date'] ?? null;
-                $metricKey = $_POST['metric_key'] ?? null;
-                $newValue = $_POST['new_value'] ?? null;
+                // --- لایه امنیتی ۲: پاک‌سازی تمام ورودی‌ها ---
+                $agentId = isset($_POST['agent_id']) ? strip_tags((string)$_POST['agent_id']) : null;
+                $date = isset($_POST['date']) ? strip_tags((string)$_POST['date']) : null;
+                $metricKey = isset($_POST['metric_key']) ? strip_tags((string)$_POST['metric_key']) : null;
+                $newValue = isset($_POST['new_value']) ? strip_tags((string)$_POST['new_value']) : null;
 
                 if (!$agentId || !$date || !$metricKey || $newValue === null) throw new Exception("اطلاعات ارسالی ناقص است.");
-
-                // This check is now safe, as the front-end ensures all keys are present
-                // if (!isset($existingData[$agentId][$date][$metricKey])) throw new Exception("متریک مورد نظر یافت نشد.");
 
                 $finalValue = trim($newValue);
                 if (in_array($metricKey, $time_based_metrics)) {
@@ -158,9 +198,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             case 'delete_metric':
-                $agentId = $_POST['agent_id'] ?? null;
-                $date = $_POST['date'] ?? null;
-                $metricKey = $_POST['metric_key'] ?? null;
+                // --- لایه امنیتی ۲: پاک‌سازی تمام ورودی‌ها ---
+                $agentId = isset($_POST['agent_id']) ? strip_tags((string)$_POST['agent_id']) : null;
+                $date = isset($_POST['date']) ? strip_tags((string)$_POST['date']) : null;
+                $metricKey = isset($_POST['metric_key']) ? strip_tags((string)$_POST['metric_key']) : null;
 
                 if (!$agentId || !$date || !$metricKey) throw new Exception("اطلاعات ارسالی ناقص است.");
                 if (!isset($existingData[$agentId][$date][$metricKey])) throw new Exception("متریک مورد نظر یافت نشد.");
