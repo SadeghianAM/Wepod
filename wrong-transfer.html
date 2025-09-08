@@ -382,6 +382,15 @@
                 <div id="destCardResult" class="result"></div>
                 <div id="destCardValidation" class="result"></div>
               </div>
+              <div class="form-group">
+                <label for="amountInput">💰 مبلغ تراکنش (ریال)</label>
+                <input
+                  type="text"
+                  id="amountInput"
+                  placeholder="مبلغ را به ریال وارد کنید"
+                  inputmode="numeric"
+                />
+              </div>
             </div>
           </div>
 
@@ -560,6 +569,18 @@
         validatePhone(input, msgEl, pureValue);
       }
 
+      // --- تابع جدید برای فرمت مبلغ ---
+      function handleAmountInput(event) {
+        const input = event.target;
+        let rawValue = input.value.replace(/\D/g, "");
+        if (rawValue) {
+          const formattedValue = parseInt(rawValue, 10).toLocaleString("en-US");
+          input.value = formattedValue;
+        } else {
+          input.value = "";
+        }
+      }
+
       // --- Main Form Logic ---
       const requiredFields = [
         "sourceNameInput",
@@ -569,6 +590,7 @@
         "destNameInput",
         "destMobileInput",
         "destCardInput",
+        "amountInput", // <-- فیلد مبلغ اضافه شد
       ];
       let triedSubmit = false;
 
@@ -712,7 +734,10 @@
         )}
 شماره کارت: ${normalizeDigits(
           document.getElementById("destCardInput").value.replace(/\D/g, "")
-        )}`;
+        )}
+مبلغ تراکنش: ${normalizeDigits(
+          document.getElementById("amountInput").value.trim()
+        )} ریال`;
 
         navigator.clipboard.writeText(reportText).then(
           () => {
@@ -741,6 +766,10 @@
       document
         .getElementById("destMobileInput")
         .addEventListener("input", handleMobileInput);
+      document
+        .getElementById("amountInput")
+        .addEventListener("input", handleAmountInput);
+
       requiredFields.forEach((id) =>
         document.getElementById(id).addEventListener("input", validateFields)
       );
