@@ -472,5 +472,11 @@
     "name": "سعید شایق",
     "username": "s.khodadadi",
     "password_hash": "$2y$10$lbQK/4xrvm.pIXD37rmNO.UAODiZERsrRNBmNtWzgnadqqYBbzM2S"
+  },
+  {
+    "id": 214,
+    "name": "تست",
+    "username": "test",
+    "password_hash": "$2y$10$jQkDPQjtw56estb8FiIOPuHR.pF8KSBvdpnqBkTf2T36aF1I50I26"
   }
 ]

@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/../auth/require-auth.php';
-requireAuth('admin');
-
+requireAuth(null);
 $filePath = __DIR__ . '/../data/shifts.json';
 
 if (file_exists($filePath)) {
@@ -9,5 +8,5 @@ if (file_exists($filePath)) {
     echo file_get_contents($filePath);
 } else {
     http_response_code(404);
-    echo json_encode(['success' => false, 'message' => 'Settings file not found.']);
+    echo json_encode(['success' => false, 'message' => 'Shifts file not found.']);
 }
