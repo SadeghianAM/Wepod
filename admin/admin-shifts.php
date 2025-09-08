@@ -642,7 +642,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       const loader = document.getElementById("loader");
       loader.style.display = "block";
       try {
-        const response = await fetch("/data/shifts.json?v=" + new Date().getTime());
+        const response = await fetch("/php/get-shifts.php?v=" + new Date().getTime());
         if (!response.ok) throw new Error(`فایل shifts.json یافت نشد (کد: ${response.status})`);
 
         const data = await response.json();
@@ -957,7 +957,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     async function refreshDataAndRender() {
       try {
-        const response = await fetch("/data/shifts.json?v=" + new Date().getTime());
+        const response = await fetch("/php/get-shifts.php?v=" + new Date().getTime());
         if (!response.ok) {
           console.error("Failed to refresh data from server.");
           return;

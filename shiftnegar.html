@@ -758,7 +758,7 @@
         const loader = document.getElementById("loader");
         try {
           // ✅ MODIFIED: Using fetchNoCache
-          const response = await fetchNoCache("/data/shifts.json");
+          const response = await fetchNoCache("/php/get-shifts.php");
           if (!response.ok)
             throw new Error(
               `فایل shifts.json یافت نشد (کد: ${response.status})`
