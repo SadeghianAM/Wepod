@@ -26,6 +26,8 @@ $claims = requireAuth('admin', '/auth/login.html');
       --border-radius: 0.75rem;
       --blue-color: #007bff;
       --blue-dark: #0056b3;
+      --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
+      --footer-h: 60px;
     }
 
     @font-face {

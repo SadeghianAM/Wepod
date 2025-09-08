@@ -20,13 +20,12 @@ $claims = requireAuth('admin', '/auth/login.html');
       --secondary-text-color: #555;
       --card-bg: #ffffff;
       --header-text: #ffffff;
-      /* From original styles */
       --border-color: #e9e9e9;
       --shadow-light: rgba(0, 120, 80, 0.06);
       --shadow-medium: rgba(0, 120, 80, 0.12);
       --border-radius: 0.75rem;
-
-      /* Status Colors */
+      --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
+      --footer-h: 60px;
       --status-active-bg: #e6f7f2;
       --status-active-text: #089863;
       --status-disrupted-bg: #fff6e5;

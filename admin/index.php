@@ -328,9 +328,9 @@ $claims = requireAuth('admin', '/auth/login.html');
         </a>
       </li>
       <li class="tool-card">
-        <a href="/admin/hash-tool.php">
+        <a href="/admin/users.php">
           <span class="tool-icon">🔒</span>
-          <span class="tool-title">ابزار تولید هش</span>
+          <span class="tool-title">مدیریت کاربران</span>
         </a>
       </li>
     </ul>
