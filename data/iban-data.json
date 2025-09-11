@@ -2,7 +2,7 @@
   { "code": "010", "name": "بانک مرکزی", "logo": "CentralBank" },
   { "code": "011", "name": "بانک صنعت و معدن", "logo": "Sanat_Madan" },
   { "code": "012", "name": "بانک ملت", "logo": "Mellat" },
-  { "code": "013", "name": "بانک رفاه و کارگران", "logo": "Refah" },
+  { "code": "013", "name": "بانک رفاه کارگران", "logo": "Refah" },
   { "code": "014", "name": "بانک مسکن", "logo": "Maskan" },
   { "code": "015", "name": "بانک سپه", "logo": "Sepah" },
   { "code": "016", "name": "بانک کشاورزی", "logo": "Keshavarzi" },
