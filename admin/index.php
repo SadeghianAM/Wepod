@@ -328,6 +328,12 @@ $claims = requireAuth('admin', '/auth/login.html');
         </a>
       </li>
       <li class="tool-card">
+        <a href="/admin/asset-management/index.php">
+          <span class="tool-icon">🧮</span>
+          <span class="tool-title">مدیریت اموال</span>
+        </a>
+      </li>
+      <li class="tool-card">
         <a href="/admin/users.php">
           <span class="tool-icon">🔒</span>
           <span class="tool-title">مدیریت کاربران</span>
