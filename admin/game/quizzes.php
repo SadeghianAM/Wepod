@@ -1,5 +1,5 @@
 <?php
-// فایل: quizzes.php (نسخه نهایی با قابلیت تخصیص)
+// فایل: quizzes.php (نسخه نهایی با ظاهر مدرن و دو ستونی)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
 require_once 'database.php';
@@ -298,11 +298,8 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .questions-grid {
-            display: grid;
             max-height: 250px;
             overflow-y: auto;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 10px;
             border: 1px solid var(--border-color);
             padding: 10px;
             border-radius: 5px;
@@ -327,6 +324,85 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             border-top: 1px solid var(--border-color);
             flex-shrink: 0;
         }
+
+        .searchable-list-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: .75rem;
+        }
+
+        .searchable-list-controls input[type="text"] {
+            flex-grow: 1;
+            padding: .5em .8em;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            font-size: .9rem;
+        }
+
+        .select-all-label {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: .9rem;
+            color: var(--secondary-text);
+        }
+
+        /* --- NEW: Modern, two-column selection grid --- */
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .selection-grid .filterable-item {
+            display: block;
+        }
+
+        .selection-grid input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .selection-grid label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-color);
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            user-select: none;
+        }
+
+        .selection-grid label:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-dark);
+        }
+
+        .selection-grid input[type="checkbox"]:checked+label {
+            background-color: var(--primary-light);
+            border-color: var(--primary-dark);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        /* --- End of new styles --- */
 
         #toast-container {
             position: fixed;
@@ -432,22 +508,39 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 <hr style="margin: 1.5rem 0;">
                 <h3>تخصیص آزمون (اختیاری)</h3>
                 <p class="page-subtitle" style="margin-bottom: 1rem; font-size: .9rem;">اگر گزینه‌ای انتخاب نشود، آزمون برای همه در دسترس خواهد بود.</p>
+
                 <div class="form-group">
                     <label>تخصیص به تیم‌ها:</label>
-                    <div id="teams-container" class="questions-grid">
+                    <div class="searchable-list-controls">
+                        <input type="text" id="team-search" placeholder="جستجوی تیم...">
+                        <label class="select-all-label"><input type="checkbox" id="select-all-teams"> انتخاب همه</label>
+                    </div>
+                    <div id="teams-container" class="selection-grid">
                         <?php foreach ($teams as $team): ?>
-                            <label><input type="checkbox" name="teams" value="<?= $team['id'] ?>"><?= htmlspecialchars($team['team_name']) ?></label>
+                            <div class="filterable-item">
+                                <input type="checkbox" name="teams" value="<?= $team['id'] ?>" id="team-<?= $team['id'] ?>">
+                                <label for="team-<?= $team['id'] ?>"><?= htmlspecialchars($team['team_name']) ?></label>
+                            </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label>تخصیص به کاربران خاص:</label>
-                    <div id="users-container" class="questions-grid">
+                    <div class="searchable-list-controls">
+                        <input type="text" id="user-search" placeholder="جستجوی کاربر...">
+                        <label class="select-all-label"><input type="checkbox" id="select-all-users"> انتخاب همه</label>
+                    </div>
+                    <div id="users-container" class="selection-grid">
                         <?php foreach ($users as $user): ?>
-                            <label><input type="checkbox" name="users" value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></label>
+                            <div class="filterable-item">
+                                <input type="checkbox" name="users" value="<?= $user['id'] ?>" id="user-<?= $user['id'] ?>">
+                                <label for="user-<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></label>
+                            </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
+
                 <input type="hidden" id="quiz-id">
                 <input type="hidden" id="action">
             </form>
@@ -497,12 +590,53 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 return item;
             };
 
+            const resetSearchableLists = () => {
+                document.getElementById('team-search').value = '';
+                document.getElementById('user-search').value = '';
+                document.querySelectorAll('.filterable-item').forEach(item => {
+                    item.style.display = 'block';
+                });
+                document.getElementById('select-all-teams').checked = false;
+                document.getElementById('select-all-users').checked = false;
+            };
+
+            const setupSearchableList = (searchInputId, selectAllCheckboxId, containerId) => {
+                const searchInput = document.getElementById(searchInputId);
+                const selectAllCheckbox = document.getElementById(selectAllCheckboxId);
+                const container = document.getElementById(containerId);
+                const items = container.querySelectorAll('.filterable-item');
+
+                searchInput.addEventListener('input', () => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    items.forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+                    });
+                    selectAllCheckbox.checked = false;
+                });
+
+                selectAllCheckbox.addEventListener('change', () => {
+                    const isChecked = selectAllCheckbox.checked;
+                    items.forEach(item => {
+                        if (item.style.display !== 'none') {
+                            const checkbox = item.querySelector('input[type="checkbox"]');
+                            if (checkbox) checkbox.checked = isChecked;
+                        }
+                    });
+                });
+            };
+
+            setupSearchableList('team-search', 'select-all-teams', 'teams-container');
+            setupSearchableList('user-search', 'select-all-users', 'users-container');
+
             window.editQuiz = async (id) => {
                 const response = await fetch(`quizzes_api.php?action=get_quiz&id=${id}`);
                 const data = await response.json();
                 if (data.success) {
                     const quiz = data.quiz;
                     form.reset();
+                    resetSearchableLists();
+
                     formTitle.textContent = 'ویرایش آزمون';
                     document.getElementById('quiz-id').value = quiz.id;
                     document.getElementById('action').value = 'update_quiz';
@@ -552,10 +686,10 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
             document.getElementById('add-new-quiz-btn').addEventListener('click', () => {
                 form.reset();
+                resetSearchableLists();
                 formTitle.textContent = 'افزودن آزمون جدید';
                 document.getElementById('quiz-id').value = '';
                 document.getElementById('action').value = 'create_quiz';
-                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
                 showModal();
             });
 
