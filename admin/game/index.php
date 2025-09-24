@@ -70,7 +70,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             outline-offset: 2px;
         }
 
-        header,
         footer {
             background: var(--primary-color);
             color: var(--header-text);
@@ -83,19 +82,10 @@ $claims = requireAuth('admin', '/../auth/login.html');
             flex-shrink: 0;
         }
 
-        header {
-            min-height: var(--header-h);
-        }
-
         footer {
             min-height: var(--footer-h);
             font-size: .85rem;
             justify-content: center;
-        }
-
-        header h1 {
-            font-weight: 700;
-            font-size: 1.2rem;
         }
 
         #user-info {
@@ -178,12 +168,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
 </head>
 
 <body>
-    <header>
-        <h1><a href="/admin/quiz/index.php">پنل مدیریت آزمون</a></h1>
-        <?php if (isset($claims) && isset($claims['name'])): ?>
-            <span id="user-info">خوش آمدید، <?= htmlspecialchars($claims['name']) ?></span>
-        <?php endif; ?>
-    </header>
+    <div id="header-placeholder"></div>
 
     <main>
         <h1 class="page-title">پنل مدیریت آزمون</h1>
@@ -215,10 +200,8 @@ $claims = requireAuth('admin', '/../auth/login.html');
             </li>
         </ul>
     </main>
-
-    <footer>
-        <p>&copy; <?= date('Y') ?> - سامانه آزمون</p>
-    </footer>
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
 </body>
 
 </html>
