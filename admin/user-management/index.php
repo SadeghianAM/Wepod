@@ -101,8 +101,10 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
 
         .page-title {
-            font-size: 1.75rem;
-            font-weight: 700;
+            color: var(--primary-dark);
+            font-weight: 800;
+            font-size: 1.8rem;
+            margin-bottom: .5rem;
         }
 
         .btn {
