@@ -2,7 +2,7 @@
 // فایل: quizzes.php (نسخه کاملاً نهایی و یکپارچه)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
-require_once 'database.php';
+require_once __DIR__ . '/../../db/database.php';
 
 // کوئری بهینه‌سازی شده برای دریافت اطلاعات آزمون (بدون تاریخ)
 $stmt_quizzes = $pdo->query("
@@ -98,6 +98,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
         }
+
         footer {
             min-height: var(--footer-h);
             font-size: .85rem

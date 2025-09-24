@@ -6,8 +6,7 @@ requireAuth('admin');
 header('Content-Type: application/json');
 
 // مسیر فایل دیتابیس
-$db_path = __DIR__ . '/../../database.db';
-
+$db_path = __DIR__ . '/../../db/database.db';
 try {
     // اتصال به دیتابیس SQLite
     $pdo = new PDO('sqlite:' . $db_path);

@@ -3,7 +3,7 @@
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
-require_once 'database.php';
+require_once __DIR__ . '/../../db/database.php';
 
 $action = $_REQUEST['action'] ?? null;
 $response = ['success' => false, 'message' => 'عملیات نامعتبر است.'];

@@ -1,7 +1,7 @@
 <?php
 // فایل: teams_api.php (نسخه نهایی و اصلاح شده)
 header('Content-Type: application/json');
-require_once 'database.php';
+require_once __DIR__ . '/../../db/database.php';
 
 $action = $_REQUEST['action'] ?? null;
 $response = ['success' => false, 'message' => 'عملیات نامعتبر است.'];

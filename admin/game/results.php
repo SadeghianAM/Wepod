@@ -2,7 +2,7 @@
 // فایل: results.php (نسخه کاملاً بازطراحی شده)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
-require_once 'database.php';
+require_once __DIR__ . '/../../db/database.php';
 
 $quiz_id_filter = filter_input(INPUT_GET, 'quiz_id', FILTER_VALIDATE_INT);
 $page_title = "نتایج همه آزمون‌ها";

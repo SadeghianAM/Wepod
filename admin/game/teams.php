@@ -2,7 +2,7 @@
 // فایل: teams.php (نسخه کاملاً بازطراحی شده)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
-require_once 'database.php';
+require_once __DIR__ . '/../../db/database.php';
 
 // کوئری بهینه‌سازی شده برای خواندن تیم‌ها به همراه تعداد اعضای هر تیم
 $stmt_teams = $pdo->query("
