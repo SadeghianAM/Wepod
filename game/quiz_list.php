@@ -1,0 +1,237 @@
+<?php
+// فایل: quiz_list.php (نسخه نهایی با منطق تخصیص آزمون)
+
+// احراز هویت کاربر
+require_once __DIR__ . '/../auth/require-auth.php'; // مسیر فایل auth خود را تنظیم کنید
+$claims = requireAuth(null, '/auth/login.html'); // فرض می‌کنیم نقش کاربر 'user' است
+
+require_once __DIR__ . '/../admin/game/database.php';
+
+// دریافت شناسه کاربر لاگین کرده
+$user_id = $claims['sub'];
+
+// پیدا کردن تیمی که کاربر عضو آن است
+$stmt_team = $pdo->prepare("SELECT team_id FROM TeamMembers WHERE user_id = ?");
+$stmt_team->execute([$user_id]);
+$team_id = $stmt_team->fetchColumn(); // اگر کاربر عضو تیمی نباشد، این مقدار false خواهد بود
+
+// کوئری هوشمند برای دریافت آزمون‌های مجاز برای کاربر
+$sql = "
+    SELECT DISTINCT q.id, q.title, q.description
+    FROM Quizzes q
+    LEFT JOIN QuizUserAssignments qua ON q.id = qua.quiz_id
+    LEFT JOIN QuizTeamAssignments qta ON q.id = qta.quiz_id
+    WHERE
+        -- شرط ۱: آزمون مستقیماً به کاربر تخصیص داده شده باشد
+        qua.user_id = :user_id
+        -- شرط ۲: آزمون به تیم کاربر تخصیص داده شده باشد
+        OR qta.team_id = :team_id
+        -- شرط ۳: آزمون عمومی باشد (به هیچکس تخصیص داده نشده باشد)
+        OR (
+            NOT EXISTS (SELECT 1 FROM QuizUserAssignments WHERE quiz_id = q.id) AND
+            NOT EXISTS (SELECT 1 FROM QuizTeamAssignments WHERE quiz_id = q.id)
+        )
+    ORDER BY q.id DESC
+";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute([
+    ':user_id' => $user_id,
+    ':team_id' => $team_id ?: null // اگر کاربر تیمی نداشت، null ارسال می‌شود
+]);
+$quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>لیست آزمون‌ها</title>
+    <style>
+        :root {
+            --primary-color: #00ae70;
+            --primary-dark: #089863;
+            --primary-light: #e6f7f2;
+            --bg-color: #f7f9fa;
+            --card-bg: #fff;
+            --text-color: #1a1a1a;
+            --secondary-text: #555;
+            --header-text: #fff;
+            --border-color: #e9e9e9;
+            --radius: 12px;
+            --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
+            --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
+        }
+
+        @font-face {
+            font-family: "Vazirmatn";
+            src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
+            font-weight: 100 900;
+            font-display: swap;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Vazirmatn", system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            direction: rtl;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+            transition: all .2s ease;
+        }
+
+        header,
+        footer {
+            background: var(--primary-color);
+            color: var(--header-text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        header {
+            min-height: 70px;
+        }
+
+        footer {
+            min-height: 60px;
+            font-size: .85rem;
+            justify-content: center;
+        }
+
+        header h1 {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        main {
+            flex: 1;
+            width: min(1200px, 100%);
+            padding: 2.5rem 2rem;
+            margin-inline: auto;
+        }
+
+        .page-title {
+            color: var(--primary-dark);
+            font-weight: 800;
+            font-size: 1.8rem;
+            margin-bottom: .5rem;
+        }
+
+        .page-subtitle {
+            color: var(--secondary-text);
+            font-weight: 400;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tools-grid {
+            list-style: none;
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+
+        .tool-card a {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: .75rem;
+            padding: 1.75rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            will-change: transform;
+        }
+
+        .tool-card a:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+            color: var(--primary-dark);
+        }
+
+        .tool-icon {
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+        .tool-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .tool-description {
+            color: var(--secondary-text);
+            font-size: .9rem;
+            line-height: 1.6;
+            margin-top: .5rem;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>آزمون‌های موجود</h1>
+        <?php if (isset($claims) && isset($claims['name'])): ?>
+            <span id="user-info" style="cursor:default;"><?= htmlspecialchars($claims['name']) ?></span>
+        <?php endif; ?>
+    </header>
+
+    <main>
+        <h1 class="page-title">انتخاب آزمون</h1>
+        <p class="page-subtitle">برای شروع، یکی از آزمون‌های در دسترس خود را انتخاب کنید.</p>
+
+        <ul class="tools-grid">
+            <?php if (empty($quizzes)): ?>
+                <p>در حال حاضر هیچ آزمونی برای شما تعریف نشده است.</p>
+            <?php else: ?>
+                <?php foreach ($quizzes as $quiz): ?>
+                    <li class="tool-card">
+                        <a href="take_quiz.php?id=<?= $quiz['id'] ?>">
+                            <span class="tool-icon">📋</span>
+                            <div>
+                                <span class="tool-title"><?= htmlspecialchars($quiz['title']) ?></span>
+                                <?php if (!empty($quiz['description'])): ?>
+                                    <p class="tool-description"><?= htmlspecialchars($quiz['description']) ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </ul>
+    </main>
+
+    <footer>
+        <p>&copy; <?= date('Y') ?> - سامانه آزمون</p>
+    </footer>
+</body>
+
+</html>
