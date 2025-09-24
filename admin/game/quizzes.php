@@ -1,26 +1,34 @@
 <?php
-// فایل: quizzes.php (نسخه نهایی - ظاهر مدرن برای سوالات)
+// فایل: quizzes.php (نسخه کاملاً نهایی و یکپارچه)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
 require_once 'database.php';
 
-// خواندن تمام آزمون‌ها
-$stmt_quizzes = $pdo->query("SELECT id, title FROM Quizzes ORDER BY id DESC");
+// کوئری بهینه‌سازی شده برای دریافت اطلاعات آزمون (بدون تاریخ)
+$stmt_quizzes = $pdo->query("
+    SELECT
+        q.id,
+        q.title,
+        COUNT(DISTINCT qq.question_id) AS question_count,
+        (COUNT(DISTINCT qta.team_id) + COUNT(DISTINCT qua.user_id)) AS assignment_count
+    FROM Quizzes q
+    LEFT JOIN QuizQuestions qq ON q.id = qq.quiz_id
+    LEFT JOIN QuizTeamAssignments qta ON q.id = qta.quiz_id
+    LEFT JOIN QuizUserAssignments qua ON q.id = qua.quiz_id
+    GROUP BY q.id, q.title
+    ORDER BY q.id DESC
+");
 $quizzes = $stmt_quizzes->fetchAll(PDO::FETCH_ASSOC);
 
-// خواندن و گروه‌بندی سوالات بر اساس دسته‌بندی
+// خواندن اطلاعات مورد نیاز برای مودال
 $stmt_questions = $pdo->query("SELECT id, question_text, category FROM Questions ORDER BY category, id");
 $questions_by_category = [];
 foreach ($stmt_questions->fetchAll(PDO::FETCH_ASSOC) as $question) {
     $category = $question['category'] ?: 'بدون دسته‌بندی';
     $questions_by_category[$category][] = $question;
 }
-
-// خواندن تمام تیم‌ها
 $stmt_teams = $pdo->query("SELECT id, team_name FROM Teams ORDER BY team_name");
 $teams = $stmt_teams->fetchAll(PDO::FETCH_ASSOC);
-
-// خواندن تمام کاربران
 $stmt_users = $pdo->query("SELECT id, name FROM Users ORDER BY name");
 $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -30,7 +38,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>مدیریت آزمون‌ها</title>
+    <title>داشبورد مدیریت آزمون‌ها</title>
     <style>
         :root {
             --primary-color: #00ae70;
@@ -78,27 +86,17 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             transition: all .2s ease;
         }
 
-        header,
-        footer {
+        header {
             background: var(--primary-color);
             color: var(--header-text);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 2rem;
+            min-height: 70px;
             z-index: 10;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
-        }
-
-        header {
-            min-height: 70px;
-        }
-
-        footer {
-            min-height: 60px;
-            font-size: .85rem;
-            justify-content: center;
         }
 
         header h1 {
@@ -128,7 +126,10 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
         .btn {
             position: relative;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
             padding: .75rem 1.25rem;
             border: none;
             border-radius: 8px;
@@ -187,11 +188,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             background-color: var(--primary-dark);
         }
 
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-
         .btn-danger {
             background-color: #dc3545;
             color: white;
@@ -206,42 +202,163 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             background-color: #5a6268;
         }
 
-        .item-list-container {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .item-list-header {
+        /* Dashboard Styles */
+        .page-toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .list-item {
-            background-color: #f8f9fa;
-            border: 1px solid var(--border-color);
-            padding: 1rem 1.25rem;
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: .75rem 1rem;
+            border: 1.5px solid var(--border-color);
             border-radius: 8px;
-            margin-bottom: .75rem;
+            font-size: .9rem;
+            transition: all .2s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+            outline: none;
+        }
+
+        .quiz-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .quiz-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: all .2s ease;
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quiz-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .quiz-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+            color: var(--secondary-text);
+            font-size: .9rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .quiz-card-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: opacity .3s, transform .3s;
         }
 
-        .list-item.removing {
-            opacity: 0;
-            transform: translateX(50px);
+        .actions-menu {
+            position: relative;
         }
 
-        .list-item p {
-            margin: 0;
-            font-weight: 500;
+        .actions-menu-btn {
+            background: none;
+            border: none;
+            padding: .25rem .5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            line-height: 1;
+            font-weight: bold;
         }
 
+        .actions-menu-btn:hover {
+            background-color: var(--bg-color);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            list-style: none;
+            padding: .5rem 0;
+            width: 120px;
+            z-index: 10;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: .5rem 1rem;
+            font-size: .9rem;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--bg-color);
+        }
+
+        .dropdown-menu .delete-action {
+            color: #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state h2 {
+            margin-bottom: .5rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            margin-bottom: 1.5rem;
+            color: var(--secondary-text);
+        }
+
+        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -367,7 +484,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             color: var(--secondary-text);
         }
 
-        /* --- NEW: Generic Modern Selection Styles --- */
+        /* Modern Selection Styles for Modal */
         .modern-selection-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -422,8 +539,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 600;
         }
 
-        /* --- End of new styles --- */
-
+        /* Multi-step Form Styles */
         .form-step {
             display: none;
             animation: fadeIn 0.5s;
@@ -451,6 +567,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 500;
         }
 
+        /* Toast Notification Styles */
         #toast-container {
             position: fixed;
             bottom: 20px;
@@ -496,37 +613,68 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
 <body>
     <header>
-        <h1><a href="index.php">پنل مدیریت آزمون</a></h1>
+        <h1>داشبورد آزمون‌ها</h1>
         <?php if (isset($claims) && isset($claims['name'])): ?>
-            <span id="user-info">خوش آمدید, <?= htmlspecialchars($claims['name']) ?></span>
+            <span>خوش آمدید, <?= htmlspecialchars($claims['name']) ?></span>
         <?php endif; ?>
     </header>
     <main>
-        <div class="item-list-container">
-            <div class="item-list-header">
-                <div>
-                    <h1 class="page-title" style="margin-bottom: 0;">مدیریت آزمون‌ها</h1>
-                    <p class="page-subtitle" style="margin-bottom: 0;">آزمون‌ها را تعریف کرده و به کاربران تخصیص دهید.</p>
-                </div>
-                <button id="add-new-quiz-btn" class="btn btn-primary"><span class="btn-text">افزودن آزمون جدید</span></button>
+        <div class="page-toolbar">
+            <div>
+                <h2 class="page-title" style="margin: 0;">لیست آزمون‌ها</h2>
+                <p class="page-subtitle">آزمون‌های خود را مدیریت، ویرایش یا حذف کنید.</p>
             </div>
-            <div id="quizzes-list" class="item-list">
+            <div style="display: flex; gap: 1rem; align-items:center;">
+                <div class="search-box">
+                    <input type="text" id="quiz-search-input" placeholder="جستجوی آزمون...">
+                </div>
+                <button id="add-new-quiz-btn" class="btn btn-primary">
+                    ➕ <span>آزمون جدید</span>
+                </button>
+            </div>
+        </div>
+
+        <?php if (empty($quizzes)): ?>
+            <div class="empty-state">
+                <h2>هنوز هیچ آزمونی نساخته‌اید! 🙁</h2>
+                <p>برای شروع، اولین آزمون خود را ایجاد کرده و به کاربران خود تخصیص دهید.</p>
+                <button id="add-new-quiz-btn-empty" class="btn btn-primary">ایجاد اولین آزمون</button>
+            </div>
+        <?php else: ?>
+            <div id="quizzes-grid" class="quiz-card-grid">
                 <?php foreach ($quizzes as $quiz): ?>
-                    <div class="list-item" id="quiz-item-<?= $quiz['id'] ?>">
-                        <p><?= htmlspecialchars($quiz['title']) ?></p>
-                        <div>
-                            <button class="btn btn-secondary" onclick="editQuiz(<?= $quiz['id'] ?>)">ویرایش</button>
-                            <a href="results.php?quiz_id=<?= $quiz['id'] ?>" class="btn btn-success">مشاهده نتایج</a>
-                            <button class="btn btn-danger" onclick="deleteQuiz(<?= $quiz['id'] ?>)">حذف</button>
+                    <div class="quiz-card" data-title="<?= htmlspecialchars(strtolower($quiz['title'])) ?>">
+                        <div class="quiz-card-header">
+                            <h3><?= htmlspecialchars($quiz['title']) ?></h3>
+                            <div class="actions-menu">
+                                <button class="actions-menu-btn">...</button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" onclick="editQuiz(<?= $quiz['id'] ?>)">ویرایش</a></li>
+                                    <li><a href="#" onclick="deleteQuiz(<?= $quiz['id'] ?>)" class="delete-action">حذف</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="quiz-card-meta">
+                            <span class="meta-item">
+                                📝 <span><?= $quiz['question_count'] ?> سوال</span>
+                            </span>
+                            <span class="meta-item">
+                                👥
+                                <?php if ($quiz['assignment_count'] > 0): ?>
+                                    <span>تخصیص به <?= $quiz['assignment_count'] ?> گروه/فرد</span>
+                                <?php else: ?>
+                                    <span>عمومی (برای همه)</span>
+                                <?php endif; ?>
+                            </span>
+                        </div>
+                        <div class="quiz-card-actions">
+                            <a href="results.php?quiz_id=<?= $quiz['id'] ?>" class="btn btn-primary" style="width: 100%;">مشاهده نتایج</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-        </div>
+        <?php endif; ?>
     </main>
-    <footer>
-        <p>&copy; <?= date('Y') ?> - سامانه آزمون</p>
-    </footer>
 
     <div id="modal-overlay" class="modal-overlay">
         <div id="modal-form" class="modal-form">
@@ -620,6 +768,81 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
     <div id="toast-container"></div>
 
     <script>
+        // Global functions for card buttons
+        function editQuiz(id) {
+            const modalOverlay = document.getElementById('modal-overlay');
+            const form = document.getElementById('quiz-form');
+            const formTitle = document.getElementById('form-title');
+
+            fetch(`quizzes_api.php?action=get_quiz&id=${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        form.reset();
+                        // Reset search lists and other UI elements if necessary
+
+                        const quiz = data.quiz;
+                        formTitle.textContent = 'ویرایش آزمون';
+                        document.getElementById('quiz-id').value = quiz.id;
+                        document.getElementById('action').value = 'update_quiz';
+                        document.getElementById('quiz-title').value = quiz.title;
+                        document.getElementById('quiz-description').value = quiz.description;
+
+                        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                        quiz.questions.forEach(qId => {
+                            const cb = document.querySelector(`input[name="questions"][value="${qId}"]`);
+                            if (cb) cb.checked = true;
+                        });
+                        quiz.assigned_teams.forEach(tId => {
+                            const cb = document.querySelector(`input[name="teams"][value="${tId}"]`);
+                            if (cb) cb.checked = true;
+                        });
+                        quiz.assigned_users.forEach(uId => {
+                            const cb = document.querySelector(`input[name="users"][value="${uId}"]`);
+                            if (cb) cb.checked = true;
+                        });
+
+                        document.dispatchEvent(new CustomEvent('openModal', {
+                            detail: {
+                                startStep: 1
+                            }
+                        }));
+                    } else {
+                        // showToast function should be available
+                        alert(data.message);
+                    }
+                });
+        }
+
+        function deleteQuiz(id) {
+            if (confirm(`آیا از حذف این آزمون مطمئن هستید؟`)) {
+                const formData = new FormData();
+                formData.append('action', 'delete_quiz');
+                formData.append('id', id);
+
+                fetch('quizzes_api.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success) {
+                            const itemToRemove = document.querySelector(`.quiz-card a[onclick*="deleteQuiz(${id})"]`).closest('.quiz-card');
+                            if (itemToRemove) {
+                                itemToRemove.style.transition = 'opacity 0.3s, transform 0.3s';
+                                itemToRemove.style.opacity = '0';
+                                itemToRemove.style.transform = 'scale(0.9)';
+                                setTimeout(() => itemToRemove.remove(), 300);
+                            }
+                            // showToast('آزمون با موفقیت حذف شد.');
+                        } else {
+                            // showToast(result.message, 'error');
+                            alert(result.message);
+                        }
+                    });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // --- Elements ---
             const modalOverlay = document.getElementById('modal-overlay');
@@ -636,7 +859,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             let currentStep = 1;
             const totalSteps = steps.length;
 
-            // --- Functions ---
+            // --- Helper Functions ---
             const showModal = () => modalOverlay.classList.add('visible');
             const hideModal = () => modalOverlay.classList.remove('visible');
 
@@ -654,18 +877,38 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 button.classList.toggle('loading', isLoading);
             };
 
-            const createQuizListItem = (quiz) => {
-                const item = document.createElement('div');
-                item.className = 'list-item';
-                item.id = `quiz-item-${quiz.id}`;
-                item.innerHTML = `<p>${quiz.title}</p><div><button class="btn btn-secondary" onclick="editQuiz(${quiz.id})">ویرایش</button><a href="results.php?quiz_id=${quiz.id}" class="btn btn-success">مشاهده نتایج</a><button class="btn btn-danger" onclick="deleteQuiz(${quiz.id})">حذف</button></div>`;
-                return item;
-            };
-
-            const updateFormSteps = () => {
-                steps.forEach(step => {
-                    step.classList.toggle('active-step', parseInt(step.dataset.step) === currentStep);
+            // --- Dashboard Search ---
+            const searchInput = document.getElementById('quiz-search-input');
+            const quizzesGrid = document.getElementById('quizzes-grid');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const cards = quizzesGrid.querySelectorAll('.quiz-card');
+                    cards.forEach(card => {
+                        if (card.dataset.title.includes(searchTerm)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
                 });
+            }
+
+            // --- Dashboard Kebab Menu ---
+            document.querySelectorAll('.actions-menu-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== button.nextElementSibling) menu.classList.remove('show');
+                    });
+                    button.nextElementSibling.classList.toggle('show');
+                });
+            });
+            document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show')));
+
+            // --- Multi-step Modal Logic ---
+            const updateFormSteps = () => {
+                steps.forEach(step => step.classList.toggle('active-step', parseInt(step.dataset.step) === currentStep));
                 stepIndicator.textContent = `مرحله ${currentStep} از ${totalSteps}`;
                 prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
                 nextBtn.style.display = currentStep < totalSteps ? 'inline-block' : 'none';
@@ -674,15 +917,13 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
             const validateStep = (stepNumber) => {
                 if (stepNumber === 1) {
-                    const title = document.getElementById('quiz-title').value.trim();
-                    if (!title) {
+                    if (!document.getElementById('quiz-title').value.trim()) {
                         showToast('لطفاً عنوان آزمون را وارد کنید.', 'error');
                         return false;
                     }
                 }
                 if (stepNumber === 2) {
-                    const questionCheckboxes = form.querySelectorAll('input[name="questions"]:checked');
-                    if (questionCheckboxes.length < 1) {
+                    if (form.querySelectorAll('input[name="questions"]:checked').length < 1) {
                         showToast('حداقل یک سوال باید برای آزمون انتخاب شود.', 'error');
                         return false;
                     }
@@ -690,42 +931,10 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 return true;
             };
 
-            // --- Search & Select All Logic ---
-            const setupSearchableList = (searchInputId, selectAllCheckboxId, containerId) => {
-                const searchInput = document.getElementById(searchInputId);
-                const selectAllCheckbox = document.getElementById(selectAllCheckboxId);
-                const container = document.getElementById(containerId);
-                const items = container.querySelectorAll('.filterable-item');
-
-                searchInput.addEventListener('input', () => {
-                    const searchTerm = searchInput.value.toLowerCase();
-                    items.forEach(item => {
-                        const text = item.textContent.toLowerCase();
-                        item.style.display = text.includes(searchTerm) ? 'block' : 'none';
-                    });
-                    selectAllCheckbox.checked = false;
-                });
-
-                selectAllCheckbox.addEventListener('change', () => {
-                    const isChecked = selectAllCheckbox.checked;
-                    items.forEach(item => {
-                        if (item.style.display !== 'none') {
-                            const checkbox = item.querySelector('input[type="checkbox"]');
-                            if (checkbox) checkbox.checked = isChecked;
-                        }
-                    });
-                });
-            };
-            setupSearchableList('team-search', 'select-all-teams', 'teams-container');
-            setupSearchableList('user-search', 'select-all-users', 'users-container');
-
-            // --- Event Handlers ---
             nextBtn.addEventListener('click', () => {
-                if (validateStep(currentStep)) {
-                    if (currentStep < totalSteps) {
-                        currentStep++;
-                        updateFormSteps();
-                    }
+                if (validateStep(currentStep) && currentStep < totalSteps) {
+                    currentStep++;
+                    updateFormSteps();
                 }
             });
 
@@ -736,37 +945,41 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 }
             });
 
-            window.editQuiz = async (id) => {
-                showToast('قابلیت ویرایش برای نمایش ساده‌تر غیرفعال شده است. لطفاً یک آزمون جدید بسازید.', 'error');
-            };
-
-            window.deleteQuiz = async (id) => {
-                if (confirm('آیا از حذف این آزمون مطمئن هستید؟')) {
-                    const formData = new FormData();
-                    formData.append('action', 'delete_quiz');
-                    formData.append('id', id);
-                    const response = await fetch('quizzes_api.php', {
-                        method: 'POST',
-                        body: formData
+            // --- Modal Search & Select All Logic ---
+            const setupSearchableList = (searchInputId, selectAllCheckboxId, containerId) => {
+                const searchInput = document.getElementById(searchInputId);
+                const selectAllCheckbox = document.getElementById(selectAllCheckboxId);
+                const container = document.getElementById(containerId);
+                const items = container.querySelectorAll('.filterable-item');
+                searchInput.addEventListener('input', () => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    items.forEach(item => item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none');
+                    selectAllCheckbox.checked = false;
+                });
+                selectAllCheckbox.addEventListener('change', () => {
+                    items.forEach(item => {
+                        if (item.style.display !== 'none') item.querySelector('input[type="checkbox"]').checked = selectAllCheckbox.checked;
                     });
-                    const result = await response.json();
-                    if (result.success) {
-                        const itemToRemove = document.getElementById(`quiz-item-${id}`);
-                        itemToRemove.classList.add('removing');
-                        setTimeout(() => itemToRemove.remove(), 300);
-                        showToast('آزمون با موفقیت حذف شد.');
-                    } else {
-                        showToast(result.message, 'error');
-                    }
-                }
+                });
             };
+            setupSearchableList('team-search', 'select-all-teams', 'teams-container');
+            setupSearchableList('user-search', 'select-all-users', 'users-container');
 
-            document.getElementById('add-new-quiz-btn').addEventListener('click', () => {
+            // --- Modal Opening / Submission ---
+            const openAddModal = () => {
                 form.reset();
                 formTitle.textContent = 'افزودن آزمون جدید';
                 document.getElementById('quiz-id').value = '';
                 document.getElementById('action').value = 'create_quiz';
                 currentStep = 1;
+                updateFormSteps();
+                showModal();
+            };
+
+            document.getElementById('add-new-quiz-btn')?.addEventListener('click', openAddModal);
+            document.getElementById('add-new-quiz-btn-empty')?.addEventListener('click', openAddModal);
+            document.addEventListener('openModal', (e) => {
+                currentStep = e.detail.startStep || 1;
                 updateFormSteps();
                 showModal();
             });
@@ -779,7 +992,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 toggleLoading(saveBtn, true);
-
                 const data = {
                     id: document.getElementById('quiz-id').value,
                     title: document.getElementById('quiz-title').value,
@@ -788,7 +1000,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                     assigned_teams: Array.from(form.querySelectorAll('input[name="teams"]:checked')).map(cb => parseInt(cb.value)),
                     assigned_users: Array.from(form.querySelectorAll('input[name="users"]:checked')).map(cb => parseInt(cb.value))
                 };
-
                 const action = document.getElementById('action').value;
                 const response = await fetch(`quizzes_api.php?action=${action}`, {
                     method: 'POST',
@@ -798,23 +1009,15 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                     body: JSON.stringify(data)
                 });
                 const result = await response.json();
-
                 if (result.success) {
-                    if (action === 'create_quiz') {
-                        document.getElementById('quizzes-list').prepend(createQuizListItem(result.quiz));
-                    } else {
-                        document.getElementById(`quiz-item-${data.id}`).querySelector('p').textContent = data.title;
-                    }
                     hideModal();
                     showToast('عملیات با موفقیت انجام شد.');
+                    setTimeout(() => window.location.reload(), 1000); // Reload to show new/updated card
                 } else {
                     showToast(result.message, 'error');
                 }
                 toggleLoading(saveBtn, false);
             });
-
-            // Initial setup on page load
-            updateFormSteps();
         });
     </script>
 </body>
