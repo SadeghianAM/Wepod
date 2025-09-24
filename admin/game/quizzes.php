@@ -50,6 +50,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             --secondary-text: #555;
             --header-text: #fff;
             --border-color: #e9e9e9;
+            --footer-h: 60px;
             --radius: 12px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
             --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
@@ -86,22 +87,35 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             transition: all .2s ease;
         }
 
-        header {
+        header,
+        footer {
             background: var(--primary-color);
             color: var(--header-text);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            min-height: 70px;
+            justify-content: center;
+            position: relative;
             z-index: 10;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
         }
 
+        header {
+            min-height: var(--header-h)
+        }
+
+        footer {
+            min-height: var(--footer-h);
+            font-size: .85rem
+        }
+
         header h1 {
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
+            white-space: nowrap;
+            max-width: 60vw;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
 
         main {
@@ -612,12 +626,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-    <header>
-        <h1>داشبورد آزمون‌ها</h1>
-        <?php if (isset($claims) && isset($claims['name'])): ?>
-            <span>خوش آمدید, <?= htmlspecialchars($claims['name']) ?></span>
-        <?php endif; ?>
-    </header>
+    <div id="header-placeholder"></div>
     <main>
         <div class="page-toolbar">
             <div>
@@ -766,7 +775,8 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
     <div id="toast-container"></div>
-
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js"></script>
     <script>
         // Global functions for card buttons
         function editQuiz(id) {

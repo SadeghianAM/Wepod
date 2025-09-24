@@ -1,13 +1,21 @@
 <?php
-// فایل: questions.php (نسخه نهایی با تغییرات درخواستی)
-
-// دو خط زیر بر اساس درخواست شما ویرایش شد
+// فایل: questions.php (نسخه بازطراحی شده با زبان طراحی جدید)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
-
 require_once 'database.php';
 
-$stmt = $pdo->query("SELECT id, question_text FROM Questions ORDER BY id DESC");
+// کوئری بهینه‌سازی شده برای دریافت اطلاعات سوالات به همراه دسته‌بندی و تعداد گزینه‌ها
+$stmt = $pdo->query("
+    SELECT
+        q.id,
+        q.question_text,
+        q.category,
+        COUNT(a.id) AS answer_count
+    FROM Questions q
+    LEFT JOIN Answers a ON q.id = a.question_id
+    GROUP BY q.id, q.question_text, q.category
+    ORDER BY q.id DESC
+");
 $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -16,7 +24,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>مدیریت سوالات</title>
+    <title>داشبورد مدیریت سوالات</title>
     <style>
         :root {
             --primary-color: #00ae70;
@@ -27,6 +35,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             --text-color: #1a1a1a;
             --secondary-text: #555;
             --header-text: #fff;
+            --footer-h: 60px;
             --border-color: #e9e9e9;
             --radius: 12px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
@@ -64,39 +73,42 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             transition: all .2s ease;
         }
 
+        main {
+            flex: 1;
+            width: min(1200px, 100%);
+            padding: 2.5rem 2rem;
+            margin-inline: auto;
+        }
+
         header,
         footer {
             background: var(--primary-color);
             color: var(--header-text);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
+            justify-content: center;
+            position: relative;
             z-index: 10;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
         }
 
         header {
-            min-height: 70px;
+            min-height: var(--header-h)
         }
 
         footer {
-            min-height: 60px;
-            font-size: .85rem;
-            justify-content: center;
+            min-height: var(--footer-h);
+            font-size: .85rem
         }
 
         header h1 {
             font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        main {
-            flex: 1;
-            width: min(1200px, 100%);
-            padding: 2.5rem 2rem;
-            margin-inline: auto;
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
+            white-space: nowrap;
+            max-width: 60vw;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
 
         .page-title {
@@ -114,7 +126,10 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .btn {
             position: relative;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
             padding: .75rem 1.25rem;
             border: none;
             border-radius: 8px;
@@ -122,7 +137,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: .95rem;
             font-weight: 600;
             text-align: center;
-            margin: 5px 0;
+            margin: 0;
             transition: all .2s ease;
         }
 
@@ -169,7 +184,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: white;
         }
 
-        .btn-primary:hover:not(:disabled) {
+        .btn-primary:hover {
             background-color: var(--primary-dark);
         }
 
@@ -183,43 +198,166 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: white;
         }
 
-        .item-list-container {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .item-list-header {
+        /* Dashboard Styles */
+        .page-toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .list-item {
-            background-color: #f8f9fa;
-            border: 1px solid var(--border-color);
-            padding: 1rem 1.25rem;
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: .75rem 1rem;
+            border: 1.5px solid var(--border-color);
             border-radius: 8px;
-            margin-bottom: .75rem;
+            font-size: .9rem;
+            transition: all .2s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+            outline: none;
+        }
+
+        .question-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: all .2s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .question-card-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            transition: opacity .3s, transform .3s;
+            align-items: flex-start;
+            margin-bottom: 1rem;
         }
 
-        .list-item.removing {
-            opacity: 0;
-            transform: translateX(50px);
-        }
-
-        .list-item p {
+        .question-card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
             margin: 0;
-            font-weight: 500;
+            color: var(--text-color);
         }
 
-        /* Modal Styles */
+        .question-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+            color: var(--secondary-text);
+            font-size: .9rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .category-badge {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            padding: .25rem .6rem;
+            border-radius: 12px;
+            font-size: .8rem;
+            font-weight: 600;
+        }
+
+        .actions-menu {
+            position: relative;
+        }
+
+        .actions-menu-btn {
+            background: none;
+            border: none;
+            padding: .25rem .5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            line-height: 1;
+            font-weight: bold;
+        }
+
+        .actions-menu-btn:hover {
+            background-color: var(--bg-color);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            list-style: none;
+            padding: .5rem 0;
+            width: 120px;
+            z-index: 10;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: .5rem 1rem;
+            font-size: .9rem;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--bg-color);
+        }
+
+        .dropdown-menu .delete-action {
+            color: #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state h2 {
+            margin-bottom: .5rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            margin-bottom: 1.5rem;
+            color: var(--secondary-text);
+        }
+
+        /* Modal & Form Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -227,7 +365,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 100;
+            z-index: 1100;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -274,17 +412,16 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: 1rem;
         }
 
-        .form-group textarea {
-            resize: none;
-        }
-
         .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: .75rem;
             margin-top: 1.5rem;
             padding-top: 1.5rem;
             border-top: 1px solid var(--border-color);
         }
 
-        /* New Answer Option Styles */
+        /* Answer Option Styles */
         .answer-option {
             position: relative;
             margin-bottom: .75rem;
@@ -297,7 +434,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border: 2px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
-            transition: border-color .2s, background-color .2s;
+            transition: all .2s;
         }
 
         .answer-label:hover {
@@ -401,30 +538,53 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <body>
     <div id="header-placeholder"></div>
-
     <main>
-        <div class="item-list-container">
-            <div class="item-list-header">
-                <div>
-                    <h1 class="page-title" style="margin-bottom: 0;">مدیریت سوالات</h1>
-                    <p class="page-subtitle" style="margin-bottom: 0;">سوالات آزمون را از اینجا اضافه، ویرایش یا حذف کنید.</p>
-                </div>
-                <button id="add-new-question-btn" class="btn btn-primary"><span class="btn-text">افزودن سوال جدید</span></button>
+        <div class="page-toolbar">
+            <div>
+                <h2 class="page-title" style="margin: 0;">بانک سوالات</h2>
+                <p class="page-subtitle">سوالات آزمون را از اینجا مدیریت، ویرایش یا حذف کنید.</p>
             </div>
-            <div id="questions-list" class="item-list">
+            <div style="display: flex; gap: 1rem; align-items:center;">
+                <div class="search-box">
+                    <input type="text" id="question-search-input" placeholder="جستجوی سوال یا دسته‌بندی...">
+                </div>
+                <button id="add-new-question-btn" class="btn btn-primary">➕ <span>سوال جدید</span></button>
+            </div>
+        </div>
+
+        <?php if (empty($questions)): ?>
+            <div class="empty-state">
+                <h2>هنوز هیچ سوالی نساخته‌اید! 🙁</h2>
+                <p>برای شروع، اولین سوال خود را ایجاد کرده و در آزمون‌ها از آن استفاده کنید.</p>
+                <button id="add-new-question-btn-empty" class="btn btn-primary">ایجاد اولین سوال</button>
+            </div>
+        <?php else: ?>
+            <div id="questions-grid" class="question-card-grid">
                 <?php foreach ($questions as $question): ?>
-                    <div class="list-item" id="question-item-<?= $question['id'] ?>">
-                        <p><?= htmlspecialchars($question['question_text']) ?></p>
-                        <div>
-                            <button class="btn btn-secondary" onclick="editQuestion(<?= $question['id'] ?>)">ویرایش</button>
-                            <button class="btn btn-danger" onclick="deleteQuestion(<?= $question['id'] ?>)">حذف</button>
+                    <div class="question-card" data-search-term="<?= htmlspecialchars(strtolower($question['question_text'] . ' ' . $question['category'])) ?>">
+                        <div class="question-card-header">
+                            <h3><?= htmlspecialchars($question['question_text']) ?></h3>
+                            <div class="actions-menu">
+                                <button class="actions-menu-btn">...</button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#" onclick="editQuestion(<?= $question['id'] ?>)">ویرایش</a></li>
+                                    <li><a href="#" onclick="deleteQuestion(<?= $question['id'] ?>)" class="delete-action">حذف</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="question-card-meta">
+                            <span class="meta-item">
+                                📚 <span class="category-badge"><?= htmlspecialchars($question['category'] ?: 'عمومی') ?></span>
+                            </span>
+                            <span class="meta-item">
+                                📝 <span><?= $question['answer_count'] ?> گزینه</span>
+                            </span>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-        </div>
+        <?php endif; ?>
     </main>
-
 
     <div id="modal-overlay" class="modal-overlay">
         <div id="modal-form" class="modal-form">
@@ -437,36 +597,74 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <textarea id="question-text" rows="3" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="question-category">دسته‌بندی:</label>
-                    <input type="text" id="question-category" required>
+                    <label for="question-category">دسته‌بندی (اختیاری):</label>
+                    <input type="text" id="question-category" placeholder="مثال: عمومی، فنی، شخصیت‌شناسی">
                 </div>
-                <h3>گزینه‌ها:</h3>
+                <h3>گزینه‌ها (حداقل ۲ گزینه الزامی است):</h3>
                 <div id="answers-container"></div>
                 <div class="form-actions">
+                    <button type="button" id="cancel-btn" class="btn btn-secondary">انصراف</button>
                     <button type="submit" id="save-btn" class="btn btn-primary">
                         <span class="btn-text">ذخیره</span>
                         <span class="spinner"></span>
                     </button>
-                    <button type="button" id="cancel-btn" class="btn">انصراف</button>
                 </div>
             </form>
         </div>
     </div>
+    <div id="toast-container"></div>
     <div id="footer-placeholder"></div>
 
     <script src="/js/header.js"></script>
     <script>
+        // Global functions for card buttons
+        async function editQuestion(id) {
+            document.dispatchEvent(new CustomEvent('openEditModal', {
+                detail: {
+                    id
+                }
+            }));
+        }
+
+        async function deleteQuestion(id) {
+            if (confirm('آیا از حذف این سوال مطمئن هستید؟ تمام پاسخ‌های ثبت شده به این سوال نیز حذف خواهند شد.')) {
+                const formData = new FormData();
+                formData.append('action', 'delete_question');
+                formData.append('id', id);
+                const response = await fetch('questions_api.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                const toastContainer = document.getElementById('toast-container');
+                const showToast = (message, type = 'success') => {
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.textContent = message;
+                    toastContainer.appendChild(toast);
+                    setTimeout(() => toast.remove(), 4000);
+                };
+
+                if (result.success) {
+                    showToast('سوال با موفقیت حذف شد.');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast(result.message || 'خطا در حذف سوال', 'error');
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const modalOverlay = document.getElementById('modal-overlay');
             const form = document.getElementById('question-form');
             const formTitle = document.getElementById('form-title');
             const saveBtn = document.getElementById('save-btn');
+            const toastContainer = document.getElementById('toast-container');
 
             const showModal = () => modalOverlay.classList.add('visible');
             const hideModal = () => modalOverlay.classList.remove('visible');
 
             const showToast = (message, type = 'success') => {
-                const toastContainer = document.getElementById('toast-container');
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
                 toast.textContent = message;
@@ -487,27 +685,31 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <input type="radio" name="correct_answer_radio" class="answer-correct-radio" id="${uniqueId}" ${answer.is_correct == 1 ? 'checked' : ''}>
                     <label for="${uniqueId}" class="answer-label">
                         <span class="radio-custom"></span>
-                        <input type="text" class="answer-text" placeholder="متن گزینه..." value="${answer.answer_text || ''}" required>
+                        <input type="text" class="answer-text" placeholder="متن گزینه ${index + 1}..." value="${answer.answer_text || ''}" required>
                     </label>
                 `;
                 document.getElementById('answers-container').appendChild(div);
             };
 
-            const createQuestionListItem = (question) => {
-                const item = document.createElement('div');
-                item.className = 'list-item';
-                item.id = `question-item-${question.id}`;
-                item.innerHTML = `
-                    <p>${question.question_text}</p>
-                    <div>
-                        <button class="btn btn-secondary" onclick="editQuestion(${question.id})">ویرایش</button>
-                        <button class="btn btn-danger" onclick="deleteQuestion(${question.id})">حذف</button>
-                    </div>
-                `;
-                return item;
+            const openAddModal = () => {
+                form.reset();
+                document.getElementById('answers-container').innerHTML = '';
+                document.getElementById('question-id').value = '';
+                document.getElementById('action').value = 'create_question';
+                formTitle.textContent = 'افزودن سوال جدید';
+                for (let i = 0; i < 4; i++) {
+                    addAnswerInput({}, i);
+                }
+                showModal();
             };
 
-            window.editQuestion = async (id) => {
+            document.getElementById('add-new-question-btn')?.addEventListener('click', openAddModal);
+            document.getElementById('add-new-question-btn-empty')?.addEventListener('click', openAddModal);
+
+            document.addEventListener('openEditModal', async (e) => {
+                const {
+                    id
+                } = e.detail;
                 const response = await fetch(`questions_api.php?action=get_question&id=${id}`);
                 const data = await response.json();
                 if (data.success) {
@@ -520,44 +722,11 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     document.getElementById('question-category').value = q.category;
                     formTitle.textContent = 'ویرایش سوال';
                     let answers = q.answers.length < 4 ? [...q.answers, ...Array(4 - q.answers.length).fill({})] : q.answers;
-                    answers.forEach((ans, i) => addAnswerInput(ans, i));
+                    answers.slice(0, 4).forEach((ans, i) => addAnswerInput(ans, i));
                     showModal();
                 } else {
                     showToast(data.message || 'خطا در دریافت اطلاعات', 'error');
                 }
-            };
-
-            window.deleteQuestion = async (id) => {
-                if (confirm('آیا از حذف این سوال مطمئن هستید؟')) {
-                    const formData = new FormData();
-                    formData.append('action', 'delete_question');
-                    formData.append('id', id);
-                    const response = await fetch('questions_api.php', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const result = await response.json();
-                    if (result.success) {
-                        const itemToRemove = document.getElementById(`question-item-${id}`);
-                        itemToRemove.classList.add('removing');
-                        setTimeout(() => itemToRemove.remove(), 300);
-                        showToast('سوال با موفقیت حذف شد.');
-                    } else {
-                        showToast(result.message || 'خطا در حذف سوال', 'error');
-                    }
-                }
-            };
-
-            document.getElementById('add-new-question-btn').addEventListener('click', () => {
-                form.reset();
-                document.getElementById('answers-container').innerHTML = '';
-                document.getElementById('question-id').value = '';
-                document.getElementById('action').value = 'create_question';
-                formTitle.textContent = 'افزودن سوال جدید';
-                for (let i = 0; i < 4; i++) {
-                    addAnswerInput({}, i);
-                }
-                showModal();
             });
 
             document.getElementById('cancel-btn').addEventListener('click', hideModal);
@@ -569,10 +738,18 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 e.preventDefault();
                 toggleLoading(saveBtn, true);
 
-                const answers = Array.from(document.querySelectorAll('.answer-option')).map(option => ({
-                    text: option.querySelector('.answer-text').value,
-                    is_correct: option.querySelector('.answer-correct-radio').checked ? 1 : 0
-                }));
+                const answers = Array.from(document.querySelectorAll('.answer-option'))
+                    .map(option => ({
+                        text: option.querySelector('.answer-text').value.trim(),
+                        is_correct: option.querySelector('.answer-correct-radio').checked ? 1 : 0
+                    }))
+                    .filter(a => a.text !== '');
+
+                if (answers.length < 2) {
+                    showToast('حداقل باید دو گزینه با متن معتبر وارد کنید.', 'error');
+                    toggleLoading(saveBtn, false);
+                    return;
+                }
                 if (answers.filter(a => a.is_correct).length === 0) {
                     showToast('لطفاً یک پاسخ صحیح را مشخص کنید.', 'error');
                     toggleLoading(saveBtn, false);
@@ -596,20 +773,43 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const result = await response.json();
 
                 if (result.success) {
-                    if (action === 'create_question') {
-                        const newListItem = createQuestionListItem(result.question);
-                        document.getElementById('questions-list').prepend(newListItem);
-                    } else {
-                        const itemToUpdate = document.getElementById(`question-item-${data.id}`);
-                        itemToUpdate.querySelector('p').textContent = data.text;
-                    }
                     hideModal();
                     showToast('عملیات با موفقیت انجام شد.');
+                    setTimeout(() => window.location.reload(), 1000);
                 } else {
                     showToast(result.message || 'خطایی رخ داد.', 'error');
                 }
                 toggleLoading(saveBtn, false);
             });
+
+            // --- Dashboard Search ---
+            const searchInput = document.getElementById('question-search-input');
+            const questionsGrid = document.getElementById('questions-grid');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const cards = questionsGrid.querySelectorAll('.question-card');
+                    cards.forEach(card => {
+                        if (card.dataset.searchTerm.includes(searchTerm)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // --- Dashboard Kebab Menu ---
+            document.querySelectorAll('.actions-menu-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== button.nextElementSibling) menu.classList.remove('show');
+                    });
+                    button.nextElementSibling.classList.toggle('show');
+                });
+            });
+            document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show')));
         });
     </script>
 </body>
