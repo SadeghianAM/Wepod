@@ -3,7 +3,7 @@
 
 try {
     // مسیر فایل دیتابیس به نام جدید تغییر کرد
-    $pdo = new PDO('sqlite:' . __DIR__ . '/database.db');
+    $pdo = new PDO('sqlite:' . __DIR__ . '/../../database.db');
 
     // تنظیم حالت نمایش خطا برای راحتی در دیباگ
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

@@ -87,7 +87,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             transition: all .2s ease;
         }
 
-        header,
         footer {
             background: var(--primary-color);
             color: var(--header-text);
@@ -99,24 +98,11 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
         }
-
-        header {
-            min-height: var(--header-h)
-        }
-
         footer {
             min-height: var(--footer-h);
             font-size: .85rem
         }
 
-        header h1 {
-            font-weight: 700;
-            font-size: clamp(1rem, 2.2vw, 1.2rem);
-            white-space: nowrap;
-            max-width: 60vw;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
 
         main {
             flex: 1;
