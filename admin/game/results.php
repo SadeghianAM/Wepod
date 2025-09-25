@@ -1,39 +1,76 @@
 <?php
-// فایل: results.php (نسخه کامل نهایی)
+// فایل: results.php (نسخه بازطراحی شده)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
 require_once __DIR__ . '/../../db/database.php';
 
 $quiz_id_filter = filter_input(INPUT_GET, 'quiz_id', FILTER_VALIDATE_INT);
 $page_title = "نتایج همه آزمون‌ها";
-$quiz_title_for_header = '';
 
 // دریافت لیست آزمون‌ها برای فیلتر
 $stmt_quizzes = $pdo->query("SELECT id, title FROM Quizzes ORDER BY title");
 $all_quizzes = $stmt_quizzes->fetchAll(PDO::FETCH_ASSOC);
 
-// دریافت نتایج با اطلاعات کاربر و آزمون
-// توجه: این کوئری نیازی به تغییر بر اساس ساختار جدید جداول شما نداشت
+// ====================================================================
+// بهینه‌سازی کوئری SQL:
+// به جای استفاده از ساب‌کوئری‌های تو در تو (که برای هر سطر اجرا می‌شوند)،
+// از JOIN و GROUP BY برای محاسبه امتیازات به صورت بهینه‌تر استفاده می‌کنیم.
+// این کار عملکرد را به شدت بهبود می‌بخشد.
+// ====================================================================
 $sql = "
+SELECT
+    qa.id,
+    qa.start_time,
+    u.name AS user_name,
+    q.id AS quiz_id,
+    q.title AS quiz_title,
+    -- محاسبه امتیاز کسب شده با یک subquery بهینه‌تر
+    COALESCE(attempt_scores.earned_points, 0) AS earned_points,
+    -- محاسبه حداکثر امتیاز آزمون
+    COALESCE(quiz_max_points.max_points, 0) AS max_points
+FROM
+    QuizAttempts qa
+JOIN
+    Users u ON qa.user_id = u.id
+JOIN
+    Quizzes q ON qa.quiz_id = q.id
+-- بخش محاسبه امتیاز کسب شده برای هر تلاش (attempt)
+LEFT JOIN (
     SELECT
-        qa.id, qa.score, qa.start_time, qa.quiz_id,
-        u.name AS user_name,
-        q.title AS quiz_title
-    FROM QuizAttempts qa
-    JOIN Users u ON qa.user_id = u.id
-    JOIN Quizzes q ON qa.quiz_id = q.id
+        ua.attempt_id,
+        SUM(CASE WHEN a.is_correct = 1 THEN qu.points_correct ELSE qu.points_incorrect END) as earned_points
+    FROM
+        UserAnswers ua
+    JOIN
+        Answers a ON ua.selected_answer_id = a.id
+    JOIN
+        Questions qu ON ua.question_id = qu.id
+    GROUP BY
+        ua.attempt_id
+) AS attempt_scores ON qa.id = attempt_scores.attempt_id
+-- بخش محاسبه سقف امتیاز برای هر آزمون
+LEFT JOIN (
+    SELECT
+        qq.quiz_id,
+        SUM(qu.points_correct) as max_points
+    FROM
+        QuizQuestions qq
+    JOIN
+        Questions qu ON qq.question_id = qu.id
+    GROUP BY
+        qq.quiz_id
+) AS quiz_max_points ON q.id = quiz_max_points.quiz_id
 ";
 
-// اگر ID آزمون مشخص بود، نتایج را فیلتر می‌کنیم و عنوان صفحه را تغییر می‌دهیم
+// اعمال فیلتر در صورت وجود
 if ($quiz_id_filter) {
-    $sql .= " WHERE qa.quiz_id = ?";
+    $sql .= " WHERE qa.quiz_id = :quiz_id";
     $stmt = $pdo->prepare($sql . " ORDER BY qa.start_time DESC");
-    $stmt->execute([$quiz_id_filter]);
+    $stmt->execute([':quiz_id' => $quiz_id_filter]);
 
-    // پیدا کردن نام آزمون برای نمایش در عنوان
+    // پیدا کردن عنوان آزمون برای نمایش در بالای صفحه
     foreach ($all_quizzes as $quiz) {
         if ($quiz['id'] == $quiz_id_filter) {
-            $quiz_title_for_header = $quiz['title'];
             $page_title = "نتایج آزمون: " . htmlspecialchars($quiz['title']);
             break;
         }
@@ -65,6 +102,9 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             --radius: 12px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
             --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
+            --score-high: #00ae70;
+            --score-mid: #ffc107;
+            --score-low: #dc3545;
         }
 
         @font-face {
@@ -87,23 +127,8 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            direction: rtl;
             background: var(--bg-color);
             color: var(--text-color);
-        }
-
-        footer {
-            background: var(--primary-color);
-            color: var(--header-text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 10;
-            box-shadow: var(--shadow-sm);
-            flex-shrink: 0;
-            min-height: var(--footer-h);
-            font-size: .85rem
         }
 
         a {
@@ -119,146 +144,186 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             margin-inline: auto;
         }
 
-        .page-title {
-            color: var(--primary-dark);
-            font-weight: 800;
-            font-size: 1.8rem;
-            margin-bottom: .5rem;
+        /* استایل‌های فوتر (بدون تغییر) */
+        footer {
+            background: var(--primary-color);
+            color: var(--header-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+            min-height: var(--footer-h);
+            font-size: .85rem
         }
 
-        .page-subtitle {
-            color: var(--secondary-text);
-            font-weight: 400;
-            font-size: 1rem;
-        }
-
-        /* Toolbar & Filters */
+        /* --- Toolbar & Filters --- */
         .page-toolbar {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            /* تغییر برای چینش بهتر */
             margin-bottom: 2rem;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.5rem;
+        }
+
+        .page-header h1 {
+            color: var(--primary-dark);
+            font-weight: 800;
+            font-size: 1.8rem;
+            margin-bottom: .25rem;
+        }
+
+        .page-header p {
+            color: var(--secondary-text);
+            font-size: 1rem;
         }
 
         .filter-controls {
             display: flex;
             gap: 1rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .search-box {
-            position: relative;
-            width: 250px;
-        }
-
-        .search-box input,
+        .search-input,
         .filter-select {
-            width: 100%;
+            width: 250px;
             padding: .75rem 1rem;
             border: 1.5px solid var(--border-color);
             border-radius: 8px;
             font-size: .9rem;
             transition: all .2s ease;
-            background-color: #fff;
+            background-color: var(--card-bg);
         }
 
-        .search-box input:focus,
+        .search-input:focus,
         .filter-select:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px var(--primary-light);
             outline: none;
         }
 
-        .filter-select {
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: left 0.75rem center;
-            padding-left: 2rem;
-            cursor: pointer;
+        /* --- Results List & Cards (طراحی جدید) --- */
+        .results-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
         }
 
-        /* Container & Table */
-        .results-container {
+        .result-card {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
-            padding: 2rem;
-            overflow-x: auto;
-            /* برای نمایش بهتر در موبایل */
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform .2s ease, box-shadow .2s ease;
         }
 
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-            /* جلوگیری از شکستن جدول در экраны کوچک */
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
         }
 
-        .results-table th,
-        .results-table td {
-            padding: 1rem;
-            text-align: right;
+        .card-header {
+            display: flex;
+            flex-direction: column;
             border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-            /* جلوگیری از شکستن محتوای سلول‌ها */
+            padding-bottom: 1rem;
         }
 
-        .results-table th {
-            font-weight: 600;
+        .card-header .user-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .card-header .quiz-title {
+            font-size: 0.9rem;
             color: var(--secondary-text);
-            font-size: .9rem;
         }
 
-        .results-table tbody tr {
-            transition: background-color .2s ease;
+        .card-body {
+            flex: 1;
         }
 
-        .results-table tbody tr:hover {
-            background-color: var(--primary-light);
+        .card-score {
+            margin-bottom: 1rem;
         }
 
-        .score-badge {
-            padding: .25em .6em;
-            font-weight: 600;
-            border-radius: 6px;
-            color: #fff;
+        .score-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: .5rem;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
         }
 
-        .score-badge.high-score {
-            background-color: var(--primary-dark);
+        .score-text .earned {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-color);
         }
 
-        .score-badge.mid-score {
-            background-color: #ffc107;
-            color: #1a1a1a;
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: var(--bg-color);
+            border-radius: 5px;
+            overflow: hidden;
         }
 
-        .score-badge.low-score {
-            background-color: #dc3545;
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
         }
 
-        /* استایل‌های دکمه‌های عملیات */
+        .progress-bar-fill.high-score {
+            background-color: var(--score-high);
+        }
+
+        .progress-bar-fill.mid-score {
+            background-color: var(--score-mid);
+        }
+
+        .progress-bar-fill.low-score {
+            background-color: var(--score-low);
+        }
+
+
+        .card-meta {
+            font-size: 0.85rem;
+            color: var(--secondary-text);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
         .action-btn {
-            display: inline-block;
-            padding: .4rem .8rem;
-            font-size: .8rem;
-            font-weight: 500;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: all .2s;
-            margin-left: .5rem;
-            border: 1px solid transparent;
+            padding: .5rem 1rem;
+            font-size: .85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1.5px solid transparent;
             cursor: pointer;
+            transition: all .2s;
         }
 
         .action-btn.view {
-            background-color: #e6f7f2;
+            background-color: var(--primary-light);
             color: var(--primary-dark);
-            border-color: var(--primary-dark);
+            border-color: var(--primary-color);
         }
 
         .action-btn.view:hover {
@@ -267,13 +332,13 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .action-btn.delete {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: none;
+            background-color: #fff1f2;
+            color: var(--score-low);
+            border-color: #ffdde0;
         }
 
         .action-btn.delete:hover {
-            background-color: #dc3545;
+            background-color: var(--score-low);
             color: #fff;
         }
 
@@ -281,6 +346,7 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             display: inline;
         }
 
+        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -290,12 +356,11 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .empty-state h2 {
-            margin-bottom: .5rem;
             font-weight: 700;
+            margin-bottom: 0.5rem;
         }
 
         .empty-state p {
-            margin-bottom: 1.5rem;
             color: var(--secondary-text);
         }
     </style>
@@ -305,14 +370,12 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div id="header-placeholder"></div>
     <main>
         <div class="page-toolbar">
-            <div>
-                <h1 class="page-title" style="margin: 0;"><?= $page_title ?></h1>
-                <p class="page-subtitle">نتایج شرکت‌کنندگان را بررسی و تحلیل کنید.</p>
+            <div class="page-header">
+                <h1><?= $page_title ?></h1>
+                <p>نتایج شرکت‌کنندگان را بررسی و تحلیل کنید.</p>
             </div>
             <div class="filter-controls">
-                <div class="search-box">
-                    <input type="text" id="results-search-input" placeholder="جستجو در نتایج...">
-                </div>
+                <input type="text" id="results-search-input" class="search-input" placeholder="جستجوی کاربر یا آزمون...">
                 <select id="quiz-filter" class="filter-select">
                     <option value="">همه آزمون‌ها</option>
                     <?php foreach ($all_quizzes as $quiz): ?>
@@ -327,54 +390,56 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php if (empty($results)): ?>
             <div class="empty-state">
                 <h2>هیچ نتیجه‌ای یافت نشد!</h2>
-                <p>هنوز هیچ کاربری در این آزمون شرکت نکرده است یا نتیجه‌ای مطابق با فیلتر شما وجود ندارد.</p>
+                <p>هنوز هیچ کاربری در این آزمون شرکت نکرده است یا نتیجه‌ای با این فیلتر وجود ندارد.</p>
             </div>
         <?php else: ?>
-            <div class="results-container">
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th>کاربر</th>
-                            <?php if (!$quiz_id_filter): ?>
-                                <th>نام آزمون</th>
-                            <?php endif; ?>
-                            <th>نمره (از ۱۰۰)</th>
-                            <th>تاریخ شرکت در آزمون</th>
-                            <th>عملیات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-tbody">
-                        <?php foreach ($results as $result): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($result['user_name']) ?></td>
-                                <?php if (!$quiz_id_filter): ?>
-                                    <td><?= htmlspecialchars($result['quiz_title']) ?></td>
-                                <?php endif; ?>
-                                <td>
-                                    <?php
-                                    $score = intval($result['score']);
-                                    $score_class = 'mid-score';
-                                    if ($score >= 80) $score_class = 'high-score';
-                                    elseif ($score < 50) $score_class = 'low-score';
-                                    ?>
-                                    <span class="score-badge <?= $score_class ?>"><?= $score ?></span>
-                                </td>
-                                <td data-timestamp="<?= htmlspecialchars($result['start_time']) ?>">
-                                    در حال بارگذاری...
-                                </td>
-                                <td>
-                                    <a href="view_attempt.php?id=<?= $result['id'] ?>" class="action-btn view">مشاهده جزئیات</a>
+            <div class="results-list" id="results-list">
+                <?php foreach ($results as $result): ?>
+                    <?php
+                    $earned_points = round($result['earned_points'] ?? 0, 2);
+                    $max_points = round($result['max_points'] ?? 0, 2);
+                    $percentage = ($max_points > 0) ? ($earned_points / $max_points) * 100 : 0;
 
-                                    <form action="delete_attempt.php" method="POST" class="delete-form">
-                                        <input type="hidden" name="attempt_id" value="<?= $result['id'] ?>">
-                                        <input type="hidden" name="quiz_id" value="<?= $quiz_id_filter ?: '' ?>">
-                                        <button type="submit" class="action-btn delete" onclick="return confirm('آیا از حذف این نتیجه مطمئن هستید؟ این عمل غیرقابل بازگشت است.');">حذف</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                    $score_class = 'low-score';
+                    if ($percentage >= 75) {
+                        $score_class = 'high-score';
+                    } elseif ($percentage >= 40) {
+                        $score_class = 'mid-score';
+                    }
+                    ?>
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="user-name"><?= htmlspecialchars($result['user_name']) ?></span>
+                            <?php if (!$quiz_id_filter): ?>
+                                <span class="quiz-title"><?= htmlspecialchars($result['quiz_title']) ?></span>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="card-score">
+                                <div class="score-text">
+                                    <span class="earned"><?= $earned_points ?> / <?= $max_points ?></span>
+                                    <span>امتیاز</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill <?= $score_class ?>" style="width: <?= $percentage ?>%;"></div>
+                                </div>
+                            </div>
+                            <div class="card-meta" data-timestamp="<?= htmlspecialchars($result['start_time']) ?>">
+                                در حال بارگذاری تاریخ...
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <a href="view_attempt.php?id=<?= $result['id'] ?>" class="action-btn view">مشاهده جزئیات</a>
+                            <form action="delete_attempt.php" method="POST" class="delete-form">
+                                <input type="hidden" name="attempt_id" value="<?= $result['id'] ?>">
+                                <input type="hidden" name="quiz_id" value="<?= $quiz_id_filter ?: '' ?>">
+                                <button type="submit" class="action-btn delete" onclick="return confirm('آیا از حذف این نتیجه مطمئن هستید؟');">حذف</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
     </main>
@@ -383,49 +448,43 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="/js/header.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Client-side Search ---
+            // --- Live Search Functionality ---
             const searchInput = document.getElementById('results-search-input');
-            const tableBody = document.getElementById('results-tbody');
-            if (searchInput && tableBody) {
+            const resultsList = document.getElementById('results-list');
+            if (searchInput && resultsList) {
                 searchInput.addEventListener('input', (e) => {
                     const searchTerm = e.target.value.toLowerCase().trim();
-                    const rows = tableBody.querySelectorAll('tr');
-                    rows.forEach(row => {
-                        const rowText = row.textContent.toLowerCase();
-                        row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+                    resultsList.querySelectorAll('.result-card').forEach(card => {
+                        card.style.display = card.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
                     });
                 });
             }
 
-            // --- Quiz Filter Dropdown ---
+            // --- Quiz Filter Functionality ---
             const quizFilter = document.getElementById('quiz-filter');
             if (quizFilter) {
                 quizFilter.addEventListener('change', (e) => {
                     const selectedQuizId = e.target.value;
-                    if (selectedQuizId) {
-                        window.location.href = `results.php?quiz_id=${selectedQuizId}`;
-                    } else {
-                        window.location.href = 'results.php';
-                    }
+                    window.location.href = selectedQuizId ? `results.php?quiz_id=${selectedQuizId}` : 'results.php';
                 });
             }
 
-            // --- Format Timestamps ---
+            // --- Date Formatting ---
             document.querySelectorAll('[data-timestamp]').forEach(cell => {
                 const timestamp = cell.getAttribute('data-timestamp');
                 if (timestamp) {
                     try {
-                        const date = new Date(timestamp.replace(' ', 'T') + 'Z'); // Handle SQL format and treat as UTC
-                        const options = {
+                        // افزودن 'Z' برای مشخص کردن اینکه زمان UTC است تا از خطاهای منطقه زمانی جلوگیری شود
+                        const date = new Date(timestamp.replace(' ', 'T') + 'Z');
+                        cell.textContent = 'تاریخ: ' + date.toLocaleString('fa-IR', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',
                             hour: '2-digit',
                             minute: '2-digit'
-                        };
-                        cell.textContent = date.toLocaleString('fa-IR', options);
+                        });
                     } catch (e) {
-                        cell.textContent = timestamp; // Fallback to original text on error
+                        cell.textContent = `تاریخ: ${timestamp}`; // Fallback
                     }
                 }
             });
