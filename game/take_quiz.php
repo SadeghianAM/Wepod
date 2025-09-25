@@ -302,9 +302,7 @@ $quiz_data = array_values($questions);
 </head>
 
 <body>
-    <header>
-        <h1><?= htmlspecialchars($quiz_title) ?></h1>
-    </header>
+    <div id="header-placeholder"></div>
     <main>
         <div id="quiz-container" class="quiz-container">
             <div class="progress-bar">
@@ -326,9 +324,8 @@ $quiz_data = array_values($questions);
             <a href="index.php" class="btn btn-primary" style="margin-top: 2rem;">بازگشت به لیست آزمون‌ها</a>
         </div>
     </main>
-    <footer>
-        <p>&copy; <?= date('Y') ?> - سامانه آزمون</p>
-    </footer>
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js?v=1.0"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

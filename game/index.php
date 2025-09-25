@@ -231,12 +231,7 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-    <header>
-        <h1>آزمون‌های موجود</h1>
-        <?php if (isset($claims) && isset($claims['name'])): ?>
-            <span id="user-info" style="cursor:default;"><?= htmlspecialchars($claims['name']) ?></span>
-        <?php endif; ?>
-    </header>
+    <div id="header-placeholder"></div>
 
     <main>
         <h1 class="page-title">انتخاب آزمون</h1>
@@ -269,10 +264,8 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </ul>
     </main>
-
-    <footer>
-        <p>&copy; <?= date('Y') ?> - سامانه آزمون</p>
-    </footer>
+    <div id="footer-placeholder"></div>
+    <script src="/js/header.js?v=1.0"></script>
 </body>
 
 </html>
