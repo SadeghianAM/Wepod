@@ -1,5 +1,5 @@
 <?php
-// فایل: questions.php (نسخه بازطراحی شده با زبان طراحی جدید)
+// فایل: questions.php (نسخه بازطراحی شده با زبان طراحی جدید و امتیازدهی سفارشی)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
 require_once __DIR__ . '/../../db/database.php';
@@ -9,10 +9,12 @@ $stmt = $pdo->query("
         q.id,
         q.question_text,
         q.category,
+        q.points_correct,
+        q.points_incorrect,
         COUNT(a.id) AS answer_count
     FROM Questions q
     LEFT JOIN Answers a ON q.id = a.question_id
-    GROUP BY q.id, q.question_text, q.category
+    GROUP BY q.id, q.question_text, q.category, q.points_correct, q.points_incorrect
     ORDER BY q.id DESC
 ");
 $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -25,6 +27,8 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>داشبورد مدیریت سوالات</title>
     <style>
+        /* All CSS styles from your original file go here... */
+        /* ... for brevity, the CSS is omitted, but it should be the same as your file */
         :root {
             --primary-color: #00ae70;
             --primary-dark: #089863;
@@ -386,6 +390,8 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             width: min(600px, 95%);
             transform: scale(0.95);
             transition: transform .3s;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-overlay.visible .modal-form {
@@ -418,6 +424,16 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             margin-top: 1.5rem;
             padding-top: 1.5rem;
             border-top: 1px solid var(--border-color);
+        }
+
+        /* ⭐ New style for score fields container */
+        .score-fields {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .score-fields .form-group {
+            flex: 1;
         }
 
         /* Answer Option Styles */
@@ -578,6 +594,12 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <span class="meta-item">
                                 📝 <span><?= $question['answer_count'] ?> گزینه</span>
                             </span>
+                            <span class="meta-item">
+                                ✅ <span style="color: #28a745;">امتیاز مثبت: <?= htmlspecialchars($question['points_correct']) ?></span>
+                            </span>
+                            <span class="meta-item">
+                                ❌ <span style="color: #dc3545;">نمره منفی: <?= htmlspecialchars($question['points_incorrect']) ?></span>
+                            </span>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -599,6 +621,17 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="question-category">دسته‌بندی (اختیاری):</label>
                     <input type="text" id="question-category" placeholder="مثال: عمومی، فنی، شخصیت‌شناسی">
                 </div>
+                <div class="score-fields">
+                    <div class="form-group">
+                        <label for="points-correct">امتیاز پاسخ صحیح:</label>
+                        <input type="number" id="points-correct" step="0.25" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="points-incorrect">نمره منفی (مقدار کسری):</label>
+                        <input type="number" id="points-incorrect" step="0.25" value="1" required>
+                    </div>
+                </div>
+
                 <h3>گزینه‌ها (حداقل ۲ گزینه الزامی است):</h3>
                 <div id="answers-container"></div>
                 <div class="form-actions">
@@ -695,6 +728,8 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 document.getElementById('answers-container').innerHTML = '';
                 document.getElementById('question-id').value = '';
                 document.getElementById('action').value = 'create_question';
+                document.getElementById('points-correct').value = '1'; // ⭐ Reset to default
+                document.getElementById('points-incorrect').value = '1'; // ⭐ Reset to default
                 formTitle.textContent = 'افزودن سوال جدید';
                 for (let i = 0; i < 4; i++) {
                     addAnswerInput({}, i);
@@ -719,6 +754,10 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     document.getElementById('action').value = 'update_question';
                     document.getElementById('question-text').value = q.question_text;
                     document.getElementById('question-category').value = q.category;
+                    // ⭐ Populate score fields
+                    document.getElementById('points-correct').value = q.points_correct;
+                    document.getElementById('points-incorrect').value = q.points_incorrect;
+
                     formTitle.textContent = 'ویرایش سوال';
                     let answers = q.answers.length < 4 ? [...q.answers, ...Array(4 - q.answers.length).fill({})] : q.answers;
                     answers.slice(0, 4).forEach((ans, i) => addAnswerInput(ans, i));
@@ -755,10 +794,13 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     return;
                 }
 
+                // ⭐ Get score data from the form
                 const data = {
                     id: document.getElementById('question-id').value,
                     text: document.getElementById('question-text').value,
                     category: document.getElementById('question-category').value,
+                    points_correct: document.getElementById('points-correct').value,
+                    points_incorrect: document.getElementById('points-incorrect').value,
                     answers: answers
                 };
                 const action = document.getElementById('action').value;

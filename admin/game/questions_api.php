@@ -1,5 +1,5 @@
 <?php
-// فایل: questions_api.php
+// فایل: questions_api.php (با قابلیت امتیازدهی سفارشی)
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../db/database.php';
 $action = $_REQUEST['action'] ?? null;
@@ -14,12 +14,13 @@ try {
             $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
             if (!$id) throw new Exception('شناسه سوال نامعتبر است.');
 
-            $stmt_q = $pdo->prepare("SELECT * FROM Questions WHERE id = ?");
+            // ⭐ اضافه کردن فیلدهای امتیاز به کوئری
+            $stmt_q = $pdo->prepare("SELECT id, question_text, category, points_correct, points_incorrect FROM Questions WHERE id = ?");
             $stmt_q->execute([$id]);
             $question = $stmt_q->fetch(PDO::FETCH_ASSOC);
 
             if ($question) {
-                $stmt_a = $pdo->prepare("SELECT * FROM Answers WHERE question_id = ?");
+                $stmt_a = $pdo->prepare("SELECT id, answer_text, is_correct FROM Answers WHERE question_id = ?");
                 $stmt_a->execute([$id]);
                 $question['answers'] = $stmt_a->fetchAll(PDO::FETCH_ASSOC);
                 $response = ['success' => true, 'question' => $question];
@@ -33,14 +34,16 @@ try {
              */
         case 'create_question':
             $data = json_decode(file_get_contents('php://input'), true);
-            if (empty($data['text']) || empty($data['answers'])) {
+            // ⭐ بررسی فیلدهای امتیاز
+            if (empty($data['text']) || empty($data['answers']) || !isset($data['points_correct']) || !isset($data['points_incorrect'])) {
                 throw new Exception('داده‌های ارسالی ناقص است.');
             }
 
             $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare("INSERT INTO Questions (question_text, category) VALUES (?, ?)");
-            $stmt->execute([$data['text'], $data['category']]);
+            // ⭐ اضافه کردن فیلدهای امتیاز به کوئری
+            $stmt = $pdo->prepare("INSERT INTO Questions (question_text, category, points_correct, points_incorrect) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$data['text'], $data['category'], $data['points_correct'], $data['points_incorrect']]);
             $id = $pdo->lastInsertId();
 
             $stmt_answer = $pdo->prepare("INSERT INTO Answers (question_id, answer_text, is_correct) VALUES (?, ?, ?)");
@@ -54,7 +57,9 @@ try {
             $new_question_data = [
                 'id' => $id,
                 'question_text' => $data['text'],
-                'category' => $data['category']
+                'category' => $data['category'],
+                'points_correct' => $data['points_correct'],
+                'points_incorrect' => $data['points_incorrect']
             ];
             $response = ['success' => true, 'message' => 'سوال با موفقیت ایجاد شد.', 'question' => $new_question_data];
             break;
@@ -64,15 +69,17 @@ try {
              */
         case 'update_question':
             $data = json_decode(file_get_contents('php://input'), true);
-            if (empty($data['id']) || empty($data['text']) || empty($data['answers'])) {
+            // ⭐ بررسی فیلدهای امتیاز
+            if (empty($data['id']) || empty($data['text']) || empty($data['answers']) || !isset($data['points_correct']) || !isset($data['points_incorrect'])) {
                 throw new Exception('داده‌های ارسالی ناقص است.');
             }
 
             $id = $data['id'];
             $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare("UPDATE Questions SET question_text = ?, category = ? WHERE id = ?");
-            $stmt->execute([$data['text'], $data['category'], $id]);
+            // ⭐ اضافه کردن فیلدهای امتیاز به کوئری
+            $stmt = $pdo->prepare("UPDATE Questions SET question_text = ?, category = ?, points_correct = ?, points_incorrect = ? WHERE id = ?");
+            $stmt->execute([$data['text'], $data['category'], $data['points_correct'], $data['points_incorrect'], $id]);
 
             // حذف گزینه‌های قبلی
             $stmt_delete = $pdo->prepare("DELETE FROM Answers WHERE question_id = ?");

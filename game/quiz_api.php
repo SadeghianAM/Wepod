@@ -1,44 +1,59 @@
 <?php
-// فایل: quiz_api.php (نسخه نهایی با به‌روزرسانی امتیاز کل کاربر)
+// فایل: quiz_api.php (نسخه نهایی با امتیازدهی سفارشی برای هر سوال)
 header('Content-Type: application/json');
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth(null, '/auth/login.html');
 require_once __DIR__ . '/../db/database.php';
 
-// تابع محاسبه نمره آزمون فعلی (بدون تغییر)
+// ⭐ تابع محاسبه نمره آزمون فعلی (با منطق امتیازدهی جدید)
 function calculateAndSaveFinalScore(PDO $pdo, int $attemptId): float
 {
-    $stmt = $pdo->prepare("SELECT q.quiz_id FROM QuizAttempts q WHERE q.id = ?");
-    $stmt->execute([$attemptId]);
-    $quizId = $stmt->fetchColumn();
+    // دریافت اطلاعات سوالات آزمون به همراه امتیازهایشان در یک کوئری
+    $stmt_questions = $pdo->prepare("
+        SELECT
+            q.id,
+            q.points_correct,
+            q.points_incorrect
+        FROM Questions q
+        JOIN QuizQuestions qq ON q.id = qq.question_id
+        WHERE qq.quiz_id = (SELECT quiz_id FROM QuizAttempts WHERE id = ?)
+    ");
+    $stmt_questions->execute([$attemptId]);
+    // ساخت یک آرایه انجمنی برای دسترسی سریع به امتیاز هر سوال
+    $question_scores = $stmt_questions->fetchAll(PDO::FETCH_KEY_PAIR | PDO::FETCH_GROUP);
 
-    $stmt = $pdo->prepare("SELECT question_id FROM QuizQuestions WHERE quiz_id = ?");
-    $stmt->execute([$quizId]);
-    $quizQuestionIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-    $stmt = $pdo->prepare("SELECT question_id, selected_answer_id FROM UserAnswers WHERE attempt_id = ?");
-    $stmt->execute([$attemptId]);
-    $userAnswers = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+    // دریافت پاسخ‌های کاربر
+    $stmt_user_answers = $pdo->prepare("SELECT question_id, selected_answer_id FROM UserAnswers WHERE attempt_id = ?");
+    $stmt_user_answers->execute([$attemptId]);
+    $userAnswers = $stmt_user_answers->fetchAll(PDO::FETCH_KEY_PAIR);
 
     $finalScore = 0;
-    foreach ($quizQuestionIds as $questionId) {
-        if (array_key_exists($questionId, $userAnswers)) {
-            $selectedAnswerId = $userAnswers[$questionId];
-            if ($selectedAnswerId === null) continue; // سوال بی‌پاسخ امتیازی ندارد
+    // تکرار روی پاسخ‌های کاربر
+    foreach ($userAnswers as $questionId => $selectedAnswerId) {
+        if ($selectedAnswerId === null) continue; // سوال بی‌پاسخ امتیازی ندارد
 
-            $stmt_correct = $pdo->prepare("SELECT is_correct FROM Answers WHERE id = ?");
-            $stmt_correct->execute([$selectedAnswerId]);
-            if ((bool) $stmt_correct->fetchColumn()) {
-                $finalScore += 1; // امتیاز پاسخ صحیح
-            } else {
-                $finalScore -= 2; // امتیاز پاسخ غلط (تغییر از ۲- به ۱- طبق درخواست اولیه)
-            }
+        // بررسی صحت پاسخ
+        $stmt_correct = $pdo->prepare("SELECT is_correct FROM Answers WHERE id = ?");
+        $stmt_correct->execute([$selectedAnswerId]);
+        $is_correct = (bool) $stmt_correct->fetchColumn();
+
+        // دریافت امتیازها از آرایه‌ای که قبلا ساختیم
+        $points_correct = $question_scores[$questionId][0]['points_correct'] ?? 1.0;
+        $points_incorrect = $question_scores[$questionId][0]['points_incorrect'] ?? 1.0;
+
+        if ($is_correct) {
+            $finalScore += (float) $points_correct; // امتیاز پاسخ صحیح
+        } else {
+            $finalScore -= (float) $points_incorrect; // نمره منفی پاسخ غلط
         }
     }
+
+    // به‌روزرسانی نمره نهایی در جدول تلاش‌ها
     $stmt_update = $pdo->prepare("UPDATE QuizAttempts SET score = ?, end_time = CURRENT_TIMESTAMP WHERE id = ?");
     $stmt_update->execute([$finalScore, $attemptId]);
-    return $finalScore;
+    return (float) $finalScore;
 }
+
 
 $action = $_REQUEST['action'] ?? null;
 $response = ['success' => false, 'message' => 'عملیات نامعتبر است.'];
@@ -59,15 +74,22 @@ if ($action === 'submit_attempt') {
 
         // ۲. ثبت پاسخ‌های کاربر
         $stmt_answer = $pdo->prepare("INSERT INTO UserAnswers (attempt_id, question_id, selected_answer_id) VALUES (?, ?, ?)");
-        foreach ($answers as $questionId => $answerId) {
-            // اگر کاربر به سوالی پاسخ نداده باشد، answerId می‌تواند null باشد
-            $stmt_answer->execute([$attemptId, $questionId, $answerId]);
+
+        // ⭐ دریافت تمام ID سوالات آزمون برای اطمینان از ثبت پاسخ null برای سوالات بی‌پاسخ
+        $stmt_quiz_q = $pdo->prepare("SELECT question_id FROM QuizQuestions WHERE quiz_id = ?");
+        $stmt_quiz_q->execute([$quizId]);
+        $all_question_ids = $stmt_quiz_q->fetchAll(PDO::FETCH_COLUMN);
+
+        foreach ($all_question_ids as $questionId) {
+            // اگر کاربر به سوالی پاسخ داده، آن را ثبت کن، در غیر این صورت null ثبت کن
+            $selectedAnswerId = $answers[$questionId] ?? null;
+            $stmt_answer->execute([$attemptId, $questionId, $selectedAnswerId]);
         }
 
         // ۳. محاسبه و ذخیره نمره در جدول QuizAttempts
         $finalScore = calculateAndSaveFinalScore($pdo, $attemptId);
 
-        // ۴. ⭐ به‌روزرسانی امتیاز کل کاربر در جدول users (بخش اضافه شده) ⭐
+        // ۴. به‌روزرسانی امتیاز کل کاربر در جدول users
         $stmt_update_user_score = $pdo->prepare("UPDATE users SET score = score + ? WHERE id = ?");
         $stmt_update_user_score->execute([$finalScore, $userId]);
 

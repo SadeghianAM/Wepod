@@ -1,5 +1,5 @@
 <?php
-// فایل: results.php (نسخه کاملاً بازطراحی شده)
+// فایل: results.php (نسخه کامل نهایی)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
 require_once __DIR__ . '/../../db/database.php';
@@ -13,9 +13,10 @@ $stmt_quizzes = $pdo->query("SELECT id, title FROM Quizzes ORDER BY title");
 $all_quizzes = $stmt_quizzes->fetchAll(PDO::FETCH_ASSOC);
 
 // دریافت نتایج با اطلاعات کاربر و آزمون
+// توجه: این کوئری نیازی به تغییر بر اساس ساختار جدید جداول شما نداشت
 $sql = "
     SELECT
-        qa.id, qa.score, qa.start_time,
+        qa.id, qa.score, qa.start_time, qa.quiz_id,
         u.name AS user_name,
         q.title AS quiz_title
     FROM QuizAttempts qa
@@ -101,9 +102,6 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             z-index: 10;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
-        }
-
-        footer {
             min-height: var(--footer-h);
             font-size: .85rem
         }
@@ -189,11 +187,15 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             padding: 2rem;
+            overflow-x: auto;
+            /* برای نمایش بهتر در موبایل */
         }
 
         .results-table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 800px;
+            /* جلوگیری از شکستن جدول در экраны کوچک */
         }
 
         .results-table th,
@@ -201,6 +203,8 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 1rem;
             text-align: right;
             border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            /* جلوگیری از شکستن محتوای سلول‌ها */
         }
 
         .results-table th {
@@ -222,8 +226,6 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 600;
             border-radius: 6px;
             color: #fff;
-            background-color: #6c757d;
-            /* Default */
         }
 
         .score-badge.high-score {
@@ -237,6 +239,46 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .score-badge.low-score {
             background-color: #dc3545;
+        }
+
+        /* استایل‌های دکمه‌های عملیات */
+        .action-btn {
+            display: inline-block;
+            padding: .4rem .8rem;
+            font-size: .8rem;
+            font-weight: 500;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all .2s;
+            margin-left: .5rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        .action-btn.view {
+            background-color: #e6f7f2;
+            color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .action-btn.view:hover {
+            background-color: var(--primary-dark);
+            color: #fff;
+        }
+
+        .action-btn.delete {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: none;
+        }
+
+        .action-btn.delete:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        form.delete-form {
+            display: inline;
         }
 
         .empty-state {
@@ -264,7 +306,7 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <main>
         <div class="page-toolbar">
             <div>
-                <h2 class="page-title" style="margin: 0;"><?= $page_title ?></h2>
+                <h1 class="page-title" style="margin: 0;"><?= $page_title ?></h1>
                 <p class="page-subtitle">نتایج شرکت‌کنندگان را بررسی و تحلیل کنید.</p>
             </div>
             <div class="filter-controls">
@@ -298,6 +340,7 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php endif; ?>
                             <th>نمره (از ۱۰۰)</th>
                             <th>تاریخ شرکت در آزمون</th>
+                            <th>عملیات</th>
                         </tr>
                     </thead>
                     <tbody id="results-tbody">
@@ -318,6 +361,15 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </td>
                                 <td data-timestamp="<?= htmlspecialchars($result['start_time']) ?>">
                                     در حال بارگذاری...
+                                </td>
+                                <td>
+                                    <a href="view_attempt.php?id=<?= $result['id'] ?>" class="action-btn view">مشاهده جزئیات</a>
+
+                                    <form action="delete_attempt.php" method="POST" class="delete-form">
+                                        <input type="hidden" name="attempt_id" value="<?= $result['id'] ?>">
+                                        <input type="hidden" name="quiz_id" value="<?= $quiz_id_filter ?: '' ?>">
+                                        <button type="submit" class="action-btn delete" onclick="return confirm('آیا از حذف این نتیجه مطمئن هستید؟ این عمل غیرقابل بازگشت است.');">حذف</button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
