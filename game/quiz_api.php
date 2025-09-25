@@ -5,7 +5,12 @@ require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth(null, '/auth/login.html');
 require_once __DIR__ . '/../db/database.php';
 
-// ⭐ تابع محاسبه نمره آزمون فعلی (با منطق امتیازدهی جدید)
+/**
+ * نمره نهایی آزمون را بر اساس پاسخ‌های کاربر و امتیازدهی سفارشی هر سوال محاسبه و ذخیره می‌کند.
+ * @param PDO $pdo آبجکت اتصال به دیتابیس
+ * @param int $attemptId شناسه تلاش (attempt) کاربر در آزمون
+ * @return float نمره نهایی محاسبه شده
+ */
 function calculateAndSaveFinalScore(PDO $pdo, int $attemptId): float
 {
     // دریافت اطلاعات سوالات آزمون به همراه امتیازهایشان در یک کوئری
@@ -19,8 +24,9 @@ function calculateAndSaveFinalScore(PDO $pdo, int $attemptId): float
         WHERE qq.quiz_id = (SELECT quiz_id FROM QuizAttempts WHERE id = ?)
     ");
     $stmt_questions->execute([$attemptId]);
-    // ساخت یک آرایه انجمنی برای دسترسی سریع به امتیاز هر سوال
-    $question_scores = $stmt_questions->fetchAll(PDO::FETCH_KEY_PAIR | PDO::FETCH_GROUP);
+
+    // ✅ استفاده از FETCH_UNIQUE تا ستون اول (id) کلید آرایه شود
+    $question_scores = $stmt_questions->fetchAll(PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
 
     // دریافت پاسخ‌های کاربر
     $stmt_user_answers = $pdo->prepare("SELECT question_id, selected_answer_id FROM UserAnswers WHERE attempt_id = ?");
@@ -30,16 +36,18 @@ function calculateAndSaveFinalScore(PDO $pdo, int $attemptId): float
     $finalScore = 0;
     // تکرار روی پاسخ‌های کاربر
     foreach ($userAnswers as $questionId => $selectedAnswerId) {
-        if ($selectedAnswerId === null) continue; // سوال بی‌پاسخ امتیازی ندارد
+        if ($selectedAnswerId === null) {
+            continue; // سوال بی‌پاسخ امتیازی ندارد
+        }
 
         // بررسی صحت پاسخ
         $stmt_correct = $pdo->prepare("SELECT is_correct FROM Answers WHERE id = ?");
         $stmt_correct->execute([$selectedAnswerId]);
         $is_correct = (bool) $stmt_correct->fetchColumn();
 
-        // دریافت امتیازها از آرایه‌ای که قبلا ساختیم
-        $points_correct = $question_scores[$questionId][0]['points_correct'] ?? 1.0;
-        $points_incorrect = $question_scores[$questionId][0]['points_incorrect'] ?? 1.0;
+        // ✅ اصلاح نحوه دسترسی به امتیازها از آرایه جدید
+        $points_correct = $question_scores[$questionId]['points_correct'] ?? 1.0;
+        $points_incorrect = $question_scores[$questionId]['points_incorrect'] ?? 1.0;
 
         if ($is_correct) {
             $finalScore += (float) $points_correct; // امتیاز پاسخ صحیح
@@ -75,7 +83,7 @@ if ($action === 'submit_attempt') {
         // ۲. ثبت پاسخ‌های کاربر
         $stmt_answer = $pdo->prepare("INSERT INTO UserAnswers (attempt_id, question_id, selected_answer_id) VALUES (?, ?, ?)");
 
-        // ⭐ دریافت تمام ID سوالات آزمون برای اطمینان از ثبت پاسخ null برای سوالات بی‌پاسخ
+        // دریافت تمام ID سوالات آزمون برای اطمینان از ثبت پاسخ null برای سوالات بی‌پاسخ
         $stmt_quiz_q = $pdo->prepare("SELECT question_id FROM QuizQuestions WHERE quiz_id = ?");
         $stmt_quiz_q->execute([$quizId]);
         $all_question_ids = $stmt_quiz_q->fetchAll(PDO::FETCH_COLUMN);
@@ -96,7 +104,10 @@ if ($action === 'submit_attempt') {
         $pdo->commit();
         $response = ['success' => true, 'message' => 'امتیاز شما با موفقیت ثبت شد.', 'score' => $finalScore];
     } catch (Exception $e) {
-        if ($pdo->inTransaction()) $pdo->rollBack();
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        http_response_code(500); // ارسال کد خطای سرور
         $response['message'] = 'خطا در سرور: ' . $e->getMessage();
     }
 }
