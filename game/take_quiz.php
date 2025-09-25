@@ -2,7 +2,7 @@
 // فایل: take_quiz.php (کامل و نهایی)
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth(null, '/auth/login.html');
-require_once __DIR__ . '/../admin/game/database.php';
+require_once __DIR__ . '/../db/database.php';
 
 $quiz_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$quiz_id) {

@@ -1,11 +1,11 @@
 <?php
-// فایل: quiz_list.php (نسخه نهایی با منطق تخصیص آزمون)
+// فایل: quiz_list.php (نسخه نهایی با جلوگیری از شرکت مجدد)
 
 // احراز هویت کاربر
-require_once __DIR__ . '/../auth/require-auth.php'; // مسیر فایل auth خود را تنظیم کنید
-$claims = requireAuth(null, '/auth/login.html'); // فرض می‌کنیم نقش کاربر 'user' است
+require_once __DIR__ . '/../auth/require-auth.php';
+$claims = requireAuth(null, '/auth/login.html');
 
-require_once __DIR__ . '/../admin/game/database.php';
+require_once __DIR__ . '/../db/database.php';
 
 // دریافت شناسه کاربر لاگین کرده
 $user_id = $claims['sub'];
@@ -14,6 +14,11 @@ $user_id = $claims['sub'];
 $stmt_team = $pdo->prepare("SELECT team_id FROM TeamMembers WHERE user_id = ?");
 $stmt_team->execute([$user_id]);
 $team_id = $stmt_team->fetchColumn(); // اگر کاربر عضو تیمی نباشد، این مقدار false خواهد بود
+
+// ⭐ بخش جدید: پیدا کردن تمام آزمون‌هایی که کاربر قبلاً در آن‌ها شرکت کرده است
+$stmt_completed = $pdo->prepare("SELECT DISTINCT quiz_id FROM QuizAttempts WHERE user_id = ?");
+$stmt_completed->execute([$user_id]);
+$completed_quiz_ids = $stmt_completed->fetchAll(PDO::FETCH_COLUMN);
 
 // کوئری هوشمند برای دریافت آزمون‌های مجاز برای کاربر
 $sql = "
@@ -152,6 +157,8 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .tool-card a {
+            position: relative;
+            /* برای جای‌گیری badge */
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -169,6 +176,33 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-color: var(--primary-color);
             box-shadow: var(--shadow-md);
             color: var(--primary-dark);
+        }
+
+        /* ⭐ استایل‌های جدید برای آزمون‌های تکمیل شده */
+        .tool-card.completed a {
+            background-color: #f1f3f5;
+            /* رنگ پس‌زمینه متفاوت */
+            cursor: not-allowed;
+            /* تغییر نشانگر موس */
+            color: #868e96;
+            border-color: var(--border-color);
+        }
+
+        .tool-card.completed a:hover {
+            transform: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .completed-badge {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            background-color: var(--primary-light);
+            padding: 5px 10px;
+            border-radius: 12px;
+            position: absolute;
+            top: 1.25rem;
+            left: 1.25rem;
         }
 
         .tool-icon {
@@ -213,8 +247,15 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <p>در حال حاضر هیچ آزمونی برای شما تعریف نشده است.</p>
             <?php else: ?>
                 <?php foreach ($quizzes as $quiz): ?>
-                    <li class="tool-card">
-                        <a href="take_quiz.php?id=<?= $quiz['id'] ?>">
+                    <?php
+                    // ⭐ بررسی اینکه آیا آزمون فعلی در لیست آزمون‌های تکمیل شده کاربر است یا خیر
+                    $is_completed = in_array($quiz['id'], $completed_quiz_ids);
+                    ?>
+                    <li class="tool-card <?= $is_completed ? 'completed' : '' ?>">
+                        <a href="<?= $is_completed ? '#' : 'take_quiz.php?id=' . $quiz['id'] ?>">
+                            <?php if ($is_completed): ?>
+                                <span class="completed-badge">✔ تکمیل شده</span>
+                            <?php endif; ?>
                             <span class="tool-icon">📋</span>
                             <div>
                                 <span class="tool-title"><?= htmlspecialchars($quiz['title']) ?></span>
