@@ -1,5 +1,5 @@
 <?php
-// فایل نهایی: attempts_api.php
+// فایل نهایی و کامل: attempts_api.php (سازگار با دیتابیس بدون ستون is_correct در UserAnswers)
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/auth/login.html');
@@ -7,7 +7,9 @@ require_once __DIR__ . '/../../db/database.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-// اگر درخواست GET بود، لیست تمام نتایج را برمی‌گردانیم
+// =================================================================
+//  بخش GET: دریافت لیست تمام نتایج آزمون‌ها
+// =================================================================
 if ($method === 'GET') {
     try {
         $stmt = $pdo->query("
@@ -32,13 +34,16 @@ if ($method === 'GET') {
     exit;
 }
 
-// اگر درخواست POST بود، عملیات مختلف را انجام می‌دهیم
+// =================================================================
+//  بخش POST: مدیریت عملیات حذف و دریافت جزئیات
+// =================================================================
 if ($method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     $response = ['success' => false, 'message' => 'عملیات نامعتبر است.'];
     $action = $input['action'] ?? null;
 
     switch ($action) {
+        // --- عملیات حذف یک نتیجه آزمون ---
         case 'delete':
             $attempt_id = filter_var($input['id'] ?? null, FILTER_VALIDATE_INT);
             if (!$attempt_id) {
@@ -48,6 +53,7 @@ if ($method === 'POST') {
 
             try {
                 $pdo->beginTransaction();
+
                 $stmt_get_attempt = $pdo->prepare("SELECT user_id, score FROM QuizAttempts WHERE id = ?");
                 $stmt_get_attempt->execute([$attempt_id]);
                 $attempt = $stmt_get_attempt->fetch(PDO::FETCH_ASSOC);
@@ -59,7 +65,7 @@ if ($method === 'POST') {
                 $user_id = $attempt['user_id'];
                 $score_to_subtract = $attempt['score'];
 
-                if ($score_to_subtract > 0) {
+                if ($score_to_subtract != 0) {
                     $stmt_update_user = $pdo->prepare("UPDATE users SET score = score - ? WHERE id = ?");
                     $stmt_update_user->execute([$score_to_subtract, $user_id]);
                 }
@@ -79,6 +85,7 @@ if ($method === 'POST') {
             }
             break;
 
+        // --- عملیات دریافت جزئیات یک نتیجه آزمون ---
         case 'get_details':
             $attempt_id = filter_var($input['id'] ?? null, FILTER_VALIDATE_INT);
             if (!$attempt_id) {
@@ -101,17 +108,17 @@ if ($method === 'POST') {
                     throw new Exception("نتیجه آزمون یافت نشد.");
                 }
 
-                // *** تغییر اصلی در این کوئری است ***
+                // *** تغییر اصلی اینجاست: is_correct از جدول Answers خوانده می‌شود نه UserAnswers ***
                 $stmt_answers = $pdo->prepare("
                     SELECT
                         q.question_text,
                         uo.answer_text AS user_answer_text,
                         co.answer_text AS correct_answer_text,
-                        uo.is_correct
+                        uo.is_correct -- به جای ua.is_correct از uo.is_correct استفاده می‌کنیم
                     FROM UserAnswers ua
                     JOIN Questions q ON ua.question_id = q.id
-                    JOIN Answers uo ON ua.chosen_option_id = uo.id
-                    JOIN Answers co ON q.id = co.question_id AND co.is_correct = 1
+                    LEFT JOIN Answers uo ON ua.selected_answer_id = uo.id
+                    LEFT JOIN Answers co ON q.id = co.question_id AND co.is_correct = 1
                     WHERE ua.attempt_id = ?
                     ORDER BY q.id
                 ");
@@ -134,5 +141,5 @@ if ($method === 'POST') {
 }
 
 // در صورت استفاده از متد نامعتبر دیگر
-http_response_code(405); // Method Not Allowed
+http_response_code(405);
 echo json_encode(['success' => false, 'message' => 'متد درخواست پشتیبانی نمی‌شود.']);
