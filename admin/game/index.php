@@ -198,6 +198,12 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     <span class="tool-title">مشاهده نتایج</span>
                 </a>
             </li>
+            <li class="tool-card">
+                <a href="quiz_attempts.php">
+                    <span class="tool-icon">📊</span>
+                    <span class="tool-title">سوابق شرکت در آزمون</span>
+                </a>
+            </li>
         </ul>
     </main>
     <div id="footer-placeholder"></div>
