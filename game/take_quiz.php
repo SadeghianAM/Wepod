@@ -323,7 +323,7 @@ $quiz_data = array_values($questions);
             <p class="page-subtitle" style="font-size: 1.1rem; line-height: 1.8;">
                 آزمون شما با موفقیت ثبت شد. نتیجه آن به‌زودی توسط مدیر سیستم بررسی و اعلام خواهد شد.
             </p>
-            <a href="quiz_list.php" class="btn btn-primary" style="margin-top: 2rem;">بازگشت به لیست آزمون‌ها</a>
+            <a href="index.php" class="btn btn-primary" style="margin-top: 2rem;">بازگشت به لیست آزمون‌ها</a>
         </div>
     </main>
     <footer>

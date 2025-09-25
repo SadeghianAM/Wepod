@@ -20,8 +20,7 @@ try {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    // خواندن تمام کاربران
-    $stmt = $pdo->query("SELECT id, name, username, start_work, is_admin FROM users ORDER BY id DESC");
+    $stmt = $pdo->query("SELECT id, name, username, start_work, is_admin, score FROM users ORDER BY id DESC");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($users);
 } elseif ($method === 'POST') {
@@ -32,21 +31,21 @@ if ($method === 'GET') {
     switch ($action) {
         case 'create':
             $hash = password_hash($data['password'], PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (id, name, username, password_hash, start_work, is_admin) VALUES (?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO users (id, name, username, password_hash, start_work, is_admin, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$data['id'], $data['name'], $data['username'], $hash, $data['start_work'], $data['is_admin']]);
+            $stmt->execute([$data['id'], $data['name'], $data['username'], $hash, $data['start_work'], $data['is_admin'], $data['score']]);
             echo json_encode(['success' => true, 'id' => $data['id']]);
             break;
 
         case 'update':
-            $sql = "UPDATE users SET id = ?, name = ?, username = ?, start_work = ?, is_admin = ? WHERE id = ?";
-            $params = [$data['new_id'], $data['name'], $data['username'], $data['start_work'], $data['is_admin'], $data['id']];
+            $sql = "UPDATE users SET id = ?, name = ?, username = ?, start_work = ?, is_admin = ?, score = ? WHERE id = ?";
+            $params = [$data['new_id'], $data['name'], $data['username'], $data['start_work'], $data['is_admin'], $data['score'], $data['id']];
 
             // اگر رمز عبور جدیدی وارد شده بود، آن را هم آپدیت کن
             if (!empty($data['password'])) {
                 $hash = password_hash($data['password'], PASSWORD_DEFAULT);
-                $sql = "UPDATE users SET id = ?, name = ?, username = ?, password_hash = ?, start_work = ?, is_admin = ? WHERE id = ?";
-                $params = [$data['new_id'], $data['name'], $data['username'], $hash, $data['start_work'], $data['is_admin'], $data['id']];
+                $sql = "UPDATE users SET id = ?, name = ?, username = ?, password_hash = ?, start_work = ?, is_admin = ?, score = ? WHERE id = ?";
+                $params = [$data['new_id'], $data['name'], $data['username'], $hash, $data['start_work'], $data['is_admin'], $data['score'], $data['id']];
             }
 
             $stmt = $pdo->prepare($sql);

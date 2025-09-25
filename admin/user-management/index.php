@@ -449,6 +449,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                             <th>شناسه</th>
                             <th>تاریخ شروع</th>
                             <th>وضعیت</th>
+                            <th>امتیاز</th>
                             <th>عملیات</th>
                         </tr>
                     </thead>
@@ -485,6 +486,10 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <div class="form-group">
                     <label for="start_work">تاریخ شروع به کار:</label>
                     <input type="text" id="start_work" name="start_work" placeholder="مثال: 1403/01/15" />
+                </div>
+                <div class="form-group">
+                    <label for="score">امتیاز:</label>
+                    <input type="number" id="score" name="score" value="0" />
                 </div>
                 <div class="form-group">
                     <label>کاربر ادمین است؟</label>
@@ -553,6 +558,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                     <td><div class="skeleton-item" style="width: 50px;"></div></td>
                     <td><div class="skeleton-item" style="width: 90px;"></div></td>
                     <td><div class="skeleton-item" style="width: 60px;"></div></td>
+                    <td><div class="skeleton-item" style="width: 50px;"></div></td>
                     <td><div class="skeleton-item" style="width: 70px;"></div></td>
                 </tr>`;
                 }
@@ -565,7 +571,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                 if (users) {
                     renderUsers(users);
                 } else {
-                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="6"><div class="empty-state-icon">📂</div><p>خطا در بارگذاری اطلاعات.</p></td></tr>`;
+                    // 🟢 تغییر: colspan از 6 به 7 تغییر کرد
+                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="7"><div class="empty-state-icon">📂</div><p>خطا در بارگذاری اطلاعات.</p></td></tr>`;
                 }
             }
 
@@ -579,7 +586,8 @@ $claims = requireAuth('admin', '/auth/login.html');
 
                 userListBody.innerHTML = "";
                 if (filteredUsers.length === 0) {
-                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="6"><div class="empty-state-icon">🤷</div><p>${searchTerm ? 'کاربری با این مشخصات یافت نشد.' : 'هنوز کاربری اضافه نشده است.'}</p></td></tr>`;
+                    // 🟢 تغییر: colspan از 6 به 7 تغییر کرد
+                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="7"><div class="empty-state-icon">🤷</div><p>${searchTerm ? 'کاربری با این مشخصات یافت نشد.' : 'هنوز کاربری اضافه نشده است.'}</p></td></tr>`;
                     return;
                 }
                 filteredUsers.forEach(user => {
@@ -589,12 +597,14 @@ $claims = requireAuth('admin', '/auth/login.html');
                         '<span class="badge badge-success">ادمین</span>' :
                         '<span class="badge badge-secondary">کاربر</span>';
 
+                    // 🟢 تغییر: اضافه کردن ستون (td) برای نمایش امتیاز
                     row.innerHTML = `
                 <td data-label="نام کامل" class="user-name">${user.name}</td>
                 <td data-label="نام کاربری">${user.username}</td>
                 <td data-label="شناسه">${user.id}</td>
                 <td data-label="تاریخ شروع">${user.start_work || '-'}</td>
                 <td data-label="وضعیت">${isAdminBadge}</td>
+                <td data-label="امتیاز">${user.score ?? 0}</td>
                 <td data-label="عملیات" class="actions-cell">
                     <button class="icon-btn edit-btn">✏️</button>
                     <button class="icon-btn delete-btn">🗑️</button>
@@ -609,6 +619,8 @@ $claims = requireAuth('admin', '/auth/login.html');
             document.getElementById("add-new-user-btn").addEventListener("click", () => {
                 currentUserId = null;
                 form.reset();
+                // 🟢 تغییر: مقدار پیش‌فرض برای امتیاز کاربر جدید
+                form.elements['score'].value = 0;
                 document.getElementById("password").required = true;
                 openDrawer("افزودن کاربر جدید");
             });
@@ -622,6 +634,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                 form.elements['password'].value = "";
                 form.elements['password'].required = false;
                 form.elements['start_work'].value = user.start_work || "";
+                // 🟢 تغییر: پر کردن فیلد امتیاز با مقدار کاربر
+                form.elements['score'].value = user.score ?? 0;
                 form.elements['is_admin'].checked = user.is_admin == 1;
                 openDrawer("ویرایش کاربر");
             }
@@ -639,6 +653,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 
             form.addEventListener("submit", async (e) => {
                 e.preventDefault();
+                // 🟢 تغییر: اضافه کردن فیلد score به اطلاعات ارسالی
                 const payload = {
                     action: currentUserId !== null ? 'update' : 'create',
                     id: currentUserId,
@@ -648,6 +663,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                     password: form.elements['password'].value,
                     start_work: form.elements['start_work'].value.trim(),
                     is_admin: form.elements['is_admin'].checked ? 1 : 0,
+                    score: parseInt(form.elements['score'].value) || 0,
                 };
                 const result = await apiCall('POST', payload);
                 if (result && result.success) {
@@ -656,7 +672,13 @@ $claims = requireAuth('admin', '/auth/login.html');
                 }
             });
 
-            searchInput.addEventListener('input', loadUsersAndRender);
+            searchInput.addEventListener('input', () => {
+                // با هر بار تایپ کردن، تابع loadUsersAndRender دوباره اجرا نمی‌شود،
+                // بلکه فقط تابع renderUsers با داده‌های موجود اجرا می‌شود تا سریع‌تر باشد.
+                // برای این کار، باید داده‌ها را یک بار در یک متغیر ذخیره کنیم.
+                // برای سادگی، فعلاً کد شما را حفظ می‌کنیم.
+                loadUsersAndRender();
+            });
             document.getElementById('close-drawer-btn').addEventListener('click', closeDrawer);
             drawer.addEventListener('click', (e) => {
                 if (e.target === drawer) closeDrawer();
