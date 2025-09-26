@@ -569,7 +569,6 @@ $claims = requireAuth(null, '/auth/login.html');
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const spinButton = document.getElementById('spin-button');
@@ -632,13 +631,33 @@ $claims = requireAuth(null, '/auth/login.html');
                 });
             }
 
+            // ** تابع جدید برای بررسی وضعیت شانس کاربر **
+            async function checkUserSpinStatus() {
+                try {
+                    const response = await fetch('/prize/wheel-api.php?action=getWheelStatus&_=' + new Date().getTime());
+                    const status = await response.json();
+
+                    if (response.ok && status.canSpin) {
+                        spinButton.innerText = 'بچرخان!';
+                        spinButton.disabled = false;
+                    } else {
+                        // دلیل عدم امکان چرخش را که از سرور آمده نمایش بده
+                        const reason = status.reason || status.error || 'شما اجازه چرخش ندارید.';
+                        spinButton.innerText = reason;
+                        spinButton.disabled = true;
+                    }
+                } catch (error) {
+                    spinButton.innerText = 'خطا در بررسی وضعیت';
+                    spinButton.disabled = true;
+                    spinError.textContent = 'امکان بررسی شانس شما وجود ندارد.';
+                    console.error("Failed to check user status:", error);
+                }
+            }
+
 
             async function setupWheel() {
                 try {
-                    // ===================================================================
-                    // ** تغییر اول: اضافه شدن پارامتر ضد کش **
                     const response = await fetch('/prize/wheel-api.php?action=getPrizes&_=' + new Date().getTime());
-                    // ===================================================================
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.error || 'Network response was not ok.');
@@ -660,8 +679,8 @@ $claims = requireAuth(null, '/auth/login.html');
                         }, 500);
                     });
 
-                    spinButton.innerText = 'بچرخان!';
-                    spinButton.disabled = false;
+                    // ** به جای فعال کردن مستقیم دکمه، وضعیت کاربر را بررسی کن **
+                    await checkUserSpinStatus();
 
                 } catch (error) {
                     spinButton.innerText = 'خطا در بارگذاری';
@@ -679,29 +698,22 @@ $claims = requireAuth(null, '/auth/login.html');
                 winnerPrize = null;
 
                 try {
-                    // ===================================================================
-                    // ** تغییر دوم: اضافه شدن پارامتر ضد کش **
                     const response = await fetch('/prize/wheel-api.php?action=calculateWinner&_=' + new Date().getTime());
-                    // ===================================================================
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Server could not calculate a winner.');
-                    }
                     const result = await response.json();
+
+                    if (!response.ok) {
+                        // اگر سرور خطا داد (مثلا شانس کاربر تمام شده)، آن را نمایش بده
+                        throw new Error(result.error || 'Server could not calculate a winner.');
+                    }
 
                     if (result.winner && typeof result.stopAngle !== 'undefined') {
                         winnerPrize = result.winner;
-
                         const fullSpins = 5;
                         const randomOffset = Math.random() * 2 - 1;
                         const newRotation = (fullSpins * 360) + result.stopAngle + randomOffset;
-
                         const targetRotation = currentRotation - (currentRotation % 360) + newRotation;
-
                         currentRotation = targetRotation;
-
                         wheel.style.transform = `rotate(${targetRotation}deg)`;
-
                     } else {
                         throw new Error(result.error || 'پاسخ نامعتبر از سرور');
                     }
@@ -709,8 +721,9 @@ $claims = requireAuth(null, '/auth/login.html');
                     console.error('Spin error:', error);
                     spinError.textContent = error.message || 'خطایی رخ داد. لطفا دوباره تلاش کنید.';
                     isSpinning = false;
-                    spinButton.disabled = false;
-                    spinButton.innerText = 'بچرخان!';
+
+                    // ** پس از خطا، وضعیت دکمه را مجددا بررسی کن **
+                    await checkUserSpinStatus();
                 }
             });
 
@@ -745,7 +758,8 @@ $claims = requireAuth(null, '/auth/login.html');
             closePopupButton.addEventListener('click', () => {
                 resultPopup.classList.remove('visible');
 
-                spinButton.innerText = 'فردا دوباره تلاش کنید';
+                // ** متن دکمه را به شکل صحیح‌تری پس از استفاده از شانس، تغییر بده **
+                spinButton.innerText = 'شما شانس خود را استفاده کرده‌اید.';
                 spinButton.disabled = true;
             });
 

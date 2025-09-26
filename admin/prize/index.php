@@ -21,7 +21,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             --card-bg: #ffffff;
             --header-text: #fff;
             --footer-h: 60px;
-
             --border-color: #e9e9e9;
             --shadow-light: rgba(0, 120, 80, 0.06);
             --danger-color: #dc2626;
@@ -57,17 +56,12 @@ $claims = requireAuth('admin', '/auth/login.html');
             color: var(--header-text);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             padding: 0 2rem;
             z-index: 10;
-            box-shadow: var(--shadow-sm);
             flex-shrink: 0;
-        }
-
-        footer {
             min-height: var(--footer-h);
             font-size: .85rem;
-            justify-content: center;
         }
 
         main {
@@ -89,7 +83,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             font-size: 1.8rem;
             font-weight: 800;
             color: var(--primary-dark);
-            /* [تغییر] هماهنگی رنگ عنوان */
         }
 
         .page-title p {
@@ -121,6 +114,10 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
 
         .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-body.no-padding {
             padding: 0;
         }
 
@@ -191,11 +188,6 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         .btn-icon:hover {
             background-color: #f1f1f1;
-        }
-
-        .modal-header .btn-icon {
-            font-size: 1rem;
-            color: var(--secondary-text-color);
         }
 
         /* --- Table --- */
@@ -328,7 +320,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             outline: none;
         }
 
-        /* [جدید] استایل پالت رنگی */
         .color-palette {
             display: flex;
             flex-wrap: wrap;
@@ -357,10 +348,8 @@ $claims = requireAuth('admin', '/auth/login.html');
         .modal-footer {
             margin-top: 2rem;
             display: flex;
-            justify-content: space-between;
-            /* [بهبود] چیدمان دکمه‌ها */
-            flex-direction: row-reverse;
-            /* [بهبود] دکمه اصلی در راست */
+            justify-content: flex-end;
+            gap: 0.75rem;
         }
 
         .btn-secondary {
@@ -427,6 +416,69 @@ $claims = requireAuth('admin', '/auth/login.html');
             }
         }
 
+        /* --- Settings Toggle Switch --- */
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-label h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .setting-label p {
+            font-size: 0.9rem;
+            color: var(--secondary-text-color);
+            margin-top: 4px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(22px);
+        }
+
         .back-link {
             display: block;
             margin-top: 2rem;
@@ -456,16 +508,33 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         <div class="content-card">
             <div class="card-header">
-                <h2>🏆 لیست جوایز</h2>
+                <h2>⚙️ تنظیمات گردونه شانس</h2>
             </div>
             <div class="card-body">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <h3>فعال‌سازی گردونه شانس</h3>
+                        <p>با روشن کردن، کاربران می‌توانند از گردونه استفاده کنند. (هر بار فعال‌سازی یک شانس جدید به کاربران می‌دهد)</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="wheel-status-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <h2>🏆 لیست جوایز</h2>
+            </div>
+            <div class="card-body no-padding">
                 <table>
                     <thead>
                         <tr>
                             <th>جایزه</th>
                             <th>نوع</th>
                             <th>ضریب</th>
-                            <th>تعداد برد</th>
                             <th>عملیات</th>
                         </tr>
                     </thead>
@@ -478,7 +547,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             <div class="card-header">
                 <h2>📊 سوابق برندگان (۵۰ رکورد آخر)</h2>
             </div>
-            <div class="card-body">
+            <div class="card-body no-padding">
                 <table>
                     <thead>
                         <tr>
@@ -523,8 +592,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                     <div class="color-palette" id="color-palette"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" id="submit-btn" class="btn btn-primary">افزودن</button>
                     <button type="button" id="cancel-btn" class="btn btn-secondary">لغو</button>
+                    <button type="submit" id="submit-btn" class="btn btn-primary">افزودن</button>
                 </div>
             </form>
         </div>
@@ -537,6 +606,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         document.addEventListener('DOMContentLoaded', () => {
             const prizeListBody = document.getElementById('prize-list-body');
             const winnerHistoryBody = document.getElementById('winner-history-body');
+            const wheelStatusToggle = document.getElementById('wheel-status-toggle');
             const modal = document.getElementById('prize-modal');
             const modalForm = document.getElementById('modal-form');
             const modalTitle = document.getElementById('modal-title');
@@ -551,7 +621,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             let prizesData = [];
             let currentEditId = null;
 
-            // [جدید] لیست رنگ‌های پیشنهادی برای پالت
             const colorPalette = [
                 '#00AE70', '#10B981', '#34D399', '#22C55E', '#84CC16', '#F59E0B',
                 '#F97316', '#EF4444', '#EC4899', '#D946EF', '#8B5CF6', '#6366F1',
@@ -573,7 +642,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 setTimeout(() => toast.remove(), 4000);
             };
 
-            // [جدید] تابع برای ساخت و مدیریت پالت رنگی
             const setupColorPalette = () => {
                 colorPaletteContainer.innerHTML = '';
                 colorPalette.forEach(color => {
@@ -593,7 +661,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 });
             };
 
-            // [جدید] تابع برای هایلایت کردن رنگ انتخاب شده در پالت
             const updateSelectedSwatch = (selectedColor) => {
                 document.querySelectorAll('.color-swatch').forEach(sw => {
                     sw.classList.toggle('selected', sw.dataset.color.toLowerCase() === selectedColor.toLowerCase());
@@ -620,7 +687,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                     submitBtn.innerHTML = "➕ افزودن";
                     prizeColorInput.value = defaultColor;
                 }
-                updateSelectedSwatch(prizeColorInput.value); // هایلایت رنگ فعلی
+                updateSelectedSwatch(prizeColorInput.value);
                 modal.classList.add('visible');
             };
 
@@ -629,7 +696,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             const renderPrizeList = () => {
                 prizeListBody.innerHTML = '';
                 if (!prizesData || prizesData.length === 0) {
-                    prizeListBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">هیچ جایزه‌ای ثبت نشده است.</td></tr>';
+                    prizeListBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;">هیچ جایزه‌ای ثبت نشده است.</td></tr>';
                     return;
                 }
                 prizesData.forEach(prize => {
@@ -638,7 +705,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                         <td><span class="color-preview" style="background-color:${prize.color};"></span>${escapeHTML(prize.name)}</td>
                         <td>${prize.type === 'positive' ? 'مثبت' : 'منفی'}</td>
                         <td>${prize.weight}</td>
-                        <td>${prize.win_count || 0}</td>
                         <td class="actions-cell">
                             <button class="btn-icon edit-btn" data-id="${prize.id}" title="ویرایش">✏️</button>
                             <button class="btn-icon delete-prize-btn" data-id="${prize.id}" title="حذف">🗑️</button>
@@ -659,7 +725,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                     const date = new Date(record.won_at);
                     const formattedDate = new Intl.DateTimeFormat('fa-IR', {
                         dateStyle: 'medium',
-                        timeStyle: 'short'
+                        timeStyle: 'short',
+                        timeZone: 'Asia/Tehran' // نمایش ساعت به وقت تهران
                     }).format(date);
                     row.innerHTML = `
                         <td>${escapeHTML(record.user_name)}</td>
@@ -692,17 +759,22 @@ $claims = requireAuth('admin', '/auth/login.html');
                 }
             };
 
-            const loadData = async () => {
-                const [prizeResult, historyResult] = await Promise.all([
+            const loadPageData = async () => {
+                const [prizesResult, historyResult, settingsResult] = await Promise.all([
                     apiRequest('getPrizeListForAdmin'),
-                    apiRequest('getWinnerHistory')
+                    apiRequest('getWinnerHistory'),
+                    apiRequest('getAppSettings')
                 ]);
-                if (prizeResult) {
-                    prizesData = prizeResult;
+
+                if (prizesResult) {
+                    prizesData = prizesResult;
                     renderPrizeList();
                 }
                 if (historyResult) {
                     renderWinnerHistory(historyResult);
+                }
+                if (settingsResult) {
+                    wheelStatusToggle.checked = (settingsResult.is_wheel_enabled === '1');
                 }
             };
 
@@ -728,9 +800,24 @@ $claims = requireAuth('admin', '/auth/login.html');
                 if (result && result.success) {
                     showToast(`جایزه با موفقیت ${currentEditId ? 'ویرایش شد' : 'افزوده شد'}.`);
                     closeModal();
-                    await loadData();
+                    await loadPageData(); // Reload all data
                 } else {
                     showToast(result?.message || 'خطا در ثبت اطلاعات.', 'error');
+                }
+            };
+
+            const handleWheelStatusToggle = async () => {
+                const isEnabled = wheelStatusToggle.checked;
+                const result = await apiRequest('updateWheelStatus', 'POST', {
+                    enabled: isEnabled
+                });
+
+                if (result && result.success) {
+                    showToast(`گردونه شانس با موفقیت ${isEnabled ? 'فعال' : 'غیرفعال'} شد.`);
+                } else {
+                    showToast(result?.message || 'خطا در تغییر وضعیت گردونه.', 'error');
+                    // Revert toggle on failure
+                    wheelStatusToggle.checked = !isEnabled;
                 }
             };
 
@@ -741,7 +828,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 });
                 if (result && result.success) {
                     showToast('جایزه با موفقیت حذف شد.');
-                    await loadData();
+                    await loadPageData(); // Reload all data
                 } else {
                     showToast(result?.message || 'خطا در حذف جایزه.', 'error');
                 }
@@ -754,7 +841,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 });
                 if (result && result.success) {
                     showToast('سابقه با موفقیت حذف شد.');
-                    await loadData();
+                    await loadPageData(); // Reload all data
                 } else {
                     showToast(result?.message || 'خطا در حذف سابقه.', 'error');
                 }
@@ -765,6 +852,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             document.getElementById('close-modal-btn').addEventListener('click', closeModal);
             document.getElementById('cancel-btn').addEventListener('click', closeModal);
             modalForm.addEventListener('submit', handleFormSubmit);
+            wheelStatusToggle.addEventListener('change', handleWheelStatusToggle);
 
             prizeListBody.addEventListener('click', (event) => {
                 const target = event.target.closest('.btn-icon');
@@ -785,7 +873,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 
             // --- Initial Load ---
             setupColorPalette();
-            loadData();
+            loadPageData();
         });
     </script>
 </body>

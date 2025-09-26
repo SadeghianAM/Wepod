@@ -5,11 +5,15 @@ require_once __DIR__ . '/../../auth/require-auth.php';
 
 header('Content-Type: application/json');
 
-requireAuth('admin');
+// This action is public for the wheel logic, others are admin-only.
+if ($_GET['action'] !== 'getWheelSettingsForUser') {
+    requireAuth('admin');
+}
 
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
+    // Admin Actions
     case 'getPrizeListForAdmin':
         getPrizeListForAdmin($pdo);
         break;
@@ -28,27 +32,81 @@ switch ($action) {
     case 'deleteWinnerRecord':
         deleteWinnerRecord($pdo);
         break;
+    case 'getAppSettings':
+        getAppSettings($pdo);
+        break;
+    case 'updateWheelStatus':
+        updateWheelStatus($pdo);
+        break;
+
     default:
         http_response_code(404);
         echo json_encode(['error' => 'عملیات نامعتبر یا یافت نشد']);
 }
 
-// تابع برای دریافت لیست کامل جوایز برای پنل ادمین
+// ===================================================================
+// ** بخش جدید: توابع مدیریت تنظیمات **
+// ===================================================================
+
+// تابع برای دریافت یک تنظیم خاص
+function getSetting($pdo, $key, $default = null)
+{
+    $stmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = :key");
+    $stmt->execute([':key' => $key]);
+    $result = $stmt->fetchColumn();
+    return $result !== false ? $result : $default;
+}
+
+// تابع برای ثبت یا به‌روزرسانی یک تنظیم
+function setSetting($pdo, $key, $value)
+{
+    $sql = "INSERT OR REPLACE INTO settings (setting_key, setting_value) VALUES (:key, :value)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':key' => $key, ':value' => $value]);
+}
+
+// تابع برای دریافت تمام تنظیمات (برای پنل ادمین)
+function getAppSettings($pdo)
+{
+    $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
+    $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+    echo json_encode($settings);
+}
+
+// تابع برای به‌روزرسانی وضعیت گردونه شانس
+function updateWheelStatus($pdo)
+{
+    $data = json_decode(file_get_contents('php://input'), true);
+    $isEnabled = filter_var($data['enabled'], FILTER_VALIDATE_BOOLEAN);
+
+    setSetting($pdo, 'is_wheel_enabled', $isEnabled ? '1' : '0');
+
+    if ($isEnabled) {
+        // [این خط اصلاح شده است]
+        // دستور NOW() با CURRENT_TIMESTAMP برای سازگاری با SQLite جایگزین شد
+        $stmt = $pdo->query("SELECT CURRENT_TIMESTAMP");
+        $now = $stmt->fetchColumn();
+        setSetting($pdo, 'wheel_last_enabled_at', $now);
+    }
+
+    echo json_encode(['success' => true]);
+}
+
+// ===================================================================
+// ** توابع مدیریت جوایز و سوابق (با تغییرات) **
+// ===================================================================
+
 function getPrizeListForAdmin($pdo)
 {
-    $stmt = $pdo->query("SELECT * FROM prizes ORDER BY id DESC");
+    // کوئری دیگر نیازی به شمارش تعداد برد ندارد
+    $stmt = $pdo->query("SELECT id, name, color, type, weight FROM prizes ORDER BY id DESC");
     $prizes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($prizes);
 }
 
-// تابع برای افزودن جایزه جدید
 function addPrize($pdo)
 {
     $data = json_decode(file_get_contents('php://input'), true);
-
-    // ===================================================================
-    // ** شروع بخش جدید: اعتبارسنجی مجموع ضرایب **
-    // ===================================================================
     $newWeight = $data['weight'] ?? 0;
 
     $stmt = $pdo->query("SELECT SUM(weight) as total_weight FROM prizes");
@@ -59,9 +117,6 @@ function addPrize($pdo)
         echo json_encode(['success' => false, 'message' => 'مجموع ضریب شانس جوایز نمی‌تواند بیشتر از 100 باشد.']);
         return;
     }
-    // ===================================================================
-    // ** پایان بخش جدید **
-    // ===================================================================
 
     $sql = "INSERT INTO prizes (name, color, type, weight) VALUES (:name, :color, :type, :weight)";
     $stmt = $pdo->prepare($sql);
@@ -74,7 +129,6 @@ function addPrize($pdo)
     echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
 }
 
-// تابع برای ویرایش جایزه
 function updatePrize($pdo)
 {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -84,9 +138,6 @@ function updatePrize($pdo)
         return;
     }
 
-    // ===================================================================
-    // ** شروع بخش جدید: اعتبارسنجی مجموع ضرایب **
-    // ===================================================================
     $prizeId = $data['id'];
     $newWeight = $data['weight'];
 
@@ -99,9 +150,6 @@ function updatePrize($pdo)
         echo json_encode(['success' => false, 'message' => 'مجموع ضریب شانس جوایز نمی‌تواند بیشتر از 100 باشد.']);
         return;
     }
-    // ===================================================================
-    // ** پایان بخش جدید **
-    // ===================================================================
 
     $sql = "UPDATE prizes SET name = :name, color = :color, type = :type, weight = :weight WHERE id = :id";
     $stmt = $pdo->prepare($sql);
@@ -115,7 +163,6 @@ function updatePrize($pdo)
     echo json_encode(['success' => true]);
 }
 
-// تابع برای حذف جایزه
 function deletePrize($pdo)
 {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -125,7 +172,6 @@ function deletePrize($pdo)
     echo json_encode(['success' => true]);
 }
 
-// تابع برای دریافت سوابق برندگان
 function getWinnerHistory($pdo)
 {
     $sql = "SELECT pw.id, u.name AS user_name, p.name AS prize_name, pw.won_at
@@ -139,7 +185,6 @@ function getWinnerHistory($pdo)
     echo json_encode($history);
 }
 
-// تابع برای حذف یک رکورد از سوابق برندگان
 function deleteWinnerRecord($pdo)
 {
     $data = json_decode(file_get_contents('php://input'), true);

@@ -11,6 +11,52 @@ header('Content-Type: application/json');
 // دریافت عملیات درخواستی از URL
 $action = $_GET['action'] ?? '';
 
+/**
+ * تابع کمکی برای دریافت یک تنظیم خاص از دیتابیس
+ */
+function getSetting($pdo, $key, $default = null)
+{
+    $stmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = :key");
+    $stmt->execute([':key' => $key]);
+    $result = $stmt->fetchColumn();
+    return $result !== false ? $result : $default;
+}
+
+/**
+ * تابع جدید: بررسی می‌کند آیا کاربر شانس چرخش دارد یا خیر
+ */
+function checkUserChance($pdo, $userId)
+{
+    $isWheelEnabled = getSetting($pdo, 'is_wheel_enabled', '0');
+    $lastEnabledAt = getSetting($pdo, 'wheel_last_enabled_at');
+
+    // اگر گردونه غیرفعال باشد، کاربر شانسی ندارد
+    if ($isWheelEnabled !== '1') {
+        return ['canSpin' => false, 'reason' => 'گردونه شانس در حال حاضر غیرفعال است.'];
+    }
+
+    // اگر گردونه فعال است اما تاریخ فعال‌سازی ثبت نشده، یک خطای پیکربندی وجود دارد
+    if (!$lastEnabledAt) {
+        // این پیام برای جلوگیری از چرخش در حالت پیکربندی ناقص است
+        return ['canSpin' => false, 'reason' => 'پیکربندی گردونه ناقص است.'];
+    }
+
+    // آخرین زمان بازی کاربر را پیدا کن
+    $stmt = $pdo->prepare("SELECT won_at FROM prize_winners WHERE user_id = :user_id ORDER BY won_at DESC LIMIT 1");
+    $stmt->execute([':user_id' => $userId]);
+    $lastPlayTimestamp = $stmt->fetchColumn();
+
+    // اگر کاربر قبلا بازی کرده و زمان آخرین بازی او بعد از آخرین زمان فعال‌سازی گردونه بوده،
+    // یعنی شانس خود را در این دوره استفاده کرده است.
+    if ($lastPlayTimestamp && strtotime($lastPlayTimestamp) >= strtotime($lastEnabledAt)) {
+        return ['canSpin' => false, 'reason' => 'شما شانس خود را برای این دوره استفاده کرده‌اید.'];
+    }
+
+    // در غیر این صورت، کاربر شانس دارد
+    return ['canSpin' => true, 'reason' => 'بچرخان!'];
+}
+
+
 // مسیردهی درخواست به تابع مربوطه
 switch ($action) {
     case 'getPrizes':
@@ -18,11 +64,23 @@ switch ($action) {
         getPrizes($pdo);
         break;
 
+    // ** اکشن جدید برای بررسی وضعیت شانس کاربر از سمت فرانت‌اند **
+    case 'getWheelStatus':
+        $claims = requireAuth(null);
+        if (!isset($claims['sub'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'کاربر شناسایی نشد.']);
+            exit;
+        }
+        $userId = $claims['sub'];
+        $status = checkUserChance($pdo, $userId);
+        echo json_encode($status);
+        break;
+
     case 'calculateWinner':
         $claims = requireAuth(null);
         calculateWinner($pdo, $claims);
         break;
-
     default:
         http_response_code(404);
         echo json_encode(['error' => 'عملیات نامعتبر یا یافت نشد']);
@@ -38,13 +96,9 @@ function _getWheelPrizes($pdo)
 
     $totalWeight = array_sum(array_column($prizes, 'weight'));
 
-    // ===================================================================
-    // ** این بخش تغییر کرده است **
-    // اکنون سیستم بررسی می‌کند که مجموع ضرایب تعریف شده توسط ادمین دقیقا 100 باشد
     if ($totalWeight != 100) {
         throw new Exception("پیکربندی جوایز نامعتبر است. مجموع ضریب شانس باید دقیقاً 100 باشد.");
     }
-    // ===================================================================
 
     return $prizes;
 }
@@ -83,6 +137,18 @@ function calculateWinner($pdo, $claims)
         }
         $userId = $claims['sub'];
 
+        // ===================================================================
+        // ** کنترل امنیتی: قبل از هر چرخش، مجددا شانس کاربر را بررسی کن **
+        $chanceCheck = checkUserChance($pdo, $userId);
+        if (!$chanceCheck['canSpin']) {
+            // کد 403 (Forbidden) مناسب‌تر از 500 است
+            http_response_code(403);
+            // دلیل عدم امکان چرخش را به کاربر نمایش بده
+            echo json_encode(['error' => $chanceCheck['reason']]);
+            return;
+        }
+        // ===================================================================
+
         $wheelPrizes = _getWheelPrizes($pdo);
 
         if (empty($wheelPrizes)) {
@@ -100,7 +166,6 @@ function calculateWinner($pdo, $claims)
             }
         }
         if (!$winner) {
-            // با توجه به اینکه مجموع وزن 100 است، این بخش به عنوان اطمینان ثانویه عمل می‌کند
             $winner = end($wheelPrizes);
         }
 
@@ -127,12 +192,12 @@ function calculateWinner($pdo, $claims)
 
         $randomAngleInSegment = mt_rand(1, max(1, floor($segmentAngle) - 1));
         $finalAngle = ($winnerIndex * $segmentAngle) + $randomAngleInSegment;
-
         $stopAt = 360 - $finalAngle;
 
         echo json_encode(['winner' => $winner, 'stopAngle' => $stopAt]);
     } catch (Exception $e) {
+        // خطاهای کلی سرور
         http_response_code(500);
-        echo json_encode(['error' => 'خطا: ' . $e->getMessage()]);
+        echo json_encode(['error' => 'خطای سرور: ' . $e->getMessage()]);
     }
 }
