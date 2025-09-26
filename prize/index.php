@@ -594,10 +594,6 @@ $claims = requireAuth(null, '/auth/login.html');
             let winnerPrize = null;
             let currentRotation = 0;
 
-            /**
-             * Creates the wheel with dynamic and readable text positioning.
-             * @param {Array} prizesData - Array of prize objects from the API.
-             */
             function createWheel(prizesData) {
                 prizes = prizesData;
                 wheel.innerHTML = '';
@@ -614,7 +610,6 @@ $claims = requireAuth(null, '/auth/login.html');
 
                 wheel.style.background = `conic-gradient(${gradientStops})`;
 
-                // === FINALIZED LOGIC FOR DYNAMIC TEXT ===
                 prizes.forEach((prize, index) => {
                     const textContainer = document.createElement('div');
                     textContainer.className = 'wheel-text-container';
@@ -635,17 +630,23 @@ $claims = requireAuth(null, '/auth/login.html');
                     textContainer.appendChild(text);
                     wheel.appendChild(textContainer);
                 });
-                // === END FINALIZED ===
             }
+
 
             async function setupWheel() {
                 try {
-                    const response = await fetch('/admin/prize/prize-api.php?action=getPrizes');
-                    if (!response.ok) throw new Error('Network response was not ok.');
+                    // ===================================================================
+                    // ** تغییر اول: اضافه شدن پارامتر ضد کش **
+                    const response = await fetch('/prize/wheel-api.php?action=getPrizes&_=' + new Date().getTime());
+                    // ===================================================================
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Network response was not ok.');
+                    }
                     const prizesData = await response.json();
 
-                    if (!prizesData || prizesData.length < 2) {
-                        spinButton.innerText = 'تعداد جوایز کافی نیست';
+                    if (!prizesData || prizesData.length === 0) {
+                        spinButton.innerText = 'جایزه‌ای تعریف نشده';
                         return;
                     }
 
@@ -664,7 +665,7 @@ $claims = requireAuth(null, '/auth/login.html');
 
                 } catch (error) {
                     spinButton.innerText = 'خطا در بارگذاری';
-                    spinError.textContent = 'امکان بارگذاری جوایز وجود ندارد.';
+                    spinError.textContent = error.message || 'امکان بارگذاری جوایز وجود ندارد.';
                     console.error("Failed to load prizes:", error);
                 }
             }
@@ -678,17 +679,25 @@ $claims = requireAuth(null, '/auth/login.html');
                 winnerPrize = null;
 
                 try {
-                    const response = await fetch('/admin/prize/prize-api.php?action=calculateWinner');
-                    if (!response.ok) throw new Error('Server could not calculate a winner.');
+                    // ===================================================================
+                    // ** تغییر دوم: اضافه شدن پارامتر ضد کش **
+                    const response = await fetch('/prize/wheel-api.php?action=calculateWinner&_=' + new Date().getTime());
+                    // ===================================================================
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Server could not calculate a winner.');
+                    }
                     const result = await response.json();
 
                     if (result.winner && typeof result.stopAngle !== 'undefined') {
                         winnerPrize = result.winner;
 
                         const fullSpins = 5;
-                        const newRotation = (fullSpins * 360) + result.stopAngle;
+                        const randomOffset = Math.random() * 2 - 1;
+                        const newRotation = (fullSpins * 360) + result.stopAngle + randomOffset;
 
-                        const targetRotation = currentRotation + newRotation;
+                        const targetRotation = currentRotation - (currentRotation % 360) + newRotation;
+
                         currentRotation = targetRotation;
 
                         wheel.style.transform = `rotate(${targetRotation}deg)`;
@@ -698,7 +707,7 @@ $claims = requireAuth(null, '/auth/login.html');
                     }
                 } catch (error) {
                     console.error('Spin error:', error);
-                    spinError.textContent = 'خطایی رخ داد. لطفا دوباره تلاش کنید.';
+                    spinError.textContent = error.message || 'خطایی رخ داد. لطفا دوباره تلاش کنید.';
                     isSpinning = false;
                     spinButton.disabled = false;
                     spinButton.innerText = 'بچرخان!';
