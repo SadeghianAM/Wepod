@@ -8,7 +8,7 @@ $claims = requireAuth(null, '/auth/login.html');
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>گردونه شانس وی هاب (بدون کتابخانه)</title>
+    <title>گردونه شانس وی هاب (نسخه بهبودیافته)</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -147,7 +147,7 @@ $claims = requireAuth(null, '/auth/login.html');
         }
 
         /* ====================
-            Wheel Specific Styles (No Canvas)
+            Improved Wheel Styles
            ==================== */
         .wheel-container {
             position: relative;
@@ -169,6 +169,7 @@ $claims = requireAuth(null, '/auth/login.html');
             top: -20px;
             z-index: 10;
             filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+            transition: transform 0.3s ease;
         }
 
         .wheel {
@@ -178,35 +179,45 @@ $claims = requireAuth(null, '/auth/login.html');
             position: relative;
             overflow: hidden;
             border: 8px solid #fff;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-            /* انیمیشن چرخش با CSS */
-            transition: transform 10s cubic-bezier(0.1, 0.7, 0.1, 1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 15px rgba(0, 0, 0, 0.1);
+            transition: transform 8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            background: conic-gradient(#fff 0deg 360deg);
+            /* Conic gradient is set by JS */
         }
 
-        .segment {
-            position: absolute;
-            width: 50%;
-            height: 100%;
-            top: 0;
-            left: 50%;
-            transform-origin: 0% 50%;
-        }
-
-        .segment-text {
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            text-align: center;
+        .wheel-text-container {
             position: absolute;
             width: 100%;
-            top: 50%;
-            left: 25%;
-            transform: translateY(-50%) rotate(90deg);
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: center;
+            /* Rotation is set by JS */
         }
 
+        /* === CHANGED: Text styling for prizes === */
+        .wheel-text {
+            position: absolute;
+            top: 48%;
+            left: 40%;
+            rotate: 30deg;
+            text-align: center;
+            max-width: 110px;
+            color: white;
+            font-weight: 700;
+            /* Bolder font */
+            font-size: 16px;
+            /* Larger font */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+            user-select: none;
+            /* Move text outward and center vertically */
+            transform: translate(90px, -50%);
+        }
+
+        /* === END CHANGE === */
 
         /* ====================
-            Button Styles
+            Button & Feedback Styles
            ==================== */
         .spin-button {
             width: 100%;
@@ -214,7 +225,7 @@ $claims = requireAuth(null, '/auth/login.html');
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--header-text);
-            background-color: var(--primary-color);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             border: none;
             border-radius: 0.6rem;
             cursor: pointer;
@@ -223,15 +234,27 @@ $claims = requireAuth(null, '/auth/login.html');
         }
 
         .spin-button:hover:not(:disabled) {
-            background-color: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 6px 12px var(--shadow-color-medium);
         }
 
+        .spin-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
         .spin-button:disabled {
-            background-color: #aaa;
+            background: #aaa;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        .spin-error {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 0.75rem;
+            height: 1.2em;
+            /* Reserve space to prevent layout shift */
         }
 
         /* ====================
@@ -370,6 +393,15 @@ $claims = requireAuth(null, '/auth/login.html');
                 width: 300px;
                 height: 300px;
             }
+
+            /* === CHANGED: Responsive text styling === */
+            .wheel-text {
+                font-size: 14px;
+                font-weight: 600;
+                transform: translate(65px, -50%);
+            }
+
+            /* === END CHANGE === */
         }
     </style>
 </head>
@@ -397,6 +429,7 @@ $claims = requireAuth(null, '/auth/login.html');
                             <div id="wheel" class="wheel"></div>
                         </div>
                         <button class="spin-button" id="spin-button" disabled>در حال بارگذاری...</button>
+                        <div class="spin-error" id="spin-error"></div>
                     </div>
                 </div>
             </div>
@@ -424,100 +457,46 @@ $claims = requireAuth(null, '/auth/login.html');
             const popupTitle = document.getElementById('popup-title');
             const popupText = document.getElementById('popup-text');
             const wheel = document.getElementById('wheel');
+            const spinError = document.getElementById('spin-error');
 
             let isSpinning = false;
-            let currentRotation = 0;
+            let prizes = [];
             let winnerPrize = null;
 
-            // تابع جدید برای ساخت گردونه با عناصر HTML
-            function createWheel(prizes) {
+            /**
+             * Creates the wheel using a modern conic-gradient for segments
+             * and separate, readable text elements.
+             * @param {Array} prizesData - Array of prize objects from the API.
+             */
+            function createWheel(prizesData) {
+                prizes = prizesData;
                 wheel.innerHTML = '';
-                const numSegments = prizes.length;
-                const segmentAngle = 360 / numSegments;
+                const numPrizes = prizes.length;
+                if (numPrizes < 2) return;
 
-                // محاسبه مختصات برای clip-path برای ساختن یک قطاع
-                // این باعث می شود یک مثلث (قطاع) از یک div مربعی ایجاد شود
-                const clipPathY = Math.tan(segmentAngle / 2 * (Math.PI / 180)) * 100;
-                const polygonPath = `polygon(0% 0%, 100% 50%, 0% 100%)`;
+                const segmentAngle = 360 / numPrizes;
 
-
-                prizes.forEach((prize, index) => {
-                    const rotation = segmentAngle * index;
-
-                    const segment = document.createElement('div');
-                    segment.className = 'segment';
-                    segment.style.transform = `rotate(${rotation}deg)`;
-                    segment.style.backgroundColor = prize.fillStyle;
-                    // برش هر بخش به شکل یک قطاع
-                    const skewY = 90 - segmentAngle;
-                    segment.style.clipPath = `polygon(0% 0%, 100% 0, 100% ${50 + clipPathY/2}%, 0 50%)`;
-                    segment.style.clipPath = `path('M 0 200 L 200 200 A 200 200 0 0 1 ${200 + 200 * Math.cos(segmentAngle * Math.PI/180)} ${200 - 200 * Math.sin(segmentAngle*Math.PI/180)} Z')`
-
-                    // روش ساده تر با استفاده از skew
-                    segment.style.transform = `rotate(${rotation}deg) skewY(-${skewY}deg)`;
-
-                    const text = document.createElement('div');
-                    text.className = 'segment-text';
-                    text.textContent = prize.text;
-
-                    // اصلاح چرخش و انحراف متن
-                    text.style.transform = `skewY(${skewY}deg) rotate(${segmentAngle/2}deg) translateY(-50%)`;
-                    text.style.top = '50%';
-                    text.style.left = '-50%';
-                    text.style.width = '200%';
-
-                    segment.appendChild(text);
-                    wheel.appendChild(segment);
-                });
-            }
-
-            // بازنویسی تابع ساخت گردونه با روش ساده‌تر و پایدارتر
-            function createSimpleWheel(prizes) {
-                wheel.innerHTML = '';
-                const numSegments = prizes.length;
-                const segmentAngle = 360 / numSegments;
-
-                prizes.forEach((prize, index) => {
-                    const segment = document.createElement('div');
-                    segment.className = 'segment';
-
-                    // یک نیم دایره ایجاد و با رنگ جایزه پر می کنیم
-                    // و سپس آن را می چرخانیم. این روش نیاز به دو عنصر برای هر بخش دارد
-                    // برای سادگی، از یک گرادیانت مخروطی برای پس زمینه کل گردونه استفاده می کنیم
-                });
-
-                // استفاده از Conic Gradient برای ترسیم تمام بخش ها در یک حرکت
+                // 1. Create the background with conic-gradient
                 const gradientStops = prizes.map((prize, index) => {
                     const startAngle = segmentAngle * index;
                     const endAngle = segmentAngle * (index + 1);
-                    return `${prize.fillStyle} ${startAngle}deg ${endAngle}deg`;
+                    return `${prize.color} ${startAngle}deg ${endAngle}deg`;
                 }).join(', ');
 
                 wheel.style.background = `conic-gradient(${gradientStops})`;
 
-                // اضافه کردن متن ها به صورت جداگانه
+                // 2. Add text labels in a readable way
                 prizes.forEach((prize, index) => {
                     const textContainer = document.createElement('div');
-                    textContainer.style.position = 'absolute';
-                    textContainer.style.width = '100%';
-                    textContainer.style.height = '100%';
-                    textContainer.style.top = '0';
-                    textContainer.style.left = '0';
+                    textContainer.className = 'wheel-text-container';
 
-                    // چرخاندن کل نگهدارنده متن به مرکز بخش
+                    // Rotate the container to the middle of the segment
                     const rotation = (segmentAngle * index) + (segmentAngle / 2);
                     textContainer.style.transform = `rotate(${rotation}deg)`;
 
-                    const text = document.createElement('span');
+                    const text = document.createElement('div');
+                    text.className = 'wheel-text';
                     text.textContent = prize.text;
-                    text.style.color = 'white';
-                    text.style.fontWeight = '600';
-                    text.style.fontSize = '14px';
-                    text.style.display = 'block';
-                    text.style.position = 'absolute';
-                    text.style.top = '50%';
-                    text.style.right = '20px'; // فاصله از لبه
-                    text.style.transform = 'translateY(-50%)';
 
                     textContainer.appendChild(text);
                     wheel.appendChild(textContainer);
@@ -525,9 +504,13 @@ $claims = requireAuth(null, '/auth/login.html');
             }
 
 
+            /**
+             * Initializes the wheel by fetching prizes from the server.
+             */
             async function setupWheel() {
                 try {
                     const response = await fetch('/admin/prize/prize-api.php?action=getPrizes');
+                    if (!response.ok) throw new Error('Network response was not ok.');
                     const prizesData = await response.json();
 
                     if (!prizesData || prizesData.length < 2) {
@@ -535,10 +518,12 @@ $claims = requireAuth(null, '/auth/login.html');
                         return;
                     }
 
-                    createSimpleWheel(prizesData);
+                    createWheel(prizesData);
 
+                    // Event listener for when the CSS transition (spin) ends
                     wheel.addEventListener('transitionend', () => {
-                        showResult(winnerPrize);
+                        // A short delay before showing the popup for better UX
+                        setTimeout(() => showResult(winnerPrize), 300);
                     });
 
                     spinButton.innerText = 'بچرخان!';
@@ -546,46 +531,64 @@ $claims = requireAuth(null, '/auth/login.html');
 
                 } catch (error) {
                     spinButton.innerText = 'خطا در بارگذاری';
+                    spinError.textContent = 'امکان بارگذاری جوایز وجود ندارد.';
                     console.error("Failed to load prizes:", error);
                 }
             }
 
+            /**
+             * Handles the spin button click event.
+             */
             spinButton.addEventListener('click', async () => {
                 if (isSpinning) return;
                 isSpinning = true;
                 spinButton.disabled = true;
                 spinButton.innerText = 'در حال چرخش...';
+                spinError.textContent = ''; // Clear previous errors
+                winnerPrize = null;
+
+                // Optional: Add a starting tick sound effect here
+                // new Audio('/sounds/tick.mp3').play();
 
                 try {
                     const response = await fetch('/admin/prize/prize-api.php?action=calculateWinner');
+                    if (!response.ok) throw new Error('Server could not calculate a winner.');
                     const result = await response.json();
 
                     if (result.winner && typeof result.stopAngle !== 'undefined') {
                         winnerPrize = result.winner;
 
-                        const fullSpins = 10 * 360;
-                        const finalAngle = result.stopAngle;
+                        const fullSpins = 5; // Number of full rotations
 
-                        // تنظیم زاویه نهایی. 90- کم می شود تا نشانگر در بالای صفحه (ساعت 12) درست بایستد
-                        const targetRotation = fullSpins + 360 - finalAngle + (360 / (document.querySelectorAll('.segment').length || 1) / 2);
+                        // The pin is at the top (270 degrees). We want the winning angle to stop there.
+                        const targetRotation = (fullSpins * 360) + 270 - result.stopAngle;
 
-                        currentRotation += targetRotation - (currentRotation % 360);
-
-                        wheel.style.transform = `rotate(${currentRotation}deg)`;
+                        // Apply the rotation
+                        wheel.style.transform = `rotate(${targetRotation}deg)`;
 
                     } else {
                         throw new Error(result.error || 'پاسخ نامعتبر از سرور');
                     }
                 } catch (error) {
-                    alert('خطایی در ارتباط با سرور رخ داد: ' + error.message);
+                    console.error('Spin error:', error);
+                    spinError.textContent = 'خطایی رخ داد. لطفا دوباره تلاش کنید.';
                     isSpinning = false;
                     spinButton.disabled = false;
                     spinButton.innerText = 'بچرخان!';
                 }
             });
 
+            /**
+             * Displays the result in a popup.
+             * @param {Object} winner - The winning prize object.
+             */
             function showResult(winner) {
                 if (!winner) return;
+
+                // Optional: Play a win or lose sound effect
+                // if (winner.type === 'positive') new Audio('/sounds/win.mp3').play();
+                // else new Audio('/sounds/lose.mp3').play();
+
                 popupContent.classList.remove('positive-result', 'negative-result');
 
                 if (winner.type === 'positive') {
@@ -602,13 +605,22 @@ $claims = requireAuth(null, '/auth/login.html');
                 resultPopup.classList.add('visible');
             }
 
+            // Close button for the result popup
             closePopupButton.addEventListener('click', () => {
                 resultPopup.classList.remove('visible');
-                isSpinning = false;
-                spinButton.disabled = false;
-                spinButton.innerText = 'دوباره بچرخان!';
+
+                // Keep the button disabled according to the "one spin per day" rule
+                spinButton.innerText = 'فردا دوباره تلاش کنید';
+                spinButton.disabled = true;
+
+                // Reset the wheel to its initial position without animation for the next page load
+                wheel.style.transition = 'none';
+                wheel.style.transform = 'rotate(0deg)';
+                // Re-enable transition for the next spin
+                setTimeout(() => wheel.style.transition = 'transform 8s cubic-bezier(0.2, 0.8, 0.2, 1)', 50);
             });
 
+            // Initialize the wheel on page load
             await setupWheel();
         });
     </script>
