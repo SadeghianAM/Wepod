@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('Asia/Tehran');
 // اتصال به دیتابیس
 require_once __DIR__ . '/../db/database.php';
 // فایل مربوط به احراز هویت
@@ -154,9 +154,13 @@ function calculateWinner($pdo, $claims)
         }
 
         if ($winner && $winner['id'] > 0) {
-            $sql = "INSERT INTO prize_winners (user_id, prize_id) VALUES (:user_id, :prize_id)";
+            $sql = "INSERT INTO prize_winners (user_id, prize_id, won_at) VALUES (:user_id, :prize_id, :won_at)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([':user_id' => $userId, ':prize_id' => $winner['id']]);
+            $stmt->execute([
+                ':user_id' => $userId,
+                ':prize_id' => $winner['id'],
+                ':won_at' => date('Y-m-d H:i:s') // زمان دقیق با timezone صحیح
+            ]);
         }
 
         $numSegments = count($wheelPrizes);
@@ -208,6 +212,7 @@ function getLastWinnerInfo($pdo, $claims)
     $lastWinner = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($lastWinner) {
+        $lastWinner['won_at'] = date('c', strtotime($lastWinner['won_at']));
         echo json_encode($lastWinner);
     } else {
         echo json_encode(null);

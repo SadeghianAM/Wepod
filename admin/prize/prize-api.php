@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('Asia/Tehran');
 require_once __DIR__ . '/../../db/database.php';
 require_once __DIR__ . '/../../auth/require-auth.php';
 
@@ -82,10 +82,7 @@ function updateWheelStatus($pdo)
     setSetting($pdo, 'is_wheel_enabled', $isEnabled ? '1' : '0');
 
     if ($isEnabled) {
-        // [این خط اصلاح شده است]
-        // دستور NOW() با CURRENT_TIMESTAMP برای سازگاری با SQLite جایگزین شد
-        $stmt = $pdo->query("SELECT CURRENT_TIMESTAMP");
-        $now = $stmt->fetchColumn();
+        $now = date('Y-m-d H:i:s'); // این تابع از timezone تنظیم شده استفاده می‌کند
         setSetting($pdo, 'wheel_last_enabled_at', $now);
     }
 
@@ -182,6 +179,11 @@ function getWinnerHistory($pdo)
             LIMIT 50";
     $stmt = $pdo->query($sql);
     $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($history as &$record) {
+        if (!empty($record['won_at'])) {
+            $record['won_at'] = date('c', strtotime($record['won_at']));
+        }
+    }
     echo json_encode($history);
 }
 
