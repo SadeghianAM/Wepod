@@ -64,16 +64,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================
-  // Auth (auth / HttpOnly)
+  // Auth (HttpOnly Cookie Flow)
   // ==========================
   async function logout() {
     try {
+      // این بخش با بک‌اند هماهنگ است و نیازی به تغییر ندارد
       await fetchNoCache("/auth/logout.php?json=1", {
         credentials: "same-origin",
-      }); // MODIFIED
+      });
     } catch (e) {
       console.warn("Logout request failed (ignored):", e);
     }
+    // این خط برای پاک‌سازی حالت‌های قدیمی است و بودن آن مشکلی ایجاد نمی‌کند
     try {
       localStorage.removeItem("jwt");
     } catch (e) {}
@@ -92,8 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return "";
     };
     try {
+      // این بخش کاملاً صحیح است و با بک‌اند جدید کار می‌کند
       const response = await fetchNoCache("/auth/get-user-info.php", {
-        // MODIFIED
         credentials: "same-origin",
       });
       if (response.ok) {
@@ -102,10 +104,15 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error("Invalid user info payload");
         }
         const u = payload.user;
+
+        // *** تغییر کلیدی در اینجا اعمال شد ***
+        // کلید 'full_name' حالا از 'name' در دیتابیس پر می‌شود
         const name =
-          pick(u, "name", "fullName", "displayName") ||
+          pick(u, "full_name", "name", "displayName") ||
           pick(u, "username") ||
           "کاربر";
+
+        // *** تغییر کلیدی برای شماره داخلی (استفاده از id) ***
         const internal =
           pick(
             u,
@@ -115,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "internal_number",
             "phone_extension",
             "phoneExt"
-          ) || pick(u, "id");
+          ) || pick(u, "id"); // اگر فیلدهای مرسوم نبود، از ستون id استفاده می‌شود
         const avatarLetter = (name || "؟").trim().charAt(0) || "؟";
         placeholder.innerHTML = `
           <div id="user-info-container">
@@ -166,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ==========================
   // Utils (Jalali / Persian)
+  // (بدون تغییر)
   // ==========================
   const weekdays = [
     "یک‌شنبه",
@@ -282,7 +290,6 @@ document.addEventListener("DOMContentLoaded", () => {
       setInterval(updateTime, 60 * 1000);
     }
 
-    // START: کد جدید برای منوی موبایل
     const menuToggle = document.getElementById("mobile-menu-toggle");
     const mainNav = document.getElementById("main-navigation");
 
@@ -307,18 +314,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
-    // END: کد جدید برای منوی موبایل
   }
 
   // ==========================
   // Business widgets
+  // (بدون تغییر، چون به سیستم احراز هویت وابسته نیستند)
   // ==========================
   async function updateCardTrackingInfo() {
     const container = document.getElementById("card-tracking-info");
     if (!container) return;
     container.innerHTML = "در حال محاسبه تاریخ پیگیری کارت...";
     try {
-      const response = await fetchNoCache("/data/holidays-1404.json"); // MODIFIED
+      const response = await fetchNoCache("/data/holidays-1404.json");
       const holidays = await response.json();
       const holidayDates = new Set(holidays.map((h) => h.date));
       let businessDaysToCount = 14;
@@ -365,7 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const todayStr = `${jy}-${pad(jm)}-${pad(jd)}`;
     let holidays = [];
     try {
-      const res = await fetchNoCache("/data/holidays-1404.json"); // MODIFIED
+      const res = await fetchNoCache("/data/holidays-1404.json");
       holidays = await res.json();
     } catch (e) {
       statusDiv.innerHTML =
@@ -515,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function setupPayaaCycleStatus() {
     let holidays = [];
     try {
-      const res = await fetchNoCache("/data/holidays-1404.json"); // MODIFIED
+      const res = await fetchNoCache("/data/holidays-1404.json");
       holidays = await res.json();
     } catch (e) {
       console.error("Failed to load holidays for Payaa cycle:", e);
@@ -562,7 +569,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!serviceStatusDiv) return;
     serviceStatusDiv.innerHTML = "در حال بارگذاری وضعیت سرویس‌ها...";
     try {
-      const response = await fetchNoCache("/data/service-status.json"); // MODIFIED
+      const response = await fetchNoCache("/data/service-status.json");
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       const services = await response.json();
@@ -596,7 +603,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!newsAlertsDiv) return;
     newsAlertsDiv.innerHTML = "در حال بارگذاری اطلاعیه‌ها...";
     try {
-      const response = await fetchNoCache("/data/news-alerts.json"); // MODIFIED
+      const response = await fetchNoCache("/data/news-alerts.json");
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       const alerts = await response.json();

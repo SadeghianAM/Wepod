@@ -1,22 +1,21 @@
 <?php
-// /unified/login.php
-// Unified login endpoint: validates user, issues JWT as HttpOnly cookie, returns redirect.
-// Accepts JSON or form-encoded POST.
-// POST JSON/Form: username, password
+// /auth/login.php
+// Validates user from SQLite DB, issues JWT, and determines role from DB.
 
 require_once __DIR__ . '/jwt-functions.php';
+require_once dirname(__DIR__) . '/db/database.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 // ---- Configuration ----
-const ADMIN_USERNAMES = ["abolfazl", "f.alavimoghaddam", "m.pourmosa", "h.mohammadalizadeh", "m.samyari", "ehsan.jafari", "aida.akbari", "a.jamshidvand", "a.sadeghianmajd"];
+// const ADMIN_USERNAMES = [...] // <--- این آرایه ثابت حذف شد
 const COOKIE_NAME = 'jwt_token';
 const TOKEN_TTL_SECONDS = 60 * 60 * 8; // 8 hours
 const REDIRECT_ADMIN = '/admin/index.php';
 const REDIRECT_USER  = '/index.html';
-const DEBUG_LOGIN    = true; // set true temporarily to log details to error_log()
+const DEBUG_LOGIN    = true;
 
-// Optional: naive, session-based rate limit (per browser session)
+// Session-based rate limit (بدون تغییر)
 if (session_status() !== PHP_SESSION_ACTIVE) {
   session_start();
 }
@@ -29,11 +28,11 @@ if (!isset($_SESSION['last_attempt'])) {
 
 function tooManyAttempts(): bool
 {
-  $window = 15 * 60; // 15 minutes
+  $window = 15 * 60;
   if (time() - $_SESSION['last_attempt'] > $window) {
     $_SESSION['login_attempts'] = 0;
   }
-  return $_SESSION['login_attempts'] >= 8; // 8 tries in 15 mins
+  return $_SESSION['login_attempts'] >= 8;
 }
 
 function bumpAttempts()
@@ -43,66 +42,27 @@ function bumpAttempts()
 }
 
 // ---- Helpers ----
-function readJsonBody(): array
+function readBodyAny(): array
 {
   $input = file_get_contents('php://input');
   $data = json_decode($input, true);
-  return is_array($data) ? $data : [];
-}
-
-function readBodyAny(): array
-{
-  $data = readJsonBody();
-  if (!empty($data)) return $data;
-  // fallback to form fields
+  if (is_array($data) && !empty($data)) return $data;
   if (!empty($_POST)) {
     return [
-      'username' => isset($_POST['username']) ? $_POST['username'] : '',
-      'password' => isset($_POST['password']) ? $_POST['password'] : ''
+      'username' => $_POST['username'] ?? '',
+      'password' => $_POST['password'] ?? ''
     ];
   }
   return [];
 }
 
-function loadUsers(): array
+function findUser(PDO $pdo, string $username): ?array
 {
-  // 1) explicit env path
-  $envPath = getenv('USERS_JSON_PATH');
-  if ($envPath && file_exists($envPath)) {
-    $json = json_decode(file_get_contents($envPath), true);
-    if (is_array($json)) return $json;
-  }
-  // 2) typical relative paths
-  $candidates = [
-    __DIR__ . '/data/users.json',
-    dirname(__DIR__) . '/data/users.json',
-    __DIR__ . '/../data/users.json',
-    $_SERVER['DOCUMENT_ROOT'] . '/data/users.json'
-  ];
-  foreach ($candidates as $p) {
-    if ($p && file_exists($p)) {
-      $json = json_decode(file_get_contents($p), true);
-      if (is_array($json)) return $json;
-    }
-  }
-  return [];
-}
-
-function findUser(string $username, array $users): ?array
-{
-  foreach ($users as $u) {
-    if (isset($u['username']) && strcasecmp($u['username'], $username) === 0) {
-      return $u;
-    }
-    // fallback: some datasets use 'user' or 'email' as login
-    if (isset($u['user']) && strcasecmp($u['user'], $username) === 0) {
-      return $u;
-    }
-    if (isset($u['email']) && strcasecmp($u['email'], $username) === 0) {
-      return $u;
-    }
-  }
-  return null;
+  // ستون is_admin نیز همراه سایر اطلاعات کاربر خوانده می‌شود
+  $stmt = $pdo->prepare("SELECT id, username, password_hash, is_admin FROM users WHERE username = :username COLLATE NOCASE");
+  $stmt->execute([':username' => $username]);
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  return $user ?: null;
 }
 
 function normalize_bcrypt_prefix($hash)
@@ -112,16 +72,6 @@ function normalize_bcrypt_prefix($hash)
     return '$2y$' . substr($hash, 4);
   }
   return $hash;
-}
-
-function getUserHash(array $user)
-{
-  foreach (['password', 'hashed_password', 'password_hash', 'hash'] as $key) {
-    if (isset($user[$key]) && is_string($user[$key]) && trim($user[$key]) !== '') {
-      return trim($user[$key]);
-    }
-  }
-  return null;
 }
 
 // ---- Main ----
@@ -148,37 +98,20 @@ if ($username === '' || $password === '') {
   exit();
 }
 
-$users = loadUsers();
-if (DEBUG_LOGIN) error_log("LOGIN: loaded users count=" . count($users));
+$user = findUser($pdo, $username);
+if (DEBUG_LOGIN) error_log("LOGIN: user " . $username . " found in DB? " . ($user ? 'yes' : 'no'));
 
-$user = findUser($username, $users);
-if (DEBUG_LOGIN) error_log("LOGIN: user " . $username . " found? " . ($user ? 'yes' : 'no'));
-
-if (!$user) {
+if (!$user || !isset($user['password_hash'])) {
   bumpAttempts();
   http_response_code(401);
   echo json_encode(['message' => 'نام کاربری یا کلمه عبور نادرست است.']);
   exit();
 }
 
-$hashed = getUserHash($user);
-if (DEBUG_LOGIN) error_log("LOGIN: hash key detected? " . ($hashed ? 'yes' : 'no'));
-
-if (!$hashed) {
-  bumpAttempts();
-  http_response_code(401);
-  echo json_encode(['message' => 'نام کاربری یا کلمه عبور نادرست است.']);
-  exit();
-}
-
-// normalize and verify
-$hashed = normalize_bcrypt_prefix($hashed);
-
-// Some datasets accidentally include quotes or spaces
-$hashed = trim($hashed, " \t\n\r\0\x0B\"'");
-
+$hashed = normalize_bcrypt_prefix($user['password_hash']);
 $ok = password_verify($password, $hashed);
 if (DEBUG_LOGIN) error_log("LOGIN: password_verify=" . ($ok ? 'true' : 'false'));
+
 if (!$ok) {
   bumpAttempts();
   http_response_code(401);
@@ -186,17 +119,19 @@ if (!$ok) {
   exit();
 }
 
-// Determine role
-$unameForRole = isset($user['username']) ? $user['username'] : $username;
-$role = in_array($unameForRole, ADMIN_USERNAMES, true) ? 'admin' : 'user';
+// ---- Success ----
 
-// Build JWT
+// *** تغییر کلیدی در اینجا اعمال شده است ***
+// نقش کاربر بر اساس مقدار ستون is_admin در دیتابیس تعیین می‌شود
+$role = (isset($user['is_admin']) && $user['is_admin'] == 1) ? 'admin' : 'user';
+if (DEBUG_LOGIN) error_log("LOGIN: User " . $username . " assigned role: " . $role);
+
 $now = time();
 $claims = [
-  'jti'      => bin2hex(random_bytes(16)), // <-- تغییر کلیدی در اینجا اعمال شده است
-  'sub'      => isset($user['id']) ? $user['id'] : $unameForRole,
-  'username' => $unameForRole,
-  'role'     => $role,
+  'jti'      => bin2hex(random_bytes(16)),
+  'sub'      => $user['id'] ?? $user['username'],
+  'username' => $user['username'],
+  'role'     => $role, // نقش تعیین‌شده از دیتابیس در توکن قرار می‌گیرد
   'iat'      => $now,
   'exp'      => $now + TOKEN_TTL_SECONDS
 ];
@@ -204,11 +139,7 @@ $claims = [
 $secret = getJwtSecret();
 $jwt = create_jwt($claims, $secret, 'HS256');
 
-// Set HttpOnly cookie
 $secureFlag = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-// Back-compat for PHP < 7.3
-setcookie(COOKIE_NAME, $jwt, $claims['exp'], '/', '', $secureFlag, true);
-// Modern attributes (PHP 7.3+)
 if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 70300) {
   setcookie(COOKIE_NAME, $jwt, [
     'expires'  => $claims['exp'],
@@ -217,11 +148,13 @@ if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 70300) {
     'httponly' => true,
     'samesite' => 'Strict'
   ]);
+} else {
+  setcookie(COOKIE_NAME, $jwt, $claims['exp'], '/', '', $secureFlag, true);
 }
 
-// Reset attempts on success
 $_SESSION['login_attempts'] = 0;
 $_SESSION['last_attempt'] = $now;
 
+// مسیر ریدایرکت بر اساس نقش تعیین‌شده از دیتابیس مشخص می‌شود
 $redirect = ($role === 'admin') ? REDIRECT_ADMIN : REDIRECT_USER;
 echo json_encode(['ok' => true, 'redirect' => $redirect]);
