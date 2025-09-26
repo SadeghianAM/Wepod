@@ -21,13 +21,13 @@ $action = $_GET['action'] ?? '';
 switch ($action) {
     case 'getPrizes':
         // هر کاربر لاگین کرده‌ای می‌تواند لیست جوایز را برای نمایش ببیند
-        requireAuth();
+        requireAuth(null);
         getPrizes($pdo);
         break;
 
     case 'calculateWinner':
         // خروجی تابع احراز هویت را در متغیر claims$ ذخیره می‌کنیم
-        $claims = requireAuth();
+        $claims = requireAuth(null);
         // متغیر claims$ را به عنوان ورودی به تابع ارسال می‌کنیم
         calculateWinner($pdo, $claims);
         break;
@@ -44,6 +44,13 @@ switch ($action) {
         addPrize($pdo);
         break;
 
+    // [جدید] کیس برای ویرایش جایزه
+    case 'updatePrize':
+        // فقط ادمین می‌تواند جایزه را ویرایش کند
+        requireAuth('admin');
+        updatePrize($pdo);
+        break;
+
     case 'deletePrize':
         // فقط ادمین می‌تواند جایزه حذف کند
         requireAuth('admin');
@@ -56,6 +63,13 @@ switch ($action) {
         getWinnerHistory($pdo);
         break;
 
+    // [جدید] کیس برای حذف رکورد سوابق
+    case 'deleteWinnerRecord':
+        // فقط ادمین می‌تواند رکوردهای سوابق را حذف کند
+        requireAuth('admin');
+        deleteWinnerRecord($pdo);
+        break;
+
     default:
         // ارسال خطا در صورت نامعتبر بودن عملیات
         echo json_encode(['error' => 'عملیات نامعتبر']);
@@ -64,7 +78,7 @@ switch ($action) {
 // تابع برای دریافت لیست جوایز برای نمایش در گردونه
 function getPrizes($pdo)
 {
-    $stmt = $pdo->query("SELECT name as text, color, type FROM prizes WHERE weight > 0");
+    $stmt = $pdo->query("SELECT name as text, color, type FROM prizes WHERE weight > 0 ORDER BY id ASC");
     $prizes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($prizes);
 }
@@ -92,6 +106,29 @@ function addPrize($pdo)
     echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
 }
 
+// [جدید] تابع برای ویرایش جایزه
+function updatePrize($pdo)
+{
+    $data = json_decode(file_get_contents('php://input'), true);
+    // اطمینان از وجود همه فیلدها
+    if (!isset($data['id'], $data['name'], $data['color'], $data['type'], $data['weight'])) {
+        http_response_code(400); // Bad Request
+        echo json_encode(['success' => false, 'message' => 'اطلاعات ارسالی ناقص است.']);
+        return;
+    }
+    $sql = "UPDATE prizes SET name = :name, color = :color, type = :type, weight = :weight WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':id' => $data['id'],
+        ':name' => htmlspecialchars($data['name']),
+        ':color' => $data['color'],
+        ':type' => $data['type'],
+        ':weight' => $data['weight']
+    ]);
+    echo json_encode(['success' => true]);
+}
+
+
 // تابع برای حذف جایزه
 function deletePrize($pdo)
 {
@@ -106,14 +143,12 @@ function deletePrize($pdo)
 function calculateWinner($pdo, $claims)
 {
     try {
-        // *** تغییر اینجاست: 'user_id' به 'sub' تبدیل شد ***
         if (!isset($claims['sub'])) {
             throw new Exception("شناسه کاربر (sub) در توکن JWT یافت نشد.");
         }
-        // *** و اینجا ***
         $userId = $claims['sub'];
 
-        $stmt = $pdo->query("SELECT * FROM prizes WHERE weight > 0");
+        $stmt = $pdo->query("SELECT * FROM prizes WHERE weight > 0 ORDER BY id ASC");
         $prizes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($prizes)) {
@@ -167,10 +202,11 @@ function calculateWinner($pdo, $claims)
 }
 
 
-// تابع برای دریافت سوابق برندگان
+// [تغییر] تابع برای دریافت سوابق برندگان (اضافه شدن ID برای امکان حذف)
 function getWinnerHistory($pdo)
 {
     $sql = "SELECT
+                pw.id, -- آیدی رکورد برای امکان حذف
                 u.name AS user_name,
                 p.name AS prize_name,
                 pw.won_at
@@ -187,4 +223,19 @@ function getWinnerHistory($pdo)
     $stmt = $pdo->query($sql);
     $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($history);
+}
+
+// [جدید] تابع برای حذف یک رکورد از سوابق برندگان
+function deleteWinnerRecord($pdo)
+{
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!isset($data['id'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'آیدی رکورد مشخص نشده است.']);
+        return;
+    }
+    $sql = "DELETE FROM prize_winners WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':id' => $data['id']]);
+    echo json_encode(['success' => true]);
 }

@@ -8,26 +8,28 @@ $claims = requireAuth(null, '/auth/login.html');
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>گردونه شانس وی هاب (نسخه بهبودیافته)</title>
+    <title>گردونه شانس وی هاب (نسخه نهایی و هوشمند)</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <style>
         /* ====================
-            Root Variables from Vihub Design System
+           Root Variables & Base Styles
            ==================== */
         :root {
             --primary-color: #00ae70;
             --primary-dark: #089863;
             --primary-light: #e6f7f2;
-            --bg-color: #f8fcf9;
-            --text-color: #222;
+            --accent-color: #ffc107;
+            --bg-color: #f4f8f7;
+            --text-color: #2c3e50;
             --secondary-text-color: #555;
+            --footer-h: 60px;
             --card-bg: #ffffff;
             --header-text: #ffffff;
             --shadow-color-light: rgba(0, 174, 112, 0.07);
             --shadow-color-medium: rgba(0, 174, 112, 0.12);
-            --danger-color: #d93025;
+            --danger-color: #e74c3c;
             --danger-bg: #fce8e6;
             --border-radius: 0.75rem;
             --border-color: #e9e9e9;
@@ -40,9 +42,6 @@ $claims = requireAuth(null, '/auth/login.html');
             font-display: swap;
         }
 
-        /* ====================
-            Base and Layout Styles
-           ==================== */
         *,
         *::before,
         *::after {
@@ -54,6 +53,7 @@ $claims = requireAuth(null, '/auth/login.html');
 
         body {
             background-color: var(--bg-color);
+            background-image: linear-gradient(180deg, var(--bg-color) 0%, #eef5f3 100%);
             color: var(--text-color);
             min-height: 100vh;
             display: flex;
@@ -61,19 +61,10 @@ $claims = requireAuth(null, '/auth/login.html');
             font-size: 16px;
         }
 
-        header {
-            background: var(--card-bg);
-            color: var(--primary-dark);
-            box-shadow: 0 2px 8px var(--shadow-color-light);
-            padding: 1rem 2rem;
-            font-weight: 700;
-            font-size: 1.25rem;
-            z-index: 10;
-        }
 
         main {
             flex-grow: 1;
-            padding: 2rem;
+            padding: 2.5rem 2rem;
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
@@ -81,21 +72,69 @@ $claims = requireAuth(null, '/auth/login.html');
 
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 450px;
-            gap: 2rem;
-            align-items: start;
-        }
-
-        footer {
-            background: var(--primary-color);
-            color: var(--header-text);
-            text-align: center;
-            padding: 1.25rem;
-            font-size: 0.9rem;
+            grid-template-columns: 350px 1fr;
+            gap: 2.5rem;
+            align-items: center;
         }
 
         /* ====================
-            Component Styles
+           Info Column with Emojis
+           ==================== */
+        .column-info h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+        }
+
+        .info-card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .info-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px var(--shadow-color-light);
+        }
+
+        .info-card-emoji {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            font-size: 1.5rem;
+        }
+
+        .info-card-text h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-card-text p {
+            font-size: 0.875rem;
+            color: var(--secondary-text-color);
+            line-height: 1.6;
+        }
+
+
+        /* ====================
+           Wheel Styles
            ==================== */
         .tool-card {
             background: var(--card-bg);
@@ -103,60 +142,14 @@ $claims = requireAuth(null, '/auth/login.html');
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 15px var(--shadow-color-light);
             overflow: hidden;
-        }
-
-        .tool-card h2 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            padding: 0.9rem 1.5rem;
-            background-color: var(--bg-color);
-            color: var(--primary-dark);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .tool-card .card-content {
             padding: 1.5rem;
         }
 
-        .column-info h2 {
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-            color: var(--primary-dark);
-        }
-
-        .column-info p,
-        .column-info li {
-            color: var(--secondary-text-color);
-            line-height: 1.8;
-            margin-bottom: 0.75rem;
-        }
-
-        .column-info ul {
-            list-style: none;
-            padding-right: 1.5rem;
-        }
-
-        .column-info li::before {
-            content: "•";
-            color: var(--primary-color);
-            font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
-            margin-right: 0.5rem;
-        }
-
-        /* ====================
-            Improved Wheel Styles
-           ==================== */
-        .wheel-container {
+        .wheel-wrapper {
             position: relative;
-            width: 400px;
-            height: 400px;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 450px;
+            height: 450px;
+            margin: 0 auto;
         }
 
         .pin {
@@ -166,10 +159,28 @@ $claims = requireAuth(null, '/auth/login.html');
             border-right: 20px solid transparent;
             border-top: 40px solid var(--danger-color);
             position: absolute;
-            top: -20px;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 10;
             filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        @keyframes pin-jiggle {
+
+            0%,
+            100% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            25% {
+                transform: translateX(-50%) rotate(-5deg);
+            }
+
+            75% {
+                transform: translateX(-50%) rotate(5deg);
+            }
         }
 
         .wheel {
@@ -178,11 +189,35 @@ $claims = requireAuth(null, '/auth/login.html');
             border-radius: 50%;
             position: relative;
             overflow: hidden;
-            border: 8px solid #fff;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 15px rgba(0, 0, 0, 0.1);
+            border: 10px solid #fff;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(0, 0, 0, 0.15);
             transition: transform 8s cubic-bezier(0.2, 0.8, 0.2, 1);
             background: conic-gradient(#fff 0deg 360deg);
-            /* Conic gradient is set by JS */
+        }
+
+        .wheel-center {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2), inset 0 0 5px rgba(0, 0, 0, 0.1);
+            display: grid;
+            place-items: center;
+        }
+
+        .wheel-center::before {
+            content: '';
+            width: 30px;
+            height: 30px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            border: 5px solid #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
         }
 
         .wheel-text-container {
@@ -192,73 +227,78 @@ $claims = requireAuth(null, '/auth/login.html');
             top: 0;
             left: 0;
             transform-origin: center;
-            /* Rotation is set by JS */
         }
 
-        /* === CHANGED: Text styling for prizes === */
+        /* === FINALIZED: Dynamic Text Styling === */
         .wheel-text {
             position: absolute;
-            top: 48%;
-            left: 40%;
-            rotate: 30deg;
+            top: 10%;
+            /* متن را به لبه بیرونی نزدیک‌تر می‌کند */
+            left: 50%;
             text-align: center;
-            max-width: 110px;
+            max-width: 85%;
+            /* تضمین می‌کند متن از لبه‌ها بیرون نزند */
             color: white;
             font-weight: 700;
-            /* Bolder font */
-            font-size: 16px;
-            /* Larger font */
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+            font-size: 15px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
             user-select: none;
-            /* Move text outward and center vertically */
-            transform: translate(90px, -50%);
+            /* transform داینامیک توسط جاوا اسکریپت تنظیم می‌شود */
         }
 
-        /* === END CHANGE === */
+        /* === END FINALIZED === */
 
         /* ====================
-            Button & Feedback Styles
+           Button & Feedback
            ==================== */
+        .spin-controls {
+            padding: 1.5rem 1rem 0;
+        }
+
         .spin-button {
             width: 100%;
-            padding: 0.8rem 1rem;
-            font-size: 1.1rem;
+            padding: 1rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: var(--header-text);
-            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-color), var(--primary-dark));
+            background-size: 200% 100%;
             border: none;
             border-radius: 0.6rem;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 10px var(--shadow-color-medium);
+            transition: all 0.4s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0, 174, 112, 0.3);
+            letter-spacing: 0.5px;
         }
 
         .spin-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px var(--shadow-color-medium);
+            background-position: 100% 0;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 174, 112, 0.4);
         }
 
         .spin-button:active:not(:disabled) {
             transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(0, 174, 112, 0.3);
         }
 
         .spin-button:disabled {
             background: #aaa;
             cursor: not-allowed;
             box-shadow: none;
+            color: #e0e0e0;
         }
 
         .spin-error {
             color: var(--danger-color);
             font-size: 0.9rem;
             text-align: center;
-            margin-top: 0.75rem;
+            margin-top: 1rem;
             height: 1.2em;
-            /* Reserve space to prevent layout shift */
         }
 
         /* ====================
-            Redesigned Result Popup
+           Result Popup
            ==================== */
         .popup-overlay {
             position: fixed;
@@ -266,7 +306,7 @@ $claims = requireAuth(null, '/auth/login.html');
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -282,80 +322,135 @@ $claims = requireAuth(null, '/auth/login.html');
         }
 
         .popup-content {
+            background: var(--card-bg);
             border-radius: var(--border-radius);
-            padding: 1.5rem 2rem;
-            line-height: 1.7;
-            border: 1px solid transparent;
-            border-inline-start-width: 5px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            min-width: 350px;
-            transform: scale(0.9);
+            padding: 2.5rem;
+            text-align: center;
+            min-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: scale(0.9) translateY(20px);
             transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            position: relative;
+            overflow: hidden;
         }
 
         .popup-overlay.visible .popup-content {
-            transform: scale(1);
+            transform: scale(1) translateY(0);
         }
 
-        .popup-content.positive-result {
-            background-color: var(--primary-light);
-            border-color: var(--primary-color);
-        }
-
-        .popup-content.negative-result {
-            background-color: var(--danger-bg);
-            border-color: var(--danger-color);
+        #popup-icon {
+            font-size: 4rem;
+            line-height: 1;
+            margin-bottom: 1rem;
         }
 
         .popup-content h3 {
-            font-weight: 900;
-            font-size: 1.5rem;
+            font-weight: 800;
+            font-size: 1.75rem;
             margin-bottom: 0.5rem;
         }
 
         .popup-content p {
             font-size: 1rem;
             color: var(--secondary-text-color);
+            margin-bottom: 1.5rem;
         }
 
-        .popup-content strong {
-            font-size: 1.2rem;
+        #prize-name {
+            font-size: 1.5rem;
             font-weight: 700;
             display: block;
-            margin: 1rem 0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin: 0 auto 1.5rem;
+            background: #f0f0f0;
+            max-width: 90%;
         }
 
+        .popup-content.positive-result {
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .popup-content.positive-result #popup-icon,
         .popup-content.positive-result h3,
-        .popup-content.positive-result strong {
+        .popup-content.positive-result #prize-name {
             color: var(--primary-dark);
         }
 
+        .popup-content.positive-result #prize-name {
+            background-color: var(--primary-light);
+        }
+
+        .popup-content.negative-result {
+            border-top: 5px solid var(--danger-color);
+        }
+
+        .popup-content.negative-result #popup-icon,
         .popup-content.negative-result h3,
-        .popup-content.negative-result strong {
+        .popup-content.negative-result #prize-name {
             color: var(--danger-color);
+        }
+
+        .popup-content.negative-result #prize-name {
+            background-color: var(--danger-bg);
         }
 
         #close-popup {
             margin-top: 1rem;
-            padding: 0.5rem 1.5rem;
-            background-color: #777;
+            padding: 0.75rem 2rem;
+            background-color: #555;
             color: white;
             border: none;
             border-radius: 0.5rem;
             cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
             transition: background-color 0.2s;
         }
 
         #close-popup:hover {
-            background-color: #555;
+            background-color: var(--text-color);
+        }
+
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
         }
 
         /* ====================
-            Responsive Design
+           Footer Styles
            ==================== */
-        @media (max-width: 900px) {
+        footer {
+            background: var(--primary-color);
+            color: var(--header-text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        footer {
+            min-height: var(--footer-h);
+            font-size: .85rem;
+            justify-content: center;
+        }
+
+        /* ====================
+           Responsive Design
+           ==================== */
+        @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
+                gap: 2rem;
+                align-items: center;
             }
 
             .column-wheel {
@@ -364,16 +459,17 @@ $claims = requireAuth(null, '/auth/login.html');
 
             .column-info {
                 order: 2;
+                text-align: center;
             }
 
-            main {
-                padding: 1.5rem;
+            .info-card {
+                text-align: right;
             }
         }
 
         @media (max-width: 480px) {
             main {
-                padding: 1rem;
+                padding: 1.5rem 1rem;
             }
 
             header {
@@ -381,27 +477,33 @@ $claims = requireAuth(null, '/auth/login.html');
                 font-size: 1.1rem;
             }
 
-            .tool-card .card-content {
+            .tool-card {
                 padding: 1rem;
             }
 
-            .popup-content {
-                min-width: 90%;
-            }
-
-            .wheel-container {
+            .wheel-wrapper {
                 width: 300px;
                 height: 300px;
             }
 
-            /* === CHANGED: Responsive text styling === */
             .wheel-text {
-                font-size: 14px;
-                font-weight: 600;
-                transform: translate(65px, -50%);
+                font-size: 12px;
             }
 
-            /* === END CHANGE === */
+            .wheel-center {
+                width: 50px;
+                height: 50px;
+            }
+
+            .wheel-center::before {
+                width: 20px;
+                height: 20px;
+            }
+
+            .popup-content {
+                min-width: 90%;
+                padding: 2rem 1.5rem;
+            }
         }
     </style>
 </head>
@@ -411,23 +513,39 @@ $claims = requireAuth(null, '/auth/login.html');
     <main>
         <div class="main-content">
             <div class="column column-info">
-                <h2>راهنمای گردونه شانس</h2>
-                <p>شانس خود را برای برنده شدن جوایز هیجان‌انگیز امتحان کنید! هر روز یک بار فرصت چرخاندن گردونه را دارید.</p>
-                <ul>
-                    <li>جوایز شامل موارد مثبت (امتیاز، تخفیف) و منفی (پوچ) است.</li>
-                    <li>شانس برنده شدن هر جایزه توسط مدیر سیستم تعیین می‌شود.</li>
-                    <li>پس از هر بار چرخش، نتیجه به شما نمایش داده می‌شود.</li>
-                    <li>با کلیک روی دکمه "بچرخان" سرنوشت خود را مشخص کنید!</li>
-                </ul>
+                <h2>گردونه شانس وی‌هاب</h2>
+                <div class="info-card-container">
+                    <div class="info-card">
+                        <div class="info-card-emoji">🗓️</div>
+                        <div class="info-card-text">
+                            <h3>یک شانس در روز</h3>
+                            <p>هر روز یک فرصت رایگان برای چرخاندن گردونه و برنده شدن دارید.</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-emoji">⚡️</div>
+                        <div class="info-card-text">
+                            <h3>نتیجه آنی</h3>
+                            <p>بلافاصله پس از توقف گردونه، جایزه خود را مشاهده کنید.</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-emoji">🏆</div>
+                        <div class="info-card-text">
+                            <h3>جوایز متنوع</h3>
+                            <p>از امتیاز و اعتبار گرفته تا کدهای تخفیف هیجان‌انگیز.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="column column-wheel">
                 <div class="tool-card">
-                    <h2>🎡 گردونه شانس روزانه</h2>
-                    <div class="card-content">
-                        <div class="wheel-container">
-                            <div class="pin"></div>
-                            <div id="wheel" class="wheel"></div>
-                        </div>
+                    <div class="wheel-wrapper">
+                        <div class="pin"></div>
+                        <div class="wheel" id="wheel"></div>
+                        <div class="wheel-center"></div>
+                    </div>
+                    <div class="spin-controls">
                         <button class="spin-button" id="spin-button" disabled>در حال بارگذاری...</button>
                         <div class="spin-error" id="spin-error"></div>
                     </div>
@@ -435,17 +553,22 @@ $claims = requireAuth(null, '/auth/login.html');
             </div>
         </div>
     </main>
+
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
 
     <div class="popup-overlay" id="result-popup">
+        <canvas id="confetti-canvas"></canvas>
         <div class="popup-content">
+            <div id="popup-icon"></div>
             <h3 id="popup-title"></h3>
             <p id="popup-text"></p>
-            <strong id="prize-name"></strong>
+            <div id="prize-name"></div>
             <button id="close-popup">باشه</button>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
@@ -456,16 +579,23 @@ $claims = requireAuth(null, '/auth/login.html');
             const closePopupButton = document.getElementById('close-popup');
             const popupTitle = document.getElementById('popup-title');
             const popupText = document.getElementById('popup-text');
+            const popupIcon = document.getElementById('popup-icon');
             const wheel = document.getElementById('wheel');
+            const pin = document.querySelector('.pin');
             const spinError = document.getElementById('spin-error');
+            const confettiCanvas = document.getElementById('confetti-canvas');
+            const confettiInstance = confetti.create(confettiCanvas, {
+                resize: true,
+                useWorker: true
+            });
 
             let isSpinning = false;
             let prizes = [];
             let winnerPrize = null;
+            let currentRotation = 0;
 
             /**
-             * Creates the wheel using a modern conic-gradient for segments
-             * and separate, readable text elements.
+             * Creates the wheel with dynamic and readable text positioning.
              * @param {Array} prizesData - Array of prize objects from the API.
              */
             function createWheel(prizesData) {
@@ -476,7 +606,6 @@ $claims = requireAuth(null, '/auth/login.html');
 
                 const segmentAngle = 360 / numPrizes;
 
-                // 1. Create the background with conic-gradient
                 const gradientStops = prizes.map((prize, index) => {
                     const startAngle = segmentAngle * index;
                     const endAngle = segmentAngle * (index + 1);
@@ -485,28 +614,30 @@ $claims = requireAuth(null, '/auth/login.html');
 
                 wheel.style.background = `conic-gradient(${gradientStops})`;
 
-                // 2. Add text labels in a readable way
+                // === FINALIZED LOGIC FOR DYNAMIC TEXT ===
                 prizes.forEach((prize, index) => {
                     const textContainer = document.createElement('div');
                     textContainer.className = 'wheel-text-container';
 
-                    // Rotate the container to the middle of the segment
-                    const rotation = (segmentAngle * index) + (segmentAngle / 2);
-                    textContainer.style.transform = `rotate(${rotation}deg)`;
+                    const containerRotation = (segmentAngle * index) + (segmentAngle / 2);
+                    textContainer.style.transform = `rotate(${containerRotation}deg)`;
 
                     const text = document.createElement('div');
                     text.className = 'wheel-text';
                     text.textContent = prize.text;
 
+                    if (containerRotation > 90 && containerRotation < 270) {
+                        text.style.transform = 'translateX(-50%) rotate(180deg)';
+                    } else {
+                        text.style.transform = 'translateX(-50%)';
+                    }
+
                     textContainer.appendChild(text);
                     wheel.appendChild(textContainer);
                 });
+                // === END FINALIZED ===
             }
 
-
-            /**
-             * Initializes the wheel by fetching prizes from the server.
-             */
             async function setupWheel() {
                 try {
                     const response = await fetch('/admin/prize/prize-api.php?action=getPrizes');
@@ -520,10 +651,12 @@ $claims = requireAuth(null, '/auth/login.html');
 
                     createWheel(prizesData);
 
-                    // Event listener for when the CSS transition (spin) ends
                     wheel.addEventListener('transitionend', () => {
-                        // A short delay before showing the popup for better UX
-                        setTimeout(() => showResult(winnerPrize), 300);
+                        pin.style.animation = 'pin-jiggle 0.5s';
+                        setTimeout(() => {
+                            showResult(winnerPrize);
+                            pin.style.animation = 'none';
+                        }, 500);
                     });
 
                     spinButton.innerText = 'بچرخان!';
@@ -536,19 +669,13 @@ $claims = requireAuth(null, '/auth/login.html');
                 }
             }
 
-            /**
-             * Handles the spin button click event.
-             */
             spinButton.addEventListener('click', async () => {
                 if (isSpinning) return;
                 isSpinning = true;
                 spinButton.disabled = true;
                 spinButton.innerText = 'در حال چرخش...';
-                spinError.textContent = ''; // Clear previous errors
+                spinError.textContent = '';
                 winnerPrize = null;
-
-                // Optional: Add a starting tick sound effect here
-                // new Audio('/sounds/tick.mp3').play();
 
                 try {
                     const response = await fetch('/admin/prize/prize-api.php?action=calculateWinner');
@@ -558,12 +685,12 @@ $claims = requireAuth(null, '/auth/login.html');
                     if (result.winner && typeof result.stopAngle !== 'undefined') {
                         winnerPrize = result.winner;
 
-                        const fullSpins = 5; // Number of full rotations
+                        const fullSpins = 5;
+                        const newRotation = (fullSpins * 360) + result.stopAngle;
 
-                        // The pin is at the top (270 degrees). We want the winning angle to stop there.
-                        const targetRotation = (fullSpins * 360) + 270 - result.stopAngle;
+                        const targetRotation = currentRotation + newRotation;
+                        currentRotation = targetRotation;
 
-                        // Apply the rotation
                         wheel.style.transform = `rotate(${targetRotation}deg)`;
 
                     } else {
@@ -578,26 +705,27 @@ $claims = requireAuth(null, '/auth/login.html');
                 }
             });
 
-            /**
-             * Displays the result in a popup.
-             * @param {Object} winner - The winning prize object.
-             */
             function showResult(winner) {
                 if (!winner) return;
-
-                // Optional: Play a win or lose sound effect
-                // if (winner.type === 'positive') new Audio('/sounds/win.mp3').play();
-                // else new Audio('/sounds/lose.mp3').play();
 
                 popupContent.classList.remove('positive-result', 'negative-result');
 
                 if (winner.type === 'positive') {
                     popupContent.classList.add('positive-result');
-                    popupTitle.innerText = '🎉 تبریک!';
+                    popupIcon.innerText = '🎉';
+                    popupTitle.innerText = 'تبریک!';
                     popupText.innerText = 'شما برنده جایزه زیر شدید:';
+                    confettiInstance({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: {
+                            y: 0.6
+                        }
+                    });
                 } else {
                     popupContent.classList.add('negative-result');
-                    popupTitle.innerText = '😕 بیشتر تلاش کن!';
+                    popupIcon.innerText = '😕';
+                    popupTitle.innerText = 'شانس با شما یار نبود!';
                     popupText.innerText = 'نتیجه شانس شما این بود:';
                 }
 
@@ -605,22 +733,13 @@ $claims = requireAuth(null, '/auth/login.html');
                 resultPopup.classList.add('visible');
             }
 
-            // Close button for the result popup
             closePopupButton.addEventListener('click', () => {
                 resultPopup.classList.remove('visible');
 
-                // Keep the button disabled according to the "one spin per day" rule
                 spinButton.innerText = 'فردا دوباره تلاش کنید';
                 spinButton.disabled = true;
-
-                // Reset the wheel to its initial position without animation for the next page load
-                wheel.style.transition = 'none';
-                wheel.style.transform = 'rotate(0deg)';
-                // Re-enable transition for the next spin
-                setTimeout(() => wheel.style.transition = 'transform 8s cubic-bezier(0.2, 0.8, 0.2, 1)', 50);
             });
 
-            // Initialize the wheel on page load
             await setupWheel();
         });
     </script>
