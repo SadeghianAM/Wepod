@@ -13,9 +13,6 @@ $claims = requireAuth(null, '/auth/login.html');
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <style>
-        /* ====================
-           Root Variables & Base Styles
-           ==================== */
         :root {
             --primary-color: #00ae70;
             --primary-dark: #089863;
@@ -61,7 +58,6 @@ $claims = requireAuth(null, '/auth/login.html');
             font-size: 16px;
         }
 
-
         main {
             flex-grow: 1;
             padding: 2.5rem 2rem;
@@ -77,9 +73,6 @@ $claims = requireAuth(null, '/auth/login.html');
             align-items: center;
         }
 
-        /* ====================
-           Info Column with Emojis
-           ==================== */
         .column-info h2 {
             font-size: 1.75rem;
             font-weight: 800;
@@ -132,10 +125,6 @@ $claims = requireAuth(null, '/auth/login.html');
             line-height: 1.6;
         }
 
-
-        /* ====================
-           Wheel Styles
-           ==================== */
         .tool-card {
             background: var(--card-bg);
             border-radius: var(--border-radius);
@@ -229,28 +218,19 @@ $claims = requireAuth(null, '/auth/login.html');
             transform-origin: center;
         }
 
-        /* === FINALIZED: Dynamic Text Styling === */
         .wheel-text {
             position: absolute;
             top: 10%;
-            /* متن را به لبه بیرونی نزدیک‌تر می‌کند */
             left: 50%;
             text-align: center;
             max-width: 85%;
-            /* تضمین می‌کند متن از لبه‌ها بیرون نزند */
             color: white;
             font-weight: 700;
             font-size: 15px;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
             user-select: none;
-            /* transform داینامیک توسط جاوا اسکریپت تنظیم می‌شود */
         }
 
-        /* === END FINALIZED === */
-
-        /* ====================
-           Button & Feedback
-           ==================== */
         .spin-controls {
             padding: 1.5rem 1rem 0;
         }
@@ -297,9 +277,6 @@ $claims = requireAuth(null, '/auth/login.html');
             height: 1.2em;
         }
 
-        /* ====================
-           Result Popup
-           ==================== */
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -422,9 +399,6 @@ $claims = requireAuth(null, '/auth/login.html');
             z-index: 10;
         }
 
-        /* ====================
-           Footer Styles
-           ==================== */
         footer {
             background: var(--primary-color);
             color: var(--header-text);
@@ -443,9 +417,6 @@ $claims = requireAuth(null, '/auth/login.html');
             justify-content: center;
         }
 
-        /* ====================
-           Responsive Design
-           ==================== */
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -552,6 +523,11 @@ $claims = requireAuth(null, '/auth/login.html');
                 </div>
             </div>
         </div>
+
+        <div id="last-win-container" style="display: none; margin-top: 2.5rem; background-color: #fff; padding: 1.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color); text-align: center; box-shadow: 0 4px 15px var(--shadow-color-light);">
+            <h3 style="font-weight: 700; font-size: 1.1rem; color: var(--secondary-text-color); margin-bottom: 0.75rem;">🏆 آخرین جایزه شما</h3>
+            <p id="last-win-details" style="font-size: 1rem; line-height: 1.6;"></p>
+        </div>
     </main>
 
     <div id="footer-placeholder"></div>
@@ -569,6 +545,7 @@ $claims = requireAuth(null, '/auth/login.html');
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const spinButton = document.getElementById('spin-button');
@@ -593,55 +570,50 @@ $claims = requireAuth(null, '/auth/login.html');
             let winnerPrize = null;
             let currentRotation = 0;
 
+            const escapeHTML = (str) => {
+                const p = document.createElement('p');
+                p.textContent = str;
+                return p.innerHTML;
+            }
+
             function createWheel(prizesData) {
                 prizes = prizesData;
                 wheel.innerHTML = '';
                 const numPrizes = prizes.length;
                 if (numPrizes < 2) return;
-
                 const segmentAngle = 360 / numPrizes;
-
                 const gradientStops = prizes.map((prize, index) => {
                     const startAngle = segmentAngle * index;
                     const endAngle = segmentAngle * (index + 1);
                     return `${prize.color} ${startAngle}deg ${endAngle}deg`;
                 }).join(', ');
-
                 wheel.style.background = `conic-gradient(${gradientStops})`;
-
                 prizes.forEach((prize, index) => {
                     const textContainer = document.createElement('div');
                     textContainer.className = 'wheel-text-container';
-
                     const containerRotation = (segmentAngle * index) + (segmentAngle / 2);
                     textContainer.style.transform = `rotate(${containerRotation}deg)`;
-
                     const text = document.createElement('div');
                     text.className = 'wheel-text';
                     text.textContent = prize.text;
-
                     if (containerRotation > 90 && containerRotation < 270) {
                         text.style.transform = 'translateX(-50%) rotate(180deg)';
                     } else {
                         text.style.transform = 'translateX(-50%)';
                     }
-
                     textContainer.appendChild(text);
                     wheel.appendChild(textContainer);
                 });
             }
 
-            // ** تابع جدید برای بررسی وضعیت شانس کاربر **
             async function checkUserSpinStatus() {
                 try {
                     const response = await fetch('/prize/wheel-api.php?action=getWheelStatus&_=' + new Date().getTime());
                     const status = await response.json();
-
                     if (response.ok && status.canSpin) {
                         spinButton.innerText = 'بچرخان!';
                         spinButton.disabled = false;
                     } else {
-                        // دلیل عدم امکان چرخش را که از سرور آمده نمایش بده
                         const reason = status.reason || status.error || 'شما اجازه چرخش ندارید.';
                         spinButton.innerText = reason;
                         spinButton.disabled = true;
@@ -654,6 +626,29 @@ $claims = requireAuth(null, '/auth/login.html');
                 }
             }
 
+            async function loadLastWinnerInfo() {
+                const container = document.getElementById('last-win-container');
+                const detailsElement = document.getElementById('last-win-details');
+                if (!container || !detailsElement) return;
+
+                try {
+                    const response = await fetch('/prize/wheel-api.php?action=getLastWinnerInfo&_=' + new Date().getTime());
+                    if (!response.ok) return;
+                    const lastWin = await response.json();
+                    if (lastWin && lastWin.prize_name) {
+                        const date = new Date(lastWin.won_at);
+                        const formattedDate = new Intl.DateTimeFormat('fa-IR', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short',
+                            timeZone: 'Asia/Tehran'
+                        }).format(date);
+                        detailsElement.innerHTML = `شما <strong style="color: var(--primary-dark);">${escapeHTML(lastWin.prize_name)}</strong> را در تاریخ ${formattedDate} برنده شدید.`;
+                        container.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error fetching last winner info:', error);
+                }
+            }
 
             async function setupWheel() {
                 try {
@@ -663,14 +658,11 @@ $claims = requireAuth(null, '/auth/login.html');
                         throw new Error(errorData.error || 'Network response was not ok.');
                     }
                     const prizesData = await response.json();
-
                     if (!prizesData || prizesData.length === 0) {
                         spinButton.innerText = 'جایزه‌ای تعریف نشده';
                         return;
                     }
-
                     createWheel(prizesData);
-
                     wheel.addEventListener('transitionend', () => {
                         pin.style.animation = 'pin-jiggle 0.5s';
                         setTimeout(() => {
@@ -678,10 +670,7 @@ $claims = requireAuth(null, '/auth/login.html');
                             pin.style.animation = 'none';
                         }, 500);
                     });
-
-                    // ** به جای فعال کردن مستقیم دکمه، وضعیت کاربر را بررسی کن **
                     await checkUserSpinStatus();
-
                 } catch (error) {
                     spinButton.innerText = 'خطا در بارگذاری';
                     spinError.textContent = error.message || 'امکان بارگذاری جوایز وجود ندارد.';
@@ -696,16 +685,12 @@ $claims = requireAuth(null, '/auth/login.html');
                 spinButton.innerText = 'در حال چرخش...';
                 spinError.textContent = '';
                 winnerPrize = null;
-
                 try {
                     const response = await fetch('/prize/wheel-api.php?action=calculateWinner&_=' + new Date().getTime());
                     const result = await response.json();
-
                     if (!response.ok) {
-                        // اگر سرور خطا داد (مثلا شانس کاربر تمام شده)، آن را نمایش بده
                         throw new Error(result.error || 'Server could not calculate a winner.');
                     }
-
                     if (result.winner && typeof result.stopAngle !== 'undefined') {
                         winnerPrize = result.winner;
                         const fullSpins = 5;
@@ -721,17 +706,13 @@ $claims = requireAuth(null, '/auth/login.html');
                     console.error('Spin error:', error);
                     spinError.textContent = error.message || 'خطایی رخ داد. لطفا دوباره تلاش کنید.';
                     isSpinning = false;
-
-                    // ** پس از خطا، وضعیت دکمه را مجددا بررسی کن **
                     await checkUserSpinStatus();
                 }
             });
 
             function showResult(winner) {
                 if (!winner) return;
-
                 popupContent.classList.remove('positive-result', 'negative-result');
-
                 if (winner.type === 'positive') {
                     popupContent.classList.add('positive-result');
                     popupIcon.innerText = '🎉';
@@ -750,20 +731,21 @@ $claims = requireAuth(null, '/auth/login.html');
                     popupTitle.innerText = 'شانس با شما یار نبود!';
                     popupText.innerText = 'نتیجه شانس شما این بود:';
                 }
-
                 prizeNameElement.innerText = winner.name;
                 resultPopup.classList.add('visible');
             }
 
             closePopupButton.addEventListener('click', () => {
                 resultPopup.classList.remove('visible');
-
-                // ** متن دکمه را به شکل صحیح‌تری پس از استفاده از شانس، تغییر بده **
                 spinButton.innerText = 'شما شانس خود را استفاده کرده‌اید.';
                 spinButton.disabled = true;
+                // بعد از بستن پاپ‌آپ، لیست آخرین جایزه را مجدد بارگذاری کن
+                loadLastWinnerInfo();
             });
 
+            // --- Initial Load ---
             await setupWheel();
+            await loadLastWinnerInfo();
         });
     </script>
 </body>
