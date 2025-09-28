@@ -11,13 +11,15 @@ $agentId = $claims['sub'] ?? ($claims['id'] ?? ($claims['username'] ?? null));
 
 $agentData = [];
 $agentName = 'کاربر';
+$agentUsername = '-';
 $agentRole = 'بدون سمت';
 $agentExtension = '-';
 $agentScore = 0;
+$agentStartDate = '-';
 
 if ($agentId) {
     try {
-        $stmt = $pdo->prepare("SELECT name, role, score FROM users WHERE id = :id");
+        $stmt = $pdo->prepare("SELECT name, username, role, score, start_work FROM users WHERE id = :id");
         $stmt->execute([':id' => $agentId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -25,8 +27,11 @@ if ($agentId) {
 
         if ($user) {
             $agentName = $user['name'] ?? $agentName;
+            $agentUsername = $user['username'] ?? $agentUsername;
             $agentRole = $user['role'] ?? $agentRole;
             $agentScore = $user['score'] ?? $agentScore;
+            // تاریخ مستقیماً از دیتابیس خوانده می‌شود
+            $agentStartDate = $user['start_work'] ?? '-';
         }
     } catch (PDOException $e) {
         error_log("Database error fetching user details: " . $e->getMessage());
@@ -47,9 +52,6 @@ if ($agentId) {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
     <title>پروفایل کاربری</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -63,6 +65,7 @@ if ($agentId) {
             --card-bg: #ffffff;
             --header-text: #ffffff;
             --shadow-color: rgba(0, 0, 0, 0.05);
+            --footer-h: 60px;
             --border-radius: 0.8rem;
             --border-color: #e9ecef;
         }
@@ -83,13 +86,27 @@ if ($agentId) {
             padding: 0;
         }
 
+        footer {
+            background: var(--primary-color);
+            color: var(--header-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 2rem;
+            z-index: 10;
+            flex-shrink: 0;
+            min-height: var(--footer-h);
+            font-size: .85rem;
+        }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             direction: rtl;
-            min-height: 100vh;
+            /* --- کد اصلاح شده برای چسباندن فوتر به پایین --- */
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
         }
 
         .profile-container {
@@ -196,17 +213,12 @@ if ($agentId) {
             box-shadow: 0 2px 8px rgba(0, 174, 112, 0.3);
         }
 
-        /* --- START: MODIFIED FOR EMOJI --- */
         .profile-menu .menu-emoji {
             font-size: 1.4rem;
-            /* اندازه ایموجی */
             width: 25px;
-            /* عرض ثابت برای تراز بودن */
             text-align: center;
             line-height: 1;
         }
-
-        /* --- END: MODIFIED FOR EMOJI --- */
 
         .profile-content {
             flex-grow: 1;
@@ -220,17 +232,61 @@ if ($agentId) {
             display: block;
         }
 
-        .placeholder-content {
+        .overview-card {
             background-color: var(--card-bg);
-            padding: 2rem;
             border-radius: var(--border-radius);
             box-shadow: 0 4px 20px var(--shadow-color);
-            text-align: center;
+            padding: 2rem;
         }
 
-        .placeholder-content h2 {
+        .overview-card h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
             color: var(--primary-dark);
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.6rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .info-item:hover {
+            border-color: var(--primary-color);
+            background-color: #fafdfc;
+        }
+
+        .info-label {
+            font-size: 0.95rem;
+            color: var(--secondary-text-color);
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 1.05rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .info-value.score {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            font-size: 1rem;
         }
 
         .dashboard-header {
@@ -390,14 +446,14 @@ if ($agentId) {
                 <ul>
                     <li>
                         <a href="#dashboard" class="profile-tab-link active">
-                            <span class="menu-emoji">📊</span>
-                            <span>داشبورد عملکرد</span>
+                            <span class="menu-emoji">👤</span>
+                            <span>داشبورد</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#personal-info" class="profile-tab-link">
-                            <span class="menu-emoji">👤</span>
-                            <span>اطلاعات شخصی</span>
+                        <a href="#performance-report" class="profile-tab-link">
+                            <span class="menu-emoji">📊</span>
+                            <span>گزارش عملکرد</span>
                         </a>
                     </li>
                     <li>
@@ -412,19 +468,44 @@ if ($agentId) {
 
         <main class="profile-content">
             <section id="dashboard" class="content-section active">
+                <div class="overview-card">
+                    <h2>داشبورد</h2>
+                    <div class="overview-grid">
+                        <div class="info-item">
+                            <span class="info-label">نام کامل</span>
+                            <span class="info-value"><?php echo htmlspecialchars($agentName); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">نام کاربری</span>
+                            <span class="info-value"><?php echo htmlspecialchars($agentUsername); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">سمت</span>
+                            <span class="info-value"><?php echo htmlspecialchars($agentRole); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">شماره داخلی</span>
+                            <span class="info-value"><?php echo htmlspecialchars($agentExtension); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">امتیاز فعلی</span>
+                            <span class="info-value score">⭐ <?php echo htmlspecialchars($agentScore); ?></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">تاریخ شروع همکاری</span>
+                            <span class="info-value"><?php echo htmlspecialchars($agentStartDate); ?></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="performance-report" class="content-section">
                 <div class="dashboard-header">
-                    <h1>داشبورد عملکرد</h1>
+                    <h1>گزارش عملکرد</h1>
                     <p>گزارش‌های روزانه شما، <?php echo htmlspecialchars($agentName); ?></p>
                 </div>
                 <nav id="date-nav"></nav>
                 <div id="report-content"></div>
-            </section>
-
-            <section id="personal-info" class="content-section">
-                <div class="placeholder-content">
-                    <h2>اطلاعات شخصی</h2>
-                    <p>این بخش برای نمایش و ویرایش اطلاعات کاربری شما در نظر گرفته شده است.</p>
-                </div>
             </section>
         </main>
     </div>
@@ -432,7 +513,7 @@ if ($agentId) {
     <div id="footer-placeholder"></div>
     <script src="/js/header.js?v=1.0"></script>
     <script>
-        // Tab switching logic
+        // Tab switching logic (No changes needed)
         document.addEventListener('DOMContentLoaded', () => {
             const tabLinks = document.querySelectorAll('.profile-tab-link');
             const contentSections = document.querySelectorAll('.content-section');
@@ -455,7 +536,7 @@ if ($agentId) {
             }
         });
 
-        // Dashboard logic
+        // Dashboard logic (No changes needed)
         const agentData = <?php echo json_encode($agentData, JSON_UNESCAPED_UNICODE); ?>;
         const metricsConfig = {
             performance: {
