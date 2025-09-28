@@ -51,6 +51,6 @@ if (isset($_GET['json'])) {
   header('Content-Type: application/json; charset=utf-8');
   echo json_encode(['ok' => true]);
 } else {
-  $redirect = $_GET['redirect'] ?? '/login.html';
+  $redirect = $_GET['redirect'] ?? '/';
   header('Location: ' . $redirect);
 }

@@ -93,8 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return "";
     };
+
     try {
-      // این بخش کاملاً صحیح است و با بک‌اند جدید کار می‌کند
       const response = await fetchNoCache("/auth/get-user-info.php", {
         credentials: "same-origin",
       });
@@ -104,55 +104,22 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error("Invalid user info payload");
         }
         const u = payload.user;
-
-        // *** تغییر کلیدی در اینجا اعمال شد ***
-        // کلید 'full_name' حالا از 'name' در دیتابیس پر می‌شود
         const name =
           pick(u, "full_name", "name", "displayName") ||
           pick(u, "username") ||
-          "کاربر";
+          "کاربر"; // ۱. ساختار HTML ساده‌تر شد و پاپ‌آپ حذف گردید
 
-        // *** تغییر کلیدی برای شماره داخلی (استفاده از id) ***
-        const internal =
-          pick(
-            u,
-            "extension",
-            "ext",
-            "internal",
-            "internal_number",
-            "phone_extension",
-            "phoneExt"
-          ) || pick(u, "id"); // اگر فیلدهای مرسوم نبود، از ستون id استفاده می‌شود
-        const avatarLetter = (name || "؟").trim().charAt(0) || "؟";
         placeholder.innerHTML = `
-          <div id="user-info-container">
-            <span id="user-name-display">${name}</span>
-            <div id="logout-popup">
-              <div class="popup-header">
-                <div class="user-avatar-large">${avatarLetter}</div>
-                <div class="user-details">
-                  <p class="user-name">${name}</p>
-                  <p class="user-id">داخلی: ${toPersianDigits(internal)}</p>
-                </div>
-              </div>
-              <button id="logout-button">خروج از حساب</button>
-            </div>
-          </div>`;
+               <div id="user-info-container" title="مشاهده پروفایل" style="cursor: pointer;">
+                  <span id="user-name-display">${name}</span>
+               </div>`; // ۲. رویداد کلیک برای هدایت به صفحه پروفایل تنظیم شد
+
         const container = document.getElementById("user-info-container");
-        const popup = document.getElementById("logout-popup");
-        container.addEventListener("click", (event) => {
-          event.stopPropagation();
-          popup.classList.toggle("show");
-        });
-        document
-          .getElementById("logout-button")
-          .addEventListener("click", logout);
-        document.addEventListener("click", () => {
-          if (popup.classList.contains("show")) {
-            popup.classList.remove("show");
-          }
+        container.addEventListener("click", () => {
+          window.location.href = "/profile";
         });
       } else {
+        // این بخش بدون تغییر باقی می‌ماند
         placeholder.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
         document
           .getElementById("login-button")
@@ -161,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
           });
       }
     } catch (error) {
+      // این بخش بدون تغییر باقی می‌ماند
       console.error("Error checking login status:", error);
       placeholder.innerHTML = `<button id="login-button">ورود به حساب کاربری</button>`;
       const btn = document.getElementById("login-button");

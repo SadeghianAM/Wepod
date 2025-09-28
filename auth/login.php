@@ -12,7 +12,7 @@ header('Content-Type: application/json; charset=utf-8');
 const COOKIE_NAME = 'jwt_token';
 const TOKEN_TTL_SECONDS = 60 * 60 * 8; // 8 hours
 const REDIRECT_ADMIN = '/admin/index.php';
-const REDIRECT_USER  = '/index.html';
+const REDIRECT_USER  = '/profile';
 const DEBUG_LOGIN    = true;
 
 // Session-based rate limit (بدون تغییر)

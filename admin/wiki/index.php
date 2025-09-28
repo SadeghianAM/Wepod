@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../auth/require-auth.php';
+
+require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/auth/login.html');
 ?>
 <!DOCTYPE html>
@@ -60,7 +61,7 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     /* --- [START] UNCHANGED HEADER & FOOTER STYLES --- */
-    header,
+
     footer {
       background: var(--primary-color);
       color: var(--header-text);
@@ -73,22 +74,10 @@ $claims = requireAuth('admin', '/auth/login.html');
       flex-shrink: 0;
     }
 
-    header {
-      min-height: var(--header-h)
-    }
 
     footer {
       min-height: var(--footer-h);
       font-size: .85rem
-    }
-
-    header h1 {
-      font-weight: 700;
-      font-size: clamp(1rem, 2.2vw, 1.2rem);
-      white-space: nowrap;
-      max-width: 60vw;
-      text-overflow: ellipsis;
-      overflow: hidden;
     }
 
     #today-date,
@@ -587,8 +576,10 @@ $claims = requireAuth('admin', '/auth/login.html');
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
   <script>
-    let jsonData = [];
-    let currentItemIndex = -1;
+    // URL فایل API جدید شما
+    const API_URL = "/admin/wiki/wiki-api.php";
+
+    let jsonData = []; // این آرایه به عنوان یک حافظه موقت (cache) از داده‌ها عمل می‌کند
     let searchValue = "";
     let currentPage = 1;
     const itemsPerPage = 9;
@@ -602,6 +593,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       "دعوت از دوستان", "هدیه دیجیتال", "وی کلاب"
     ];
 
+    // --- تمامی Element-‌ها مثل قبل تعریف می‌شوند ---
     const itemListDiv = document.getElementById("item-list");
     const loadMoreContainer = document.getElementById("load-more-container");
     const itemModal = document.getElementById("itemModal");
@@ -616,24 +608,35 @@ $claims = requireAuth('admin', '/auth/login.html');
     const descriptionTextarea = document.getElementById("description-textarea");
     const categoriesCheckboxContainer = document.getElementById("categories-checkbox-container");
 
-    async function saveDataToServer() {
+    /**
+     * تابع جدید برای ارسال درخواست به API
+     * @param {string} action - نوع عملیات (create, update, delete)
+     * @param {object} data - داده‌های مورد نیاز برای عملیات
+     */
+    async function apiRequest(action, data) {
       try {
-        const response = await fetch("/data/save-wiki.php", {
+        const response = await fetch(API_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(jsonData, null, 2),
+          body: JSON.stringify({
+            action,
+            data
+          }),
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "خطای سرور");
         console.log(result.message);
+        return result;
       } catch (error) {
-        console.error("خطا در ذخیره‌سازی داده‌ها:", error);
-        alert("خطا در ذخیره‌سازی داده‌ها: " + error.message);
+        console.error(`خطا در عملیات ${action}:`, error);
+        alert(`خطا در عملیات ${action}: ` + error.message);
+        throw error; // اجازه می‌دهد تا خطای اصلی در جای دیگر مدیریت شود
       }
     }
 
+    // تابع copyToClipboard بدون تغییر باقی می‌ماند...
     function copyToClipboard(text, button) {
       navigator.clipboard.writeText(text).then(() => {
         const originalText = button.innerHTML;
@@ -649,6 +652,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       });
     }
 
+    // تابع renderItems با تغییرات جزئی برای استفاده از ایندکس اصلی
     function renderItems() {
       if (currentPage === 1) itemListDiv.innerHTML = "";
       loadMoreContainer.innerHTML = "";
@@ -676,11 +680,13 @@ $claims = requireAuth('admin', '/auth/login.html');
       const newItems = itemsToShow.filter(item => !currentRenderedIds.has(String(item.id)));
 
       newItems.forEach(item => {
-        const originalIndex = jsonData.findIndex(originalItem => originalItem.id === item.id);
         const card = document.createElement("div");
         card.className = "script-card";
         card.dataset.id = String(item.id);
 
+        // ... بخش ساخت کارت بدون تغییر باقی می‌ماند ...
+        // فقط در دکمه‌های edit و delete به جای ایندکس از ID استفاده می‌کنیم
+        const originalIndex = jsonData.findIndex(originalItem => originalItem.id === item.id);
         const cardHeader = document.createElement('div');
         cardHeader.className = 'card-header';
         const cardTitle = document.createElement('h3');
@@ -727,13 +733,13 @@ $claims = requireAuth('admin', '/auth/login.html');
         const editButton = document.createElement('button');
         editButton.className = 'edit-btn';
         editButton.title = 'ویرایش';
-        editButton.dataset.index = originalIndex;
+        editButton.dataset.id = item.id; // استفاده از ID
         editButton.innerHTML = '✏️';
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-btn';
         deleteButton.title = 'حذف';
-        deleteButton.dataset.index = originalIndex;
+        deleteButton.dataset.id = item.id; // استفاده از ID
         deleteButton.innerHTML = '🗑️';
 
         cardActions.appendChild(editButton);
@@ -766,11 +772,13 @@ $claims = requireAuth('admin', '/auth/login.html');
         loadMoreContainer.appendChild(loadMoreBtn);
       }
 
-      document.querySelectorAll(".edit-btn").forEach(button => button.onclick = (e) => editItem(parseInt(e.currentTarget.dataset.index)));
-      document.querySelectorAll(".delete-btn").forEach(button => button.onclick = (e) => deleteItem(parseInt(e.currentTarget.dataset.index)));
+      // Event listener ها برای دکمه‌های جدید
+      document.querySelectorAll(".edit-btn").forEach(button => button.onclick = (e) => editItem(parseInt(e.currentTarget.dataset.id)));
+      document.querySelectorAll(".delete-btn").forEach(button => button.onclick = (e) => deleteItem(parseInt(e.currentTarget.dataset.id)));
       document.querySelectorAll('.copy-btn').forEach(button => button.onclick = (e) => copyToClipboard(e.currentTarget.dataset.description, e.currentTarget));
     }
 
+    // تابع openModal و closeModal بدون تغییر باقی می‌مانند...
     function openModal() {
       itemModal.style.display = "block";
       document.body.style.overflow = 'hidden';
@@ -781,14 +789,17 @@ $claims = requireAuth('admin', '/auth/login.html');
       itemModal.style.display = "none";
       document.body.style.overflow = '';
       itemForm.reset();
+      document.getElementById("itemId").value = ''; // پاک کردن ID مخفی
     }
 
+    // جستجو مثل قبل کار می‌کند
     searchInput.addEventListener("input", (e) => {
       searchValue = e.target.value;
       currentPage = 1;
       renderItems();
     });
 
+    // تابع renderCategoryCheckboxes بدون تغییر باقی می‌ماند...
     function renderCategoryCheckboxes(selectedCategories = []) {
       categoriesCheckboxContainer.innerHTML = "";
       availableCategories.forEach(category => {
@@ -808,10 +819,13 @@ $claims = requireAuth('admin', '/auth/login.html');
       });
     }
 
-    function editItem(index) {
-      currentItemIndex = index;
-      const item = jsonData[index];
+    function editItem(id) {
+      const item = jsonData.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById("itemId").value = item.id; // استفاده از فیلد مخفی
       idInput.value = item.id || "";
+      idInput.readOnly = true; // شناسه در زمان ویرایش نباید تغییر کند
       titleInput.value = item.title || "";
       descriptionTextarea.value = item.description || "";
       modalTitle.textContent = "ویرایش پیام";
@@ -820,73 +834,91 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     addNewItemBtn.addEventListener("click", () => {
-      currentItemIndex = -1;
       itemForm.reset();
+      document.getElementById("itemId").value = ''; // حالت افزودن
       const maxId = jsonData.length > 0 ? Math.max(...jsonData.map(i => i.id || 0)) : 0;
       idInput.value = maxId + 1;
+      idInput.readOnly = false;
       modalTitle.textContent = "افزودن پیام جدید";
       renderCategoryCheckboxes([]);
       openModal();
     });
 
-    itemForm.addEventListener("submit", (e) => {
+    /**
+     * مدیریت ثبت فرم برای افزودن و ویرایش
+     */
+    itemForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const editingItemId = parseInt(document.getElementById("itemId").value, 10);
+      const isEditing = !!editingItemId;
+
       const selectedCategories = Array.from(categoriesCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-
-      if (!titleInput.value.trim()) {
-        alert("عنوان نمی‌تواند خالی باشد.");
-        return;
-      }
-      if (selectedCategories.length === 0) {
-        alert("لطفاً دست‌کم یک دسته‌بندی انتخاب کنید.");
+      if (!titleInput.value.trim() || selectedCategories.length === 0) {
+        alert("عنوان و حداقل یک دسته‌بندی الزامی است.");
         return;
       }
 
-      const newItem = {
+      const newItemData = {
         id: parseInt(idInput.value, 10),
         title: titleInput.value,
         categories: selectedCategories,
         description: descriptionTextarea.value,
       };
 
-      if (jsonData.some((item, idx) => item.id === newItem.id && idx !== currentItemIndex)) {
-        alert("این شناسه قبلاً استفاده شده است. لطفاً یک شناسه منحصربه‌فرد وارد کنید.");
+      // چک کردن یکتا بودن ID فقط در حالت افزودن
+      if (!isEditing && jsonData.some(item => item.id === newItemData.id)) {
+        alert("این شناسه قبلاً استفاده شده است.");
         return;
       }
 
-      if (currentItemIndex === -1) {
-        jsonData.push(newItem);
-      } else {
-        jsonData[currentItemIndex] = newItem;
-      }
-      currentPage = 1;
-      renderItems();
-      closeModal();
-      saveDataToServer();
-    });
-
-    function deleteItem(index) {
-      if (confirm("آیا از حذف این پیام مطمئن هستید؟")) {
-        jsonData.splice(index, 1);
+      try {
+        if (isEditing) {
+          // ویرایش
+          await apiRequest('update', newItemData);
+          const index = jsonData.findIndex(i => i.id === editingItemId);
+          if (index !== -1) jsonData[index] = newItemData;
+        } else {
+          // افزودن
+          await apiRequest('create', newItemData);
+          jsonData.push(newItemData);
+        }
         currentPage = 1;
         renderItems();
-        saveDataToServer();
+        closeModal();
+      } catch (error) {
+        // خطا قبلا نمایش داده شده است
+      }
+    });
+
+    /**
+     * تابع جدید برای حذف آیتم
+     */
+    async function deleteItem(id) {
+      if (confirm("آیا از حذف این پیام مطمئن هستید؟")) {
+        try {
+          await apiRequest('delete', {
+            id
+          });
+          jsonData = jsonData.filter(item => item.id !== id);
+          currentPage = 1;
+          renderItems();
+        } catch (error) {
+          // خطا قبلا نمایش داده شده است
+        }
       }
     }
 
-    async function loadInitialJson() {
+    /**
+     * بارگذاری اولیه داده‌ها از API
+     */
+    async function loadInitialData() {
       try {
-        const response = await fetch(`/data/wiki.json?v=${new Date().getTime()}`);
-        if (response.ok) {
-          jsonData = await response.json();
-        } else if (response.status === 404) {
-          jsonData = [];
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetch(`${API_URL}?v=${new Date().getTime()}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        jsonData = await response.json();
       } catch (error) {
-        console.error("خطا در بارگذاری wiki.json:", error);
-        alert("خطا در بارگذاری فایل JSON اولیه.");
+        console.error("خطا در بارگذاری اولیه داده‌ها:", error);
+        alert("خطا در ارتباط با سرور.");
         jsonData = [];
       } finally {
         currentPage = 1;
@@ -894,12 +926,13 @@ $claims = requireAuth('admin', '/auth/login.html');
       }
     }
 
+    // --- Event Listeners نهایی ---
     closeButton.onclick = closeModal;
     window.onclick = function(event) {
       if (event.target == itemModal) closeModal();
     };
     cancelEditBtn.onclick = closeModal;
-    document.addEventListener("DOMContentLoaded", loadInitialJson);
+    document.addEventListener("DOMContentLoaded", loadInitialData);
   </script>
 </body>
 
