@@ -19,15 +19,14 @@ try {
     $pdo->exec('PRAGMA foreign_keys = ON;');
 
     // ایجاد جدول اموال (assets) اگر وجود نداشته باشد
-    // این نسخه نهایی شامل ستون‌های به‌روز شده است
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS assets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             serial_number TEXT NOT NULL UNIQUE,
-            status TEXT NOT NULL DEFAULT 'In Stock', -- 'In Stock' or 'Assigned'
+            status TEXT NOT NULL DEFAULT 'In Stock',
             assigned_to_user_id INTEGER,
-            assigned_at DATETIME, -- ستون جدید برای تاریخ تخصیص
+            assigned_at DATETIME,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (assigned_to_user_id) REFERENCES users(id)
         )
@@ -51,14 +50,15 @@ $action = $_GET['action'] ?? '';
 if ($method === 'GET') {
     switch ($action) {
         case 'get_assets':
-            // استفاده از JOIN برای گرفتن نام کارشناس از جدول users
+            // ✅ *** CHANGE: Added assigned_at to the SELECT statement ***
             $sql = "
                 SELECT
                     a.id,
                     a.name,
                     a.serial_number,
                     a.status,
-                    u.name AS assigned_to_name
+                    u.name AS assigned_to_name,
+                    strftime('%Y-%m-%d', a.assigned_at) AS assigned_at_formatted
                 FROM
                     assets a
                 LEFT JOIN
@@ -72,7 +72,6 @@ if ($method === 'GET') {
             break;
 
         case 'get_experts':
-            // ارسال آیدی کارشناس به همراه نام او
             $stmt = $pdo->query("SELECT id, username, name FROM users ORDER BY name ASC");
             $experts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             send_json_response($experts);
@@ -105,7 +104,7 @@ if ($method === 'GET') {
                 send_json_response(['success' => true]);
             } catch (PDOException $e) {
                 if ($e->getCode() == 23000) {
-                    http_response_code(409); // Conflict
+                    http_response_code(409);
                     send_json_response(['success' => false, 'error' => 'کالایی با این شماره سریال قبلا ثبت شده است.']);
                 } else {
                     http_response_code(500);
@@ -117,15 +116,50 @@ if ($method === 'GET') {
         case 'assign_asset':
             $asset_id = $data['asset_id'] ?? null;
             $user_id = $data['user_id'] ?? null;
+            $assigned_at = $data['assigned_at'] ?? null;
+
             if (!$asset_id || !$user_id) {
                 http_response_code(400);
                 send_json_response(['success' => false, 'error' => 'شناسه کالا و شناسه کارشناس الزامی است.']);
             }
-            // کوئری به‌روز شده برای ثبت زمان تخصیص
-            $sql = "UPDATE assets SET status = 'Assigned', assigned_to_user_id = ?, assigned_at = CURRENT_TIMESTAMP WHERE id = ?";
+
+            if (empty($assigned_at)) {
+                $sql = "UPDATE assets SET status = 'Assigned', assigned_to_user_id = ?, assigned_at = CURRENT_TIMESTAMP WHERE id = ?";
+                $params = [$user_id, $asset_id];
+            } else {
+                $sql = "UPDATE assets SET status = 'Assigned', assigned_to_user_id = ?, assigned_at = ? WHERE id = ?";
+                $params = [$user_id, $assigned_at, $asset_id];
+            }
+
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$user_id, $asset_id]);
+            $stmt->execute($params);
             send_json_response(['success' => true]);
+            break;
+
+        case 'edit_asset':
+            $asset_id = $data['asset_id'] ?? null;
+            $name = $data['name'] ?? null;
+            $serial = $data['serial'] ?? null;
+
+            if (!$asset_id || !$name || !$serial) {
+                http_response_code(400);
+                send_json_response(['success' => false, 'error' => 'شناسه، نام و شماره سریال کالا الزامی است.']);
+            }
+
+            try {
+                $sql = "UPDATE assets SET name = ?, serial_number = ? WHERE id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$name, $serial, $asset_id]);
+                send_json_response(['success' => true]);
+            } catch (PDOException $e) {
+                if ($e->getCode() == 23000) {
+                    http_response_code(409);
+                    send_json_response(['success' => false, 'error' => 'کالایی با این شماره سریال قبلا ثبت شده است.']);
+                } else {
+                    http_response_code(500);
+                    send_json_response(['success' => false, 'error' => 'خطای دیتابیس: ' . $e->getMessage()]);
+                }
+            }
             break;
 
         case 'return_asset':
@@ -134,7 +168,6 @@ if ($method === 'GET') {
                 http_response_code(400);
                 send_json_response(['success' => false, 'error' => 'شناسه کالا مشخص نشده است.']);
             }
-            // کوئری به‌روز شده برای حذف تاریخ تخصیص
             $sql = "UPDATE assets SET status = 'In Stock', assigned_to_user_id = NULL, assigned_at = NULL WHERE id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$asset_id]);
@@ -163,6 +196,6 @@ if ($method === 'GET') {
             send_json_response(['success' => false, 'error' => 'عملیات POST نامعتبر است.']);
     }
 } else {
-    http_response_code(405); // Method Not Allowed
+    http_response_code(405);
     send_json_response(['success' => false, 'error' => 'متد درخواست غیرمجاز است.']);
 }

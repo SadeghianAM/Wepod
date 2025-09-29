@@ -23,8 +23,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             --radius: 12px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
             --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
-
-            /* New Colors for better UX feedback */
             --success-color: #28a745;
             --info-color: #17a2b8;
             --warning-color: #ffc107;
@@ -91,6 +89,15 @@ $claims = requireAuth('admin', '/../auth/login.html');
             margin-inline: auto;
         }
 
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
         .page-title {
             color: var(--primary-dark);
             font-weight: 800;
@@ -102,41 +109,14 @@ $claims = requireAuth('admin', '/../auth/login.html');
             color: var(--secondary-text);
             font-weight: 400;
             font-size: clamp(.95rem, 2.2vw, 1rem);
-            margin-block-end: 2.5rem;
         }
 
-        /* New Layout: Grid for form and table */
         .content-layout {
             display: grid;
             grid-template-columns: 1fr;
             gap: 2.5rem;
         }
 
-        @media (min-width: 992px) {
-            .content-layout {
-                grid-template-columns: 380px 1fr;
-                align-items: flex-start;
-            }
-        }
-
-        .form-card {
-            background: var(--card-bg);
-            padding: 1.75rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-            position: sticky;
-            top: 2rem;
-        }
-
-        .form-card h2 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--text-color);
-        }
-
-        /* Form group for better spacing and labels */
         .form-group {
             margin-bottom: 1.25rem;
         }
@@ -150,6 +130,8 @@ $claims = requireAuth('admin', '/../auth/login.html');
         }
 
         input[type="text"],
+        input[type="date"],
+        input[type="search"],
         select {
             width: 100%;
             font-size: 1rem;
@@ -161,6 +143,8 @@ $claims = requireAuth('admin', '/../auth/login.html');
         }
 
         input[type="text"]:focus-visible,
+        input[type="date"]:focus-visible,
+        input[type="search"]:focus-visible,
         select:focus-visible {
             outline: none;
             border-color: var(--primary-color);
@@ -192,6 +176,10 @@ $claims = requireAuth('admin', '/../auth/login.html');
             width: 100%;
         }
 
+        .table-container-wrapper {
+            min-width: 0;
+        }
+
         .table-wrapper {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -203,10 +191,22 @@ $claims = requireAuth('admin', '/../auth/login.html');
         .section-header {
             padding: 1rem 1.75rem;
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
         }
 
         .section-header h2 {
             font-size: 1.25rem;
+            margin: 0;
+        }
+
+        #searchInput {
+            max-width: 400px;
+            font-size: 0.9rem;
+            padding: .6em 1em;
         }
 
         .data-table {
@@ -220,6 +220,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
             text-align: right;
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
+            white-space: nowrap;
         }
 
         .data-table th {
@@ -295,7 +296,14 @@ $claims = requireAuth('admin', '/../auth/login.html');
             background-color: #c82333;
         }
 
-        /* Modal Styles */
+        .btn-edit {
+            background-color: var(--info-color);
+        }
+
+        .btn-edit:hover {
+            background-color: #117a8b;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -355,7 +363,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             color: var(--text-color);
         }
 
-        /* Toast Notification System */
         #toast-container {
             position: fixed;
             top: 20px;
@@ -423,33 +430,20 @@ $claims = requireAuth('admin', '/../auth/login.html');
 
 <body>
     <div id="header-placeholder"></div>
-
     <main>
-        <h1 class="page-title">سامانه مدیریت اموال</h1>
-        <p class="page-subtitle">اموال و تجهیزات مربوط به مرکز پشتیبانی را ثبت و مدیریت کنید.</p>
-
-        <div class="content-layout">
-            <div class="form-container">
-                <div class="form-card">
-                    <h2>✨ افزودن اموال جدید</h2>
-                    <form id="addAssetForm">
-                        <div class="form-group">
-                            <label for="assetName">نام کالا</label>
-                            <input type="text" id="assetName" placeholder="مثلا: موس Logitech" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="assetSerial">شماره سریال</label>
-                            <input type="text" id="assetSerial" placeholder="شماره منحصر به فرد کالا" required>
-                        </div>
-                        <button type="submit" class="btn btn-full-width">افزودن کالا</button>
-                    </form>
-                </div>
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">سامانه مدیریت اموال</h1>
+                <p class="page-subtitle">اموال و تجهیزات مربوط به مرکز پشتیبانی را ثبت و مدیریت کنید.</p>
             </div>
-
+            <button class="btn" id="openAddModalBtn">+ افزودن کالای جدید</button>
+        </div>
+        <div class="content-layout">
             <div class="table-container-wrapper">
                 <div class="table-wrapper">
                     <div class="section-header">
                         <h2>لیست اموال</h2>
+                        <input type="search" id="searchInput" placeholder="جستجو بر اساس نام کالا، سریال، تاریخ یا تحویل‌گیرنده...">
                     </div>
                     <table class="data-table" id="assetTable">
                         <thead>
@@ -459,6 +453,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                                 <th>شماره سریال</th>
                                 <th>وضعیت</th>
                                 <th>تحویل‌گیرنده</th>
+                                <th>تاریخ تحویل</th>
                                 <th>عملیات</th>
                             </tr>
                         </thead>
@@ -469,47 +464,95 @@ $claims = requireAuth('admin', '/../auth/login.html');
             </div>
         </div>
     </main>
-
+    <div id="addAssetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✨ افزودن اموال جدید</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <form id="addAssetForm">
+                <div class="form-group">
+                    <label for="assetName">نام کالا</label>
+                    <input type="text" id="assetName" placeholder="مثلا: موس Logitech" required>
+                </div>
+                <div class="form-group">
+                    <label for="assetSerial">شماره سریال</label>
+                    <input type="text" id="assetSerial" placeholder="شماره منحصر به فرد کالا" required>
+                </div>
+                <button type="submit" class="btn btn-full-width">افزودن کالا</button>
+            </form>
+        </div>
+    </div>
     <div id="assignModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>تخصیص به کارشناس</h3>
-                <span class="modal-close" id="closeModal">&times;</span>
+                <span class="modal-close">&times;</span>
             </div>
             <div class="form-group">
                 <label for="expertSelect">انتخاب کارشناس</label>
                 <select id="expertSelect">
                 </select>
             </div>
+            <div class="form-group">
+                <label for="assignDateDisplay">تاریخ تحویل (اختیاری)</label>
+                <input type="text" id="assignDateDisplay" placeholder="تاریخ را انتخاب کنید..." readonly style="cursor: pointer; background-color: #fff;">
+                <input type="hidden" id="assignDate">
+            </div>
             <button id="confirmAssignBtn" class="btn btn-full-width">تایید تخصیص</button>
         </div>
     </div>
-
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ویرایش اموال</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <form id="editAssetForm">
+                <div class="form-group">
+                    <label for="editAssetName">نام کالا</label>
+                    <input type="text" id="editAssetName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editAssetSerial">شماره سریال</label>
+                    <input type="text" id="editAssetSerial" required>
+                </div>
+                <button type="submit" class="btn btn-full-width">ذخیره تغییرات</button>
+            </form>
+        </div>
+    </div>
     <div id="toast-container"></div>
     <div id="footer-placeholder"></div>
-
     <script src="/js/header.js"></script>
+    <script src="/js/jalali-datepicker.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const API_URL = '/admin/asset-management/asset-api.php';
             const assetTableBody = document.querySelector('#assetTable tbody');
+            const addAssetModal = document.getElementById('addAssetModal');
+            const openAddModalBtn = document.getElementById('openAddModalBtn');
+            const closeAddModalBtn = addAssetModal.querySelector('.modal-close');
             const addAssetForm = document.getElementById('addAssetForm');
             const assignModal = document.getElementById('assignModal');
-            const closeModal = document.getElementById('closeModal');
             const expertSelect = document.getElementById('expertSelect');
+            const assignDateInput = document.getElementById('assignDate');
+            const assignDateDisplayInput = document.getElementById('assignDateDisplay');
             const confirmAssignBtn = document.getElementById('confirmAssignBtn');
+            const editModal = document.getElementById('editModal');
+            const editAssetForm = document.getElementById('editAssetForm');
+            const editAssetName = document.getElementById('editAssetName');
+            const editAssetSerial = document.getElementById('editAssetSerial');
+            const searchInput = document.getElementById('searchInput');
             const toastContainer = document.getElementById('toast-container');
             let currentAssetId = null;
+            let allAssets = [];
 
-            // --- Toast Notification System ---
             function showToast(message, type = 'info', duration = 4000) {
                 const toast = document.createElement('div');
                 toast.className = `toast toast-${type}`;
                 toast.textContent = message;
                 toastContainer.appendChild(toast);
-
-                setTimeout(() => toast.classList.add('show'), 10); // Trigger transition
-
+                setTimeout(() => toast.classList.add('show'), 10);
                 setTimeout(() => {
                     toast.classList.remove('show');
                     toast.addEventListener('transitionend', () => toast.remove());
@@ -519,7 +562,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             function showConfirmation(message, onConfirm) {
                 const toast = document.createElement('div');
                 toast.className = 'toast toast-confirm';
-
                 toast.innerHTML = `
                     <div class="toast-message">${message}</div>
                     <div class="toast-buttons">
@@ -527,51 +569,36 @@ $claims = requireAuth('admin', '/../auth/login.html');
                         <button class="btn" style="background-color: var(--secondary-text);" id="cancelAction">لغو</button>
                     </div>
                 `;
-
                 toast.querySelector('#confirmAction').onclick = () => {
                     onConfirm();
                     removeToast();
                 };
-
                 toast.querySelector('#cancelAction').onclick = () => removeToast();
-
                 const removeToast = () => {
                     toast.classList.remove('show');
                     toast.addEventListener('transitionend', () => toast.remove());
                 };
-
                 toastContainer.appendChild(toast);
                 setTimeout(() => toast.classList.add('show'), 10);
             }
 
-            // --- Render Functions ---
             function showLoadingState() {
-                assetTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align:center; padding: 2rem;">
-                            در حال بارگذاری اطلاعات...
-                        </td>
-                    </tr>`;
+                const colCount = document.querySelector('#assetTable thead th').length || 7;
+                assetTableBody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center; padding: 2rem;">در حال بارگذاری اطلاعات...</td></tr>`;
             }
 
             function renderAssets(assets) {
                 assetTableBody.innerHTML = '';
+                const colCount = document.querySelector('#assetTable thead th').length || 7;
                 if (!assets || assets.length === 0) {
-                    assetTableBody.innerHTML = `
-                            <tr>
-                                <td colspan="6" style="text-align:center; padding: 2rem;">
-                                    هیچ کالایی ثبت نشده است.
-                                </td>
-                            </tr>`;
+                    assetTableBody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center; padding: 2rem;">هیچ کالایی یافت نشد.</td></tr>`;
                     return;
                 }
-
                 assets.forEach(asset => {
                     const row = assetTableBody.insertRow();
                     row.insertCell().textContent = asset.id;
                     row.insertCell().textContent = asset.name;
                     row.insertCell().textContent = asset.serial_number;
-
                     const statusCell = row.insertCell();
                     const statusBadge = document.createElement('span');
                     statusBadge.className = 'status';
@@ -583,24 +610,41 @@ $claims = requireAuth('admin', '/../auth/login.html');
                         statusBadge.textContent = '🧑‍💼 تحویل داده شده';
                     }
                     statusCell.appendChild(statusBadge);
-
                     row.insertCell().textContent = asset.assigned_to_name || '---';
-
+                    const dateCell = row.insertCell();
+                    if (asset.assigned_at_formatted) {
+                        const gregorianDate = new Date(asset.assigned_at_formatted);
+                        const [jy, jm, jd] = toPersian(gregorianDate);
+                        dateCell.textContent = formatJalaliDisplay(jy, jm, jd);
+                    } else {
+                        dateCell.textContent = '---';
+                    }
                     const actionsCell = row.insertCell();
                     actionsCell.className = 'actions-cell';
+                    const editButton = document.createElement('button');
+                    editButton.textContent = 'ویرایش';
+                    editButton.className = 'btn action-button btn-edit';
+                    editButton.dataset.id = asset.id;
+                    editButton.dataset.name = asset.name;
+                    editButton.dataset.serial = asset.serial_number;
+                    actionsCell.appendChild(editButton);
                     if (asset.status === 'In Stock') {
                         const assignButton = document.createElement('button');
                         assignButton.textContent = 'تخصیص';
                         assignButton.className = 'btn action-button btn-assign';
                         assignButton.dataset.id = asset.id;
                         actionsCell.appendChild(assignButton);
-
                         const deleteButton = document.createElement('button');
                         deleteButton.innerHTML = 'حذف 🗑️';
                         deleteButton.className = 'btn action-button btn-delete';
                         deleteButton.dataset.id = asset.id;
                         actionsCell.appendChild(deleteButton);
                     } else {
+                        const reassignButton = document.createElement('button');
+                        reassignButton.textContent = 'تغییر تخصیص';
+                        reassignButton.className = 'btn action-button btn-assign';
+                        reassignButton.dataset.id = asset.id;
+                        actionsCell.appendChild(reassignButton);
                         const returnButton = document.createElement('button');
                         returnButton.textContent = 'بازگرداندن';
                         returnButton.className = 'btn action-button btn-return';
@@ -609,8 +653,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     }
                 });
             }
-
-            // --- API Calls ---
             async function apiPost(action, data) {
                 try {
                     const response = await fetch(`${API_URL}?action=${action}`, {
@@ -630,20 +672,20 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     return null;
                 }
             }
-
             async function fetchAssets() {
                 showLoadingState();
                 try {
                     const response = await fetch(`${API_URL}?action=get_assets`);
                     if (!response.ok) throw new Error('پاسخی از سرور دریافت نشد.');
                     const assets = await response.json();
-                    renderAssets(assets);
+                    allAssets = assets;
+                    renderAssets(allAssets);
+                    searchInput.dispatchEvent(new Event('input'));
                 } catch (error) {
-                    assetTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">خطا در بارگذاری اطلاعات: ${error.message}</td></tr>`;
+                    const colCount = document.querySelector('#assetTable thead th').length || 7;
+                    assetTableBody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center; color: red;">خطا در بارگذاری اطلاعات: ${error.message}</td></tr>`;
                 }
             }
-
-            // --- Event Listeners ---
             addAssetForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const name = document.getElementById('assetName').value.trim();
@@ -659,23 +701,48 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 if (result) {
                     showToast('کالا با موفقیت افزوده شد.', 'success');
                     addAssetForm.reset();
+                    addAssetModal.classList.remove('show');
                     fetchAssets();
                 }
             });
-
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.trim().toLowerCase()
+                    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+                    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                if (!searchTerm) {
+                    renderAssets(allAssets);
+                    return;
+                }
+                const filteredAssets = allAssets.filter(asset => {
+                    const nameMatch = asset.name.toLowerCase().includes(searchTerm);
+                    const serialMatch = asset.serial_number.toLowerCase().includes(searchTerm);
+                    let dateMatch = false;
+                    if (asset.assigned_at_formatted) {
+                        const gregorianDate = new Date(asset.assigned_at_formatted);
+                        const [jy, jm, jd] = toPersian(gregorianDate);
+                        const jalaliDateString = `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
+                        dateMatch = jalaliDateString.includes(searchTerm);
+                    }
+                    let assigneeMatch = false;
+                    if (asset.assigned_to_name) {
+                        assigneeMatch = asset.assigned_to_name.toLowerCase().includes(searchTerm);
+                    }
+                    return nameMatch || serialMatch || dateMatch || assigneeMatch;
+                });
+                renderAssets(filteredAssets);
+            });
             assetTableBody.addEventListener('click', async (e) => {
                 const target = e.target.closest('.btn');
                 if (!target) return;
-
-                const assetId = target.dataset.id;
-
+                currentAssetId = target.dataset.id;
                 if (target.classList.contains('btn-assign')) {
-                    currentAssetId = assetId;
                     await openAssignModal();
+                } else if (target.classList.contains('btn-edit')) {
+                    openEditModal(target.dataset.name, target.dataset.serial);
                 } else if (target.classList.contains('btn-return')) {
                     showConfirmation('آیا از بازگرداندن این کالا به انبار مطمئن هستید؟', async () => {
                         const result = await apiPost('return_asset', {
-                            asset_id: assetId
+                            asset_id: currentAssetId
                         });
                         if (result) {
                             showToast('کالا با موفقیت به انبار بازگردانده شد.', 'info');
@@ -683,9 +750,9 @@ $claims = requireAuth('admin', '/../auth/login.html');
                         }
                     });
                 } else if (target.classList.contains('btn-delete')) {
-                    showConfirmation(`آیا از حذف کامل کالای با کد ${assetId} اطمینان دارید؟ این عمل غیرقابل بازگشت است.`, async () => {
+                    showConfirmation(`آیا از حذف کامل کالای با کد ${currentAssetId} اطمینان دارید؟`, async () => {
                         const result = await apiPost('delete_asset', {
-                            asset_id: assetId
+                            asset_id: currentAssetId
                         });
                         if (result) {
                             showToast('کالا با موفقیت حذف شد.', 'success');
@@ -694,60 +761,81 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     });
                 }
             });
-
-            // --- Modal Logic ---
+            const closeModal = (modal) => modal.classList.remove('show');
+            openAddModalBtn.addEventListener('click', () => addAssetModal.classList.add('show'));
+            closeAddModalBtn.addEventListener('click', () => closeModal(addAssetModal));
             async function openAssignModal() {
                 try {
                     const response = await fetch(`${API_URL}?action=get_experts`);
                     if (!response.ok) throw new Error('خطا در دریافت لیست کارشناسان.');
-
                     const experts = await response.json();
                     expertSelect.innerHTML = '<option value="">یک کارشناس را انتخاب کنید...</option>';
-
-                    // ✅ *** CHANGE 1: Use expert.id for the option value ***
                     experts.forEach(expert => {
                         expertSelect.innerHTML += `<option value="${expert.id}">${expert.name}</option>`;
                     });
-
+                    assignDateInput.value = '';
+                    assignDateDisplayInput.value = '';
                     assignModal.classList.add('show');
                 } catch (error) {
                     showToast(error.message, 'error');
                 }
             }
+            assignModal.querySelector('.modal-close').addEventListener('click', () => closeModal(assignModal));
 
-            const closeTheModal = () => assignModal.classList.remove('show');
-            closeModal.onclick = closeTheModal;
-            window.onclick = (e) => {
-                if (e.target == assignModal) closeTheModal();
-            };
-
+            function openEditModal(name, serial) {
+                editAssetName.value = name;
+                editAssetSerial.value = serial;
+                editModal.classList.add('show');
+            }
+            editModal.querySelector('.modal-close').addEventListener('click', () => closeModal(editModal));
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal(e.target);
+                }
+            });
             confirmAssignBtn.addEventListener('click', async () => {
-                const selectedOption = expertSelect.options[expertSelect.selectedIndex];
-
-                // ✅ *** CHANGE 2.1: Get the user ID from the value ***
-                const userId = selectedOption.value;
-
+                const userId = expertSelect.value;
+                const assignDate = assignDateInput.value;
                 if (!userId) {
                     showToast('لطفا یک کارشناس را انتخاب کنید.', 'error');
                     return;
                 }
-
-                // ✅ *** CHANGE 2.2: Create the correct payload for the new API ***
                 const payload = {
                     asset_id: currentAssetId,
                     user_id: userId
                 };
-
+                if (assignDate) {
+                    payload.assigned_at = assignDate;
+                }
                 const result = await apiPost('assign_asset', payload);
                 if (result) {
-                    showToast(`کالا به ${selectedOption.text} تخصیص داده شد.`, 'success');
-                    closeTheModal();
+                    showToast(`کالا به ${expertSelect.options[expertSelect.selectedIndex].text} تخصیص داده شد.`, 'success');
+                    closeModal(assignModal);
                     fetchAssets();
                 }
             });
-
-            // Initial Load
+            editAssetForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = editAssetName.value.trim();
+                const serial = editAssetSerial.value.trim();
+                if (!name || !serial) {
+                    showToast('نام و شماره سریال نمی‌توانند خالی باشند.', 'error');
+                    return;
+                }
+                const payload = {
+                    asset_id: currentAssetId,
+                    name,
+                    serial
+                };
+                const result = await apiPost('edit_asset', payload);
+                if (result) {
+                    showToast('کالا با موفقیت ویرایش شد.', 'success');
+                    closeModal(editModal);
+                    fetchAssets();
+                }
+            });
             fetchAssets();
+            new JalaliDatePicker('assignDateDisplay', 'assignDate');
         });
     </script>
 </body>
