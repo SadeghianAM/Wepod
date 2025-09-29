@@ -204,7 +204,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
         }
 
         #searchInput {
-            max-width: 400px;
+            max-width: 300px;
             font-size: 0.9rem;
             padding: .6em 1em;
         }
@@ -228,6 +228,40 @@ $claims = requireAuth('admin', '/../auth/login.html');
             font-size: .9rem;
             color: var(--secondary-text);
             background-color: var(--bg-color);
+            position: relative;
+        }
+
+        .data-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            padding-left: 24px;
+        }
+
+        .data-table th.sortable::after {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9em;
+            color: var(--secondary-text);
+            opacity: 0.4;
+        }
+
+        .data-table th.sortable:not(.sort-asc):not(.sort-desc)::after {
+            content: '↕';
+        }
+
+        .data-table th.sort-asc::after {
+            content: '▲';
+            opacity: 1;
+            color: var(--primary-dark);
+        }
+
+        .data-table th.sort-desc::after {
+            content: '▼';
+            opacity: 1;
+            color: var(--primary-dark);
         }
 
         .data-table tr:last-child td {
@@ -450,10 +484,10 @@ $claims = requireAuth('admin', '/../auth/login.html');
                             <tr>
                                 <th>کد</th>
                                 <th>نام کالا</th>
-                                <th>شماره سریال</th>
+                                <th class="sortable" data-sort-by="serial_number">شماره سریال</th>
                                 <th>وضعیت</th>
-                                <th>تحویل‌گیرنده</th>
-                                <th>تاریخ تحویل</th>
+                                <th class="sortable" data-sort-by="assigned_to_name">تحویل‌گیرنده</th>
+                                <th class="sortable" data-sort-by="assigned_at_formatted">تاریخ تحویل</th>
                                 <th>عملیات</th>
                             </tr>
                         </thead>
@@ -528,7 +562,8 @@ $claims = requireAuth('admin', '/../auth/login.html');
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const API_URL = '/admin/asset-management/asset-api.php';
-            const assetTableBody = document.querySelector('#assetTable tbody');
+            const assetTable = document.getElementById('assetTable');
+            const assetTableBody = assetTable.querySelector('tbody');
             const addAssetModal = document.getElementById('addAssetModal');
             const openAddModalBtn = document.getElementById('openAddModalBtn');
             const closeAddModalBtn = addAssetModal.querySelector('.modal-close');
@@ -546,6 +581,8 @@ $claims = requireAuth('admin', '/../auth/login.html');
             const toastContainer = document.getElementById('toast-container');
             let currentAssetId = null;
             let allAssets = [];
+            let currentSortBy = null;
+            let currentSortDir = 'asc';
 
             function showToast(message, type = 'info', duration = 4000) {
                 const toast = document.createElement('div');
@@ -583,13 +620,13 @@ $claims = requireAuth('admin', '/../auth/login.html');
             }
 
             function showLoadingState() {
-                const colCount = document.querySelector('#assetTable thead th').length || 7;
+                const colCount = assetTable.querySelectorAll('thead th').length || 7;
                 assetTableBody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center; padding: 2rem;">در حال بارگذاری اطلاعات...</td></tr>`;
             }
 
             function renderAssets(assets) {
                 assetTableBody.innerHTML = '';
-                const colCount = document.querySelector('#assetTable thead th').length || 7;
+                const colCount = assetTable.querySelectorAll('thead th').length || 7;
                 if (!assets || assets.length === 0) {
                     assetTableBody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center; padding: 2rem;">هیچ کالایی یافت نشد.</td></tr>`;
                     return;
@@ -677,14 +714,49 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 try {
                     const response = await fetch(`${API_URL}?action=get_assets`);
                     if (!response.ok) throw new Error('پاسخی از سرور دریافت نشد.');
-                    const assets = await response.json();
-                    allAssets = assets;
-                    renderAssets(allAssets);
-                    searchInput.dispatchEvent(new Event('input'));
+                    allAssets = await response.json();
+                    updateDisplay();
                 } catch (error) {
-                    const colCount = document.querySelector('#assetTable thead th').length || 7;
+                    const colCount = assetTable.querySelectorAll('thead th').length || 7;
                     assetTableBody.innerHTML = `<tr><td colspan="${colCount}" style="text-align:center; color: red;">خطا در بارگذاری اطلاعات: ${error.message}</td></tr>`;
                 }
+            }
+
+            function updateDisplay() {
+                const searchTerm = searchInput.value.trim().toLowerCase()
+                    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+                    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+                let processedAssets = [...allAssets];
+                if (searchTerm) {
+                    processedAssets = processedAssets.filter(asset => {
+                        const nameMatch = asset.name.toLowerCase().includes(searchTerm);
+                        const serialMatch = asset.serial_number.toLowerCase().includes(searchTerm);
+                        let dateMatch = false;
+                        if (asset.assigned_at_formatted) {
+                            const gregorianDate = new Date(asset.assigned_at_formatted);
+                            const [jy, jm, jd] = toPersian(gregorianDate);
+                            const jalaliDateString = `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
+                            dateMatch = jalaliDateString.includes(searchTerm);
+                        }
+                        let assigneeMatch = false;
+                        if (asset.assigned_to_name) {
+                            assigneeMatch = asset.assigned_to_name.toLowerCase().includes(searchTerm);
+                        }
+                        return nameMatch || serialMatch || dateMatch || assigneeMatch;
+                    });
+                }
+                if (currentSortBy) {
+                    processedAssets.sort((a, b) => {
+                        const valA = a[currentSortBy];
+                        const valB = b[currentSortBy];
+                        if (valA == null && valB == null) return 0;
+                        if (valA == null) return 1;
+                        if (valB == null) return -1;
+                        const comparison = String(valA).localeCompare(String(valB), 'fa');
+                        return currentSortDir === 'asc' ? comparison : -comparison;
+                    });
+                }
+                renderAssets(processedAssets);
             }
             addAssetForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -702,41 +774,33 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     showToast('کالا با موفقیت افزوده شد.', 'success');
                     addAssetForm.reset();
                     addAssetModal.classList.remove('show');
-                    fetchAssets();
+                    await fetchAssets();
                 }
             });
-            searchInput.addEventListener('input', () => {
-                const searchTerm = searchInput.value.trim().toLowerCase()
-                    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-                    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-                if (!searchTerm) {
-                    renderAssets(allAssets);
-                    return;
+            searchInput.addEventListener('input', updateDisplay);
+            assetTable.querySelector('thead').addEventListener('click', (e) => {
+                const header = e.target.closest('th.sortable');
+                if (!header) return;
+                const sortBy = header.dataset.sortBy;
+                if (currentSortBy === sortBy) {
+                    currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSortBy = sortBy;
+                    currentSortDir = 'asc';
                 }
-                const filteredAssets = allAssets.filter(asset => {
-                    const nameMatch = asset.name.toLowerCase().includes(searchTerm);
-                    const serialMatch = asset.serial_number.toLowerCase().includes(searchTerm);
-                    let dateMatch = false;
-                    if (asset.assigned_at_formatted) {
-                        const gregorianDate = new Date(asset.assigned_at_formatted);
-                        const [jy, jm, jd] = toPersian(gregorianDate);
-                        const jalaliDateString = `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
-                        dateMatch = jalaliDateString.includes(searchTerm);
-                    }
-                    let assigneeMatch = false;
-                    if (asset.assigned_to_name) {
-                        assigneeMatch = asset.assigned_to_name.toLowerCase().includes(searchTerm);
-                    }
-                    return nameMatch || serialMatch || dateMatch || assigneeMatch;
+                assetTable.querySelectorAll('th.sortable').forEach(th => {
+                    th.classList.remove('sort-asc', 'sort-desc');
                 });
-                renderAssets(filteredAssets);
+                header.classList.add(`sort-${currentSortDir}`);
+                updateDisplay();
             });
             assetTableBody.addEventListener('click', async (e) => {
                 const target = e.target.closest('.btn');
                 if (!target) return;
                 currentAssetId = target.dataset.id;
                 if (target.classList.contains('btn-assign')) {
-                    await openAssignModal();
+                    const assetToAssign = allAssets.find(a => a.id == currentAssetId);
+                    await openAssignModal(assetToAssign);
                 } else if (target.classList.contains('btn-edit')) {
                     openEditModal(target.dataset.name, target.dataset.serial);
                 } else if (target.classList.contains('btn-return')) {
@@ -746,7 +810,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                         });
                         if (result) {
                             showToast('کالا با موفقیت به انبار بازگردانده شد.', 'info');
-                            fetchAssets();
+                            await fetchAssets();
                         }
                     });
                 } else if (target.classList.contains('btn-delete')) {
@@ -756,7 +820,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                         });
                         if (result) {
                             showToast('کالا با موفقیت حذف شد.', 'success');
-                            fetchAssets();
+                            await fetchAssets();
                         }
                     });
                 }
@@ -764,7 +828,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
             const closeModal = (modal) => modal.classList.remove('show');
             openAddModalBtn.addEventListener('click', () => addAssetModal.classList.add('show'));
             closeAddModalBtn.addEventListener('click', () => closeModal(addAssetModal));
-            async function openAssignModal() {
+            async function openAssignModal(asset = null) {
                 try {
                     const response = await fetch(`${API_URL}?action=get_experts`);
                     if (!response.ok) throw new Error('خطا در دریافت لیست کارشناسان.');
@@ -773,8 +837,19 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     experts.forEach(expert => {
                         expertSelect.innerHTML += `<option value="${expert.id}">${expert.name}</option>`;
                     });
-                    assignDateInput.value = '';
-                    assignDateDisplayInput.value = '';
+
+                    if (asset && asset.assigned_at_formatted) {
+                        assignDateInput.value = asset.assigned_at_formatted;
+                        const gregorianDate = new Date(asset.assigned_at_formatted);
+                        if (!isNaN(gregorianDate)) {
+                            const [jy, jm, jd] = toPersian(gregorianDate);
+                            assignDateDisplayInput.value = formatJalaliDisplay(jy, jm, jd);
+                        }
+                    } else {
+                        assignDateInput.value = '';
+                        assignDateDisplayInput.value = '';
+                    }
+
                     assignModal.classList.add('show');
                 } catch (error) {
                     showToast(error.message, 'error');
@@ -811,7 +886,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 if (result) {
                     showToast(`کالا به ${expertSelect.options[expertSelect.selectedIndex].text} تخصیص داده شد.`, 'success');
                     closeModal(assignModal);
-                    fetchAssets();
+                    await fetchAssets();
                 }
             });
             editAssetForm.addEventListener('submit', async (e) => {
@@ -831,7 +906,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 if (result) {
                     showToast('کالا با موفقیت ویرایش شد.', 'success');
                     closeModal(editModal);
-                    fetchAssets();
+                    await fetchAssets();
                 }
             });
             fetchAssets();
