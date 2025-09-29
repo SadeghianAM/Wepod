@@ -61,7 +61,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         main {
             padding: 2rem 1.5rem;
-            max-width: 1280px;
+            max-width: 1600px;
             width: 100%;
             margin: 0 auto;
             flex-grow: 1;
@@ -450,6 +450,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                             <th>تاریخ شروع</th>
                             <th>وضعیت</th>
                             <th>امتیاز</th>
+                            <th>نقش</th>
+                            <th>تعداد شانس</th>
                             <th>عملیات</th>
                         </tr>
                     </thead>
@@ -480,6 +482,10 @@ $claims = requireAuth('admin', '/auth/login.html');
                     <input type="text" id="username" name="username" required />
                 </div>
                 <div class="form-group">
+                    <label for="role">نقش:</label>
+                    <input type="text" id="role" name="role" placeholder="مثال: کارشناس فروش" />
+                </div>
+                <div class="form-group">
                     <label for="password">رمز عبور:</label>
                     <input type="password" id="password" placeholder="(برای کاربر جدید یا تغییر رمز)" />
                 </div>
@@ -490,6 +496,10 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <div class="form-group">
                     <label for="score">امتیاز:</label>
                     <input type="number" id="score" name="score" value="0" />
+                </div>
+                <div class="form-group">
+                    <label for="spin_chances">تعداد شانس گردونه:</label>
+                    <input type="number" id="spin_chances" name="spin_chances" value="0" />
                 </div>
                 <div class="form-group">
                     <label>کاربر ادمین است؟</label>
@@ -551,6 +561,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             const showSkeletonLoader = () => {
                 let skeletonHTML = '';
                 for (let i = 0; i < 5; i++) {
+                    // ✨ تغییر: یک ستون به لودر اسکلتی اضافه شد
                     skeletonHTML += `
                 <tr class="skeleton-loader">
                     <td><div class="skeleton-item" style="width: 120px;"></div></td>
@@ -559,6 +570,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                     <td><div class="skeleton-item" style="width: 90px;"></div></td>
                     <td><div class="skeleton-item" style="width: 60px;"></div></td>
                     <td><div class="skeleton-item" style="width: 50px;"></div></td>
+                    <td><div class="skeleton-item" style="width: 80px;"></div></td>
+                    <td><div class="skeleton-item" style="width: 70px;"></div></td>
                     <td><div class="skeleton-item" style="width: 70px;"></div></td>
                 </tr>`;
                 }
@@ -571,8 +584,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                 if (users) {
                     renderUsers(users);
                 } else {
-                    // 🟢 تغییر: colspan از 6 به 7 تغییر کرد
-                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="7"><div class="empty-state-icon">📂</div><p>خطا در بارگذاری اطلاعات.</p></td></tr>`;
+                    // ✨ تغییر: colspan از 8 به 9 تغییر کرد
+                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="9"><div class="empty-state-icon">📂</div><p>خطا در بارگذاری اطلاعات.</p></td></tr>`;
                 }
             }
 
@@ -586,8 +599,8 @@ $claims = requireAuth('admin', '/auth/login.html');
 
                 userListBody.innerHTML = "";
                 if (filteredUsers.length === 0) {
-                    // 🟢 تغییر: colspan از 6 به 7 تغییر کرد
-                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="7"><div class="empty-state-icon">🤷</div><p>${searchTerm ? 'کاربری با این مشخصات یافت نشد.' : 'هنوز کاربری اضافه نشده است.'}</p></td></tr>`;
+                    // ✨ تغییر: colspan از 8 به 9 تغییر کرد
+                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="9"><div class="empty-state-icon">🤷</div><p>${searchTerm ? 'کاربری با این مشخصات یافت نشد.' : 'هنوز کاربری اضافه نشده است.'}</p></td></tr>`;
                     return;
                 }
                 filteredUsers.forEach(user => {
@@ -597,7 +610,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                         '<span class="badge badge-success">ادمین</span>' :
                         '<span class="badge badge-secondary">کاربر</span>';
 
-                    // 🟢 تغییر: اضافه کردن ستون (td) برای نمایش امتیاز
+                    // ✨ تغییر: اضافه کردن ستون (td) برای نمایش تعداد شانس
                     row.innerHTML = `
                 <td data-label="نام کامل" class="user-name">${user.name}</td>
                 <td data-label="نام کاربری">${user.username}</td>
@@ -605,6 +618,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <td data-label="تاریخ شروع">${user.start_work || '-'}</td>
                 <td data-label="وضعیت">${isAdminBadge}</td>
                 <td data-label="امتیاز">${user.score ?? 0}</td>
+                <td data-label="نقش">${user.role || '-'}</td>
+                <td data-label="تعداد شانس">${user.spin_chances ?? 0}</td>
                 <td data-label="عملیات" class="actions-cell">
                     <button class="icon-btn edit-btn">✏️</button>
                     <button class="icon-btn delete-btn">🗑️</button>
@@ -619,8 +634,9 @@ $claims = requireAuth('admin', '/auth/login.html');
             document.getElementById("add-new-user-btn").addEventListener("click", () => {
                 currentUserId = null;
                 form.reset();
-                // 🟢 تغییر: مقدار پیش‌فرض برای امتیاز کاربر جدید
                 form.elements['score'].value = 0;
+                // ✨ تغییر: مقدار پیش‌فرض شانس برای کاربر جدید
+                form.elements['spin_chances'].value = 1;
                 document.getElementById("password").required = true;
                 openDrawer("افزودن کاربر جدید");
             });
@@ -634,8 +650,10 @@ $claims = requireAuth('admin', '/auth/login.html');
                 form.elements['password'].value = "";
                 form.elements['password'].required = false;
                 form.elements['start_work'].value = user.start_work || "";
-                // 🟢 تغییر: پر کردن فیلد امتیاز با مقدار کاربر
                 form.elements['score'].value = user.score ?? 0;
+                form.elements['role'].value = user.role || "";
+                // ✨ تغییر: پر کردن فیلد شانس با مقدار کاربر
+                form.elements['spin_chances'].value = user.spin_chances ?? 0;
                 form.elements['is_admin'].checked = user.is_admin == 1;
                 openDrawer("ویرایش کاربر");
             }
@@ -653,7 +671,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 
             form.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                // 🟢 تغییر: اضافه کردن فیلد score به اطلاعات ارسالی
+                // ✨ تغییر: اضافه کردن فیلد spin_chances به اطلاعات ارسالی
                 const payload = {
                     action: currentUserId !== null ? 'update' : 'create',
                     id: currentUserId,
@@ -664,6 +682,8 @@ $claims = requireAuth('admin', '/auth/login.html');
                     start_work: form.elements['start_work'].value.trim(),
                     is_admin: form.elements['is_admin'].checked ? 1 : 0,
                     score: parseInt(form.elements['score'].value) || 0,
+                    role: form.elements['role'].value.trim(),
+                    spin_chances: parseInt(form.elements['spin_chances'].value) || 0,
                 };
                 const result = await apiCall('POST', payload);
                 if (result && result.success) {
@@ -673,10 +693,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             });
 
             searchInput.addEventListener('input', () => {
-                // با هر بار تایپ کردن، تابع loadUsersAndRender دوباره اجرا نمی‌شود،
-                // بلکه فقط تابع renderUsers با داده‌های موجود اجرا می‌شود تا سریع‌تر باشد.
-                // برای این کار، باید داده‌ها را یک بار در یک متغیر ذخیره کنیم.
-                // برای سادگی، فعلاً کد شما را حفظ می‌کنیم.
                 loadUsersAndRender();
             });
             document.getElementById('close-drawer-btn').addEventListener('click', closeDrawer);

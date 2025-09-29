@@ -416,69 +416,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             }
         }
 
-        /* --- Settings Toggle Switch --- */
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .setting-label h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .setting-label p {
-            font-size: 0.9rem;
-            color: var(--secondary-text-color);
-            margin-top: 4px;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 28px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: var(--primary-color);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(22px);
-        }
-
         .back-link {
             display: block;
             margin-top: 2rem;
@@ -504,24 +441,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <p>جوایز و سوابق برندگان را در این بخش مدیریت کنید.</p>
             </div>
             <button id="add-new-prize-btn" class="btn btn-primary">➕ افزودن جایزه جدید</button>
-        </div>
-
-        <div class="content-card">
-            <div class="card-header">
-                <h2>⚙️ تنظیمات گردونه شانس</h2>
-            </div>
-            <div class="card-body">
-                <div class="setting-row">
-                    <div class="setting-label">
-                        <h3>فعال‌سازی گردونه شانس</h3>
-                        <p>با روشن کردن، کاربران می‌توانند از گردونه استفاده کنند. (هر بار فعال‌سازی یک شانس جدید به کاربران می‌دهد)</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="wheel-status-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
         </div>
 
         <div class="content-card">
@@ -606,7 +525,6 @@ $claims = requireAuth('admin', '/auth/login.html');
         document.addEventListener('DOMContentLoaded', () => {
             const prizeListBody = document.getElementById('prize-list-body');
             const winnerHistoryBody = document.getElementById('winner-history-body');
-            const wheelStatusToggle = document.getElementById('wheel-status-toggle');
             const modal = document.getElementById('prize-modal');
             const modalForm = document.getElementById('modal-form');
             const modalTitle = document.getElementById('modal-title');
@@ -760,10 +678,9 @@ $claims = requireAuth('admin', '/auth/login.html');
             };
 
             const loadPageData = async () => {
-                const [prizesResult, historyResult, settingsResult] = await Promise.all([
+                const [prizesResult, historyResult] = await Promise.all([
                     apiRequest('getPrizeListForAdmin'),
-                    apiRequest('getWinnerHistory'),
-                    apiRequest('getAppSettings')
+                    apiRequest('getWinnerHistory')
                 ]);
 
                 if (prizesResult) {
@@ -772,9 +689,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 }
                 if (historyResult) {
                     renderWinnerHistory(historyResult);
-                }
-                if (settingsResult) {
-                    wheelStatusToggle.checked = (settingsResult.is_wheel_enabled === '1');
                 }
             };
 
@@ -803,21 +717,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                     await loadPageData(); // Reload all data
                 } else {
                     showToast(result?.message || 'خطا در ثبت اطلاعات.', 'error');
-                }
-            };
-
-            const handleWheelStatusToggle = async () => {
-                const isEnabled = wheelStatusToggle.checked;
-                const result = await apiRequest('updateWheelStatus', 'POST', {
-                    enabled: isEnabled
-                });
-
-                if (result && result.success) {
-                    showToast(`گردونه شانس با موفقیت ${isEnabled ? 'فعال' : 'غیرفعال'} شد.`);
-                } else {
-                    showToast(result?.message || 'خطا در تغییر وضعیت گردونه.', 'error');
-                    // Revert toggle on failure
-                    wheelStatusToggle.checked = !isEnabled;
                 }
             };
 
@@ -852,7 +751,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             document.getElementById('close-modal-btn').addEventListener('click', closeModal);
             document.getElementById('cancel-btn').addEventListener('click', closeModal);
             modalForm.addEventListener('submit', handleFormSubmit);
-            wheelStatusToggle.addEventListener('change', handleWheelStatusToggle);
 
             prizeListBody.addEventListener('click', (event) => {
                 const target = event.target.closest('.btn-icon');

@@ -712,7 +712,9 @@ $claims = requireAuth('admin', '/../auth/login.html');
             async function fetchAssets() {
                 showLoadingState();
                 try {
-                    const response = await fetch(`${API_URL}?action=get_assets`);
+                    const response = await fetch(`${API_URL}?action=get_assets`, {
+                        cache: 'no-cache'
+                    });
                     if (!response.ok) throw new Error('پاسخی از سرور دریافت نشد.');
                     allAssets = await response.json();
                     updateDisplay();

@@ -32,12 +32,6 @@ switch ($action) {
     case 'deleteWinnerRecord':
         deleteWinnerRecord($pdo);
         break;
-    case 'getAppSettings':
-        getAppSettings($pdo);
-        break;
-    case 'updateWheelStatus':
-        updateWheelStatus($pdo);
-        break;
 
     default:
         http_response_code(404);
@@ -45,52 +39,7 @@ switch ($action) {
 }
 
 // ===================================================================
-// ** بخش جدید: توابع مدیریت تنظیمات **
-// ===================================================================
-
-// تابع برای دریافت یک تنظیم خاص
-function getSetting($pdo, $key, $default = null)
-{
-    $stmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = :key");
-    $stmt->execute([':key' => $key]);
-    $result = $stmt->fetchColumn();
-    return $result !== false ? $result : $default;
-}
-
-// تابع برای ثبت یا به‌روزرسانی یک تنظیم
-function setSetting($pdo, $key, $value)
-{
-    $sql = "INSERT OR REPLACE INTO settings (setting_key, setting_value) VALUES (:key, :value)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([':key' => $key, ':value' => $value]);
-}
-
-// تابع برای دریافت تمام تنظیمات (برای پنل ادمین)
-function getAppSettings($pdo)
-{
-    $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
-    $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-    echo json_encode($settings);
-}
-
-// تابع برای به‌روزرسانی وضعیت گردونه شانس
-function updateWheelStatus($pdo)
-{
-    $data = json_decode(file_get_contents('php://input'), true);
-    $isEnabled = filter_var($data['enabled'], FILTER_VALIDATE_BOOLEAN);
-
-    setSetting($pdo, 'is_wheel_enabled', $isEnabled ? '1' : '0');
-
-    if ($isEnabled) {
-        $now = date('Y-m-d H:i:s'); // این تابع از timezone تنظیم شده استفاده می‌کند
-        setSetting($pdo, 'wheel_last_enabled_at', $now);
-    }
-
-    echo json_encode(['success' => true]);
-}
-
-// ===================================================================
-// ** توابع مدیریت جوایز و سوابق (با تغییرات) **
+// ** توابع مدیریت جوایز و سوابق **
 // ===================================================================
 
 function getPrizeListForAdmin($pdo)

@@ -125,6 +125,12 @@ $claims = requireAuth(null, '/auth/login.html');
             line-height: 1.6;
         }
 
+        #spin-chances-count {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 1.1em;
+        }
+
         .tool-card {
             background: var(--card-bg);
             border-radius: var(--border-radius);
@@ -487,10 +493,10 @@ $claims = requireAuth(null, '/auth/login.html');
                 <h2>گردونه شانس وی‌هاب</h2>
                 <div class="info-card-container">
                     <div class="info-card">
-                        <div class="info-card-emoji">🗓️</div>
+                        <div class="info-card-emoji">🎟️</div>
                         <div class="info-card-text">
-                            <h3>یک شانس در روز</h3>
-                            <p>هر روز یک فرصت رایگان برای چرخاندن گردونه و برنده شدن دارید.</p>
+                            <h3>شانس‌های شما</h3>
+                            <p>شما <strong id="spin-chances-count">...</strong> شانس برای چرخش دارید.</p>
                         </div>
                     </div>
                     <div class="info-card">
@@ -560,6 +566,9 @@ $claims = requireAuth(null, '/auth/login.html');
             const pin = document.querySelector('.pin');
             const spinError = document.getElementById('spin-error');
             const confettiCanvas = document.getElementById('confetti-canvas');
+            // ========== بخش تغییر یافته ==========
+            const spinChancesCount = document.getElementById('spin-chances-count');
+            // ====================================
             const confettiInstance = confetti.create(confettiCanvas, {
                 resize: true,
                 useWorker: true
@@ -606,10 +615,15 @@ $claims = requireAuth(null, '/auth/login.html');
                 });
             }
 
+            // ========== بخش تغییر یافته ==========
             async function checkUserSpinStatus() {
                 try {
                     const response = await fetch('/prize/wheel-api.php?action=getWheelStatus&_=' + new Date().getTime());
                     const status = await response.json();
+
+                    // تعداد شانس‌ها را در هر صورت نمایش بده
+                    spinChancesCount.textContent = status.chances || 0;
+
                     if (response.ok && status.canSpin) {
                         spinButton.innerText = 'بچرخان!';
                         spinButton.disabled = false;
@@ -622,9 +636,11 @@ $claims = requireAuth(null, '/auth/login.html');
                     spinButton.innerText = 'خطا در بررسی وضعیت';
                     spinButton.disabled = true;
                     spinError.textContent = 'امکان بررسی شانس شما وجود ندارد.';
+                    spinChancesCount.textContent = '؟';
                     console.error("Failed to check user status:", error);
                 }
             }
+            // ====================================
 
             async function loadLastWinnerInfo() {
                 const container = document.getElementById('last-win-container');
@@ -644,6 +660,8 @@ $claims = requireAuth(null, '/auth/login.html');
                         }).format(date);
                         detailsElement.innerHTML = `شما <strong style="color: var(--primary-dark);">${escapeHTML(lastWin.prize_name)}</strong> را در تاریخ ${formattedDate} برنده شدید.`;
                         container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
                     }
                 } catch (error) {
                     console.error('Error fetching last winner info:', error);
@@ -735,13 +753,16 @@ $claims = requireAuth(null, '/auth/login.html');
                 resultPopup.classList.add('visible');
             }
 
-            closePopupButton.addEventListener('click', () => {
+            // ========== بخش تغییر یافته ==========
+            closePopupButton.addEventListener('click', async () => {
                 resultPopup.classList.remove('visible');
-                spinButton.innerText = 'شما شانس خود را استفاده کرده‌اید.';
-                spinButton.disabled = true;
-                // بعد از بستن پاپ‌آپ، لیست آخرین جایزه را مجدد بارگذاری کن
-                loadLastWinnerInfo();
+                isSpinning = false; // اجازه چرخش مجدد در صورت داشتن شانس
+                // وضعیت کاربر را مجددا بررسی کن تا تعداد شانس و وضعیت دکمه به‌روز شود
+                await checkUserSpinStatus();
+                // اطلاعات آخرین جایزه را نیز به‌روز کن
+                await loadLastWinnerInfo();
             });
+            // ====================================
 
             // --- Initial Load ---
             await setupWheel();

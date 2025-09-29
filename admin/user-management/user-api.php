@@ -20,7 +20,8 @@ try {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $stmt = $pdo->query("SELECT id, name, username, start_work, is_admin, score FROM users ORDER BY id DESC");
+    // ✨ تغییر: ستون spin_chances به کوئری SELECT اضافه شد
+    $stmt = $pdo->query("SELECT id, name, username, start_work, is_admin, score, role, spin_chances FROM users ORDER BY id DESC");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($users);
 } elseif ($method === 'POST') {
@@ -31,21 +32,27 @@ if ($method === 'GET') {
     switch ($action) {
         case 'create':
             $hash = password_hash($data['password'], PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (id, name, username, password_hash, start_work, is_admin, score) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            // ✨ تغییر: ستون و مقدار spin_chances به کوئری INSERT اضافه شد
+            $sql = "INSERT INTO users (id, name, username, password_hash, start_work, is_admin, score, role, spin_chances) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$data['id'], $data['name'], $data['username'], $hash, $data['start_work'], $data['is_admin'], $data['score']]);
+            // ✨ تغییر: مقدار spin_chances به پارامترهای execute اضافه شد
+            $stmt->execute([$data['id'], $data['name'], $data['username'], $hash, $data['start_work'], $data['is_admin'], $data['score'], $data['role'], $data['spin_chances']]);
             echo json_encode(['success' => true, 'id' => $data['id']]);
             break;
 
         case 'update':
-            $sql = "UPDATE users SET id = ?, name = ?, username = ?, start_work = ?, is_admin = ?, score = ? WHERE id = ?";
-            $params = [$data['new_id'], $data['name'], $data['username'], $data['start_work'], $data['is_admin'], $data['score'], $data['id']];
+            // ✨ تغییر: ستون spin_chances به کوئری UPDATE اضافه شد
+            $sql = "UPDATE users SET id = ?, name = ?, username = ?, start_work = ?, is_admin = ?, score = ?, role = ?, spin_chances = ? WHERE id = ?";
+            // ✨ تغییر: مقدار spin_chances به پارامترها اضافه شد
+            $params = [$data['new_id'], $data['name'], $data['username'], $data['start_work'], $data['is_admin'], $data['score'], $data['role'], $data['spin_chances'], $data['id']];
 
             // اگر رمز عبور جدیدی وارد شده بود، آن را هم آپدیت کن
             if (!empty($data['password'])) {
                 $hash = password_hash($data['password'], PASSWORD_DEFAULT);
-                $sql = "UPDATE users SET id = ?, name = ?, username = ?, password_hash = ?, start_work = ?, is_admin = ?, score = ? WHERE id = ?";
-                $params = [$data['new_id'], $data['name'], $data['username'], $hash, $data['start_work'], $data['is_admin'], $data['score'], $data['id']];
+                // ✨ تغییر: ستون spin_chances به کوئری UPDATE (با پسورد) اضافه شد
+                $sql = "UPDATE users SET id = ?, name = ?, username = ?, password_hash = ?, start_work = ?, is_admin = ?, score = ?, role = ?, spin_chances = ? WHERE id = ?";
+                // ✨ تغییر: مقدار spin_chances به پارامترهای (با پسورد) اضافه شد
+                $params = [$data['new_id'], $data['name'], $data['username'], $hash, $data['start_work'], $data['is_admin'], $data['score'], $data['role'], $data['spin_chances'], $data['id']];
             }
 
             $stmt = $pdo->prepare($sql);

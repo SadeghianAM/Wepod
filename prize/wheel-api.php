@@ -12,41 +12,32 @@ header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';
 
 /**
- * تابع کمکی برای دریافت یک تنظیم خاص از دیتابیس
- */
-function getSetting($pdo, $key, $default = null)
-{
-    $stmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = :key");
-    $stmt->execute([':key' => $key]);
-    $result = $stmt->fetchColumn();
-    return $result !== false ? $result : $default;
-}
-
-/**
  * تابع: بررسی می‌کند آیا کاربر شانس چرخش دارد یا خیر
+ * [اصلاح شده] این تابع اکنون همیشه تعداد شانس‌های کاربر را در پاسخ خود برمی‌گرداند.
  */
 function checkUserChance($pdo, $userId)
 {
-    $isWheelEnabled = getSetting($pdo, 'is_wheel_enabled', '0');
-    $lastEnabledAt = getSetting($pdo, 'wheel_last_enabled_at');
-
-    if ($isWheelEnabled !== '1') {
-        return ['canSpin' => false, 'reason' => 'گردونه شانس در حال حاضر غیرفعال است.'];
-    }
-
-    if (!$lastEnabledAt) {
-        return ['canSpin' => false, 'reason' => 'پیکربندی گردونه ناقص است.'];
-    }
-
-    $stmt = $pdo->prepare("SELECT won_at FROM prize_winners WHERE user_id = :user_id ORDER BY won_at DESC LIMIT 1");
+    // تعداد شانس‌های باقی‌مانده کاربر را از دیتابیس بخوان
+    $stmt = $pdo->prepare("SELECT spin_chances FROM users WHERE id = :user_id");
     $stmt->execute([':user_id' => $userId]);
-    $lastPlayTimestamp = $stmt->fetchColumn();
+    $chancesValue = $stmt->fetchColumn();
 
-    if ($lastPlayTimestamp && strtotime($lastPlayTimestamp) >= strtotime($lastEnabledAt)) {
-        return ['canSpin' => false, 'reason' => 'شما شانس خود را برای این دوره استفاده کرده‌اید.'];
+    // اگر کاربر پیدا نشد یا ستون وجود نداشت، مقدار شانس را صفر در نظر بگیر
+    $chances = ($chancesValue === false || is_null($chancesValue)) ? 0 : (int)$chancesValue;
+
+    if ($chances < 1) {
+        return [
+            'canSpin' => false,
+            'reason' => 'شما شانسی برای چرخش ندارید.',
+            'chances' => $chances // ✨ تغییر: ارسال تعداد شانس حتی وقتی صفر است
+        ];
     }
 
-    return ['canSpin' => true, 'reason' => 'بچرخان!'];
+    return [
+        'canSpin' => true,
+        'reason' => 'بچرخان!',
+        'chances' => $chances // ✨ تغییر: ارسال تعداد شانس وقتی کاربر شانس دارد
+    ];
 }
 
 // مسیردهی درخواست به تابع مربوطه
@@ -139,6 +130,7 @@ function calculateWinner($pdo, $claims)
             throw new Exception("هیچ جایزه‌ای برای انتخاب وجود ندارد.");
         }
 
+        // --- محاسبه برنده ---
         $randomNumber = mt_rand(1, 100);
         $currentWeight = 0;
         $winner = null;
@@ -153,16 +145,36 @@ function calculateWinner($pdo, $claims)
             $winner = end($wheelPrizes);
         }
 
-        if ($winner && $winner['id'] > 0) {
-            $sql = "INSERT INTO prize_winners (user_id, prize_id, won_at) VALUES (:user_id, :prize_id, :won_at)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':user_id' => $userId,
-                ':prize_id' => $winner['id'],
-                ':won_at' => date('Y-m-d H:i:s') // زمان دقیق با timezone صحیح
-            ]);
-        }
+        // --- شروع تراکنش برای ثبت اطلاعات ---
+        $pdo->beginTransaction();
 
+        try {
+            // 1. جایزه برنده شده را در جدول prize_winners ثبت کن
+            if ($winner && $winner['id'] > 0) {
+                $sql_insert_winner = "INSERT INTO prize_winners (user_id, prize_id, won_at) VALUES (:user_id, :prize_id, :won_at)";
+                $stmt_insert = $pdo->prepare($sql_insert_winner);
+                $stmt_insert->execute([
+                    ':user_id' => $userId,
+                    ':prize_id' => $winner['id'],
+                    ':won_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            // 2. یک واحد از تعداد شانس‌های کاربر کم کن
+            $sql_update_chances = "UPDATE users SET spin_chances = spin_chances - 1 WHERE id = :user_id";
+            $stmt_update = $pdo->prepare($sql_update_chances);
+            $stmt_update->execute([':user_id' => $userId]);
+
+            // اگر هر دو عملیات موفق بود، تراکنش را تایید نهایی کن
+            $pdo->commit();
+        } catch (Exception $db_e) {
+            // اگر در هر یک از مراحل بالا خطایی رخ داد، تمام تغییرات را به حالت اول برگردان
+            $pdo->rollBack();
+            throw $db_e; // خطا را مجددا پرتاب کن تا در catch اصلی مدیریت شود
+        }
+        // --- پایان تراکنش ---
+
+        // --- محاسبه زاویه برای نمایش در فرانت‌اند ---
         $numSegments = count($wheelPrizes);
         $segmentAngle = 360 / $numSegments;
         $winnerIndex = -1;
@@ -187,6 +199,7 @@ function calculateWinner($pdo, $claims)
         echo json_encode(['error' => 'خطای سرور: ' . $e->getMessage()]);
     }
 }
+
 
 /**
  * تابع: اطلاعات آخرین جایزه برنده شده کاربر را برمی‌گرداند
