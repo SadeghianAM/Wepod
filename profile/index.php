@@ -425,6 +425,41 @@ if ($agentId) {
             box-shadow: 0 4px 20px var(--shadow-color);
             border: 1px solid var(--border-color);
         }
+
+        /* ADD THIS CSS to your <style> block in profile/index.php */
+        .assets-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .assets-table th,
+        .assets-table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .assets-table th {
+            background-color: var(--bg-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--secondary-text-color);
+        }
+
+        .assets-table tbody tr:hover {
+            background-color: var(--primary-light);
+        }
+
+        .assets-table td .date-chip {
+            display: inline-block;
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
     </style>
 </head>
 
@@ -454,6 +489,12 @@ if ($agentId) {
                         <a href="#performance-report" class="profile-tab-link">
                             <span class="menu-emoji">📊</span>
                             <span>گزارش عملکرد</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#my-assets" class="profile-tab-link">
+                            <span class="menu-emoji">💻</span>
+                            <span>اموال من</span>
                         </a>
                     </li>
                     <li>
@@ -507,7 +548,17 @@ if ($agentId) {
                 <nav id="date-nav"></nav>
                 <div id="report-content"></div>
             </section>
+            <section id="my-assets" class="content-section">
+                <div class="overview-card">
+                    <h2>اموال در اختیار شما</h2>
+                    <div id="user-assets-container">
+                    </div>
+                </div>
+            </section>
+
         </main>
+    </div>
+    </main>
     </div>
 
     <div id="footer-placeholder"></div>
@@ -834,6 +885,89 @@ if ($agentId) {
             const activeBtn = id === 'summary' ? document.getElementById('btn-summary') : document.getElementById(`btn-${id}`);
             if (activeBtn) activeBtn.classList.add('active');
         }
+        // ADD THIS SCRIPT LOGIC inside the main <script> tag at the bottom of profile/index.php
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // ... (your existing tab switching code is here, leave it as is)
+
+            // --- New code for loading user assets ---
+            let assetsLoaded = false; // A flag to prevent multiple API calls
+
+            // Find the new tab link
+            const myAssetsLink = document.querySelector('a[href="#my-assets"]');
+
+            myAssetsLink.addEventListener('click', () => {
+                // Load assets only once when the tab is first clicked
+                if (!assetsLoaded) {
+                    loadUserAssets();
+                    assetsLoaded = true;
+                }
+            });
+
+            async function loadUserAssets() {
+                const container = document.getElementById('user-assets-container');
+                container.innerHTML = '<p>در حال بارگذاری اطلاعات اموال...</p>';
+
+                try {
+                    const response = await fetch('/profile/profile-api.php?action=get_my_assets');
+                    if (!response.ok) {
+                        throw new Error('خطا در ارتباط با سرور.');
+                    }
+                    const assets = await response.json();
+
+                    if (assets.length === 0) {
+                        container.innerHTML = '<p>در حال حاضر هیچ کالایی به شما تخصیص داده نشده است.</p>';
+                        return;
+                    }
+
+                    // Create the table structure
+                    let tableHTML = `
+                <table class="assets-table">
+                    <thead>
+                        <tr>
+                            <th>نام کالا</th>
+                            <th>شماره سریال</th>
+                            <th>تاریخ تحویل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+                    assets.forEach(asset => {
+                        // Format the date to be more readable
+                        const assignedDate = new Date(asset.assigned_at).toLocaleDateString('fa-IR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+
+                        tableHTML += `
+                    <tr>
+                        <td>${asset.name}</td>
+                        <td>${asset.serial_number}</td>
+                        <td><span class="date-chip">${assignedDate}</span></td>
+                    </tr>
+                `;
+                    });
+
+                    tableHTML += '</tbody></table>';
+                    container.innerHTML = tableHTML;
+
+                } catch (error) {
+                    container.innerHTML = `<p style="color: #dc3545;">خطا در بارگذاری اطلاعات: ${error.message}</p>`;
+                }
+            }
+
+            // Check if the page was loaded with #my-assets hash
+            if (window.location.hash === '#my-assets') {
+                // The existing tab switching logic will show the tab,
+                // we just need to ensure the data is loaded.
+                if (!assetsLoaded) {
+                    loadUserAssets();
+                    assetsLoaded = true;
+                }
+            }
+        });
     </script>
 </body>
 
