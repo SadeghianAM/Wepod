@@ -1,17 +1,19 @@
 <?php
-// فایل: teams.php (نسخه کاملاً بازطراحی شده)
+// فایل: teams.php (نسخه کامل - بدون اسکرول اعضا)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
 require_once __DIR__ . '/../../db/database.php';
 
-// کوئری بهینه‌سازی شده برای خواندن تیم‌ها به همراه تعداد اعضای هر تیم
+// کوئری برای خواندن تیم‌ها به همراه تعداد و اسامی اعضا
 $stmt_teams = $pdo->query("
     SELECT
         t.id,
         t.team_name,
-        COUNT(tm.user_id) AS member_count
+        COUNT(tm.user_id) AS member_count,
+        GROUP_CONCAT(u.name, '||') AS member_names
     FROM Teams t
     LEFT JOIN TeamMembers tm ON t.id = tm.team_id
+    LEFT JOIN Users u ON tm.user_id = u.id
     GROUP BY t.id, t.team_name
     ORDER BY t.id DESC
 ");
@@ -20,6 +22,16 @@ $teams = $stmt_teams->fetchAll(PDO::FETCH_ASSOC);
 // خواندن تمام کاربران برای استفاده در فرم مودال
 $stmt_users = $pdo->query("SELECT id, name FROM Users ORDER BY name");
 $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
+
+// خواندن کاربرانی که در هیچ تیمی نیستند
+$stmt_unassigned_users = $pdo->query("
+    SELECT u.id, u.name
+    FROM Users u
+    LEFT JOIN TeamMembers tm ON u.id = tm.user_id
+    WHERE tm.team_id IS NULL
+    ORDER BY u.name
+");
+$unassigned_users = $stmt_unassigned_users->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -39,7 +51,9 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             --secondary-text: #555;
             --header-text: #fff;
             --border-color: #e9e9e9;
+            --danger-color: #dc3545;
             --footer-h: 60px;
+            --danger-light: #f8d7da;
             --radius: 12px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
             --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
@@ -70,12 +84,6 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             color: var(--text-color);
         }
 
-        a {
-            color: inherit;
-            text-decoration: none;
-            transition: all .2s ease;
-        }
-
         main {
             flex: 1;
             width: min(1200px, 100%);
@@ -83,23 +91,27 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             margin-inline: auto;
         }
 
-
         footer {
             background: var(--primary-color);
             color: var(--header-text);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
+            justify-content: center;
+            position: relative;
             z-index: 10;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
+            min-height: var(--footer-h);
+            font-size: .85rem
         }
 
-        footer {
-            min-height: var(--footer-h);
-            font-size: .85rem;
-            justify-content: center;
+        .page-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .page-title {
@@ -113,90 +125,6 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             color: var(--secondary-text);
             font-weight: 400;
             font-size: 1rem;
-        }
-
-        .btn {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: .5rem;
-            padding: .75rem 1.25rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: .95rem;
-            font-weight: 600;
-            text-align: center;
-            margin: 0;
-            transition: all .2s ease;
-        }
-
-        .btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .btn .btn-text {
-            transition: opacity .2s ease;
-        }
-
-        .btn.loading .btn-text {
-            opacity: 0;
-        }
-
-        .btn .spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            opacity: 0;
-            transition: opacity .2s ease;
-            transform: translate(-50%, -50%);
-        }
-
-        .btn.loading .spinner {
-            opacity: 1;
-        }
-
-        @keyframes spin {
-            to {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        /* Dashboard Styles */
-        .page-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
         }
 
         .search-box {
@@ -219,20 +147,50 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             outline: none;
         }
 
+        .btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            padding: .75rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: .95rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 0;
+            transition: all .2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* === استایل بهبود یافته کارت تیم === */
         .team-card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 1.5rem;
+            align-items: start;
+            /* مهم: جلوگیری از کش آمدن کارت‌ها در یک ردیف */
         }
 
         .team-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
-            padding: 1.5rem;
+            border-top: 4px solid var(--primary-color);
             display: flex;
             flex-direction: column;
             transition: all .2s ease;
+            overflow: hidden;
         }
 
         .team-card:hover {
@@ -241,66 +199,104 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .team-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
+            padding: 1.25rem 1.5rem;
         }
 
         .team-card-header h3 {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            margin: 0;
             color: var(--text-color);
+            margin: 0;
         }
 
-        .team-card-meta {
-            display: flex;
-            flex-direction: column;
-            gap: .75rem;
-            margin-bottom: 1.5rem;
+        .team-card-body {
+            padding: 0 1.5rem 1.25rem;
             flex-grow: 1;
-            color: var(--secondary-text);
-            font-size: .9rem;
         }
 
-        .meta-item {
+        .team-card-body h4 {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* استایل جدید برای لیست اعضا بدون اسکرول */
+        .team-card-member-list {
+            display: flex;
+            flex-wrap: wrap;
+            /* مهم: شکستن تگ‌ها به خط بعدی */
+            gap: 8px;
+            /* فاصله بین تگ‌ها */
+        }
+
+        .member-name-chip {
+            background-color: var(--bg-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .no-members-text {
+            width: 100%;
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--secondary-text);
+        }
+
+        .team-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.25rem;
+        }
+
+        .team-meta-info {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--secondary-text);
+        }
+
+        .team-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: .5rem;
-        }
-
-        .actions-menu {
-            position: relative;
-        }
-
-        .actions-menu-btn {
-            background: none;
-            border: none;
-            padding: .25rem .5rem;
-            cursor: pointer;
-            border-radius: 8px;
+            justify-content: center;
+            transition: all 0.2s ease;
             font-size: 1.2rem;
             line-height: 1;
-            font-weight: bold;
         }
 
-        .actions-menu-btn:hover {
-            background-color: var(--bg-color);
+        .action-btn[data-action="edit"]:hover {
+            background-color: var(--primary-light);
         }
 
-        .dropdown-menu {
+        .action-btn[data-action="delete"]:hover {
+            background-color: var(--danger-light);
+        }
+
+        #no-search-results {
             display: none;
-            position: absolute;
-            left: 0;
-            top: 100%;
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: var(--shadow-md);
-            list-style: none;
-            padding: .5rem 0;
-            width: 120px;
-            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+            grid-column: 1 / -1;
         }
 
         .dropdown-menu.show {
@@ -329,17 +325,30 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             border: 2px dashed var(--border-color);
         }
 
-        .empty-state h2 {
-            margin-bottom: .5rem;
-            font-weight: 700;
+        .unassigned-users-container {
+            margin-top: 4rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2rem;
         }
 
-        .empty-state p {
-            margin-bottom: 1.5rem;
+        .unassigned-users-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .unassigned-user-chip {
+            background: var(--bg-color);
+            padding: .5rem 1rem;
+            border-radius: 20px;
+            font-size: .9rem;
             color: var(--secondary-text);
+            border: 1px solid var(--border-color);
         }
 
-        /* Modal & Form Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -412,7 +421,6 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             flex-shrink: 0;
         }
 
-        /* Modern Selection Styles for Modal */
         .searchable-list-controls {
             display: flex;
             gap: 1rem;
@@ -492,7 +500,6 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 600;
         }
 
-        /* Toast Notification Styles */
         #toast-container {
             position: fixed;
             bottom: 20px;
@@ -533,6 +540,35 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 transform: translateY(20px);
             }
         }
+
+        .btn.loading .btn-text {
+            opacity: 0;
+        }
+
+        .btn .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            opacity: 0;
+            transition: opacity .2s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn.loading .spinner {
+            opacity: 1;
+        }
+
+        @keyframes spin {
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -564,23 +600,48 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                     <div class="team-card" data-search-term="<?= htmlspecialchars(strtolower($team['team_name'])) ?>">
                         <div class="team-card-header">
                             <h3><?= htmlspecialchars($team['team_name']) ?></h3>
-                            <div class="actions-menu">
-                                <button class="actions-menu-btn">...</button>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#" onclick="editTeam(<?= $team['id'] ?>)">ویرایش</a></li>
-                                    <li><a href="#" onclick="deleteTeam(<?= $team['id'] ?>)" class="delete-action">حذف</a></li>
-                                </ul>
+                        </div>
+                        <div class="team-card-body">
+                            <h4>اعضا</h4>
+                            <div class="team-card-member-list">
+                                <?php if ($team['member_names']):
+                                    $members = explode('||', $team['member_names']);
+                                    foreach ($members as $name): ?>
+                                        <span class="member-name-chip"><?= htmlspecialchars($name) ?></span>
+                                    <?php endforeach;
+                                else: ?>
+                                    <div class="no-members-text">هیچ عضوی در این تیم نیست.</div>
+                                <?php endif; ?>
                             </div>
                         </div>
-                        <div class="team-card-meta">
-                            <span class="meta-item">
+                        <div class="team-card-footer">
+                            <div class="team-meta-info">
                                 👥 <span><?= $team['member_count'] ?> عضو</span>
-                            </span>
+                            </div>
+                            <div class="team-actions">
+                                <button class="action-btn" data-action="edit" title="ویرایش" data-id="<?= $team['id'] ?>">✏️</button>
+                                <button class="action-btn" data-action="delete" title="حذف" data-id="<?= $team['id'] ?>" data-name="<?= htmlspecialchars($team['team_name']) ?>">🗑️</button>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
+                <div id="no-search-results">
+                    <h3>تیمی با این نام یافت نشد.</h3>
+                </div>
             </div>
         <?php endif; ?>
+
+        <?php if (!empty($unassigned_users)): ?>
+            <div class="unassigned-users-container">
+                <h2 class="page-title" style="font-size: 1.5rem; margin: 0;">کاربران بدون تیم</h2>
+                <div class="unassigned-users-list">
+                    <?php foreach ($unassigned_users as $user): ?>
+                        <span class="unassigned-user-chip"><?= htmlspecialchars($user['name']) ?></span>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
     </main>
 
     <div id="modal-overlay" class="modal-overlay">
@@ -588,7 +649,6 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             <h2 id="form-title" class="page-title">افزودن تیم جدید</h2>
             <form id="team-form" class="modal-form-content">
                 <input type="hidden" id="team-id">
-                <input type="hidden" id="action">
                 <div class="form-group">
                     <label for="team-name">نام تیم:</label>
                     <input type="text" id="team-name" required>
@@ -599,8 +659,7 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                     <label class="select-all-label"><input type="checkbox" id="select-all-users"> انتخاب همه</label>
                 </div>
                 <div class="assignment-grid-container">
-                    <div id="users-container" class="modern-selection-grid">
-                    </div>
+                    <div id="users-container" class="modern-selection-grid"></div>
                 </div>
             </form>
             <div class="form-actions">
@@ -618,39 +677,23 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
     <script src="/js/header.js"></script>
     <script>
-        const allUsers = <?= json_encode($all_users) ?>;
-
-        async function editTeam(id) {
-            document.dispatchEvent(new CustomEvent('openEditModal', {
-                detail: {
-                    id
-                }
-            }));
-        }
-
-        async function deleteTeam(id) {
-            if (confirm('آیا از حذف این تیم مطمئن هستید؟ اعضای تیم حذف نخواهند شد.')) {
-                // For simplicity and consistency, we'll show a toast and reload the page.
-                // You can replace this with fetch logic if you prefer async deletion.
-                window.location.href = `teams_api.php?action=delete_team&id=${id}`;
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
+            const allUsers = <?= json_encode($all_users) ?>;
             const modalOverlay = document.getElementById('modal-overlay');
             const form = document.getElementById('team-form');
             const formTitle = document.getElementById('form-title');
             const saveBtn = document.getElementById('save-btn');
+            const teamsGrid = document.getElementById('teams-grid');
 
             const showModal = () => modalOverlay.classList.add('visible');
             const hideModal = () => modalOverlay.classList.remove('visible');
 
             const showToast = (message, type = 'success') => {
-                const toastContainer = document.getElementById('toast-container');
+                const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
                 toast.textContent = message;
-                toastContainer.appendChild(toast);
+                container.appendChild(toast);
                 setTimeout(() => toast.remove(), 4000);
             };
 
@@ -666,16 +709,14 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
                 searchInput.addEventListener('input', () => {
                     const searchTerm = searchInput.value.toLowerCase();
-                    const items = container.querySelectorAll('.filterable-item');
-                    items.forEach(item => {
+                    container.querySelectorAll('.filterable-item').forEach(item => {
                         item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none';
                     });
                     selectAllCheckbox.checked = false;
                 });
 
                 selectAllCheckbox.addEventListener('change', () => {
-                    const items = container.querySelectorAll('.filterable-item');
-                    items.forEach(item => {
+                    container.querySelectorAll('.filterable-item').forEach(item => {
                         if (item.style.display !== 'none') {
                             item.querySelector('input[type="checkbox"]').checked = selectAllCheckbox.checked;
                         }
@@ -687,13 +728,12 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 const usersContainer = document.getElementById('users-container');
                 usersContainer.innerHTML = '';
                 allUsers.forEach(user => {
-                    const isChecked = selectedUserIds.includes(user.id);
+                    const isChecked = selectedUserIds.includes(parseInt(user.id));
                     const itemHTML = `
-                        <div class="selectable-item filterable-item">
-                            <input type="checkbox" name="members" value="${user.id}" id="user-${user.id}" ${isChecked ? 'checked' : ''}>
-                            <label for="user-${user.id}">${user.name}</label>
-                        </div>
-                    `;
+                    <div class="selectable-item filterable-item">
+                        <input type="checkbox" name="members" value="${user.id}" id="user-${user.id}" ${isChecked ? 'checked' : ''}>
+                        <label for="user-${user.id}">${user.name}</label>
+                    </div>`;
                     usersContainer.insertAdjacentHTML('beforeend', itemHTML);
                 });
             };
@@ -702,93 +742,130 @@ $all_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 form.reset();
                 formTitle.textContent = 'افزودن تیم جدید';
                 document.getElementById('team-id').value = '';
-                document.getElementById('action').value = 'create_team';
                 renderUsers();
                 setupSearchableList('user-search', 'select-all-users', 'users-container');
                 showModal();
             };
 
+            const openEditModal = async (id) => {
+                try {
+                    const response = await fetch(`teams_api.php?action=get_team&id=${id}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        const team = data.team;
+                        form.reset();
+                        formTitle.textContent = `ویرایش تیم: ${team.team_name}`;
+                        document.getElementById('team-id').value = team.id;
+                        document.getElementById('team-name').value = team.team_name;
+                        const memberIds = data.team.member_details.map(m => parseInt(m.id));
+                        renderUsers(memberIds);
+                        setupSearchableList('user-search', 'select-all-users', 'users-container');
+                        showModal();
+                    } else {
+                        showToast(data.message || 'خطا در دریافت اطلاعات', 'error');
+                    }
+                } catch (err) {
+                    showToast('خطای شبکه. لطفاً دوباره تلاش کنید.', 'error');
+                }
+            };
+
             document.getElementById('add-new-team-btn')?.addEventListener('click', openAddModal);
             document.getElementById('add-new-team-btn-empty')?.addEventListener('click', openAddModal);
 
-            document.addEventListener('openEditModal', async (e) => {
-                const {
-                    id
-                } = e.detail;
-                const response = await fetch(`teams_api.php?action=get_team&id=${id}`);
-                const data = await response.json();
-                if (data.success) {
-                    const team = data.team;
-                    form.reset();
-                    formTitle.textContent = 'ویرایش تیم';
-                    document.getElementById('team-id').value = team.id;
-                    document.getElementById('action').value = 'update_team';
-                    document.getElementById('team-name').value = team.team_name;
-                    const memberIds = team.members.map(m => m.user_id);
-                    renderUsers(memberIds);
-                    setupSearchableList('user-search', 'select-all-users', 'users-container');
-                    showModal();
-                } else {
-                    showToast(data.message || 'خطا در دریافت اطلاعات', 'error');
-                }
-            });
-
-            document.getElementById('cancel-btn').addEventListener('click', hideModal);
-            modalOverlay.addEventListener('click', e => {
-                if (e.target === modalOverlay) hideModal();
-            });
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                toggleLoading(saveBtn, true);
-
-                const memberIds = Array.from(document.querySelectorAll('input[name="members"]:checked')).map(cb => parseInt(cb.value));
-                const data = {
-                    id: document.getElementById('team-id').value,
-                    name: document.getElementById('team-name').value,
-                    members: memberIds
-                };
-                const action = document.getElementById('action').value;
-                const response = await fetch(`teams_api.php?action=${action}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
+            if (document.getElementById('modal-overlay')) {
+                document.getElementById('cancel-btn').addEventListener('click', hideModal);
+                modalOverlay.addEventListener('click', e => {
+                    if (e.target === modalOverlay) hideModal();
                 });
-                const result = await response.json();
-
-                if (result.success) {
-                    hideModal();
-                    showToast('عملیات با موفقیت انجام شد.');
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    showToast(result.message || 'خطایی رخ داد.', 'error');
-                }
-                toggleLoading(saveBtn, false);
-            });
-
-            // --- Dashboard Search & Menu ---
-            const searchInput = document.getElementById('team-search-input');
-            const teamsGrid = document.getElementById('teams-grid');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    teamsGrid.querySelectorAll('.team-card').forEach(card => {
-                        card.style.display = card.dataset.searchTerm.includes(searchTerm) ? 'flex' : 'none';
-                    });
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    toggleLoading(saveBtn, true);
+                    const teamId = document.getElementById('team-id').value;
+                    const action = teamId ? 'update_team' : 'create_team';
+                    const memberIds = Array.from(document.querySelectorAll('input[name="members"]:checked')).map(cb => parseInt(cb.value));
+                    const data = {
+                        id: teamId || undefined,
+                        name: document.getElementById('team-name').value,
+                        members: memberIds
+                    };
+                    try {
+                        const response = await fetch(`teams_api.php?action=${action}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            hideModal();
+                            showToast('عملیات با موفقیت انجام شد.');
+                            setTimeout(() => window.location.reload(), 1000);
+                        } else {
+                            showToast(result.message || 'خطایی رخ داد.', 'error');
+                        }
+                    } catch (err) {
+                        showToast('خطای شبکه. لطفاً دوباره تلاش کنید.', 'error');
+                    } finally {
+                        toggleLoading(saveBtn, false);
+                    }
                 });
             }
-            document.querySelectorAll('.actions-menu-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                        if (menu !== button.nextElementSibling) menu.classList.remove('show');
-                    });
-                    button.nextElementSibling.classList.toggle('show');
+
+            if (teamsGrid) {
+                teamsGrid.addEventListener('click', async (e) => {
+                    const actionButton = e.target.closest('.action-btn');
+                    if (!actionButton) return;
+
+                    e.preventDefault();
+                    const action = actionButton.dataset.action;
+                    const teamId = actionButton.dataset.id;
+
+                    if (action === 'edit') {
+                        openEditModal(teamId);
+                    } else if (action === 'delete') {
+                        const teamName = actionButton.dataset.name;
+                        if (confirm(`آیا از حذف تیم "${teamName}" مطمئن هستید؟`)) {
+                            const formData = new FormData();
+                            formData.append('id', teamId);
+
+                            try {
+                                const response = await fetch(`teams_api.php?action=delete_team`, {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                const result = await response.json();
+                                if (result.success) {
+                                    showToast('تیم با موفقیت حذف شد.');
+                                    const cardToRemove = actionButton.closest('.team-card');
+                                    cardToRemove.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                                    cardToRemove.style.transform = 'scale(0.9)';
+                                    cardToRemove.style.opacity = '0';
+                                    setTimeout(() => cardToRemove.remove(), 300);
+                                } else {
+                                    showToast(result.message || 'خطا در حذف تیم', 'error');
+                                }
+                            } catch (err) {
+                                showToast('خطای شبکه. لطفاً دوباره تلاش کنید.', 'error');
+                            }
+                        }
+                    }
                 });
-            });
-            document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show')));
+
+                const searchInput = document.getElementById('team-search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        let visibleCount = 0;
+                        teamsGrid.querySelectorAll('.team-card').forEach(card => {
+                            const shouldShow = card.dataset.searchTerm.includes(searchTerm);
+                            card.style.display = shouldShow ? 'flex' : 'none';
+                            if (shouldShow) visibleCount++;
+                        });
+                        document.getElementById('no-search-results').style.display = visibleCount === 0 ? 'block' : 'none';
+                    });
+                }
+            }
         });
     </script>
 </body>

@@ -334,13 +334,19 @@ $claims = requireAuth('admin', '/auth/login.html');
         </a>
       </li>
       <li class="tool-card">
-        <a href="/admin/game/index.php">
+        <a href="/admin/game/">
+          <span class="tool-icon">✔️</span>
+          <span class="tool-title">مدیریت نظرسنجی</span>
+        </a>
+      </li>
+      <li class="tool-card">
+        <a href="/admin/game/">
           <span class="tool-icon">📑</span>
           <span class="tool-title">مدیریت آزمون ها</span>
         </a>
       </li>
       <li class="tool-card">
-        <a href="/admin/prize/index.php">
+        <a href="/admin/prize/">
           <span class="tool-icon">🎡</span>
           <span class="tool-title">مدیریت گردونه شانس</span>
         </a>
