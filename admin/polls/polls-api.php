@@ -22,8 +22,26 @@ try {
     if ($method === 'GET') {
         switch ($action) {
             case 'getPolls':
-                $stmt = $pdo->query("SELECT * FROM polls ORDER BY id DESC");
+                // --- START: کد اصلاح شده ---
+                $sql = "
+                    SELECT
+                        p.*,
+                        COUNT(DISTINCT po.id) AS options_count,
+                        COUNT(DISTINCT uv.id) AS votes_count
+                    FROM
+                        polls p
+                    LEFT JOIN
+                        poll_options po ON p.id = po.poll_id
+                    LEFT JOIN
+                        user_votes uv ON p.id = uv.poll_id
+                    GROUP BY
+                        p.id
+                    ORDER BY
+                        p.id DESC
+                ";
+                $stmt = $pdo->query($sql);
                 send_json_response($stmt->fetchAll(PDO::FETCH_ASSOC));
+                // --- END: کد اصلاح شده ---
                 break;
 
             case 'getOptions':
@@ -86,8 +104,9 @@ try {
             case 'deletePoll':
                 $id = $data['id'] ?? 0;
                 if (!$id) throw new Exception('شناسه نظرسنجی نامعتبر است.');
+                // با فرض اینکه در دیتابیس ON DELETE CASCADE تنظیم شده است
                 $stmt = $pdo->prepare("DELETE FROM polls WHERE id = ?");
-                $stmt->execute([$id]); // ON DELETE CASCADE options and votes will be deleted too
+                $stmt->execute([$id]);
                 send_json_response(['success' => true]);
                 break;
 

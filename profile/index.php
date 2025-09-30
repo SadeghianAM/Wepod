@@ -610,7 +610,8 @@ if ($agentId) {
         }
 
         /* --- END: CSS for Shift Calendar --- */
-        /* --- START: CSS for Poll Section --- */
+
+        /* --- START: Original CSS for Poll Section --- */
         .poll-card {
             background-color: var(--card-bg);
             border-radius: var(--border-radius);
@@ -702,7 +703,152 @@ if ($agentId) {
             background-color: var(--primary-dark);
         }
 
-        /* --- END: CSS for Poll Section --- */
+        /* --- END: Original CSS for Poll Section --- */
+
+        /* --- START: Improved CSS for Poll Section --- */
+        /* General styles for empty/feedback states */
+        .poll-state-container {
+            text-align: center;
+            padding: 3rem 1rem;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            background-color: #fdfdfd;
+        }
+
+        .poll-state-container .icon {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .poll-state-container p {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--secondary-text-color);
+        }
+
+        /* Loading spinner */
+        .poll-loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Improved poll options */
+        .poll-option label {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+        }
+
+        .option-text-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .option-capacity-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            background-color: var(--bg-color);
+            color: var(--secondary-text-color);
+        }
+
+        .option-capacity-badge.full {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Progress bar for capacity */
+        .capacity-progress-bar {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 50px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .capacity-progress-bar .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 50px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        /* Disabled state */
+        .poll-option input[type="radio"]:disabled+label {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            cursor: not-allowed;
+            text-decoration: none;
+            /* Remove line-through */
+            border-color: #e9ecef;
+        }
+
+        .poll-option input[type="radio"]:disabled+label .capacity-progress-bar .progress {
+            background-color: #adb5bd;
+        }
+
+
+        /* Improved submit button with loading state */
+        .poll-submit-btn {
+            position: relative;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .poll-submit-btn .btn-text {
+            transition: opacity 0.2s;
+        }
+
+        .poll-submit-btn .btn-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .poll-submit-btn.loading .btn-text {
+            opacity: 0;
+        }
+
+        .poll-submit-btn.loading .btn-loader {
+            opacity: 1;
+        }
+
+        .poll-submit-btn.loading {
+            background-color: var(--primary-dark);
+            cursor: wait;
+        }
+
+        /* --- END: Improved CSS for Poll Section --- */
     </style>
 </head>
 
@@ -1447,6 +1593,8 @@ if ($agentId) {
             }
         });
         // --- END: My Shift Logic ---
+
+        // --- START: Improved Poll Logic ---
         document.addEventListener('DOMContentLoaded', () => {
             let pollLoaded = false;
             const pollLink = document.querySelector('a[href="#poll"]');
@@ -1462,47 +1610,82 @@ if ($agentId) {
 
             async function loadPollData() {
                 const container = document.getElementById('poll-container');
-                container.innerHTML = '<p>در حال بارگذاری نظرسنجی...</p>';
+                container.innerHTML = `
+                    <div class="poll-state-container">
+                        <div class="poll-loader"></div>
+                        <p>در حال بارگذاری نظرسنجی...</p>
+                    </div>`;
+
                 try {
                     const response = await fetch('/profile/profile-api.php?action=get_active_poll');
                     if (!response.ok) throw new Error('خطا در ارتباط با سرور.');
                     const data = await response.json();
 
                     if (!data.success) throw new Error(data.error);
+
                     if (!data.poll) {
-                        container.innerHTML = '<p>در حال حاضر هیچ نظرسنجی فعالی وجود ندارد.</p>';
+                        container.innerHTML = `
+                            <div class="poll-state-container">
+                                <span class="icon">🤔</span>
+                                <p>در حال حاضر هیچ نظرسنجی فعالی وجود ندارد.</p>
+                            </div>`;
                         return;
                     }
 
                     if (data.user_has_voted) {
-                        container.innerHTML = '<div class="poll-message success">شما قبلاً در این نظرسنجی شرکت کرده‌اید. از مشارکت شما سپاسگزاریم!</div>';
+                        container.innerHTML = `
+                             <div class="poll-state-container" style="border-color: var(--primary-color);">
+                                <span class="icon">✅</span>
+                                <p style="color: var(--primary-dark);">شما قبلاً در این نظرسنجی شرکت کرده‌اید. از مشارکت شما سپاسگزاریم!</p>
+                            </div>`;
                         return;
                     }
 
                     let formHTML = `<div class="poll-question">${data.poll.question}</div>`;
+                    formHTML += `<div style="font-size: 0.9rem; color: var(--secondary-text-color); margin-bottom: 1.5rem;">توجه: پس از ثبت، امکان تغییر رای وجود نخواهد داشت.</div>`
                     formHTML += `<form id="poll-form">`;
                     formHTML += `<input type="hidden" name="poll_id" value="${data.poll.id}">`;
 
                     data.options.forEach(option => {
                         const is_disabled = (option.vote_count >= option.capacity);
                         const remaining = Math.max(0, option.capacity - option.vote_count);
+                        const progressPercent = option.capacity > 0 ? (option.vote_count / option.capacity) * 100 : 0;
+
+                        let capacityBadge = `<span class="option-capacity-badge">ظرفیت: ${remaining}</span>`;
+                        if (is_disabled) {
+                            capacityBadge = `<span class="option-capacity-badge full">تکمیل شد</span>`;
+                        }
+
                         formHTML += `
-                    <div class="poll-option">
-                        <input type="radio" name="option_id" value="${option.id}" id="option-${option.id}" ${is_disabled ? 'disabled' : ''} required>
-                        <label for="option-${option.id}">
-                            ${option.option_text}
-                            <span>(ظرفیت باقی‌مانده: ${remaining})</span>
-                        </label>
-                    </div>`;
+                        <div class="poll-option">
+                            <input type="radio" name="option_id" value="${option.id}" id="option-${option.id}" ${is_disabled ? 'disabled' : ''} required>
+                            <label for="option-${option.id}">
+                                <div class="option-text-wrapper">
+                                    <span>${option.option_text}</span>
+                                    ${capacityBadge}
+                                </div>
+                                <div class="capacity-progress-bar">
+                                    <div class="progress" style="width: ${progressPercent}%;"></div>
+                                </div>
+                            </label>
+                        </div>`;
                     });
 
-                    formHTML += `<br><button type="submit" class="poll-submit-btn">ثبت رای</button></form>`;
+                    formHTML += `<br><button type="submit" class="poll-submit-btn">
+                        <span class="btn-text">ثبت رای</span>
+                        <div class="btn-loader"></div>
+                    </button></form>`;
                     container.innerHTML = formHTML;
 
                     document.getElementById('poll-form').addEventListener('submit', submitPollVote);
 
                 } catch (error) {
-                    container.innerHTML = `<p style="color: #dc3545;">خطا در بارگذاری نظرسنجی: ${error.message}</p>`;
+                    container.innerHTML = `
+                        <div class="poll-state-container" style="border-color: #dc3545;">
+                                <span class="icon">⚠️</span>
+                                <p style="color: #721c24;">خطا در بارگذاری نظرسنجی: ${error.message}</p>
+                                <button class="poll-submit-btn" onclick="loadPollData()">تلاش مجدد</button>
+                        </div>`;
                 }
             }
 
@@ -1510,10 +1693,7 @@ if ($agentId) {
                 event.preventDefault();
                 const form = event.target;
                 const container = document.getElementById('poll-container');
-
-                if (!confirm('آیا از انتخاب خود مطمئن هستید؟ پس از ثبت، امکان تغییر رای تا دوره بعدی وجود نخواهد داشت.')) {
-                    return;
-                }
+                const submitBtn = form.querySelector('.poll-submit-btn');
 
                 const formData = new FormData(form);
                 const data = {
@@ -1525,6 +1705,9 @@ if ($agentId) {
                     alert('لطفاً یک گزینه را انتخاب کنید.');
                     return;
                 }
+
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
 
                 try {
                     const response = await fetch('/profile/profile-api.php?action=submit_vote', {
@@ -1541,14 +1724,19 @@ if ($agentId) {
                         throw new Error(result.error || 'خطای ناشناخته در ثبت رای.');
                     }
 
-                    container.innerHTML = `<div class="poll-message success">${result.message}</div>`;
+                    container.innerHTML = `
+                         <div class="poll-state-container" style="border-color: var(--primary-color);">
+                            <span class="icon">🎉</span>
+                            <p style="color: var(--primary-dark);">${result.message}</p>
+                        </div>`;
 
                 } catch (error) {
-                    // نمایش خطا در همان بخش نظرسنجی
-                    let errorHtml = `<div class="poll-message error">خطا: ${error.message}</div>`;
-                    // دکمه تلاش مجدد
-                    errorHtml += `<br><button onclick="loadPollData()">تلاش مجدد</button>`;
-                    container.innerHTML = errorHtml;
+                    container.innerHTML = `
+                        <div class="poll-state-container" style="border-color: #dc3545;">
+                                <span class="icon">❌</span>
+                                <p style="color: #721c24;">خطا: ${error.message}</p>
+                                <button class="poll-submit-btn" onclick="loadPollData()">تلاش مجدد</button>
+                        </div>`;
                 }
             }
 
@@ -1557,6 +1745,7 @@ if ($agentId) {
                 handlePollTabClick();
             }
         });
+        // --- END: Improved Poll Logic ---
     </script>
 </body>
 

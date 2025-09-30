@@ -10,6 +10,7 @@ $claims = requireAuth('admin', '/auth/login.html');
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>مدیریت نظرسنجی</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #00ae70;
@@ -151,6 +152,15 @@ $claims = requireAuth('admin', '/auth/login.html');
             transform: translateY(-2px);
         }
 
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+
         .btn.loading {
             pointer-events: none;
             color: transparent;
@@ -192,6 +202,10 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         .btn-icon:hover {
             background-color: #f1f1f1;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
         }
 
         table {
@@ -374,24 +388,12 @@ $claims = requireAuth('admin', '/auth/login.html');
             }
         }
 
-        .back-link {
-            display: block;
-            margin-top: 2rem;
-            text-align: center;
-            color: var(--primary-color);
-            font-weight: 500;
-            text-decoration: none;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
         .status-badge {
             padding: 0.2rem 0.6rem;
             border-radius: 99px;
             font-size: 0.8rem;
             font-weight: 600;
+            display: inline-block;
         }
 
         .status-badge.active {
@@ -444,6 +446,121 @@ $claims = requireAuth('admin', '/auth/login.html');
             max-height: 400px;
             overflow-y: auto;
         }
+
+        /* Skeleton Loader Styles */
+        .skeleton-loader td {
+            padding: 1rem 1.5rem;
+        }
+
+        .skeleton-line {
+            width: 100%;
+            height: 1.2rem;
+            background-color: #f0f0f0;
+            border-radius: 0.25rem;
+            margin-bottom: 0.75rem;
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .skeleton-line:last-child {
+            width: 70%;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Responsive Table Styles */
+        @media screen and (max-width: 768px) {
+            .table-responsive {
+                overflow-x: hidden;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                border: 1px solid var(--border-color);
+                border-radius: .5rem;
+                margin-bottom: 1rem;
+                background: white;
+            }
+
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: left;
+                white-space: normal;
+            }
+
+            td:before {
+                position: absolute;
+                top: 50%;
+                right: 1.5rem;
+                transform: translateY(-50%);
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: right;
+                font-weight: 700;
+                color: var(--secondary-text-color);
+            }
+
+            td:nth-of-type(1):before {
+                content: "سوال نظرسنجی:";
+            }
+
+            td:nth-of-type(2):before {
+                content: "تعداد گزینه‌ها:";
+            }
+
+            td:nth-of-type(3):before {
+                content: "تعداد آرا:";
+            }
+
+            td:nth-of-type(4):before {
+                content: "وضعیت:";
+            }
+
+            td:nth-of-type(5):before {
+                content: "عملیات:";
+            }
+
+            td.actions-cell {
+                padding-left: 1rem;
+                justify-content: flex-start;
+            }
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 2rem;
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: 500;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -464,16 +581,36 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <h2>لیست نظرسنجی‌ها</h2>
             </div>
             <div class="card-body no-padding">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>سوال نظرسنجی</th>
-                            <th>وضعیت</th>
-                            <th>عملیات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="polls-list-body"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>سوال نظرسنجی</th>
+                                <th>تعداد گزینه‌ها</th>
+                                <th>تعداد آرا</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="polls-list-body">
+                            <tr class="skeleton-loader">
+                                <td colspan="5">
+                                    <div class="skeleton-line"></div>
+                                </td>
+                            </tr>
+                            <tr class="skeleton-loader">
+                                <td colspan="5">
+                                    <div class="skeleton-line"></div>
+                                </td>
+                            </tr>
+                            <tr class="skeleton-loader">
+                                <td colspan="5">
+                                    <div class="skeleton-line"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <a href="/admin/index.php" class="back-link">بازگشت به پنل مدیریت</a>
@@ -505,9 +642,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <button class="btn-icon close-modal-btn" title="بستن">✖️</button>
             </div>
             <p id="options-modal-question" style="font-weight: 500; color: var(--secondary-text-color); margin-bottom: 1rem;"></p>
-
             <ul id="options-list"></ul>
-
             <form id="add-option-form" onsubmit="return false;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="option-text">متن گزینه جدید</label>
@@ -530,14 +665,32 @@ $claims = requireAuth('admin', '/auth/login.html');
             </div>
             <p id="results-modal-question" style="font-weight: 500; color: var(--secondary-text-color); margin-bottom: 1.5rem;"></p>
 
-            <div id="results-table-container">
+            <div style="height: 300px; margin-bottom: 2rem; position: relative;">
+                <canvas id="results-chart"></canvas>
             </div>
+
+            <div id="results-table-container"></div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-modal-btn">بستن</button>
             </div>
         </div>
     </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 id="confirm-modal-title">تایید عملیات</h2>
+                <button class="btn-icon close-modal-btn" title="بستن">✖️</button>
+            </div>
+            <p id="confirm-modal-message">آیا از انجام این عملیات اطمینان دارید؟</p>
+            <div class="modal-footer">
+                <button type="button" id="confirm-cancel-btn" class="btn btn-secondary">لغو</button>
+                <button type="button" id="confirm-ok-btn" class="btn btn-danger">تایید و انجام</button>
+            </div>
+        </div>
+    </div>
+
 
     <div id="toast-container"></div>
     <div id="footer-placeholder"></div>
@@ -547,23 +700,36 @@ $claims = requireAuth('admin', '/auth/login.html');
             const API_URL = 'polls-api.php';
             let pollsData = [];
             let currentPollId = null;
+            let resultsChart = null;
 
             // --- DOM Elements ---
             const pollsListBody = document.getElementById('polls-list-body');
+            // Modals
             const pollModal = document.getElementById('poll-modal');
+            const optionsModal = document.getElementById('options-modal');
+            const resultsModal = document.getElementById('results-modal');
+            const confirmModal = document.getElementById('confirm-modal');
+            // Poll Modal
             const pollModalForm = document.getElementById('poll-modal-form');
             const pollModalTitle = document.getElementById('poll-modal-title');
             const pollSubmitBtn = document.getElementById('poll-submit-btn');
             const pollQuestionInput = document.getElementById('poll-question');
-            const optionsModal = document.getElementById('options-modal');
+            // Options Modal
             const optionsModalQuestion = document.getElementById('options-modal-question');
             const optionsList = document.getElementById('options-list');
             const addOptionForm = document.getElementById('add-option-form');
             const optionTextInput = document.getElementById('option-text');
             const optionCapacityInput = document.getElementById('option-capacity');
-            const resultsModal = document.getElementById('results-modal');
+            // Results Modal
             const resultsModalQuestion = document.getElementById('results-modal-question');
             const resultsTableContainer = document.getElementById('results-table-container');
+            const resultsChartCanvas = document.getElementById('results-chart');
+            // Confirm Modal
+            const confirmModalTitle = document.getElementById('confirm-modal-title');
+            const confirmModalMessage = document.getElementById('confirm-modal-message');
+            const confirmOkBtn = document.getElementById('confirm-ok-btn');
+            const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+
 
             // --- Helper Functions ---
             const escapeHTML = (str) => {
@@ -609,6 +775,28 @@ $claims = requireAuth('admin', '/auth/login.html');
             };
 
             // --- Modal Handling ---
+            const openModal = (modal) => modal.classList.add('visible');
+            const closeModal = () => {
+                document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
+                currentPollId = null;
+            };
+            const showConfirmationModal = (title, message, onConfirm) => {
+                confirmModalTitle.textContent = title;
+                confirmModalMessage.innerHTML = message; // Use innerHTML to allow simple formatting like <br>
+                openModal(confirmModal);
+
+                // Clone and replace the button to remove old event listeners
+                const newOkBtn = confirmOkBtn.cloneNode(true);
+                confirmOkBtn.parentNode.replaceChild(newOkBtn, confirmOkBtn);
+
+                newOkBtn.addEventListener('click', () => {
+                    closeModal();
+                    onConfirm();
+                }, {
+                    once: true
+                });
+            };
+
             const openPollModal = (mode = 'add', poll = {}) => {
                 pollModalForm.reset();
                 currentPollId = null;
@@ -621,35 +809,34 @@ $claims = requireAuth('admin', '/auth/login.html');
                     pollModalTitle.textContent = "✨ افزودن نظرسنجی جدید";
                     pollSubmitBtn.innerHTML = "➕ افزودن";
                 }
-                pollModal.classList.add('visible');
+                openModal(pollModal);
             };
             const openOptionsModal = async (poll) => {
                 currentPollId = poll.id;
                 optionsModalQuestion.textContent = poll.question;
-                optionsModal.classList.add('visible');
+                openModal(optionsModal);
                 await loadOptionsForPoll(poll.id);
             };
             const openResultsModal = async (poll) => {
-                resultsModal.classList.add('visible');
+                openModal(resultsModal);
                 resultsModalQuestion.textContent = poll.question;
                 resultsTableContainer.innerHTML = '<p>در حال بارگذاری نتایج...</p>';
+                if (resultsChart) resultsChart.destroy();
+
                 const results = await apiRequest('getPollResults', 'GET', {
                     poll_id: poll.id
                 });
                 if (results) {
                     renderResultsTable(results);
+                    renderResultsChart(results);
                 }
-            };
-            const closeModal = () => {
-                document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('visible'));
-                currentPollId = null;
             };
 
             // --- Data Rendering ---
             const renderPollsList = () => {
                 pollsListBody.innerHTML = '';
                 if (pollsData.length === 0) {
-                    pollsListBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 2rem;">هیچ نظرسنجی ثبت نشده است.</td></tr>';
+                    pollsListBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">هیچ نظرسنجی ثبت نشده است.</td></tr>';
                     return;
                 }
                 pollsData.forEach(poll => {
@@ -659,8 +846,10 @@ $claims = requireAuth('admin', '/auth/login.html');
                         '<span class="status-badge inactive">غیرفعال</span>';
 
                     row.innerHTML = `
-                        <td>${escapeHTML(poll.question)}</td>
-                        <td>${statusBadge}</td>
+                        <td data-label="سوال">${escapeHTML(poll.question)}</td>
+                        <td data-label="گزینه‌ها">${poll.options_count ?? 'N/A'}</td>
+                        <td data-label="آرا">${poll.votes_count ?? 'N/A'}</td>
+                        <td data-label="وضعیت">${statusBadge}</td>
                         <td class="actions-cell">
                             <button class="btn-icon view-results-btn" data-id="${poll.id}" title="نمایش نتایج">📊</button>
                             <button class="btn-icon manage-options-btn" data-id="${poll.id}" title="مدیریت گزینه‌ها">⚙️</button>
@@ -699,10 +888,59 @@ $claims = requireAuth('admin', '/auth/login.html');
                 tableHTML += '</tbody></table>';
                 resultsTableContainer.innerHTML = tableHTML;
             };
+            const renderResultsChart = (results) => {
+                const voteCounts = results.reduce((acc, vote) => {
+                    acc[vote.option_text] = (acc[vote.option_text] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const labels = Object.keys(voteCounts);
+                const data = Object.values(voteCounts);
+
+                if (labels.length === 0) return;
+
+                resultsChart = new Chart(resultsChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'تعداد آرا',
+                            data: data,
+                            backgroundColor: 'rgba(0, 174, 112, 0.6)',
+                            borderColor: 'rgba(0, 174, 112, 1)',
+                            borderRadius: 4,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            };
 
             // --- Main Logic Functions ---
             const loadPageData = async () => {
+                document.querySelectorAll('.skeleton-loader').forEach(el => el.style.display = 'table-row');
+                pollsListBody.querySelectorAll('tr:not(.skeleton-loader)').forEach(el => el.remove());
+
                 const result = await apiRequest('getPolls');
+
+                document.querySelectorAll('.skeleton-loader').forEach(el => el.style.display = 'none');
+
                 if (result) {
                     pollsData = result;
                     renderPollsList();
@@ -713,9 +951,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 const options = await apiRequest('getOptions', 'GET', {
                     poll_id: pollId
                 });
-                if (options) {
-                    renderOptionsList(options);
-                }
+                if (options) renderOptionsList(options);
             };
 
             // --- Event Handlers ---
@@ -765,6 +1001,8 @@ $claims = requireAuth('admin', '/auth/login.html');
             // --- Event Listeners ---
             document.getElementById('add-new-poll-btn').addEventListener('click', () => openPollModal('add'));
             document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', closeModal));
+            confirmCancelBtn.addEventListener('click', closeModal);
+
             pollModalForm.addEventListener('submit', handlePollFormSubmit);
             addOptionForm.addEventListener('submit', handleAddOptionSubmit);
 
@@ -774,31 +1012,40 @@ $claims = requireAuth('admin', '/auth/login.html');
 
                 const id = parseInt(target.dataset.id, 10);
                 const poll = pollsData.find(p => p.id === id);
+                if (!poll) return;
 
                 if (target.classList.contains('view-results-btn')) {
-                    if (poll) await openResultsModal(poll);
+                    await openResultsModal(poll);
                 } else if (target.classList.contains('edit-poll-btn')) {
-                    if (poll) openPollModal('edit', poll);
+                    openPollModal('edit', poll);
                 } else if (target.classList.contains('manage-options-btn')) {
-                    if (poll) await openOptionsModal(poll);
+                    await openOptionsModal(poll);
                 } else if (target.classList.contains('delete-poll-btn')) {
-                    if (confirm('آیا از حذف این نظرسنجی و تمام گزینه‌ها و رای‌های آن مطمئن هستید؟')) {
-                        if (await apiRequest('deletePoll', 'POST', {
-                                id
-                            })) {
-                            showToast('نظرسنجی با موفقیت حذف شد.');
-                            await loadPageData();
+                    showConfirmationModal(
+                        'حذف نظرسنجی',
+                        `آیا از حذف نظرسنجی "<b style="color:var(--danger-color);">${escapeHTML(poll.question)}</b>" و تمام رای‌های آن مطمئن هستید؟`,
+                        async () => {
+                            if (await apiRequest('deletePoll', 'POST', {
+                                    id
+                                })) {
+                                showToast('نظرسنجی با موفقیت حذف شد.');
+                                await loadPageData();
+                            }
                         }
-                    }
+                    );
                 } else if (target.classList.contains('set-active-btn')) {
-                    if (confirm('آیا می‌خواهید این نظرسنجی را فعال کنید؟ (نظرسنجی فعال قبلی غیرفعال خواهد شد)')) {
-                        if (await apiRequest('setActivePoll', 'POST', {
-                                id
-                            })) {
-                            showToast('نظرسنجی با موفقیت فعال شد.');
-                            await loadPageData();
+                    showConfirmationModal(
+                        'فعال‌سازی نظرسنجی',
+                        'آیا می‌خواهید این نظرسنجی را فعال کنید؟<br>(نظرسنجی فعال قبلی غیرفعال خواهد شد)',
+                        async () => {
+                            if (await apiRequest('setActivePoll', 'POST', {
+                                    id
+                                })) {
+                                showToast('نظرسنجی با موفقیت فعال شد.');
+                                await loadPageData();
+                            }
                         }
-                    }
+                    );
                 }
             });
 
@@ -806,14 +1053,15 @@ $claims = requireAuth('admin', '/auth/login.html');
                 const target = e.target.closest('.delete-option-btn');
                 if (!target) return;
                 const id = parseInt(target.dataset.id, 10);
-                if (confirm('آیا از حذف این گزینه مطمئن هستید؟')) {
+
+                showConfirmationModal('حذف گزینه', 'آیا از حذف این گزینه مطمئن هستید؟', async () => {
                     if (await apiRequest('deleteOption', 'POST', {
                             id
                         })) {
                         showToast('گزینه حذف شد.');
                         await loadOptionsForPoll(currentPollId);
                     }
-                }
+                });
             });
 
             // --- Initial Load ---
