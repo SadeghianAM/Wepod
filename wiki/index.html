@@ -447,7 +447,7 @@
       let displayedItemsCount = 0;
       const ITEMS_PER_PAGE = 6;
 
-      fetchNoCache("/admin/wiki/wiki-api.php")
+      fetchNoCache("/wiki/wiki-api.php")
         .then((res) => res.json())
         .then((json) => {
           allData = json;

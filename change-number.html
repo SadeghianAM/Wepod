@@ -255,13 +255,11 @@
         color: var(--primary-color);
         text-decoration: underline;
       }
-      /* --- START: Added styles for copy icon --- */
       .input-wrapper {
         position: relative;
         display: flex;
         align-items: center;
       }
-      /* Add padding to inputs to make space for the icon */
       .input-wrapper input {
         padding-left: 45px;
       }
@@ -285,7 +283,6 @@
       .copy-icon.copied {
         color: var(--primary-dark);
       }
-      /* --- END: Added styles for copy icon --- */
       @media (max-width: 768px) {
         main {
           padding: 1.5rem;
@@ -457,15 +454,12 @@
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script>
-      // --- START: Added function to copy field content ---
       function copyField(inputId) {
         const input = document.getElementById(inputId);
-        // Copy the raw value without spaces
         const valueToCopy = input.value.replace(/\s/g, "").trim();
-        const icon = input.nextElementSibling; // The copy icon span
+        const icon = input.nextElementSibling;
 
         if (!valueToCopy) {
-          // Show feedback if field is empty
           icon.innerText = "❗";
           icon.classList.add("copied");
           setTimeout(() => {
@@ -478,7 +472,6 @@
         navigator.clipboard
           .writeText(valueToCopy)
           .then(() => {
-            // Success feedback
             icon.innerText = "✅";
             icon.classList.add("copied");
             setTimeout(() => {
@@ -487,7 +480,6 @@
             }, 1500);
           })
           .catch((err) => {
-            // Error feedback
             console.error("خطا در کپی کردن متن: ", err);
             icon.innerText = "❌";
             icon.classList.add("copied");
@@ -497,7 +489,6 @@
             }, 1500);
           });
       }
-      // --- END: Added function ---
 
       function normalizeDigits(text) {
         return text.replace(/[۰-۹]/g, (d) =>
@@ -745,13 +736,24 @@
 
       updateCopyButton();
       let cityMapping = {};
+      let nameList = [];
       fetch("data/NationalCode.json")
         .then((res) => res.json())
         .then((data) => {
           cityMapping = data;
         })
         .catch((err) => {
-          console.error("خطا در بارگذاری cityMapping.json:", err);
+          console.error("خطا در بارگذاری NationalCode.json:", err);
+        });
+
+      // --- START: بخش جدید برای بارگذاری لیست اسامی ---
+      fetch("data/name.json")
+        .then((res) => res.json())
+        .then((data) => {
+          nameList = data; // لیست اسامی در متغیر ذخیره می‌شود
+        })
+        .catch((err) => {
+          console.error("خطا در بارگذاری name.json:", err);
         });
 
       function updateProvinceDisplay(pureValue) {
@@ -801,6 +803,34 @@
         const provinceDiv = document.getElementById("provinceDisplay");
         provinceDiv.style.display = "none";
         provinceDiv.innerText = "";
+
+        // منطق جدید برای استخراج نام
+        const nameInput = document.getElementById("nameInput");
+        nameInput.value = ""; // ابتدا فیلد نام را پاک می‌کنیم
+
+        if (nameList.length > 0) {
+          // فقط در صورتی که لیست اسامی بارگذاری شده باشد
+          const words = text.replace(/[.,!?]/g, "").split(/\s+/); // متن را به کلمات تقسیم می‌کنیم
+          let foundName = "";
+
+          for (let i = 0; i < words.length; i++) {
+            // چک می‌کنیم که آیا کلمه فعلی در لیست اسامی ما وجود دارد
+            if (nameList.includes(words[i])) {
+              // اگر اسم پیدا شد، آن را به همراه کلمه بعدی (فامیلی) ذخیره می‌کنیم
+              foundName = words[i];
+              if (i + 1 < words.length) {
+                // مطمئن می‌شویم کلمه بعدی وجود دارد
+                foundName += " " + words[i + 1];
+              }
+              break; // بعد از پیدا کردن اولین اسم، از حلقه خارج می‌شویم
+            }
+          }
+
+          if (foundName) {
+            nameInput.value = foundName; // مقدار فیلد نام را تنظیم می‌کنیم
+          }
+        }
+
         const phoneMatches = text.match(/09\d{9}/g) || [];
         const nationalIdMatches = text.match(/\b\d{10}\b/g) || [];
         if (phoneMatches.length === 1) {
