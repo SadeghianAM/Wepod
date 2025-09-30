@@ -52,8 +52,6 @@ $claims = requireAuth(null, '/../auth/login.html');
         body {
             background: var(--bg-color);
             color: var(--text-color);
-            padding-bottom: 100px;
-            /* ایجاد فضا برای نوار شناور */
         }
 
         main {
