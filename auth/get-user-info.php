@@ -17,7 +17,7 @@ try {
 }
 
 // احراز هویت کاربر از طریق توکن موجود در کوکی
-$claims = requireAuth(null, '/login.html');
+$claims = requireAuth(null, '/auth/login.html');
 $username = $claims['username'] ?? null;
 
 if (!$username) {

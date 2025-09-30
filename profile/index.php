@@ -498,6 +498,12 @@ if ($agentId) {
                         </a>
                     </li>
                     <li>
+                        <a href="/wheel/index.php">
+                            <span class="menu-emoji">🎡</span>
+                            <span>گردونه شانس</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="/auth/logout.php">
                             <span class="menu-emoji">🚪</span>
                             <span>خروج از حساب</span>

@@ -618,7 +618,7 @@ $claims = requireAuth(null, '/auth/login.html');
             // ========== بخش تغییر یافته ==========
             async function checkUserSpinStatus() {
                 try {
-                    const response = await fetch('/prize/wheel-api.php?action=getWheelStatus&_=' + new Date().getTime());
+                    const response = await fetch('/wheel/wheel-api.php?action=getWheelStatus&_=' + new Date().getTime());
                     const status = await response.json();
 
                     // تعداد شانس‌ها را در هر صورت نمایش بده
@@ -648,7 +648,7 @@ $claims = requireAuth(null, '/auth/login.html');
                 if (!container || !detailsElement) return;
 
                 try {
-                    const response = await fetch('/prize/wheel-api.php?action=getLastWinnerInfo&_=' + new Date().getTime());
+                    const response = await fetch('/wheel/wheel-api.php?action=getLastWinnerInfo&_=' + new Date().getTime());
                     if (!response.ok) return;
                     const lastWin = await response.json();
                     if (lastWin && lastWin.prize_name) {
@@ -670,7 +670,7 @@ $claims = requireAuth(null, '/auth/login.html');
 
             async function setupWheel() {
                 try {
-                    const response = await fetch('/prize/wheel-api.php?action=getPrizes&_=' + new Date().getTime());
+                    const response = await fetch('/wheel/wheel-api.php?action=getPrizes&_=' + new Date().getTime());
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.error || 'Network response was not ok.');
@@ -704,7 +704,7 @@ $claims = requireAuth(null, '/auth/login.html');
                 spinError.textContent = '';
                 winnerPrize = null;
                 try {
-                    const response = await fetch('/prize/wheel-api.php?action=calculateWinner&_=' + new Date().getTime());
+                    const response = await fetch('/wheel/wheel-api.php?action=calculateWinner&_=' + new Date().getTime());
                     const result = await response.json();
                     if (!response.ok) {
                         throw new Error(result.error || 'Server could not calculate a winner.');
