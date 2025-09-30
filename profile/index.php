@@ -68,6 +68,8 @@ if ($agentId) {
             --footer-h: 60px;
             --border-radius: 0.8rem;
             --border-color: #e9ecef;
+            --swap-color: #e8eaf6;
+            --swap-text-color: #3f51b5;
         }
 
         @font-face {
@@ -103,7 +105,6 @@ if ($agentId) {
             background-color: var(--bg-color);
             color: var(--text-color);
             direction: rtl;
-            /* --- کد اصلاح شده برای چسباندن فوتر به پایین --- */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -426,7 +427,6 @@ if ($agentId) {
             border: 1px solid var(--border-color);
         }
 
-        /* ADD THIS CSS to your <style> block in profile/index.php */
         .assets-table {
             width: 100%;
             border-collapse: collapse;
@@ -460,6 +460,156 @@ if ($agentId) {
             font-size: 0.85rem;
             font-weight: 500;
         }
+
+        /* --- START: CSS for Shift Calendar --- */
+        #my-shift h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            text-align: center;
+            font-weight: 700;
+        }
+
+        #user-shift-info {
+            background-color: var(--primary-light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border: 1px solid var(--primary-color);
+        }
+
+        #user-shift-info p {
+            font-size: 1rem;
+            color: var(--secondary-text-color);
+        }
+
+        #user-shift-info span {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-right: 0.25rem;
+        }
+
+        #calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        #calendar-controls button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s, opacity 0.2s;
+        }
+
+        #calendar-controls button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #calendar-controls button:disabled {
+            background-color: #a5d8d1;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #current-month-year {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        #calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 0.8rem 0;
+            color: var(--secondary-text-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .calendar-day {
+            min-height: 120px;
+            border: 1px solid #f0f0f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            transition: box-shadow 0.2s;
+        }
+
+        .calendar-day:not(.other-month):hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .calendar-day.other-month {
+            background-color: #f8f9fa;
+            color: #ced4da;
+        }
+
+        .calendar-day .shift-info {
+            padding: 0.4rem 0.5rem;
+            border-radius: 0.3rem;
+            color: white;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .shift-info.status-swap {
+            background-color: var(--swap-color);
+            color: var(--swap-text-color);
+        }
+
+        .swapped-shift-details {
+            font-size: 0.8rem;
+            background-color: #f0f0f0;
+            border-radius: 0.3rem;
+            padding: 0.4rem;
+            text-align: center;
+            color: #333;
+            border: 1px solid #ddd;
+            line-height: 1.5;
+            margin-top: 0.2rem;
+        }
+
+        .status-on-duty {
+            background-color: #28a745;
+        }
+
+        .status-off {
+            background-color: #dc3545;
+        }
+
+        .status-remote {
+            background-color: #ede7f6;
+            color: #5e35b1;
+        }
+
+        .status-special {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        /* --- END: CSS for Shift Calendar --- */
     </style>
 </head>
 
@@ -488,7 +638,13 @@ if ($agentId) {
                     <li>
                         <a href="#performance-report" class="profile-tab-link">
                             <span class="menu-emoji">📊</span>
-                            <span>گزارش عملکرد</span>
+                            <span>عملکرد من</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#my-shift" class="profile-tab-link">
+                            <span class="menu-emoji">📅</span>
+                            <span>شیفت من</span>
                         </a>
                     </li>
                     <li>
@@ -554,6 +710,10 @@ if ($agentId) {
                 <nav id="date-nav"></nav>
                 <div id="report-content"></div>
             </section>
+
+            <section id="my-shift" class="content-section">
+            </section>
+
             <section id="my-assets" class="content-section">
                 <div class="overview-card">
                     <h2>اموال در اختیار شما</h2>
@@ -564,13 +724,11 @@ if ($agentId) {
 
         </main>
     </div>
-    </main>
-    </div>
 
     <div id="footer-placeholder"></div>
     <script src="/js/header.js?v=1.0"></script>
     <script>
-        // Tab switching logic (No changes needed)
+        // Tab switching logic
         document.addEventListener('DOMContentLoaded', () => {
             const tabLinks = document.querySelectorAll('.profile-tab-link');
             const contentSections = document.querySelectorAll('.content-section');
@@ -593,7 +751,7 @@ if ($agentId) {
             }
         });
 
-        // Dashboard logic (No changes needed)
+        // Dashboard logic
         const agentData = <?php echo json_encode($agentData, JSON_UNESCAPED_UNICODE); ?>;
         const metricsConfig = {
             performance: {
@@ -706,7 +864,10 @@ if ($agentId) {
         }
 
         function formatDate(date) {
-            return date.toISOString().split('T')[0];
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
 
         function displayDailyReport(date) {
@@ -891,89 +1052,295 @@ if ($agentId) {
             const activeBtn = id === 'summary' ? document.getElementById('btn-summary') : document.getElementById(`btn-${id}`);
             if (activeBtn) activeBtn.classList.add('active');
         }
-        // ADD THIS SCRIPT LOGIC inside the main <script> tag at the bottom of profile/index.php
 
+
+        // --- START: My Assets Logic ---
         document.addEventListener('DOMContentLoaded', () => {
-            // ... (your existing tab switching code is here, leave it as is)
-
-            // --- New code for loading user assets ---
-            let assetsLoaded = false; // A flag to prevent multiple API calls
-
-            // Find the new tab link
+            let assetsLoaded = false;
             const myAssetsLink = document.querySelector('a[href="#my-assets"]');
-
             myAssetsLink.addEventListener('click', () => {
-                // Load assets only once when the tab is first clicked
                 if (!assetsLoaded) {
                     loadUserAssets();
                     assetsLoaded = true;
                 }
             });
-
             async function loadUserAssets() {
                 const container = document.getElementById('user-assets-container');
                 container.innerHTML = '<p>در حال بارگذاری اطلاعات اموال...</p>';
-
                 try {
                     const response = await fetch('/profile/profile-api.php?action=get_my_assets');
-                    if (!response.ok) {
-                        throw new Error('خطا در ارتباط با سرور.');
-                    }
+                    if (!response.ok) throw new Error('خطا در ارتباط با سرور.');
                     const assets = await response.json();
-
                     if (assets.length === 0) {
                         container.innerHTML = '<p>در حال حاضر هیچ کالایی به شما تخصیص داده نشده است.</p>';
                         return;
                     }
-
-                    // Create the table structure
-                    let tableHTML = `
-                <table class="assets-table">
-                    <thead>
-                        <tr>
-                            <th>نام کالا</th>
-                            <th>شماره سریال</th>
-                            <th>تاریخ تحویل</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
+                    let tableHTML = `<table class="assets-table"><thead><tr><th>نام کالا</th><th>شماره سریال</th><th>تاریخ تحویل</th></tr></thead><tbody>`;
                     assets.forEach(asset => {
-                        // Format the date to be more readable
                         const assignedDate = new Date(asset.assigned_at).toLocaleDateString('fa-IR', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
                         });
-
-                        tableHTML += `
-                    <tr>
-                        <td>${asset.name}</td>
-                        <td>${asset.serial_number}</td>
-                        <td><span class="date-chip">${assignedDate}</span></td>
-                    </tr>
-                `;
+                        tableHTML += `<tr><td>${asset.name}</td><td>${asset.serial_number}</td><td><span class="date-chip">${assignedDate}</span></td></tr>`;
                     });
-
                     tableHTML += '</tbody></table>';
                     container.innerHTML = tableHTML;
-
                 } catch (error) {
                     container.innerHTML = `<p style="color: #dc3545;">خطا در بارگذاری اطلاعات: ${error.message}</p>`;
                 }
             }
-
-            // Check if the page was loaded with #my-assets hash
             if (window.location.hash === '#my-assets') {
-                // The existing tab switching logic will show the tab,
-                // we just need to ensure the data is loaded.
                 if (!assetsLoaded) {
                     loadUserAssets();
                     assetsLoaded = true;
                 }
             }
         });
+        // --- END: My Assets Logic ---
+
+        // --- START: My Shift Logic ---
+
+        // Global variables for shift calendar
+        let allExperts = [];
+        let allShiftsLoaded = false;
+        let myShiftLoaded = false;
+        let currentCalendarDate = new Date();
+        const loggedInAgentId = '<?php echo $agentId; ?>';
+
+        // Helper function to fetch without cache
+        function fetchNoCache(url, options = {}) {
+            const timestamp = new Date().getTime();
+            const separator = url.includes("?") ? "&" : "?";
+            const urlWithCacheBust = `${url}${separator}t=${timestamp}`;
+            return fetch(urlWithCacheBust, options);
+        }
+
+        // Jalali date conversion functions
+        function jalaliToGregorian(jy, jm, jd) {
+            var sal_a, gy, gm, gd, days;
+            jy += 1595;
+            days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
+            gy = 400 * ~~(days / 146097);
+            days %= 146097;
+            if (days > 36524) {
+                gy += 100 * ~~(--days / 36524);
+                days %= 36524;
+                if (days >= 365) days++;
+            }
+            gy += 4 * ~~(days / 1461);
+            days %= 1461;
+            if (days > 365) {
+                gy += ~~((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+            gd = days + 1;
+            sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+            return new Date(gy, gm - 1, gd);
+        }
+
+        function toPersian(date) {
+            const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
+            return parts.map((p) => parseInt(p, 10));
+        }
+
+        function isJalaliLeap(jy) {
+            return ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 < 682;
+        }
+
+        function jalaliMonthLength(jy, jm) {
+            if (jm <= 6) return 31;
+            if (jm <= 11) return 30;
+            return isJalaliLeap(jy) ? 30 : 29;
+        }
+
+        function hasShiftsInMonth(date, userShifts) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const monthPrefix = `${year}-${month}-`;
+            return Object.keys(userShifts).some((shiftDate) => shiftDate.startsWith(monthPrefix));
+        }
+
+        function getShiftDetails(shiftEntry) {
+            if (typeof shiftEntry === "object" && shiftEntry !== null && shiftEntry.status === "swap") {
+                return {
+                    status: "swap",
+                    displayText: shiftEntry.displayText,
+                    isSwap: true,
+                    linkedTo: shiftEntry.linkedTo
+                };
+            }
+            const status = shiftEntry || "unknown";
+            let displayText = status;
+            switch (status) {
+                case "on-duty":
+                    displayText = "حضور";
+                    break;
+                case "remote":
+                    displayText = "دورکاری";
+                    break;
+                case "off":
+                    displayText = "عدم حضور";
+                    break;
+                case "leave":
+                    displayText = "مرخصی";
+                    break;
+                case "unknown":
+                    displayText = "-";
+                    break;
+            }
+            return {
+                status,
+                displayText,
+                isSwap: false,
+                linkedTo: null
+            };
+        }
+
+        function renderCalendar(date, shiftsData) {
+            const container = document.getElementById("calendar-container");
+            const weekDays = ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه"];
+            let html = '<div id="calendar-grid">';
+            weekDays.forEach(day => html += `<div class="calendar-header">${day}</div>`);
+            const [pYear, pMonth] = toPersian(date);
+            const firstDayOfPersianMonth = jalaliToGregorian(pYear, pMonth, 1);
+            const daysInMonth = jalaliMonthLength(pYear, pMonth);
+            const lastDayOfPersianMonth = jalaliToGregorian(pYear, pMonth, daysInMonth);
+            const calendarStartDate = new Date(firstDayOfPersianMonth);
+            const offsetToSaturday = (firstDayOfPersianMonth.getDay() + 1) % 7;
+            calendarStartDate.setDate(calendarStartDate.getDate() - offsetToSaturday);
+            const calendarEndDate = new Date(lastDayOfPersianMonth);
+            const offsetToFriday = (5 - lastDayOfPersianMonth.getDay() + 7) % 7;
+            calendarEndDate.setDate(calendarEndDate.getDate() + offsetToFriday);
+            let loopDate = new Date(calendarStartDate);
+            while (loopDate <= calendarEndDate) {
+                const [, currentPMonth] = toPersian(loopDate);
+                const isOtherMonth = currentPMonth !== pMonth;
+                const dateString = formatDate(loopDate);
+                const shiftDetails = getShiftDetails(shiftsData[dateString]);
+                let statusClass = "",
+                    statusText = shiftDetails.displayText,
+                    extraDetailsHtml = "";
+                if (shiftDetails.isSwap) {
+                    statusClass = "status-swap";
+                    if (shiftDetails.displayText.includes("حضور")) {
+                        const originalExpert = allExperts.find(exp => String(exp.id) === String(shiftDetails.linkedTo.expertId));
+                        if (originalExpert) {
+                            const originalShiftTime = originalExpert["shifts-time"] || "نامشخص";
+                            const originalBreakTime = originalExpert["break-time"] || "نامشخص";
+                            extraDetailsHtml = `<div class="swapped-shift-details"><div>⏰ ${originalShiftTime}</div><div>🌮 ${originalBreakTime}</div></div>`;
+                        }
+                    }
+                } else {
+                    const classMap = {
+                        "on-duty": "status-on-duty",
+                        remote: "status-remote",
+                        off: "status-off",
+                        leave: "status-special",
+                        unknown: "status-unknown"
+                    };
+                    statusClass = classMap[shiftDetails.status] || "status-special";
+                }
+                if (shiftDetails.status === "unknown") statusText = "";
+                html += `<div class="calendar-day ${isOtherMonth ? "other-month" : ""}">
+                    <div class="day-number">${loopDate.toLocaleDateString("fa-IR",{ day: "numeric" })}</div>
+                    ${statusText ? `<div class="shift-info ${statusClass}">${statusText}</div>` : ""}
+                    ${extraDetailsHtml}
+                </div>`;
+                loopDate.setDate(loopDate.getDate() + 1);
+            }
+            html += "</div>";
+            container.innerHTML = html;
+        }
+
+        function renderMyShiftView(userData) {
+            const container = document.getElementById("my-shift");
+            const monthName = currentCalendarDate.toLocaleDateString('fa-IR', {
+                month: 'long'
+            });
+            const year = new Intl.NumberFormat('fa-IR', {
+                useGrouping: false
+            }).format(currentCalendarDate.toLocaleDateString('fa-IR-u-nu-latn', {
+                year: 'numeric'
+            }));
+            const prevMonthDate = new Date(currentCalendarDate);
+            prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+            const nextMonthDate = new Date(currentCalendarDate);
+            nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+            const hasPrevShifts = hasShiftsInMonth(prevMonthDate, userData.shifts);
+            const hasNextShifts = hasShiftsInMonth(nextMonthDate, userData.shifts);
+            const breakTime = userData["break-time"];
+            let breakLabel = "ساعت استراحت",
+                breakValue = breakTime || "تعیین نشده";
+            if (breakTime && breakTime.includes(" - ")) {
+                const endTime = breakTime.split(" - ")[1].trim();
+                if (endTime) breakLabel = endTime <= "17:00" ? "🌮 تایم ناهار" : "🌮 تایم شام";
+            }
+            container.innerHTML = `
+                <div class="overview-card">
+                    <h1>تقویم شیفت من</h1>
+                    <div id="user-shift-info">
+                        <p>👤 کارشناس: <span>${userData.name}</span></p>
+                        <p>⏰ ساعت شیفت: <span>${userData["shifts-time"] || "تعیین نشده"}</span></p>
+                        <p>${breakLabel}: <span>${breakValue}</span></p>
+                    </div>
+                    <div id="calendar-controls">
+                        <button id="prev-month" ${hasPrevShifts ? "" : "disabled"}>&rarr; ماه قبل</button>
+                        <span id="current-month-year">${monthName} ${year}</span>
+                        <button id="next-month" ${hasNextShifts ? "" : "disabled"}>ماه بعد &larr;</button>
+                    </div>
+                    <div id="calendar-container"></div>
+                </div>`;
+            document.getElementById("prev-month").addEventListener("click", () => {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                renderMyShiftView(userData);
+            });
+            document.getElementById("next-month").addEventListener("click", () => {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                renderMyShiftView(userData);
+            });
+            renderCalendar(currentCalendarDate, userData.shifts);
+        }
+
+        async function loadMyShiftData() {
+            const myShiftContainer = document.getElementById("my-shift");
+            myShiftContainer.innerHTML = '<div class="overview-card"><p>در حال بارگذاری اطلاعات شیفت...</p></div>';
+            try {
+                if (!allShiftsLoaded) {
+                    const response = await fetchNoCache('/php/get-shifts.php');
+                    if (!response.ok) throw new Error(`خطا در دریافت اطلاعات شیفت (کد: ${response.status})`);
+                    const data = await response.json();
+                    allExperts = data.experts || [];
+                    allShiftsLoaded = true;
+                }
+                const userShiftData = allExperts.find(expert => String(expert.id) === String(loggedInAgentId));
+                if (!userShiftData) {
+                    myShiftContainer.innerHTML = `<div class="overview-card"><p>اطلاعات شیفت برای شما در سیستم یافت نشد.</p></div>`;
+                    return;
+                }
+                renderMyShiftView(userShiftData);
+            } catch (error) {
+                myShiftContainer.innerHTML = `<div class="overview-card"><p style="color: #dc3545;">خطا در بارگذاری اطلاعات: ${error.message}</p></div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const myShiftLink = document.querySelector('a[href="#my-shift"]');
+            myShiftLink.addEventListener('click', () => {
+                if (!myShiftLoaded) {
+                    loadMyShiftData();
+                    myShiftLoaded = true;
+                }
+            });
+            if (window.location.hash === '#my-shift') {
+                if (!myShiftLoaded) {
+                    loadMyShiftData();
+                    myShiftLoaded = true;
+                }
+            }
+        });
+        // --- END: My Shift Logic ---
     </script>
 </body>
 
