@@ -1,6 +1,8 @@
 <?php
 // profile/profile-api.php (Updated Version)
-
+header('Cache-Control: no-cache, no-store, must-revalidate'); // HTTP 1.1.
+header('Pragma: no-cache'); // HTTP 1.0.
+header('Expires: 0'); // Proxies.
 // امنیت: اطمینان از اینکه کاربر لاگین کرده است
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth(null, '/auth/login.html');
