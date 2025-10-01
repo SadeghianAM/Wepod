@@ -334,7 +334,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         </a>
       </li>
       <li class="tool-card">
-        <a href="/admin/game/">
+        <a href="/admin/polls/">
           <span class="tool-icon">✔️</span>
           <span class="tool-title">مدیریت نظرسنجی</span>
         </a>
