@@ -84,7 +84,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
 
         main {
             flex: 1 1 auto;
-            width: min(1400px, 100%);
+            width: min(1600px, 100%);
             padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem);
             margin-inline: auto;
         }
@@ -203,8 +203,25 @@ $claims = requireAuth('admin', '/../auth/login.html');
             margin: 0;
         }
 
+        /* --- CSS جدید --- */
+        .section-title-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        #resultsCount {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--secondary-text);
+            transition: opacity 0.2s;
+        }
+
+        /* --- پایان CSS جدید --- */
+
         #searchInput {
-            max-width: 300px;
+            max-width: 400px;
             font-size: 0.9rem;
             padding: .6em 1em;
         }
@@ -476,7 +493,10 @@ $claims = requireAuth('admin', '/../auth/login.html');
             <div class="table-container-wrapper">
                 <div class="table-wrapper">
                     <div class="section-header">
-                        <h2>لیست اموال</h2>
+                        <div class="section-title-wrapper">
+                            <h2>لیست اموال</h2>
+                            <span id="resultsCount"></span>
+                        </div>
                         <input type="search" id="searchInput" placeholder="جستجو بر اساس نام کالا، سریال، تاریخ یا تحویل‌گیرنده...">
                     </div>
                     <table class="data-table" id="assetTable">
@@ -579,6 +599,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
             const editAssetSerial = document.getElementById('editAssetSerial');
             const searchInput = document.getElementById('searchInput');
             const toastContainer = document.getElementById('toast-container');
+            const resultsCountEl = document.getElementById('resultsCount'); // <-- متغیر جدید
             let currentAssetId = null;
             let allAssets = [];
             let currentSortBy = null;
@@ -724,11 +745,13 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 }
             }
 
+            // --- تابع updateDisplay تغییر یافته ---
             function updateDisplay() {
                 const searchTerm = searchInput.value.trim().toLowerCase()
                     .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
                     .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
                 let processedAssets = [...allAssets];
+
                 if (searchTerm) {
                     processedAssets = processedAssets.filter(asset => {
                         const nameMatch = asset.name.toLowerCase().includes(searchTerm);
@@ -747,6 +770,16 @@ $claims = requireAuth('admin', '/../auth/login.html');
                         return nameMatch || serialMatch || dateMatch || assigneeMatch;
                     });
                 }
+
+                const resultsCount = processedAssets.length;
+                const totalCount = allAssets.length;
+
+                if (searchTerm) {
+                    resultsCountEl.textContent = `${resultsCount} نتیجه یافت شد.`;
+                } else {
+                    resultsCountEl.textContent = `(مجموع: ${totalCount} کالا)`;
+                }
+
                 if (currentSortBy) {
                     processedAssets.sort((a, b) => {
                         const valA = a[currentSortBy];
@@ -760,6 +793,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 }
                 renderAssets(processedAssets);
             }
+
             addAssetForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const name = document.getElementById('assetName').value.trim();
