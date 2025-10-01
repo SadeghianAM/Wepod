@@ -1,5 +1,4 @@
 <?php
-// فایل: view_attempt.php (نسخه بازطراحی شده)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin');
 require_once __DIR__ . '/../../db/database.php';
@@ -11,7 +10,6 @@ if (!$attempt_id) {
     exit();
 }
 
-// دریافت اطلاعات اولیه آزمون
 $stmt_attempt = $pdo->prepare("
     SELECT qa.start_time, u.name AS user_name, q.title AS quiz_title, q.id AS quiz_id
     FROM QuizAttempts qa
@@ -26,7 +24,6 @@ if (!$attempt_info) {
     die("نتیجه‌ای با این شناسه یافت نشد.");
 }
 
-// دریافت تمام جزئیات سوالات، پاسخ‌ها و امتیازات
 $stmt_details = $pdo->prepare("
     SELECT
         q.id AS question_id, q.question_text, q.points_correct, q.points_incorrect,
@@ -42,7 +39,36 @@ $stmt_details = $pdo->prepare("
 $stmt_details->execute([':attempt_id' => $attempt_id, ':quiz_id' => $attempt_info['quiz_id']]);
 $raw_results = $stmt_details->fetchAll(PDO::FETCH_ASSOC);
 
-// سازماندهی داده‌ها و محاسبه امتیازات در PHP
+$stats = [
+    'correct' => 0,
+    'incorrect' => 0,
+    'unanswered' => 0,
+    'total_questions' => 0
+];
+$temp_questions = [];
+foreach ($raw_results as $row) {
+    if (!isset($temp_questions[$row['question_id']])) {
+        $stats['total_questions']++;
+        $temp_questions[$row['question_id']] = [
+            'selected_id' => $row['selected_answer_id'],
+            'correct_id' => null
+        ];
+    }
+    if ($row['is_correct']) {
+        $temp_questions[$row['question_id']]['correct_id'] = $row['answer_id'];
+    }
+}
+
+foreach ($temp_questions as $q) {
+    if ($q['selected_id'] === null) {
+        $stats['unanswered']++;
+    } elseif ($q['selected_id'] == $q['correct_id']) {
+        $stats['correct']++;
+    } else {
+        $stats['incorrect']++;
+    }
+}
+
 $questions_and_answers = [];
 $total_earned_points = 0;
 $total_max_points = 0;
@@ -51,7 +77,6 @@ $processed_questions = [];
 foreach ($raw_results as $row) {
     $qid = $row['question_id'];
     if (!isset($questions_and_answers[$qid])) {
-        // محاسبه امتیاز کل آزمون فقط یک بار برای هر سوال
         if (!in_array($qid, $processed_questions)) {
             $total_max_points += $row['points_correct'];
             $processed_questions[] = $qid;
@@ -62,19 +87,17 @@ foreach ($raw_results as $row) {
             'selected_answer_id' => $row['selected_answer_id'],
             'points_correct' => $row['points_correct'],
             'points_incorrect' => $row['points_incorrect'],
-            'points_earned' => 0, // امتیاز اولیه برای این سوال صفر است
+            'points_earned' => 0,
             'answers' => []
         ];
     }
 
-    // افزودن پاسخ فعلی به لیست پاسخ‌های سوال
     $questions_and_answers[$qid]['answers'][] = [
         'answer_id' => $row['answer_id'],
         'answer_text' => $row['answer_text'],
         'is_correct' => (bool)$row['is_correct']
     ];
 
-    // اگر این پاسخ، همان پاسخی است که کاربر انتخاب کرده، امتیاز را محاسبه کن
     if ($row['selected_answer_id'] == $row['answer_id']) {
         $points = $row['is_correct'] ? $row['points_correct'] : $row['points_incorrect'];
         $questions_and_answers[$qid]['points_earned'] = $points;
@@ -103,13 +126,13 @@ $page_title = "جزئیات آزمون: " . htmlspecialchars($attempt_info['quiz
             --border-color: #e9e9e9;
             --header-text: #fff;
             --radius: 12px;
-            --footer-h: 60px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
             --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
             --correct-color: #28a745;
             --correct-light: #d4edda;
             --incorrect-color: #dc3545;
             --incorrect-light: #f8d7da;
+            --medium-color: #ffc107;
         }
 
         @font-face {
@@ -192,71 +215,126 @@ $page_title = "جزئیات آزمون: " . htmlspecialchars($attempt_info['quiz
             font-size: 1rem;
         }
 
-        /* --- Summary Card --- */
         .attempt-summary {
             background: var(--card-bg);
             border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-md);
             padding: 2rem;
             margin-bottom: 2.5rem;
+            border-top: 5px solid var(--primary-color);
         }
 
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .summary-item .label {
-            font-size: .9rem;
-            color: var(--secondary-text);
-            margin-bottom: .25rem;
-            display: block;
-        }
-
-        .summary-item .value {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .score-text {
+        .summary-main {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: .5rem;
-            font-size: 0.9rem;
-            color: var(--secondary-text);
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
-        .score-text .earned {
-            font-weight: 700;
-            font-size: 1.2rem;
+        .summary-score-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .summary-percentage {
+            position: absolute;
+            font-size: 1.8rem;
+            font-weight: 800;
             color: var(--text-color);
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 10px;
+        .progress-ring-circle,
+        .progress-ring-circle-bg {
+            transition: stroke-dashoffset 0.8s ease-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-ring-circle-bg {
+            stroke: var(--border-color);
+        }
+
+        .progress-ring-circle.correct {
+            stroke: var(--correct-color);
+        }
+
+        .progress-ring-circle.incorrect {
+            stroke: var(--incorrect-color);
+        }
+
+        .progress-ring-circle.medium {
+            stroke: var(--medium-color);
+        }
+
+        .summary-details .summary-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .summary-details .summary-user,
+        .summary-details .summary-final-score {
+            font-size: 1rem;
+            color: var(--secondary-text);
+        }
+
+        .summary-details strong {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
             background-color: var(--bg-color);
-            border-radius: 5px;
-            overflow: hidden;
         }
 
-        .progress-bar-fill {
-            height: 100%;
-            border-radius: 5px;
-            transition: width 0.5s ease-in-out;
+        .stat-item .stat-value {
+            display: block;
+            font-size: 1.75rem;
+            font-weight: 700;
         }
 
-        /* --- Question Cards --- */
+        .stat-item .stat-label {
+            font-size: .85rem;
+            color: var(--secondary-text);
+        }
+
+        .stat-item.correct .stat-value {
+            color: var(--correct-color);
+        }
+
+        .stat-item.incorrect .stat-value {
+            color: var(--incorrect-color);
+        }
+
+        .stat-item.unanswered .stat-value {
+            color: #6c757d;
+        }
+
+        .stat-item.total .stat-value {
+            color: var(--primary-dark);
+        }
+
         .question-card {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             margin-bottom: 1.5rem;
             overflow: hidden;
-            /* برای اینکه border-top هدر بیرون نزند */
         }
 
         .question-header {
@@ -266,6 +344,10 @@ $page_title = "جزئیات آزمون: " . htmlspecialchars($attempt_info['quiz
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .question-card.unanswered .question-header {
+            background-color: #f8f9fa;
         }
 
         .question-text {
@@ -291,6 +373,11 @@ $page_title = "جزئیات آزمون: " . htmlspecialchars($attempt_info['quiz
             color: var(--incorrect-color);
         }
 
+        .question-score.unanswered-score {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+
         .answers-list {
             list-style: none;
             padding: 1.5rem;
@@ -310,32 +397,36 @@ $page_title = "جزئیات آزمون: " . htmlspecialchars($attempt_info['quiz
         }
 
         .answer-item .icon {
-            font-size: 1.2rem;
-            font-weight: bold;
-            width: 20px;
-            text-align: center;
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        .answer-item:not(.is-correct):not(.is-selected) {
+            opacity: 0.7;
         }
 
         .answer-item.is-correct {
             border-color: var(--correct-color);
             background-color: var(--correct-light);
             color: #155724;
+            font-weight: 600;
         }
 
         .answer-item.is-selected.is-wrong {
             border-color: var(--incorrect-color);
             background-color: var(--incorrect-light);
             color: #721c24;
+            opacity: 0.8;
         }
 
         .user-choice-label {
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-right: auto;
-            /* این المان را به انتهای فلکس می‌برد */
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 0.1rem 0.5rem;
-            border-radius: 4px;
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
         }
     </style>
 </head>
@@ -352,38 +443,60 @@ $page_title = "جزئیات آزمون: " . htmlspecialchars($attempt_info['quiz
         </div>
 
         <?php
-        $percentage = ($total_max_points > 0) ? ($total_earned_points / $total_max_points) * 100 : 0;
-        $score_class = 'incorrect';
-        if ($percentage >= 75) $score_class = 'correct';
+        $percentage = ($total_max_points > 0) ? round(($total_earned_points / $total_max_points) * 100) : 0;
+        $progress_color_class = 'incorrect';
+        if ($percentage >= 75) {
+            $progress_color_class = 'correct';
+        } elseif ($percentage >= 40) {
+            $progress_color_class = 'medium';
+        }
         ?>
         <div class="attempt-summary">
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <span class="label">آزمون</span>
-                    <span class="value"><?= htmlspecialchars($attempt_info['quiz_title']) ?></span>
+            <div class="summary-main">
+                <div class="summary-score-visual">
+                    <svg class="progress-ring" width="120" height="120">
+                        <circle class="progress-ring-circle-bg" stroke-width="10" fill="transparent" r="52" cx="60" cy="60" />
+                        <circle class="progress-ring-circle <?= $progress_color_class ?>" stroke-width="10" fill="transparent" r="52" cx="60" cy="60"
+                            style="stroke-dasharray: <?= 2 * M_PI * 52 ?>; stroke-dashoffset: <?= (2 * M_PI * 52) * (1 - $percentage / 100) ?>;" />
+                    </svg>
+                    <span class="summary-percentage"><?= $percentage ?>%</span>
                 </div>
-                <div class="summary-item">
-                    <span class="label">کاربر</span>
-                    <span class="value"><?= htmlspecialchars($attempt_info['user_name']) ?></span>
-                </div>
-                <div class="summary-item">
-                    <span class="label">امتیاز نهایی</span>
-                    <span class="value"><?= round($total_earned_points, 2) ?> از <?= round($total_max_points, 2) ?></span>
+                <div class="summary-details">
+                    <h2 class="summary-title">خلاصه عملکرد</h2>
+                    <p class="summary-user">کاربر: <strong><?= htmlspecialchars($attempt_info['user_name']) ?></strong></p>
+                    <p class="summary-final-score">
+                        امتیاز نهایی: <strong><?= round($total_earned_points, 2) ?></strong> از <?= round($total_max_points, 2) ?>
+                    </p>
                 </div>
             </div>
-            <div class="score-progress">
-                <div class="score-text">
-                    <span class="earned">عملکرد کلی: <?= round($percentage, 1) ?>٪</span>
+            <div class="summary-stats">
+                <div class="stat-item correct">
+                    <span class="stat-value"><?= $stats['correct'] ?></span>
+                    <span class="stat-label">صحیح</span>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-bar-fill <?= $score_class == 'correct' ? 'question-score correct' : 'question-score incorrect' ?>" style="width: <?= $percentage ?>%;"></div>
+                <div class="stat-item incorrect">
+                    <span class="stat-value"><?= $stats['incorrect'] ?></span>
+                    <span class="stat-label">غلط</span>
+                </div>
+                <div class="stat-item unanswered">
+                    <span class="stat-value"><?= $stats['unanswered'] ?></span>
+                    <span class="stat-label">بی‌پاسخ</span>
+                </div>
+                <div class="stat-item total">
+                    <span class="stat-value"><?= $stats['total_questions'] ?></span>
+                    <span class="stat-label">کل سوالات</span>
                 </div>
             </div>
         </div>
 
         <?php $q_num = 0;
-        foreach ($questions_and_answers as $qid => $data): $q_num++; ?>
-            <div class="question-card">
+        foreach ($questions_and_answers as $qid => $data): $q_num++;
+            $card_classes = "question-card";
+            if ($data['selected_answer_id'] === null) {
+                $card_classes .= " unanswered";
+            }
+        ?>
+            <div class="<?= $card_classes ?>">
                 <div class="question-header">
                     <p class="question-text">سوال <?= $q_num ?>: <?= htmlspecialchars($data['question_text']) ?></p>
                     <?php
@@ -391,7 +504,7 @@ $page_title = "جزئیات آزمون: " . htmlspecialchars($attempt_info['quiz
                     $is_q_correct = $points_earned > 0;
                     if ($data['selected_answer_id'] === null) {
                         $points_text = "بی‌پاسخ";
-                        $q_score_class = "";
+                        $q_score_class = "unanswered-score";
                     } else {
                         $points_text = ($points_earned >= 0 ? '+' : '') . $points_earned . ' امتیاز';
                         $q_score_class = $is_q_correct ? 'correct' : 'incorrect';
@@ -403,32 +516,28 @@ $page_title = "جزئیات آزمون: " . htmlspecialchars($attempt_info['quiz
                     <?php foreach ($data['answers'] as $answer):
                         $user_selected_this = ($answer['answer_id'] == $data['selected_answer_id']);
                         $is_correct = $answer['is_correct'];
-
                         $classes = 'answer-item';
-                        $icon = '&nbsp;';
-                        $icon_color = '';
+                        $icon = '';
+                        $user_choice_text = '';
 
                         if ($is_correct) {
                             $classes .= ' is-correct';
-                            $icon = '✔';
-                            $icon_color = 'var(--correct-color)';
+                            $icon = '✅';
                         }
 
                         if ($user_selected_this) {
                             $classes .= ' is-selected';
+                            $user_choice_text = '<span class="user-choice-label">پاسخ شما</span>';
                             if (!$is_correct) {
                                 $classes .= ' is-wrong';
-                                $icon = '✖';
-                                $icon_color = 'var(--incorrect-color)';
+                                $icon = '❌';
                             }
                         }
                     ?>
                         <li class="<?= $classes ?>">
-                            <span class="icon" style="color: <?= $icon_color ?>"><?= $icon ?></span>
+                            <span class="icon"><?= $icon ?></span>
                             <span><?= htmlspecialchars($answer['answer_text']) ?></span>
-                            <?php if ($user_selected_this): ?>
-                                <span class="user-choice-label">پاسخ شما</span>
-                            <?php endif; ?>
+                            <?= $user_choice_text ?>
                         </li>
                     <?php endforeach; ?>
                 </ul>

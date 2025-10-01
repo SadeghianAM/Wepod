@@ -226,10 +226,12 @@ $claims = requireAuth(null, '/auth/login.html');
 
         .wheel-text {
             position: absolute;
-            top: 10%;
+            top: 15px;
             left: 50%;
-            text-align: center;
-            max-width: 85%;
+            transform: translateX(-50%);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            white-space: nowrap;
             color: white;
             font-weight: 700;
             font-size: 15px;
@@ -465,6 +467,7 @@ $claims = requireAuth(null, '/auth/login.html');
 
             .wheel-text {
                 font-size: 12px;
+                top: 15px;
             }
 
             .wheel-center {
@@ -566,9 +569,7 @@ $claims = requireAuth(null, '/auth/login.html');
             const pin = document.querySelector('.pin');
             const spinError = document.getElementById('spin-error');
             const confettiCanvas = document.getElementById('confetti-canvas');
-            // ========== بخش تغییر یافته ==========
             const spinChancesCount = document.getElementById('spin-chances-count');
-            // ====================================
             const confettiInstance = confetti.create(confettiCanvas, {
                 resize: true,
                 useWorker: true
@@ -605,23 +606,16 @@ $claims = requireAuth(null, '/auth/login.html');
                     const text = document.createElement('div');
                     text.className = 'wheel-text';
                     text.textContent = prize.text;
-                    if (containerRotation > 90 && containerRotation < 270) {
-                        text.style.transform = 'translateX(-50%) rotate(180deg)';
-                    } else {
-                        text.style.transform = 'translateX(-50%)';
-                    }
                     textContainer.appendChild(text);
                     wheel.appendChild(textContainer);
                 });
             }
 
-            // ========== بخش تغییر یافته ==========
             async function checkUserSpinStatus() {
                 try {
                     const response = await fetch('/wheel/wheel-api.php?action=getWheelStatus&_=' + new Date().getTime());
                     const status = await response.json();
 
-                    // تعداد شانس‌ها را در هر صورت نمایش بده
                     spinChancesCount.textContent = status.chances || 0;
 
                     if (response.ok && status.canSpin) {
@@ -640,7 +634,6 @@ $claims = requireAuth(null, '/auth/login.html');
                     console.error("Failed to check user status:", error);
                 }
             }
-            // ====================================
 
             async function loadLastWinnerInfo() {
                 const container = document.getElementById('last-win-container');
@@ -753,16 +746,12 @@ $claims = requireAuth(null, '/auth/login.html');
                 resultPopup.classList.add('visible');
             }
 
-            // ========== بخش تغییر یافته ==========
             closePopupButton.addEventListener('click', async () => {
                 resultPopup.classList.remove('visible');
-                isSpinning = false; // اجازه چرخش مجدد در صورت داشتن شانس
-                // وضعیت کاربر را مجددا بررسی کن تا تعداد شانس و وضعیت دکمه به‌روز شود
+                isSpinning = false;
                 await checkUserSpinStatus();
-                // اطلاعات آخرین جایزه را نیز به‌روز کن
                 await loadLastWinnerInfo();
             });
-            // ====================================
 
             // --- Initial Load ---
             await setupWheel();

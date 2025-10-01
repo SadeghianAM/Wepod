@@ -32,7 +32,9 @@ switch ($action) {
     case 'deleteWinnerRecord':
         deleteWinnerRecord($pdo);
         break;
-
+    case 'addSpinChanceToAllUsers':
+        addSpinChanceToAllUsers($pdo);
+        break;
     default:
         http_response_code(404);
         echo json_encode(['error' => 'عملیات نامعتبر یا یافت نشد']);
@@ -58,9 +60,10 @@ function addPrize($pdo)
     $stmt = $pdo->query("SELECT SUM(weight) as total_weight FROM prizes");
     $currentTotalWeight = $stmt->fetch(PDO::FETCH_ASSOC)['total_weight'] ?? 0;
 
-    if (($currentTotalWeight + $newWeight) > 100) {
+    $newTotalWeight = $currentTotalWeight + $newWeight;
+    if ($newTotalWeight > 100) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'مجموع ضریب شانس جوایز نمی‌تواند بیشتر از 100 باشد.']);
+        echo json_encode(['success' => false, 'message' => "مجموع ضرایب ($newTotalWeight) نمی‌تواند بیشتر از 100 باشد."]);
         return;
     }
 
@@ -91,9 +94,10 @@ function updatePrize($pdo)
     $stmt->execute([':id' => $prizeId]);
     $otherPrizesWeight = $stmt->fetch(PDO::FETCH_ASSOC)['total_weight'] ?? 0;
 
-    if (($otherPrizesWeight + $newWeight) > 100) {
+    $newTotalWeight = $otherPrizesWeight + $newWeight;
+    if ($newTotalWeight > 100) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'مجموع ضریب شانس جوایز نمی‌تواند بیشتر از 100 باشد.']);
+        echo json_encode(['success' => false, 'message' => "مجموع ضرایب ($newTotalWeight) نمی‌تواند بیشتر از 100 باشد."]);
         return;
     }
 
@@ -148,4 +152,19 @@ function deleteWinnerRecord($pdo)
     $stmt = $pdo->prepare($sql);
     $stmt->execute([':id' => $data['id']]);
     echo json_encode(['success' => true]);
+}
+
+function addSpinChanceToAllUsers($pdo)
+{
+    try {
+        $sql = "UPDATE users SET spin_chances = spin_chances + 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $affectedRows = $stmt->rowCount();
+        echo json_encode(['success' => true, 'message' => "یک شانس به $affectedRows کاربر با موفقیت اضافه شد."]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        // For security, don't echo $e->getMessage() in a production environment
+        echo json_encode(['success' => false, 'message' => 'خطا در پایگاه داده هنگام افزودن شانس به کاربران.']);
+    }
 }

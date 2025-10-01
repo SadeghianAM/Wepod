@@ -79,6 +79,12 @@ $claims = requireAuth('admin', '/auth/login.html');
             gap: 1rem;
         }
 
+        .page-header .actions-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
         .page-title h1 {
             font-size: 1.8rem;
             font-weight: 800;
@@ -145,6 +151,21 @@ $claims = requireAuth('admin', '/auth/login.html');
         .btn-primary:hover {
             background-color: var(--primary-dark);
             transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn-secondary.loading::after {
+            border: 2px solid var(--primary-dark);
+            border-top-color: transparent;
         }
 
         .btn.loading {
@@ -352,16 +373,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             gap: 0.75rem;
         }
 
-        .btn-secondary {
-            background-color: #f1f5f9;
-            color: #334155;
-            border: 1px solid #e2e8f0;
-        }
-
-        .btn-secondary:hover {
-            background-color: #e2e8f0;
-        }
-
         /* --- Toast Notifications --- */
         #toast-container {
             position: fixed;
@@ -440,12 +451,16 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <h1>مدیریت گردونه شانس</h1>
                 <p>جوایز و سوابق برندگان را در این بخش مدیریت کنید.</p>
             </div>
-            <button id="add-new-prize-btn" class="btn btn-primary">➕ افزودن جایزه جدید</button>
+            <div class="actions-wrapper">
+                <button id="add-chance-to-all-btn" class="btn btn-secondary">🎁 افزودن شانس به همه</button>
+                <button id="add-new-prize-btn" class="btn btn-primary">➕ افزودن جایزه جدید</button>
+            </div>
         </div>
 
         <div class="content-card">
             <div class="card-header">
                 <h2>🏆 لیست جوایز</h2>
+                <span id="total-weight-display" style="font-weight: 600; color: var(--secondary-text-color);"></span>
             </div>
             <div class="card-body no-padding">
                 <table>
@@ -504,6 +519,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <div class="form-group">
                     <label for="prize-weight">ضریب شانس (وزن)</label>
                     <input type="number" id="prize-weight" min="0" value="10" required>
+                    <small id="weight-info" style="margin-top: 8px; color: #555; min-height: 1.2em;"></small>
                 </div>
                 <div class="form-group full-width">
                     <label for="prize-color">رنگ</label>
@@ -534,6 +550,8 @@ $claims = requireAuth('admin', '/auth/login.html');
             const prizeTypeInput = document.getElementById('prize-type');
             const prizeWeightInput = document.getElementById('prize-weight');
             const colorPaletteContainer = document.getElementById('color-palette');
+            const totalWeightDisplay = document.getElementById('total-weight-display');
+            const weightInfo = document.getElementById('weight-info');
 
             const API_URL = 'prize-api.php';
             let prizesData = [];
@@ -587,9 +605,30 @@ $claims = requireAuth('admin', '/auth/login.html');
 
             prizeColorInput.addEventListener('input', (e) => updateSelectedSwatch(e.target.value));
 
+            const updateTotalWeightDisplay = () => {
+                const total = prizesData.reduce((sum, p) => sum + p.weight, 0);
+                totalWeightDisplay.innerHTML = `مجموع ضرایب: <strong style="color: ${total > 100 ? 'var(--danger-color)' : 'var(--text-color)'};">${total} / 100</strong>`;
+            };
+
+            const updateDynamicWeightInfo = () => {
+                const currentWeightValue = parseInt(prizeWeightInput.value, 10) || 0;
+                let otherPrizesWeight = prizesData.reduce((sum, p) => sum + p.weight, 0);
+
+                if (currentEditId) {
+                    const currentPrize = prizesData.find(p => p.id === currentEditId);
+                    if (currentPrize) {
+                        otherPrizesWeight -= currentPrize.weight;
+                    }
+                }
+
+                const newTotal = otherPrizesWeight + currentWeightValue;
+                weightInfo.innerHTML = `مجموع نهایی: ${otherPrizesWeight} + ${currentWeightValue} = <strong style="color: ${newTotal > 100 ? 'var(--danger-color)' : 'var(--text-color)'};">${newTotal} / 100</strong>`;
+            };
+
             const openModal = (mode = 'add', prize = {}) => {
                 modalForm.reset();
                 currentEditId = null;
+                weightInfo.innerHTML = ''; // Clear previous info
                 const defaultColor = '#00AE70';
 
                 if (mode === 'edit') {
@@ -604,8 +643,10 @@ $claims = requireAuth('admin', '/auth/login.html');
                     modalTitle.textContent = "✨ افزودن جایزه جدید";
                     submitBtn.innerHTML = "➕ افزودن";
                     prizeColorInput.value = defaultColor;
+                    prizeWeightInput.value = 10; // Default value for new prize
                 }
                 updateSelectedSwatch(prizeColorInput.value);
+                updateDynamicWeightInfo(); // Update calculation on open
                 modal.classList.add('visible');
             };
 
@@ -615,21 +656,22 @@ $claims = requireAuth('admin', '/auth/login.html');
                 prizeListBody.innerHTML = '';
                 if (!prizesData || prizesData.length === 0) {
                     prizeListBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;">هیچ جایزه‌ای ثبت نشده است.</td></tr>';
-                    return;
+                } else {
+                    prizesData.forEach(prize => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><span class="color-preview" style="background-color:${prize.color};"></span>${escapeHTML(prize.name)}</td>
+                            <td>${prize.type === 'positive' ? 'مثبت' : 'منفی'}</td>
+                            <td>${prize.weight}</td>
+                            <td class="actions-cell">
+                                <button class="btn-icon edit-btn" data-id="${prize.id}" title="ویرایش">✏️</button>
+                                <button class="btn-icon delete-prize-btn" data-id="${prize.id}" title="حذف">🗑️</button>
+                            </td>
+                        `;
+                        prizeListBody.appendChild(row);
+                    });
                 }
-                prizesData.forEach(prize => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><span class="color-preview" style="background-color:${prize.color};"></span>${escapeHTML(prize.name)}</td>
-                        <td>${prize.type === 'positive' ? 'مثبت' : 'منفی'}</td>
-                        <td>${prize.weight}</td>
-                        <td class="actions-cell">
-                            <button class="btn-icon edit-btn" data-id="${prize.id}" title="ویرایش">✏️</button>
-                            <button class="btn-icon delete-prize-btn" data-id="${prize.id}" title="حذف">🗑️</button>
-                        </td>
-                    `;
-                    prizeListBody.appendChild(row);
-                });
+                updateTotalWeightDisplay();
             };
 
             const renderWinnerHistory = (history) => {
@@ -644,7 +686,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                     const formattedDate = new Intl.DateTimeFormat('fa-IR', {
                         dateStyle: 'medium',
                         timeStyle: 'short',
-                        timeZone: 'Asia/Tehran' // نمایش ساعت به وقت تهران
+                        timeZone: 'Asia/Tehran'
                     }).format(date);
                     row.innerHTML = `
                         <td>${escapeHTML(record.user_name)}</td>
@@ -668,11 +710,14 @@ $claims = requireAuth('admin', '/auth/login.html');
                 if (body) options.body = JSON.stringify(body);
                 try {
                     const response = await fetch(`${API_URL}?action=${action}`, options);
-                    if (!response.ok) throw new Error(`Server responded with ${response.status}`);
-                    return await response.json();
+                    const data = await response.json();
+                    if (!response.ok) {
+                        return data;
+                    }
+                    return data;
                 } catch (error) {
                     console.error(`Error during action '${action}':`, error);
-                    showToast('خطا در ارتباط با سرور', 'error');
+                    showToast('خطا در ارتباط با سرور یا پاسخ غیرمنتظره.', 'error');
                     return null;
                 }
             };
@@ -683,10 +728,13 @@ $claims = requireAuth('admin', '/auth/login.html');
                     apiRequest('getWinnerHistory')
                 ]);
 
-                if (prizesResult) {
+                // START: This is the corrected line
+                if (prizesResult && prizesResult.success !== false) {
                     prizesData = prizesResult;
                     renderPrizeList();
                 }
+                // END: This is the corrected line
+
                 if (historyResult) {
                     renderWinnerHistory(historyResult);
                 }
@@ -714,7 +762,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 if (result && result.success) {
                     showToast(`جایزه با موفقیت ${currentEditId ? 'ویرایش شد' : 'افزوده شد'}.`);
                     closeModal();
-                    await loadPageData(); // Reload all data
+                    await loadPageData();
                 } else {
                     showToast(result?.message || 'خطا در ثبت اطلاعات.', 'error');
                 }
@@ -727,7 +775,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 });
                 if (result && result.success) {
                     showToast('جایزه با موفقیت حذف شد.');
-                    await loadPageData(); // Reload all data
+                    await loadPageData();
                 } else {
                     showToast(result?.message || 'خطا در حذف جایزه.', 'error');
                 }
@@ -740,7 +788,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 });
                 if (result && result.success) {
                     showToast('سابقه با موفقیت حذف شد.');
-                    await loadPageData(); // Reload all data
+                    await loadPageData();
                 } else {
                     showToast(result?.message || 'خطا در حذف سابقه.', 'error');
                 }
@@ -751,6 +799,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             document.getElementById('close-modal-btn').addEventListener('click', closeModal);
             document.getElementById('cancel-btn').addEventListener('click', closeModal);
             modalForm.addEventListener('submit', handleFormSubmit);
+            prizeWeightInput.addEventListener('input', updateDynamicWeightInfo);
 
             prizeListBody.addEventListener('click', (event) => {
                 const target = event.target.closest('.btn-icon');
@@ -767,6 +816,23 @@ $claims = requireAuth('admin', '/auth/login.html');
             winnerHistoryBody.addEventListener('click', (event) => {
                 const deleteBtn = event.target.closest('.delete-history-btn');
                 if (deleteBtn) deleteWinnerRecord(parseInt(deleteBtn.dataset.id, 10));
+            });
+
+            const addChanceBtn = document.getElementById('add-chance-to-all-btn');
+            addChanceBtn.addEventListener('click', async () => {
+                if (!confirm('آیا مطمئن هستید که می‌خواهید به تمام کاربران یک شانس گردونه اضافه کنید؟ این عمل قابل بازگشت نیست.')) {
+                    return;
+                }
+
+                addChanceBtn.classList.add('loading');
+                const result = await apiRequest('addSpinChanceToAllUsers', 'POST');
+                addChanceBtn.classList.remove('loading');
+
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+                } else {
+                    showToast(result?.message || 'خطا در اجرای عملیات.', 'error');
+                }
             });
 
             // --- Initial Load ---
