@@ -893,7 +893,7 @@ if ($agentId) {
                         </a>
                     </li>
                     <li>
-                        <a href="/leaderboard/" class="profile-tab-link">
+                        <a href="/leaderboard/">
                             <span class="menu-emoji">🏆</span>
                             <span>جدول امتیازات</span>
                         </a>
