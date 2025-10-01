@@ -203,7 +203,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             margin: 0;
         }
 
-        /* --- CSS جدید --- */
         .section-title-wrapper {
             display: flex;
             align-items: baseline;
@@ -217,8 +216,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             color: var(--secondary-text);
             transition: opacity 0.2s;
         }
-
-        /* --- پایان CSS جدید --- */
 
         #searchInput {
             max-width: 400px;
@@ -476,6 +473,65 @@ $claims = requireAuth('admin', '/../auth/login.html');
             font-size: 0.85rem;
             padding: 0.5em 1em;
         }
+
+        #printable-content {
+            display: none;
+        }
+
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+
+            #header-placeholder,
+            #footer-placeholder,
+            main,
+            .modal,
+            #toast-container {
+                display: none !important;
+            }
+
+            #printable-content {
+                display: block;
+            }
+
+            #printable-content h1 {
+                text-align: center;
+                margin-bottom: 0.5rem;
+                font-size: 1.5rem;
+            }
+
+            #print-timestamp {
+                text-align: center;
+                font-size: 0.9rem;
+                color: #555;
+                margin-bottom: 2rem;
+            }
+
+            #printable-content .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 9pt;
+            }
+
+            #printable-content .data-table th,
+            #printable-content .data-table td {
+                border: 1px solid #333;
+                padding: 8px;
+                text-align: right;
+            }
+
+            #printable-content .data-table th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+
+            @page {
+                size: A4 landscape;
+                margin: 1.5cm;
+            }
+        }
     </style>
 </head>
 
@@ -487,7 +543,10 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 <h1 class="page-title">سامانه مدیریت اموال</h1>
                 <p class="page-subtitle">اموال و تجهیزات مربوط به مرکز پشتیبانی را ثبت و مدیریت کنید.</p>
             </div>
-            <button class="btn" id="openAddModalBtn">+ افزودن کالای جدید</button>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn" id="printBtn" style="background-color: var(--secondary-text);">🖨️ چاپ لیست</button>
+                <button class="btn" id="openAddModalBtn">+ افزودن کالای جدید</button>
+            </div>
         </div>
         <div class="content-layout">
             <div class="table-container-wrapper">
@@ -518,6 +577,26 @@ $claims = requireAuth('admin', '/../auth/login.html');
             </div>
         </div>
     </main>
+
+    <div id="printable-content">
+        <h1>گزارش لیست اموال</h1>
+        <p id="print-timestamp"></p>
+        <table class="data-table" id="printTable">
+            <thead>
+                <tr>
+                    <th>کد</th>
+                    <th>نام کالا</th>
+                    <th>شماره سریال</th>
+                    <th>وضعیت</th>
+                    <th>تحویل‌گیرنده</th>
+                    <th>تاریخ تحویل</th>
+                </tr>
+            </thead>
+            <tbody id="printTableBody">
+            </tbody>
+        </table>
+    </div>
+
     <div id="addAssetModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -586,6 +665,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
             const assetTableBody = assetTable.querySelector('tbody');
             const addAssetModal = document.getElementById('addAssetModal');
             const openAddModalBtn = document.getElementById('openAddModalBtn');
+            const printBtn = document.getElementById('printBtn');
             const closeAddModalBtn = addAssetModal.querySelector('.modal-close');
             const addAssetForm = document.getElementById('addAssetForm');
             const assignModal = document.getElementById('assignModal');
@@ -599,11 +679,64 @@ $claims = requireAuth('admin', '/../auth/login.html');
             const editAssetSerial = document.getElementById('editAssetSerial');
             const searchInput = document.getElementById('searchInput');
             const toastContainer = document.getElementById('toast-container');
-            const resultsCountEl = document.getElementById('resultsCount'); // <-- متغیر جدید
+            const resultsCountEl = document.getElementById('resultsCount');
             let currentAssetId = null;
             let allAssets = [];
+            let processedAssets = [];
             let currentSortBy = null;
             let currentSortDir = 'asc';
+
+            function generatePrintContent() {
+                const printTableBody = document.getElementById('printTableBody');
+                const printTimestamp = document.getElementById('print-timestamp');
+                printTableBody.innerHTML = '';
+
+                const now = new Date();
+                try {
+                    const jalaliDate = toPersian(now);
+                    const formattedDate = formatJalaliDisplay(jalaliDate[0], jalaliDate[1], jalaliDate[2]);
+                    const formattedTime = now.toLocaleTimeString('fa-IR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    printTimestamp.textContent = `تاریخ گزارش: ${formattedDate} - ساعت: ${formattedTime}`;
+                } catch (e) {
+                    printTimestamp.textContent = `تاریخ گزارش: ${now.toLocaleDateString('fa-IR')} - ساعت: ${now.toLocaleTimeString('fa-IR')}`;
+                }
+
+
+                if (!processedAssets || processedAssets.length === 0) {
+                    printTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">داده‌ای برای چاپ وجود ندارد.</td></tr>`;
+                    return;
+                }
+
+                processedAssets.forEach(asset => {
+                    const row = printTableBody.insertRow();
+                    row.insertCell().textContent = asset.id;
+                    row.insertCell().textContent = asset.name;
+                    row.insertCell().textContent = asset.serial_number;
+                    const statusCell = row.insertCell();
+                    statusCell.textContent = (asset.status === 'In Stock') ? 'موجود در انبار' : 'تحویل داده شده';
+                    row.insertCell().textContent = asset.assigned_to_name || '---';
+                    const dateCell = row.insertCell();
+                    if (asset.assigned_at_formatted) {
+                        try {
+                            const gregorianDate = new Date(asset.assigned_at_formatted);
+                            const [jy, jm, jd] = toPersian(gregorianDate);
+                            dateCell.textContent = formatJalaliDisplay(jy, jm, jd);
+                        } catch (e) {
+                            dateCell.textContent = new Date(asset.assigned_at_formatted).toLocaleDateString('fa-IR');
+                        }
+                    } else {
+                        dateCell.textContent = '---';
+                    }
+                });
+            }
+
+            printBtn.addEventListener('click', () => {
+                generatePrintContent();
+                window.print();
+            });
 
             function showToast(message, type = 'info', duration = 4000) {
                 const toast = document.createElement('div');
@@ -671,9 +804,13 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     row.insertCell().textContent = asset.assigned_to_name || '---';
                     const dateCell = row.insertCell();
                     if (asset.assigned_at_formatted) {
-                        const gregorianDate = new Date(asset.assigned_at_formatted);
-                        const [jy, jm, jd] = toPersian(gregorianDate);
-                        dateCell.textContent = formatJalaliDisplay(jy, jm, jd);
+                        try {
+                            const gregorianDate = new Date(asset.assigned_at_formatted);
+                            const [jy, jm, jd] = toPersian(gregorianDate);
+                            dateCell.textContent = formatJalaliDisplay(jy, jm, jd);
+                        } catch (e) {
+                            dateCell.textContent = new Date(asset.assigned_at_formatted).toLocaleDateString('fa-IR');
+                        }
                     } else {
                         dateCell.textContent = '---';
                     }
@@ -745,12 +882,11 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 }
             }
 
-            // --- تابع updateDisplay تغییر یافته ---
             function updateDisplay() {
                 const searchTerm = searchInput.value.trim().toLowerCase()
                     .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
                     .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
-                let processedAssets = [...allAssets];
+                processedAssets = [...allAssets];
 
                 if (searchTerm) {
                     processedAssets = processedAssets.filter(asset => {
@@ -758,10 +894,14 @@ $claims = requireAuth('admin', '/../auth/login.html');
                         const serialMatch = asset.serial_number.toLowerCase().includes(searchTerm);
                         let dateMatch = false;
                         if (asset.assigned_at_formatted) {
-                            const gregorianDate = new Date(asset.assigned_at_formatted);
-                            const [jy, jm, jd] = toPersian(gregorianDate);
-                            const jalaliDateString = `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
-                            dateMatch = jalaliDateString.includes(searchTerm);
+                            try {
+                                const gregorianDate = new Date(asset.assigned_at_formatted);
+                                const [jy, jm, jd] = toPersian(gregorianDate);
+                                const jalaliDateString = `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
+                                dateMatch = jalaliDateString.includes(searchTerm);
+                            } catch (e) {
+                                dateMatch = new Date(asset.assigned_at_formatted).toLocaleDateString('fa-IR').includes(searchTerm);
+                            }
                         }
                         let assigneeMatch = false;
                         if (asset.assigned_to_name) {
@@ -878,8 +1018,12 @@ $claims = requireAuth('admin', '/../auth/login.html');
                         assignDateInput.value = asset.assigned_at_formatted;
                         const gregorianDate = new Date(asset.assigned_at_formatted);
                         if (!isNaN(gregorianDate)) {
-                            const [jy, jm, jd] = toPersian(gregorianDate);
-                            assignDateDisplayInput.value = formatJalaliDisplay(jy, jm, jd);
+                            try {
+                                const [jy, jm, jd] = toPersian(gregorianDate);
+                                assignDateDisplayInput.value = formatJalaliDisplay(jy, jm, jd);
+                            } catch (e) {
+                                assignDateDisplayInput.value = gregorianDate.toLocaleDateString('fa-IR');
+                            }
                         }
                     } else {
                         assignDateInput.value = '';

@@ -1,9 +1,12 @@
 <?php
 date_default_timezone_set('Asia/Tehran');
+header('Cache-Control: no-cache, no-store, must-revalidate'); // HTTP 1.1.
+header('Pragma: no-cache'); // HTTP 1.0.
+header('Expires: 0'); // Proxies.
+header('Content-Type: application/json');
 require_once __DIR__ . '/../../db/database.php';
 require_once __DIR__ . '/../../auth/require-auth.php';
 
-header('Content-Type: application/json');
 
 // This action is public for the wheel logic, others are admin-only.
 if ($_GET['action'] !== 'getWheelSettingsForUser') {
