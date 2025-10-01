@@ -892,6 +892,12 @@ if ($agentId) {
                             <span>اموال من</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="/leaderboard/" class="profile-tab-link">
+                            <span class="menu-emoji">🏆</span>
+                            <span>جدول امتیازات</span>
+                        </a>
+                    </li>
 
                     <li>
                         <a href="#poll" class="profile-tab-link">
