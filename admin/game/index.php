@@ -32,7 +32,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
         @font-face {
             font-family: "Vazirmatn";
             src: url("/assets/fonts/Vazirmatn[wght].ttf") format("truetype");
-            /* مسیر فونت را در صورت نیاز تغییر دهید */
             font-weight: 100 900;
             font-display: swap;
         }
@@ -80,9 +79,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             z-index: 10;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
-        }
-
-        footer {
             min-height: var(--footer-h);
             font-size: .85rem;
             justify-content: center;

@@ -1,24 +1,24 @@
 <?php
-// فایل: questions.php (نسخه بازطراحی شده با طرح‌بندی جدولی و UX بهبودیافته)
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../auth/login.html');
 require_once __DIR__ . '/../../db/database.php';
 
-// کوئری بهینه‌سازی شده برای دریافت اطلاعات سوالات
-$stmt = $pdo->query("
+// کوئری برای دریافت تکالیف و نام تیم مربوطه
+$stmt_tasks = $pdo->query("
     SELECT
-        q.id,
-        q.question_text,
-        q.category,
-        q.points_correct,
-        q.points_incorrect,
-        COUNT(a.id) AS answer_count
-    FROM Questions q
-    LEFT JOIN Answers a ON q.id = a.question_id
-    GROUP BY q.id, q.question_text, q.category, q.points_correct, q.points_incorrect
-    ORDER BY q.id DESC
+        t.id,
+        t.title,
+        t.description,
+        tm.team_name
+    FROM Tasks t
+    JOIN Teams tm ON t.team_id = tm.id
+    ORDER BY t.id DESC
 ");
-$questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$tasks = $stmt_tasks->fetchAll(PDO::FETCH_ASSOC);
+
+// کوئری برای دریافت لیست تمام تیم‌ها برای استفاده در فرم
+$stmt_teams = $pdo->query("SELECT id, team_name FROM Teams ORDER BY team_name");
+$all_teams = $stmt_teams->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -26,9 +26,9 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>داشبورد مدیریت سوالات</title>
+    <title>داشبورد مدیریت تکالیف</title>
     <style>
-        /* General Styles (from original file, slightly adapted) */
+        /* General Styles (from questions.php) */
         :root {
             --primary-color: #00ae70;
             --primary-dark: #089863;
@@ -125,6 +125,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: .95rem;
             font-weight: 600;
             transition: all .2s ease;
+            position: relative;
         }
 
         .btn-primary {
@@ -161,7 +162,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             outline: none;
         }
 
-        /* ⭐ New Table Styles ⭐ */
+        /* ⭐ Table Styles (from questions.php) ⭐ */
         .table-container {
             background-color: var(--card-bg);
             border-radius: var(--radius);
@@ -170,46 +171,42 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             /* Important for border-radius */
         }
 
-        .questions-table {
+        .tasks-table {
             width: 100%;
             border-collapse: collapse;
             text-align: right;
         }
 
-        .questions-table th,
-        .questions-table td {
+        .tasks-table th,
+        .tasks-table td {
             padding: 1rem 1.25rem;
             vertical-align: middle;
         }
 
-        .questions-table thead {
+        .tasks-table thead {
             background-color: var(--bg-color);
         }
 
-        .questions-table th {
+        .tasks-table th {
             font-weight: 600;
             color: var(--secondary-text);
             font-size: 0.85rem;
             text-transform: uppercase;
         }
 
-        .questions-table tbody tr {
+        .tasks-table tbody tr {
             border-bottom: 1px solid var(--border-color);
         }
 
-        .questions-table tbody tr:last-child {
+        .tasks-table tbody tr:last-child {
             border-bottom: none;
         }
 
-        .questions-table tbody tr:nth-child(even) {
-            background-color: #fcfcfc;
-        }
-
-        .questions-table tbody tr:hover {
+        .tasks-table tbody tr:hover {
             background-color: var(--primary-light);
         }
 
-        .question-text-cell {
+        .task-description-cell {
             max-width: 400px;
             white-space: nowrap;
             overflow: hidden;
@@ -217,7 +214,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 500;
         }
 
-        .category-badge {
+        .team-badge {
             background-color: var(--primary-light);
             color: var(--primary-dark);
             padding: .25rem .6rem;
@@ -250,31 +247,36 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         /* Responsive Table Styles */
         @media (max-width: 768px) {
-            .questions-table thead {
+            .tasks-table thead {
                 display: none;
             }
 
-            .questions-table,
-            .questions-table tbody,
-            .questions-table tr,
-            .questions-table td {
+            .tasks-table,
+            .tasks-table tbody,
+            .tasks-table tr,
+            .tasks-table td {
                 display: block;
                 width: 100%;
             }
 
-            .questions-table tr {
+            .tasks-table tr {
                 margin-bottom: 1rem;
                 border: 1px solid var(--border-color);
                 border-radius: var(--radius);
             }
 
-            .questions-table td {
+            .tasks-table td {
                 text-align: left;
                 padding-left: 50%;
                 position: relative;
+                border-bottom: 1px solid var(--border-color);
             }
 
-            .questions-table td::before {
+            .tasks-table tr td:last-child {
+                border-bottom: none;
+            }
+
+            .tasks-table td::before {
                 content: attr(data-label);
                 position: absolute;
                 left: 1rem;
@@ -285,14 +287,14 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 color: var(--text-color);
             }
 
-            .question-text-cell {
+            .task-description-cell {
                 white-space: normal;
                 max-width: 100%;
             }
         }
 
 
-        /* Empty State (no changes) */
+        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -311,7 +313,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: var(--secondary-text);
         }
 
-        /* Modal & Form Styles (no changes) */
+        /* Modal & Form Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -360,12 +362,14 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: .8em 1.2em;
             border: 1.5px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
+            background-color: #fff;
         }
 
         .form-actions {
@@ -375,86 +379,6 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             margin-top: 1.5rem;
             padding-top: 1.5rem;
             border-top: 1px solid var(--border-color);
-        }
-
-        .score-fields {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .score-fields .form-group {
-            flex: 1;
-        }
-
-        /* Answer Option Styles (no changes) */
-        .answer-option {
-            position: relative;
-            margin-bottom: .75rem;
-        }
-
-        .answer-label {
-            display: flex;
-            align-items: center;
-            padding: .75rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all .2s;
-        }
-
-        .answer-label:hover {
-            border-color: #ccc;
-        }
-
-        .answer-correct-radio {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .radio-custom {
-            flex-shrink: 0;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #ccc;
-            display: grid;
-            place-items: center;
-            margin-left: .75rem;
-            transition: border-color .2s;
-        }
-
-        .radio-custom::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            transform: scale(0);
-            transition: transform .2s ease-in-out;
-        }
-
-        .answer-text {
-            flex-grow: 1;
-            border: none;
-            background: none;
-            font-size: 1rem;
-            padding: 0;
-            outline: none;
-        }
-
-        .answer-correct-radio:checked+.answer-label {
-            border-color: var(--primary-color);
-            background-color: var(--primary-light);
-        }
-
-        .answer-correct-radio:checked+.answer-label .radio-custom {
-            border-color: var(--primary-color);
-        }
-
-        .answer-correct-radio:checked+.answer-label .radio-custom::before {
-            transform: scale(1);
         }
 
         /* Loading spinner for buttons */
@@ -493,7 +417,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 200;
+            z-index: 1200;
         }
 
         .toast {
@@ -536,51 +460,49 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <main>
         <div class="page-toolbar">
             <div>
-                <h2 class="page-title" style="margin: 0;">بانک سوالات</h2>
-                <p class="page-subtitle">سوالات آزمون را از اینجا مدیریت، ویرایش یا حذف کنید.</p>
+                <h2 class="page-title" style="margin: 0;">مدیریت تکالیف</h2>
+                <p class="page-subtitle">تکالیف دومرحله‌ای با بازبینی دستی را از اینجا مدیریت کنید.</p>
             </div>
             <div style="display: flex; gap: 1rem; align-items:center;">
                 <div class="search-box">
-                    <input type="text" id="question-search-input" placeholder="جستجوی سوال یا دسته‌بندی...">
+                    <input type="text" id="task-search-input" placeholder="جستجوی تکلیف یا تیم...">
                 </div>
-                <button id="add-new-question-btn" class="btn btn-primary">➕ <span>سوال جدید</span></button>
+                <button id="add-new-task-btn" class="btn btn-primary">➕ <span>تکلیف جدید</span></button>
             </div>
         </div>
 
-        <?php if (empty($questions)): ?>
+        <?php if (empty($tasks)): ?>
             <div class="empty-state">
-                <h2>هنوز هیچ سوالی نساخته‌اید! 🙁</h2>
-                <p>برای شروع، اولین سوال خود را ایجاد کرده و در آزمون‌ها از آن استفاده کنید.</p>
-                <button id="add-new-question-btn-empty" class="btn btn-primary">ایجاد اولین سوال</button>
+                <h2>هنوز هیچ تکلیفی نساخته‌اید! 🙁</h2>
+                <p>برای شروع، اولین تکلیف خود را برای تیم‌ها ایجاد کنید.</p>
+                <button id="add-new-task-btn-empty" class="btn btn-primary">ایجاد اولین تکلیف</button>
             </div>
         <?php else: ?>
             <div class="table-container">
-                <table class="questions-table">
+                <table class="tasks-table">
                     <thead>
                         <tr>
-                            <th>متن سوال</th>
-                            <th>دسته‌بندی</th>
-                            <th>امتیاز مثبت</th>
-                            <th>نمره منفی</th>
-                            <th>تعداد گزینه‌ها</th>
+                            <th>عنوان تکلیف</th>
+                            <th>توضیحات</th>
+                            <th>تیم</th>
                             <th class="actions-cell">عملیات</th>
                         </tr>
                     </thead>
-                    <tbody id="questions-tbody">
-                        <?php foreach ($questions as $question): ?>
-                            <tr data-search-term="<?= htmlspecialchars(strtolower($question['question_text'] . ' ' . $question['category'])) ?>">
-                                <td data-label="متن سوال" class="question-text-cell" title="<?= htmlspecialchars($question['question_text']) ?>">
-                                    <?= htmlspecialchars($question['question_text']) ?>
+                    <tbody id="tasks-tbody">
+                        <?php foreach ($tasks as $task): ?>
+                            <tr data-search-term="<?= htmlspecialchars(strtolower($task['title'] . ' ' . $task['team_name'])) ?>">
+                                <td data-label="عنوان تکلیف" style="font-weight: 600;">
+                                    <?= htmlspecialchars($task['title']) ?>
                                 </td>
-                                <td data-label="دسته‌بندی">
-                                    <span class="category-badge"><?= htmlspecialchars($question['category'] ?: 'عمومی') ?></span>
+                                <td data-label="توضیحات" class="task-description-cell" title="<?= htmlspecialchars($task['description']) ?>">
+                                    <?= htmlspecialchars($task['description']) ?>
                                 </td>
-                                <td data-label="امتیاز مثبت" style="color: #28a745; font-weight: 500;"><?= htmlspecialchars($question['points_correct']) ?></td>
-                                <td data-label="نمره منفی" style="color: #dc3545; font-weight: 500;"><?= htmlspecialchars($question['points_incorrect']) ?></td>
-                                <td data-label="تعداد گزینه‌ها"><?= $question['answer_count'] ?></td>
+                                <td data-label="تیم">
+                                    <span class="team-badge"><?= htmlspecialchars($task['team_name']) ?></span>
+                                </td>
                                 <td data-label="عملیات" class="actions-cell">
-                                    <button class="btn-action" onclick="editQuestion(<?= $question['id'] ?>)" title="ویرایش">✏️</button>
-                                    <button class="btn-action" onclick="deleteQuestion(<?= $question['id'] ?>)" title="حذف">🗑️</button>
+                                    <button class="btn-action" onclick="editTask(<?= $task['id'] ?>)" title="ویرایش">✏️</button>
+                                    <button class="btn-action" onclick="deleteTask(<?= $task['id'] ?>)" title="حذف">🗑️</button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -592,30 +514,42 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div id="modal-overlay" class="modal-overlay">
         <div id="modal-form" class="modal-form">
-            <h2 id="form-title" class="page-title">افزودن سوال جدید</h2>
-            <form id="question-form">
-                <input type="hidden" id="question-id">
+            <h2 id="form-title" class="page-title">افزودن تکلیف جدید</h2>
+            <form id="task-form">
+                <input type="hidden" id="task-id">
                 <input type="hidden" id="action">
+
                 <div class="form-group">
-                    <label for="question-text">متن سوال:</label>
-                    <textarea id="question-text" rows="3" required></textarea>
+                    <label for="task-title">عنوان تکلیف:</label>
+                    <input type="text" id="task-title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="task-description">توضیحات:</label>
+                    <textarea id="task-description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="team-id">تخصیص به تیم:</label>
+                    <select id="team-id" required>
+                        <option value="" disabled selected>یک تیم را انتخاب کنید...</option>
+                        <?php foreach ($all_teams as $team): ?>
+                            <option value="<?= $team['id'] ?>"><?= htmlspecialchars($team['team_name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <hr style="margin: 1.5rem 0; border-color: var(--border-color); border-style: solid;">
+
+                <h3>سوالات تکلیف (دو مرحله‌ای)</h3>
+                <div class="form-group">
+                    <label for="question1-text">متن سوال اول:</label>
+                    <textarea id="question1-text" rows="3" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="question-category">دسته‌بندی (اختیاری):</label>
-                    <input type="text" id="question-category" placeholder="مثال: عمومی، فنی، شخصیت‌شناسی">
+                    <label for="question2-text">متن سوال دوم:</label>
+                    <textarea id="question2-text" rows="3" required></textarea>
                 </div>
-                <div class="score-fields">
-                    <div class="form-group">
-                        <label for="points-correct">امتیاز پاسخ صحیح:</label>
-                        <input type="number" id="points-correct" step="0.25" value="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="points-incorrect">نمره منفی (مقدار کسری):</label>
-                        <input type="number" id="points-incorrect" step="0.25" value="1" required>
-                    </div>
-                </div>
-                <h3>گزینه‌ها (حداقل ۲ گزینه الزامی است):</h3>
-                <div id="answers-container"></div>
+
                 <div class="form-actions">
                     <button type="button" id="cancel-btn" class="btn btn-secondary">انصراف</button>
                     <button type="submit" id="save-btn" class="btn btn-primary">
@@ -633,7 +567,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="/js/header.js"></script>
     <script>
         // Global functions for action buttons
-        async function editQuestion(id) {
+        function editTask(id) {
             document.dispatchEvent(new CustomEvent('openEditModal', {
                 detail: {
                     id
@@ -641,12 +575,13 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }));
         }
 
-        async function deleteQuestion(id) {
-            if (confirm('آیا از حذف این سوال مطمئن هستید؟')) {
+        async function deleteTask(id) {
+            if (confirm('آیا از حذف این تکلیف مطمئن هستید؟ تمام پاسخ‌های کاربران نیز حذف خواهد شد.')) {
                 const formData = new FormData();
-                formData.append('action', 'delete_question');
+                formData.append('action', 'delete_task');
                 formData.append('id', id);
-                const response = await fetch('questions_api.php', {
+
+                const response = await fetch('tasks_api.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -661,17 +596,18 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Reusable showToast function
         function showToast(message, type = 'success') {
-            const toastContainer = document.getElementById('toast-container');
+            const container = document.getElementById('toast-container');
+            if (!container) return;
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.textContent = message;
-            toastContainer.appendChild(toast);
+            container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const modalOverlay = document.getElementById('modal-overlay');
-            const form = document.getElementById('question-form');
+            const form = document.getElementById('task-form');
             const formTitle = document.getElementById('form-title');
             const saveBtn = document.getElementById('save-btn');
 
@@ -682,55 +618,35 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 button.classList.toggle('loading', isLoading);
             };
 
-            const addAnswerInput = (answer = {}, index) => {
-                const uniqueId = `ans-radio-${Date.now()}-${index}`;
-                const div = document.createElement('div');
-                div.className = 'answer-option';
-                div.innerHTML = `
-                    <input type="radio" name="correct_answer_radio" class="answer-correct-radio" id="${uniqueId}" ${answer.is_correct == 1 ? 'checked' : ''}>
-                    <label for="${uniqueId}" class="answer-label">
-                        <span class="radio-custom"></span>
-                        <input type="text" class="answer-text" placeholder="متن گزینه ${index + 1}..." value="${answer.answer_text || ''}" required>
-                    </label>
-                `;
-                document.getElementById('answers-container').appendChild(div);
-            };
-
             const openAddModal = () => {
                 form.reset();
-                document.getElementById('answers-container').innerHTML = '';
-                document.getElementById('question-id').value = '';
-                document.getElementById('action').value = 'create_question';
-                document.getElementById('points-correct').value = '1';
-                document.getElementById('points-incorrect').value = '1';
-                formTitle.textContent = 'افزودن سوال جدید';
-                for (let i = 0; i < 4; i++) addAnswerInput({}, i);
+                formTitle.textContent = 'افزودن تکلیف جدید';
+                document.getElementById('task-id').value = '';
+                document.getElementById('action').value = 'create_task';
                 showModal();
             };
 
-            document.getElementById('add-new-question-btn')?.addEventListener('click', openAddModal);
-            document.getElementById('add-new-question-btn-empty')?.addEventListener('click', openAddModal);
+            document.getElementById('add-new-task-btn')?.addEventListener('click', openAddModal);
+            document.getElementById('add-new-task-btn-empty')?.addEventListener('click', openAddModal);
 
             document.addEventListener('openEditModal', async (e) => {
                 const {
                     id
                 } = e.detail;
-                const response = await fetch(`questions_api.php?action=get_question&id=${id}`);
+                const response = await fetch(`tasks_api.php?action=get_task&id=${id}`);
                 const data = await response.json();
-                if (data.success) {
-                    const q = data.question;
-                    form.reset();
-                    document.getElementById('answers-container').innerHTML = '';
-                    document.getElementById('question-id').value = q.id;
-                    document.getElementById('action').value = 'update_question';
-                    document.getElementById('question-text').value = q.question_text;
-                    document.getElementById('question-category').value = q.category;
-                    document.getElementById('points-correct').value = q.points_correct;
-                    document.getElementById('points-incorrect').value = q.points_incorrect;
 
-                    formTitle.textContent = 'ویرایش سوال';
-                    let answers = q.answers.length < 4 ? [...q.answers, ...Array(4 - q.answers.length).fill({})] : q.answers;
-                    answers.slice(0, 4).forEach((ans, i) => addAnswerInput(ans, i));
+                if (data.success) {
+                    const task = data.task;
+                    form.reset();
+                    formTitle.textContent = 'ویرایش تکلیف';
+                    document.getElementById('task-id').value = task.id;
+                    document.getElementById('action').value = 'update_task';
+                    document.getElementById('task-title').value = task.title;
+                    document.getElementById('task-description').value = task.description;
+                    document.getElementById('team-id').value = task.team_id;
+                    document.getElementById('question1-text').value = task.questions[0]?.question_text || '';
+                    document.getElementById('question2-text').value = task.questions[1]?.question_text || '';
                     showModal();
                 } else {
                     showToast(data.message || 'خطا در دریافت اطلاعات', 'error');
@@ -746,34 +662,17 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 e.preventDefault();
                 toggleLoading(saveBtn, true);
 
-                const answers = Array.from(document.querySelectorAll('.answer-option'))
-                    .map(option => ({
-                        text: option.querySelector('.answer-text').value.trim(),
-                        is_correct: option.querySelector('.answer-correct-radio').checked ? 1 : 0
-                    }))
-                    .filter(a => a.text !== '');
-
-                if (answers.length < 2) {
-                    showToast('حداقل باید دو گزینه با متن معتبر وارد کنید.', 'error');
-                    toggleLoading(saveBtn, false);
-                    return;
-                }
-                if (answers.filter(a => a.is_correct).length === 0) {
-                    showToast('لطفاً یک پاسخ صحیح را مشخص کنید.', 'error');
-                    toggleLoading(saveBtn, false);
-                    return;
-                }
-
                 const data = {
-                    id: document.getElementById('question-id').value,
-                    text: document.getElementById('question-text').value,
-                    category: document.getElementById('question-category').value,
-                    points_correct: document.getElementById('points-correct').value,
-                    points_incorrect: document.getElementById('points-incorrect').value,
-                    answers: answers
+                    id: document.getElementById('task-id').value,
+                    title: document.getElementById('task-title').value,
+                    description: document.getElementById('task-description').value,
+                    team_id: document.getElementById('team-id').value,
+                    question1: document.getElementById('question1-text').value,
+                    question2: document.getElementById('question2-text').value,
                 };
                 const action = document.getElementById('action').value;
-                const response = await fetch(`questions_api.php?action=${action}`, {
+
+                const response = await fetch(`tasks_api.php?action=${action}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -792,13 +691,13 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 toggleLoading(saveBtn, false);
             });
 
-            // --- Dashboard Search (Updated for Table) ---
-            const searchInput = document.getElementById('question-search-input');
-            const questionsTbody = document.getElementById('questions-tbody');
-            if (searchInput && questionsTbody) {
+            // --- Dashboard Search (for Table) ---
+            const searchInput = document.getElementById('task-search-input');
+            const tasksTbody = document.getElementById('tasks-tbody');
+            if (searchInput && tasksTbody) {
                 searchInput.addEventListener('input', (e) => {
                     const searchTerm = e.target.value.toLowerCase();
-                    const rows = questionsTbody.querySelectorAll('tr');
+                    const rows = tasksTbody.querySelectorAll('tr');
                     rows.forEach(row => {
                         const display = row.dataset.searchTerm.includes(searchTerm) ? '' : 'none';
                         row.style.display = display;

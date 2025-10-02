@@ -1,50 +1,73 @@
 <?php
-// فایل: quiz_list.php (نسخه نهایی با جلوگیری از شرکت مجدد)
+// فایل: quiz/index.php (یکپارچه شده با آزمون‌ها و تکالیف)
 
-// احراز هویت کاربر
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth(null, '/auth/login.html');
-
 require_once __DIR__ . '/../db/database.php';
 
-// دریافت شناسه کاربر لاگین کرده
 $user_id = $claims['sub'];
 
-// پیدا کردن تیمی که کاربر عضو آن است
+// ====================================================================
+// بخش ۱: منطق واکشی آزمون‌ها (بدون هیچ تغییری)
+// ====================================================================
+
 $stmt_team = $pdo->prepare("SELECT team_id FROM TeamMembers WHERE user_id = ?");
 $stmt_team->execute([$user_id]);
-$team_id = $stmt_team->fetchColumn(); // اگر کاربر عضو تیمی نباشد، این مقدار false خواهد بود
+$team_id = $stmt_team->fetchColumn();
 
-// ⭐ بخش جدید: پیدا کردن تمام آزمون‌هایی که کاربر قبلاً در آن‌ها شرکت کرده است
-$stmt_completed = $pdo->prepare("SELECT DISTINCT quiz_id FROM QuizAttempts WHERE user_id = ?");
-$stmt_completed->execute([$user_id]);
-$completed_quiz_ids = $stmt_completed->fetchAll(PDO::FETCH_COLUMN);
+$stmt_completed_quizzes = $pdo->prepare("SELECT DISTINCT quiz_id FROM QuizAttempts WHERE user_id = ?");
+$stmt_completed_quizzes->execute([$user_id]);
+$completed_quiz_ids = $stmt_completed_quizzes->fetchAll(PDO::FETCH_COLUMN);
 
-// کوئری هوشمند برای دریافت آزمون‌های مجاز برای کاربر
-$sql = "
+$sql_quizzes = "
     SELECT DISTINCT q.id, q.title, q.description
     FROM Quizzes q
     LEFT JOIN QuizUserAssignments qua ON q.id = qua.quiz_id
     LEFT JOIN QuizTeamAssignments qta ON q.id = qta.quiz_id
-    WHERE
-        -- شرط ۱: آزمون مستقیماً به کاربر تخصیص داده شده باشد
-        qua.user_id = :user_id
-        -- شرط ۲: آزمون به تیم کاربر تخصیص داده شده باشد
-        OR qta.team_id = :team_id
-        -- شرط ۳: آزمون عمومی باشد (به هیچکس تخصیص داده نشده باشد)
-        OR (
-            NOT EXISTS (SELECT 1 FROM QuizUserAssignments WHERE quiz_id = q.id) AND
-            NOT EXISTS (SELECT 1 FROM QuizTeamAssignments WHERE quiz_id = q.id)
-        )
+    WHERE qua.user_id = :user_id OR qta.team_id = :team_id OR (
+        NOT EXISTS (SELECT 1 FROM QuizUserAssignments WHERE quiz_id = q.id) AND
+        NOT EXISTS (SELECT 1 FROM QuizTeamAssignments WHERE quiz_id = q.id)
+    )
     ORDER BY q.id DESC
 ";
+$stmt_quizzes = $pdo->prepare($sql_quizzes);
+$stmt_quizzes->execute([':user_id' => $user_id, ':team_id' => $team_id ?: null]);
+$quizzes = $stmt_quizzes->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute([
-    ':user_id' => $user_id,
-    ':team_id' => $team_id ?: null // اگر کاربر تیمی نداشت، null ارسال می‌شود
-]);
-$quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ====================================================================
+// بخش ۲: منطق جدید برای واکشی تکالیف دومرحله‌ای
+// ====================================================================
+
+$tasks = [];
+$completed_task_ids = [];
+
+if ($team_id) {
+    // واکشی تمام تکالیف مربوط به تیم کاربر
+    $stmt_tasks = $pdo->prepare("
+        SELECT id, title, description
+        FROM Tasks
+        WHERE team_id = ?
+        ORDER BY id DESC
+    ");
+    $stmt_tasks->execute([$team_id]);
+    $tasks = $stmt_tasks->fetchAll(PDO::FETCH_ASSOC);
+
+    // پیدا کردن تکالیفی که کاربر آن‌ها را تکمیل کرده است
+    // (شرط تکمیل: پاسخ سوال دوم با موفقیت تایید شده باشد)
+    $stmt_completed_tasks = $pdo->prepare("
+        SELECT DISTINCT t.id
+        FROM Tasks t
+        JOIN TaskQuestions tq ON t.id = tq.task_id
+        JOIN TaskAnswers ta ON tq.id = ta.task_question_id
+        WHERE t.team_id = :team_id
+          AND ta.user_id = :user_id
+          AND tq.question_order = 2
+          AND ta.status = 'approved'
+    ");
+    $stmt_completed_tasks->execute([':team_id' => $team_id, ':user_id' => $user_id]);
+    $completed_task_ids = $stmt_completed_tasks->fetchAll(PDO::FETCH_COLUMN);
+}
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -52,7 +75,7 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>لیست آزمون‌ها</title>
+    <title>لیست آزمون‌ها و تکالیف</title>
     <style>
         :root {
             --primary-color: #00ae70;
@@ -100,7 +123,6 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             transition: all .2s ease;
         }
 
-        header,
         footer {
             background: var(--primary-color);
             color: var(--header-text);
@@ -111,13 +133,6 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             z-index: 10;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
-        }
-
-        header {
-            min-height: 70px;
-        }
-
-        footer {
             min-height: 60px;
             font-size: .85rem;
             justify-content: center;
@@ -149,6 +164,13 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             margin-bottom: 2rem;
         }
 
+        .section-divider {
+            border: 0;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 3rem 0;
+        }
+
         .tools-grid {
             list-style: none;
             display: grid;
@@ -158,7 +180,6 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .tool-card a {
             position: relative;
-            /* برای جای‌گیری badge */
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -168,7 +189,6 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
-            will-change: transform;
         }
 
         .tool-card a:hover {
@@ -178,12 +198,9 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: var(--primary-dark);
         }
 
-        /* ⭐ استایل‌های جدید برای آزمون‌های تکمیل شده */
         .tool-card.completed a {
             background-color: #f1f3f5;
-            /* رنگ پس‌زمینه متفاوت */
             cursor: not-allowed;
-            /* تغییر نشانگر موس */
             color: #868e96;
             border-color: var(--border-color);
         }
@@ -221,31 +238,21 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             line-height: 1.6;
             margin-top: .5rem;
         }
-
-        @media (max-width: 768px) {
-            main {
-                padding: 1.5rem 1rem;
-            }
-        }
     </style>
 </head>
 
 <body>
     <div id="header-placeholder"></div>
-
     <main>
-        <h1 class="page-title">انتخاب آزمون</h1>
+        <h1 class="page-title">آزمون‌های شما</h1>
         <p class="page-subtitle">برای شروع، یکی از آزمون‌های در دسترس خود را انتخاب کنید.</p>
-
         <ul class="tools-grid">
             <?php if (empty($quizzes)): ?>
                 <p>در حال حاضر هیچ آزمونی برای شما تعریف نشده است.</p>
             <?php else: ?>
-                <?php foreach ($quizzes as $quiz): ?>
-                    <?php
-                    // ⭐ بررسی اینکه آیا آزمون فعلی در لیست آزمون‌های تکمیل شده کاربر است یا خیر
+                <?php foreach ($quizzes as $quiz):
                     $is_completed = in_array($quiz['id'], $completed_quiz_ids);
-                    ?>
+                ?>
                     <li class="tool-card <?= $is_completed ? 'completed' : '' ?>">
                         <a href="<?= $is_completed ? '#' : 'take_quiz.php?id=' . $quiz['id'] ?>">
                             <?php if ($is_completed): ?>
@@ -256,6 +263,35 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <span class="tool-title"><?= htmlspecialchars($quiz['title']) ?></span>
                                 <?php if (!empty($quiz['description'])): ?>
                                     <p class="tool-description"><?= htmlspecialchars($quiz['description']) ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </ul>
+
+        <hr class="section-divider">
+
+        <h1 class="page-title">تکالیف شما</h1>
+        <p class="page-subtitle">تکالیف دومرحله‌ای که برای تیم شما تعریف شده است.</p>
+        <ul class="tools-grid">
+            <?php if (empty($tasks)): ?>
+                <p>در حال حاضر هیچ تکلیفی برای تیم شما تعریف نشده است.</p>
+            <?php else: ?>
+                <?php foreach ($tasks as $task):
+                    $is_task_completed = in_array($task['id'], $completed_task_ids);
+                ?>
+                    <li class="tool-card <?= $is_task_completed ? 'completed' : '' ?>">
+                        <a href="<?= $is_task_completed ? '#' : 'my_task.php?id=' . $task['id'] ?>">
+                            <?php if ($is_task_completed): ?>
+                                <span class="completed-badge">✔ تکمیل شده</span>
+                            <?php endif; ?>
+                            <span class="tool-icon">✅</span>
+                            <div>
+                                <span class="tool-title"><?= htmlspecialchars($task['title']) ?></span>
+                                <?php if (!empty($task['description'])): ?>
+                                    <p class="tool-description"><?= htmlspecialchars($task['description']) ?></p>
                                 <?php endif; ?>
                             </div>
                         </a>
