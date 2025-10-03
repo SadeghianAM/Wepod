@@ -15,25 +15,21 @@ $claims = requireAuth('admin', '/auth/login.html');
       --primary-dark: #089863;
       --primary-light: #e6f7f2;
       --bg-color: #f7f9fa;
+      --card-bg: #fff;
       --text-color: #1a1a1a;
-      --secondary-text-color: #555;
-      --card-bg: #ffffff;
-      --header-text: #ffffff;
+      --secondary-text: #555;
+      --header-text: #fff;
       --border-color: #e9e9e9;
-      --shadow-light: rgba(0, 120, 80, 0.06);
-      --shadow-medium: rgba(0, 120, 80, 0.12);
-      --border-radius: 0.75rem;
-
-      /* Announcement Colors */
-      --green-bg: #e6f7f2;
-      --green-border: #00ae70;
-      --green-text: #089863;
-      --yellow-bg: #fffde0;
-      --yellow-border: #ffd600;
-      --yellow-text: #b38600;
-      --red-bg: #fef2f2;
-      --red-border: #ef4444;
-      --red-text: #dc2626;
+      --radius: 12px;
+      --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
+      --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
+      --success-color: #28a745;
+      --info-color: #17a2b8;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --success-light: #e9f7eb;
+      --warning-light: #fff8e7;
+      --danger-light: #fbebec;
     }
 
     @font-face {
@@ -55,40 +51,28 @@ $claims = requireAuth('admin', '/auth/login.html');
     body {
       background-color: var(--bg-color);
       color: var(--text-color);
-      direction: rtl;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    header,
+    main {
+      flex-grow: 1;
+      padding: 2.5rem 2rem;
+      max-width: 1500px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
     footer {
       background: var(--primary-color);
       color: var(--header-text);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 6px rgba(0, 174, 112, 0.07);
-      position: relative;
-      z-index: 10;
       flex-shrink: 0;
-    }
-
-    header {
-      height: 70px;
-    }
-
-    footer {
       height: 60px;
       font-size: 0.85rem;
-    }
-
-    main {
-      flex-grow: 1;
-      padding: 2.5rem 2rem;
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
     }
 
     .page-header {
@@ -101,38 +85,74 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     .page-title {
-      font-size: 1.8rem;
+      font-size: clamp(1.5rem, 3vw, 2rem);
       font-weight: 800;
       color: var(--primary-dark);
     }
 
     .page-subtitle {
-      font-size: 1rem;
-      font-weight: 400;
-      color: var(--secondary-text-color);
+      font-size: clamp(.95rem, 2.2vw, 1rem);
+      color: var(--secondary-text);
       margin-top: 0.25rem;
     }
 
-    #add-new-item-btn {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      box-shadow: 0 4px 15px rgba(0, 174, 112, 0.2);
-      transition: all 0.2s;
+    .icon {
+      width: 1.1em;
+      height: 1.1em;
+      stroke-width: 2.2;
+      vertical-align: -0.15em;
     }
 
-    #add-new-item-btn:hover {
-      background-color: var(--primary-dark);
+    .btn {
+      position: relative;
+      padding: .8em 1.5em;
+      font-size: .95rem;
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6em;
+    }
+
+    .btn:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 174, 112, 0.25);
+      filter: brightness(0.92);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary-text);
+      color: white;
+    }
+
+    .btn-outline-danger {
+      background: transparent;
+      color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+
+    .btn-outline-danger:hover {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    .btn-outline-info {
+      background: transparent;
+      color: var(--info-color);
+      border-color: var(--info-color);
+    }
+
+    .btn-outline-info:hover {
+      background: var(--info-color);
+      color: white;
     }
 
     #item-list {
@@ -143,8 +163,8 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     .announcement-card {
       background-color: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: 0 4px 15px var(--shadow-light);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
       border: 1px solid var(--border-color);
       border-top: 4px solid;
       transition: all 0.2s;
@@ -154,19 +174,19 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     .announcement-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 25px var(--shadow-medium);
+      box-shadow: var(--shadow-md);
     }
 
     .announcement-card.green {
-      border-top-color: var(--green-border);
+      border-top-color: var(--success-color);
     }
 
     .announcement-card.yellow {
-      border-top-color: var(--yellow-border);
+      border-top-color: var(--warning-color);
     }
 
     .announcement-card.red {
-      border-top-color: var(--red-border);
+      border-top-color: var(--danger-color);
     }
 
     .card-header {
@@ -186,15 +206,15 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     .announcement-card.green .card-icon {
-      color: var(--green-text);
+      color: var(--success-color);
     }
 
     .announcement-card.yellow .card-icon {
-      color: var(--yellow-text);
+      color: var(--warning-color);
     }
 
     .announcement-card.red .card-icon {
-      color: var(--red-text);
+      color: var(--danger-color);
     }
 
     .card-body {
@@ -219,11 +239,11 @@ $claims = requireAuth('admin', '/auth/login.html');
       gap: 1rem;
       padding: 0.75rem 1.25rem;
       border-top: 1px solid var(--border-color);
-      background-color: #fafbfc;
+      background-color: var(--bg-color);
       font-size: 0.85rem;
-      color: var(--secondary-text-color);
-      border-bottom-left-radius: var(--border-radius);
-      border-bottom-right-radius: var(--border-radius);
+      color: var(--secondary-text);
+      border-bottom-left-radius: var(--radius);
+      border-bottom-right-radius: var(--radius);
     }
 
     .card-actions {
@@ -231,31 +251,9 @@ $claims = requireAuth('admin', '/auth/login.html');
       gap: 0.5rem;
     }
 
-    .card-actions button {
-      background: none;
-      border: 1px solid var(--border-color);
-      color: var(--secondary-text-color);
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.2s;
-    }
-
-    .card-actions .edit-btn:hover {
-      background-color: #e7f5ff;
-      color: #007bff;
-      border-color: #b8daff;
-    }
-
-    .card-actions .delete-btn:hover {
-      background-color: #fef2f2;
-      color: #dc3545;
-      border-color: #f5b7bd;
+    .card-actions .btn {
+      padding: .5em 1em;
+      font-size: .9rem;
     }
 
     .modal {
@@ -266,69 +264,68 @@ $claims = requireAuth('admin', '/auth/login.html');
       top: 0;
       width: 100%;
       height: 100%;
-      overflow: auto;
       background-color: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(4px);
-      padding-top: 5vh;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.visible {
+      display: flex;
     }
 
     .modal-content {
       background-color: var(--card-bg);
-      margin: 0 auto;
+      margin: auto;
       padding: 2rem;
-      border: none;
-      border-radius: var(--border-radius);
+      border-radius: var(--radius);
       width: 90%;
-      max-width: 600px;
-      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+      max-width: 700px;
+      box-shadow: var(--shadow-md);
       position: relative;
     }
 
-    .close-button {
-      color: #aaa;
-      position: absolute;
-      left: 1rem;
-      top: 1rem;
-      font-size: 2rem;
-      font-weight: bold;
-      cursor: pointer;
-      line-height: 1;
-      transition: color 0.2s;
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .close-button:hover {
-      color: #333;
+    .modal-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
     }
 
     .modal-content label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 600;
-      color: #333;
+      color: var(--secondary-text);
+      font-size: .9rem;
     }
 
     .modal-content input,
     .modal-content select,
     .description-editor {
       width: 100%;
-      padding: 0.75rem;
+      padding: .8em 1.2em;
       margin-bottom: 1.25rem;
-      border: 1px solid var(--border-color);
-      border-radius: 0.5rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius);
       font-size: 1rem;
-      background-color: #fcfdff;
+      background-color: var(--card-bg);
       transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .modal-content input[type="text"][readonly] {
-      cursor: pointer;
     }
 
     .modal-content input:focus,
     .modal-content select:focus,
     .description-editor:focus {
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+      box-shadow: 0 0 0 4px rgba(0, 174, 112, 0.15);
       outline: none;
     }
 
@@ -337,10 +334,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
       align-items: end;
-    }
-
-    .date-time-group>div {
-      flex: 1;
     }
 
     .description-editor {
@@ -353,24 +346,24 @@ $claims = requireAuth('admin', '/auth/login.html');
       gap: 0.5rem;
       margin-bottom: 0.5rem;
       padding: 0.5rem;
-      background-color: #f0f3f5;
-      border-radius: 0.5rem;
+      background-color: var(--bg-color);
+      border-radius: .5rem;
       border: 1px solid var(--border-color);
     }
 
     .editor-toolbar button {
       background-color: var(--card-bg);
-      border: 1px solid #ccc;
+      border: 1px solid var(--border-color);
       width: 36px;
       height: 36px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 1.2rem;
       display: grid;
       place-items: center;
       transition: all 0.2s;
       padding: 0;
       margin: 0;
+      color: var(--secondary-text);
     }
 
     .editor-toolbar button:hover {
@@ -386,42 +379,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       margin-top: 1.5rem;
     }
 
-    .modal-content .button-group button {
-      padding: 0.75rem 1.5rem;
-      font-weight: 600;
-      border-radius: var(--border-radius);
-      transition: all 0.2s;
-      cursor: pointer;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    #save-item-btn {
-      background-color: var(--primary-color);
-      color: white;
-      border: 1px solid transparent;
-      box-shadow: 0 2px 8px rgba(0, 174, 112, 0.2);
-    }
-
-    #save-item-btn:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-2px);
-    }
-
-    #cancel-edit-btn {
-      background-color: transparent;
-      color: var(--secondary-text-color);
-      border: 1px solid var(--border-color);
-    }
-
-    #cancel-edit-btn:hover {
-      background-color: #f1f1f1;
-      border-color: #ccc;
-    }
-
     .back-link {
       display: block;
       margin-top: 2rem;
@@ -435,246 +392,94 @@ $claims = requireAuth('admin', '/auth/login.html');
       color: var(--primary-dark);
     }
 
-    /* --- [START] DATE & TIME PICKER STYLES (Kept from original) --- */
-    .jdp-popover {
-      position: absolute;
-      background: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: .5rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
-      padding: .75rem;
-      width: 280px;
-      z-index: 9999
-    }
-
-    .jdp-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: .5rem;
-      font-weight: 700;
-      color: var(--primary-dark)
-    }
-
-    .jdp-nav-btn {
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      padding: .25rem .6rem;
-      border-radius: .4rem;
-      cursor: pointer
-    }
-
-    .jdp-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px
-    }
-
-    .jdp-weekday {
-      text-align: center;
-      font-size: .85rem;
-      color: var(--secondary-text-color);
-      padding: .3rem 0
-    }
-
-    .jdp-day {
-      text-align: center;
-      padding: .4rem 0;
-      border-radius: .4rem;
-      cursor: pointer;
-      background: #fafafa;
-      border: 1px solid #f0f0f0
-    }
-
-    .jdp-day:hover {
-      background: var(--primary-light)
-    }
-
-    .jdp-day.other {
-      color: #bbb;
-      background: #f8f9fa
-    }
-
-    .jdp-hidden {
-      display: none
-    }
-
+    .jdp-popover,
     .tp-popover {
       position: absolute;
       background: #fff;
       border: 1px solid var(--border-color);
-      border-radius: .75rem;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, .12);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
       padding: .75rem;
       z-index: 10000;
+    }
+
+    .jdp-popover {
+      width: 280px;
+    }
+
+    .tp-popover {
       min-width: 320px;
-      max-width: 360px
+      max-width: 360px;
     }
 
-    .tp-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: .5rem
-    }
-
+    .jdp-header,
     .tp-title {
       font-weight: 800;
       color: var(--primary-dark);
+    }
+
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
       display: flex;
+      flex-direction: column;
+      gap: 10px;
       align-items: center;
-      gap: .4rem
     }
 
-    .tp-title .emoji {
-      font-size: 1rem
-    }
-
-    .tp-clock {
-      font-weight: 900;
-      font-size: 1.1rem;
-      color: #2b3a32;
-      direction: ltr;
-      unicode-bidi: plaintext
-    }
-
-    .tp-columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .6rem;
-      position: relative
-    }
-
-    .tp-col-heads {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: .6rem;
-      margin: .25rem 0 .35rem
-    }
-
-    .tp-col-head {
+    .toast {
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      color: white;
+      font-weight: 500;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s, transform 0.3s;
+      min-width: 280px;
       text-align: center;
-      font-weight: 800;
-      color: #2b3a32;
-      background: #f5f9f7;
-      border: 1px solid #e6ece9;
-      border-radius: .5rem;
-      padding: .3rem
     }
 
-    .hours-col {
-      grid-column: 2
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    .minutes-col {
-      grid-column: 1
+    .toast-success {
+      background-color: var(--success-color);
     }
 
-    .tp-col {
-      height: 180px;
-      overflow-y: auto;
-      border: 1px solid #e6ece9;
-      border-radius: .6rem;
-      background: #fafafa;
-      scroll-snap-type: y mandatory;
-      padding: .25rem
+    .toast-error {
+      background-color: var(--danger-color);
     }
 
-    .tp-opt {
-      height: 36px;
+    .toast-info {
+      background-color: var(--info-color);
+    }
+
+    .toast-confirm {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .toast-confirm .toast-message {
+      margin-bottom: 1rem;
+    }
+
+    .toast-confirm .toast-buttons {
       display: flex;
-      align-items: center;
       justify-content: center;
-      margin: .15rem 0;
-      border-radius: .5rem;
-      scroll-snap-align: center;
-      cursor: pointer;
-      user-select: none;
-      direction: ltr
+      gap: 1rem;
     }
 
-    .tp-opt:hover {
-      background: var(--primary-light)
+    .toast-confirm .btn {
+      font-size: 0.85rem;
+      padding: 0.5em 1em;
     }
-
-    .tp-opt.active {
-      background: #e9fff6;
-      border: 1px solid #b9f0dc;
-      font-weight: 800
-    }
-
-    .tp-arrows {
-      display: flex;
-      justify-content: space-between;
-      gap: .5rem;
-      margin: .5rem 0
-    }
-
-    .tp-arrow-btn {
-      flex: 1;
-      border: none;
-      border-radius: .5rem;
-      padding: .45rem .6rem;
-      cursor: pointer;
-      font-weight: 800;
-      background: #f0f3f2;
-      color: #2b3a32
-    }
-
-    .tp-quick {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .4rem;
-      margin: .4rem 0
-    }
-
-    .tp-quick-btn {
-      border: none;
-      border-radius: .5rem;
-      padding: .35rem .6rem;
-      background: #f4fbf8;
-      color: #036f4b;
-      font-weight: 800;
-      cursor: pointer
-    }
-
-    .tp-actions {
-      display: flex;
-      gap: .5rem;
-      justify-content: space-between;
-      margin-top: .5rem
-    }
-
-    .tp-btn {
-      border: none;
-      border-radius: .6rem;
-      padding: .55rem .9rem;
-      font-weight: 800;
-      cursor: pointer
-    }
-
-    .tp-btn-primary {
-      background: var(--primary-color);
-      color: #fff
-    }
-
-    .tp-btn-secondary {
-      background: #f0f3f2;
-      color: #2b3a32
-    }
-
-    .tp-btn-danger {
-      background: #fbe9e8;
-      color: #b3261e
-    }
-
-    .tp-btn:disabled {
-      opacity: .6;
-      cursor: not-allowed
-    }
-
-    /* --- [END] DATE & TIME PICKER STYLES --- */
   </style>
 </head>
 
@@ -686,7 +491,13 @@ $claims = requireAuth('admin', '/auth/login.html');
         <h1 class="page-title">مدیریت اطلاعیه‌ها</h1>
         <p class="page-subtitle">اطلاعیه‌های فعال در صفحه اصلی را از اینجا مدیریت کنید.</p>
       </div>
-      <button id="add-new-item-btn">✨ افزودن اطلاعیه</button>
+      <button id="add-new-item-btn" class="btn btn-primary">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+        <span>افزودن اطلاعیه</span>
+      </button>
     </div>
 
     <div id="item-list"></div>
@@ -695,27 +506,35 @@ $claims = requireAuth('admin', '/auth/login.html');
 
   <div id="itemModal" class="modal">
     <div class="modal-content">
-      <span class="close-button">&times;</span>
-      <h2 id="modalTitle" style="text-align: right; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;"></h2>
+      <div class="modal-header">
+        <h2 id="modalTitle"></h2>
+        <button class="btn-icon" id="close-modal-btn" title="بستن">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
       <form id="itemForm">
         <input type="hidden" id="itemId" />
-
         <label for="title">عنوان:</label>
         <input type="text" id="title" name="title" required />
-
         <label for="description-editor">توضیحات:</label>
         <div class="editor-toolbar">
-          <button type="button" data-command="bold" title="ضخیم"><b>B</b></button>
+          <button type="button" data-command="bold" title="ضخیم">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+              <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+            </svg>
+          </button>
         </div>
         <div id="description-editor" class="description-editor" contenteditable="true"></div>
-
         <label for="color">رنگ:</label>
         <select id="color" name="color">
-          <option value="green">🟢 سبز (اطلاع‌رسانی)</option>
-          <option value="yellow">🟡 زرد (هشدار)</option>
-          <option value="red">🔴 قرمز (بسیار مهم)</option>
+          <option value="green">سبز (اطلاع‌رسانی)</option>
+          <option value="yellow">زرد (هشدار)</option>
+          <option value="red">قرمز (بسیار مهم)</option>
         </select>
-
         <div class="date-time-group">
           <div>
             <label for="startDateDisplay">تاریخ شروع (اختیاری):</label>
@@ -724,10 +543,9 @@ $claims = requireAuth('admin', '/auth/login.html');
           </div>
           <div>
             <label for="startTime">ساعت شروع (اختیاری):</label>
-            <input type="text" id="startTime" name="startTime" placeholder="--:--" />
+            <input type="text" id="startTime" name="startTime" placeholder="--:--" autocomplete="off" />
           </div>
         </div>
-
         <div class="date-time-group">
           <div>
             <label for="endDateDisplay">تاریخ پایان (اختیاری):</label>
@@ -736,354 +554,28 @@ $claims = requireAuth('admin', '/auth/login.html');
           </div>
           <div>
             <label for="endTime">ساعت پایان (اختیاری):</label>
-            <input type="text" id="endTime" name="endTime" placeholder="--:--" />
+            <input type="text" id="endTime" name="endTime" placeholder="--:--" autocomplete="off" />
           </div>
         </div>
-
         <div class="button-group">
-          <button type="button" id="cancel-edit-btn">✖️ لغو</button>
-          <button type="submit" id="save-item-btn">💾 ذخیره</button>
+          <button type="button" id="cancel-edit-btn" class="btn btn-secondary">لغو</button>
+          <button type="submit" id="save-item-btn" class="btn btn-primary"></button>
         </div>
       </form>
     </div>
   </div>
-
+  <div id="toast-container"></div>
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
   <script>
-    /* ===================================================
-     * START: JALALI DATE & TIME PICKER LOGIC (Kept from original)
-     * =================================================== */
-    function jalaliToGregorian(jy, jm, jd) {
-      var sal_a, gy, gm, gd, days;
-      jy += 1595;
-      days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
-      gy = 400 * ~~(days / 146097);
-      days %= 146097;
-      if (days > 355668) {
-        gy += 100 * ~(--days / 36524);
-        days %= 36524;
-        if (days >= 365) days++
-      }
-      gy += 4 * ~~(days / 1461);
-      days %= 1461;
-      if (days > 365) {
-        gy += ~~((days - 1) / 365);
-        days = (days - 1) % 365
-      }
-      gd = days + 1;
-      sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-      for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
-      return new Date(gy, gm - 1, gd)
-    }
-
-    function toPersian(date) {
-      const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
-      return parts.map((part) => parseInt(part, 10))
-    }
-
-    function formatJalaliDisplay(jy, jm, jd) {
-      return `${jy}/${String(jm).padStart(2,"0")}/${String(jd).padStart(2,"0")}`
-    }
-
-    function formatISO(date) {
-      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`
-    }
-
-    function isJalaliLeap(jy) {
-      return (((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816) < 682
-    }
-
-    function jalaliMonthLength(jy, jm) {
-      if (jm <= 6) return 31;
-      if (jm <= 11) return 30;
-      return isJalaliLeap(jy) ? 30 : 29
-    }
-    class JalaliDatePicker {
-      constructor(inputId, altId) {
-        this.input = document.getElementById(inputId);
-        this.alt = document.getElementById(altId);
-        if (!this.input || !this.alt) return;
-        const gNow = new Date();
-        const [jy, jm] = toPersian(gNow);
-        this.jy = jy;
-        this.jm = jm;
-        this.pop = document.createElement("div");
-        this.pop.className = "jdp-popover jdp-hidden";
-        document.body.appendChild(this.pop);
-        this.boundClickOutside = (e) => {
-          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide()
-        };
-        this.input.addEventListener("focus", () => this.show());
-        this.input.addEventListener("click", () => this.show());
-        window.addEventListener("resize", () => this.position())
-      }
-      show() {
-        this.render();
-        this.position();
-        this.pop.classList.remove("jdp-hidden");
-        setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0)
-      }
-      hide() {
-        this.pop.classList.add("jdp-hidden");
-        document.removeEventListener("mousedown", this.boundClickOutside)
-      }
-      position() {
-        const rect = this.input.getBoundingClientRect();
-        this.pop.style.top = (window.scrollY + rect.top - this.pop.offsetHeight - 6) + "px";
-        this.pop.style.left = window.scrollX + rect.left + "px";
-        if (rect.left + 280 > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - 280 + "px"
-      }
-      nav(delta) {
-        this.jm += delta;
-        if (this.jm < 1) {
-          this.jm = 12;
-          this.jy--
-        }
-        if (this.jm > 12) {
-          this.jm = 1;
-          this.jy++
-        }
-        this.render()
-      }
-      render() {
-        const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
-        const firstG = jalaliToGregorian(this.jy, this.jm, 1);
-        const firstWeekday = (firstG.getDay() + 1) % 7;
-        const daysInMonth = jalaliMonthLength(this.jy, this.jm);
-        let html = `<div class="jdp-header"><button type="button" class="jdp-nav-btn" data-nav="-1">«</button><div>${new Intl.DateTimeFormat("fa-IR",{month:"long"}).format(firstG)} ${new Intl.DateTimeFormat("fa-IR-u-nu-latn",{year:"numeric"}).format(firstG)}</div><button type="button" class="jdp-nav-btn" data-nav="1">»</button></div><div class="jdp-grid">${weekDays.map(w=>`<div class="jdp-weekday">${w}</div>`).join("")}`;
-        for (let i = 0; i < firstWeekday; i++) html += `<div class="jdp-day other"></div>`;
-        for (let d = 1; d <= daysInMonth; d++) {
-          html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`
-        }
-        html += `</div>`;
-        this.pop.innerHTML = html;
-        this.pop.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", (e) => this.nav(parseInt(e.currentTarget.dataset.nav, 10))));
-        this.pop.querySelectorAll("[data-day]").forEach(cell => {
-          cell.addEventListener("click", (e) => {
-            const d = parseInt(e.currentTarget.dataset.day, 10);
-            const gDate = jalaliToGregorian(this.jy, this.jm, d);
-            this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
-            this.alt.value = formatISO(gDate);
-            this.alt.dispatchEvent(new Event("change", {
-              bubbles: true
-            }));
-            this.hide()
-          })
-        })
-      }
-    }
-    class TimePicker {
-      constructor(inputId) {
-        this.input = document.getElementById(inputId);
-        if (!this.input) return;
-        this.input.readOnly = true;
-        this.pop = document.createElement("div");
-        this.pop.className = "tp-popover";
-        this.pop.hidden = true;
-        document.body.appendChild(this.pop);
-        this.boundOutside = (e) => {
-          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide()
-        };
-        this.input.addEventListener("pointerdown", (e) => {
-          e.preventDefault();
-          this.show()
-        });
-        this.input.addEventListener("focus", () => this.show());
-        this.input.addEventListener("click", () => this.show());
-        window.addEventListener("resize", () => this.position())
-      }
-      parse() {
-        const v = (this.input.value || "").trim();
-        let h = 12,
-          m = 0;
-        if (/^\d{1,2}:\d{2}$/.test(v)) {
-          const [hh, mm] = v.split(":").map(n => parseInt(n, 10));
-          h = Math.max(0, Math.min(23, hh));
-          m = Math.max(0, Math.min(59, mm))
-        }
-        this.h = h;
-        this.m = m - (m % 5)
-      }
-      position() {
-        const rect = this.input.getBoundingClientRect();
-        this.pop.style.top = (window.scrollY + rect.top - this.pop.offsetHeight - 6) + "px";
-        this.pop.style.left = window.scrollX + rect.left + "px";
-        const w = this.pop.offsetWidth || 340;
-        if (rect.left + w > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - w + "px"
-      }
-      show() {
-        this.parse();
-        this.render();
-        this.position();
-        this.pop.hidden = false;
-        setTimeout(() => document.addEventListener("mousedown", this.boundOutside), 0)
-      }
-      hide() {
-        this.pop.hidden = true;
-        document.removeEventListener("mousedown", this.boundOutside)
-      }
-      setHour(h) {
-        this.h = (h + 24) % 24;
-        this.updateClock();
-        this.highlight()
-      }
-      setMinute(m) {
-        this.m = (m + 60) % 60;
-        this.updateClock();
-        this.highlight()
-      }
-      stepHour(d) {
-        this.setHour(this.h + d);
-        this.scrollToActive(this.hoursCol, this.h)
-      }
-      stepMinute(d) {
-        this.setMinute(this.m + d * 5);
-        this.scrollToActive(this.minutesCol, this.m / 5)
-      }
-      apply() {
-        const val = `${String(this.h).padStart(2,"0")}:${String(this.m).padStart(2,"0")}`;
-        this.input.value = val;
-        this.input.dispatchEvent(new Event("change", {
-          bubbles: true
-        }));
-        this.hide()
-      }
-      clear() {
-        this.input.value = "";
-        this.input.dispatchEvent(new Event("change", {
-          bubbles: true
-        }));
-        this.hide()
-      }
-      now() {
-        const d = new Date();
-        this.h = d.getHours();
-        this.m = Math.round(d.getMinutes() / 5) * 5 % 60;
-        this.updateClock();
-        this.highlight();
-        this.scrollToActive(this.hoursCol, this.h);
-        this.scrollToActive(this.minutesCol, this.m / 5)
-      }
-      updateClock() {
-        if (this.clock) this.clock.textContent = `${String(this.h).padStart(2,"0")}:${String(this.m).padStart(2,"0")}`
-      }
-      highlight() {
-        this.pop.querySelectorAll(".tp-opt").forEach(el => el.classList.remove("active"));
-        const hEl = this.pop.querySelector(`.tp-opt[data-hour="${this.h}"]`);
-        const mEl = this.pop.querySelector(`.tp-opt[data-minute="${this.m}"]`);
-        if (hEl) hEl.classList.add("active");
-        if (mEl) mEl.classList.add("active")
-      }
-      makeColumn(type, items, extraClass) {
-        const col = document.createElement("div");
-        col.className = `tp-col ${extraClass||""}`;
-        col.setAttribute("tabindex", "0");
-        col.innerHTML = items.map(v => {
-          const attr = type === "h" ? `data-hour="${v}"` : `data-minute="${v}"`;
-          return `<div class="tp-opt" ${attr}>${String(v).padStart(2,"0")}</div>`
-        }).join("");
-        col.addEventListener("click", (e) => {
-          const t = e.target.closest(".tp-opt");
-          if (!t) return;
-          if (type === "h") this.setHour(parseInt(t.dataset.hour, 10));
-          else this.setMinute(parseInt(t.dataset.minute, 10))
-        });
-        col.addEventListener("keydown", (e) => {
-          if (type === "h") {
-            if (e.key === "ArrowUp") {
-              e.preventDefault();
-              this.stepHour(-1)
-            }
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              this.stepHour(1)
-            }
-          } else {
-            if (e.key === "ArrowUp") {
-              e.preventDefault();
-              this.stepMinute(-1)
-            }
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              this.stepMinute(1)
-            }
-          }
-          if (e.key === "Enter") {
-            e.preventDefault();
-            this.apply()
-          }
-          if (e.key === "Escape") {
-            e.preventDefault();
-            this.hide()
-          }
-        });
-        col.addEventListener("scroll", () => {
-          clearTimeout(this._snapt);
-          this._snapt = setTimeout(() => {
-            const idx = Math.round(col.scrollTop / 36);
-            const val = type === "h" ? idx : (idx * 5);
-            if (type === "h") this.setHour(Math.max(0, Math.min(23, val)));
-            else this.setMinute(Math.max(0, Math.min(55, val)))
-          }, 120)
-        });
-        return col
-      }
-      scrollToActive(col, index) {
-        const y = index * 36;
-        col.scrollTo({
-          top: y,
-          behavior: "smooth"
-        })
-      }
-      render() {
-        const hours = Array.from({
-          length: 24
-        }, (_, i) => i);
-        const minutes = Array.from({
-          length: 12
-        }, (_, i) => i * 5);
-        this.pop.innerHTML = `<div class="tp-header"><div class="tp-title"><span class="emoji">⏰</span><span>انتخاب ساعت</span></div><div class="tp-clock"></div></div><div class="tp-col-heads"><div class="tp-col-head minutes-head">دقیقه</div><div class="tp-col-head hours-head">ساعت</div></div><div class="tp-columns"></div><div class="tp-arrows"><button type="button" class="tp-arrow-btn" data-m="-1">⬆️ دقیقه</button><button type="button" class="tp-arrow-btn" data-m="+1">⬇️ دقیقه</button><button type="button" class="tp-arrow-btn" data-h="-1">⬆️ ساعت</button><button type="button" class="tp-arrow-btn" data-h="+1">⬇️ ساعت</button></div><div class="tp-quick">${[0,15,30,45].map(v=>`<button type="button" class="tp-quick-btn" data-qm="${v}">:${String(v).padStart(2,"0")}</button>`).join("")}</div><div class="tp-actions"><div style="display:flex;gap:.5rem"><button type="button" class="tp-btn tp-btn-secondary" data-now="1">🕒 اکنون</button><button type="button" class="tp-btn tp-btn-danger" data-clear="1">🧹 پاک</button></div><button type="button" class="tp-btn tp-btn-primary" data-apply="1">✅ ثبت</button></div>`;
-        this.clock = this.pop.querySelector(".tp-clock");
-        this.updateClock();
-        const cols = this.pop.querySelector(".tp-columns");
-        this.hoursCol = this.makeColumn("h", hours, "hours-col");
-        this.minutesCol = this.makeColumn("m", minutes, "minutes-col");
-        cols.appendChild(this.minutesCol);
-        cols.appendChild(this.hoursCol);
-        this.highlight();
-        this.scrollToActive(this.hoursCol, this.h);
-        this.scrollToActive(this.minutesCol, this.m / 5);
-        this.pop.querySelectorAll("[data-h]").forEach(b => {
-          b.addEventListener("click", () => this.stepHour(parseInt(b.dataset.h.replace("+", ""), 10)))
-        });
-        this.pop.querySelectorAll("[data-m]").forEach(b => {
-          b.addEventListener("click", () => this.stepMinute(parseInt(b.dataset.m.replace("+", ""), 10)))
-        });
-        this.pop.querySelectorAll("[data-qm]").forEach(b => {
-          b.addEventListener("click", () => {
-            this.setMinute(parseInt(b.dataset.qm, 10));
-            this.scrollToActive(this.minutesCol, this.m / 5)
-          })
-        });
-        this.pop.querySelector("[data-apply]").addEventListener("click", () => this.apply());
-        this.pop.querySelector("[data-clear]").addEventListener("click", () => this.clear());
-        this.pop.querySelector("[data-now]").addEventListener("click", () => this.now())
-      }
-    }
-    /* ===================================================
-     * END: JALALI DATE & TIME PICKER LOGIC
-     * =================================================== */
-
-    /* ===================================================
-     * MAIN APPLICATION LOGIC (SECURED)
-     * =================================================== */
+    const API_SAVE_URL = "/data/save-news-alerts.php";
+    const API_LOAD_URL = `/data/news-alerts.json?v=${new Date().getTime()}`;
     let jsonData = [];
     let currentItemIndex = -1;
 
     const itemListDiv = document.getElementById("item-list");
     const itemModal = document.getElementById("itemModal");
-    const closeButton = document.querySelector(".close-button");
+    const closeButton = document.getElementById("close-modal-btn");
     const itemForm = document.getElementById("itemForm");
     const addNewItemBtn = document.getElementById("add-new-item-btn");
     const modalTitle = document.getElementById("modalTitle");
@@ -1091,22 +583,55 @@ $claims = requireAuth('admin', '/auth/login.html');
     const editorToolbar = document.querySelector(".editor-toolbar");
     const cancelEditBtn = document.getElementById("cancel-edit-btn");
 
-    function gregorianToJalaliDisplay(isoDate) {
-      if (!isoDate || typeof isoDate !== 'string') return "";
-      try {
-        const parts = isoDate.split('-');
-        const date = new Date(parts[0], parts[1] - 1, parts[2]);
-        if (isNaN(date.getTime())) return "";
-        return date.toLocaleDateString("fa-IR");
-      } catch (e) {
-        console.error("Error converting date:", e);
-        return "";
-      }
+    const ICONS = {
+      add: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`,
+      save: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+      edit: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>`,
+      delete: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+      calendar: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>`,
+      info: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+      warning: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>`,
+      danger: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+    };
+
+    function showToast(message, type = 'success', duration = 4000) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => toast.remove());
+      }, duration);
+    }
+
+    function showConfirmation(message, onConfirm) {
+      const toastContainer = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast toast-confirm';
+      toast.innerHTML = `<div class="toast-message">${message}</div>
+            <div class="toast-buttons">
+                <button class="btn btn-danger" id="confirmAction">بله، حذف کن</button>
+                <button class="btn btn-secondary" id="cancelAction">لغو</button>
+            </div>`;
+      const removeToast = () => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => toast.remove());
+      };
+      toast.querySelector('#confirmAction').onclick = () => {
+        onConfirm();
+        removeToast();
+      };
+      toast.querySelector('#cancelAction').onclick = removeToast;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
     }
 
     async function saveDataToServer() {
       try {
-        const response = await fetch("/data/save-news-alerts.php", {
+        const response = await fetch(API_SAVE_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -1118,78 +643,41 @@ $claims = requireAuth('admin', '/auth/login.html');
         console.log(result.message);
       } catch (error) {
         console.error("Error saving data:", error);
-        alert("خطا در ذخیره اطلاعات: " + error.message);
+        showToast("خطا در ذخیره اطلاعات: " + error.message, 'error');
       }
     }
 
-    function openModal() {
-      itemModal.style.display = "block";
-      document.body.style.overflow = 'hidden';
-      descriptionEditor?.focus();
-    }
-
-    function closeModal() {
-      itemModal.style.display = "none";
-      document.body.style.overflow = '';
-      itemForm.reset();
-      document.getElementById('startDateDisplay').value = '';
-      document.getElementById('endDateDisplay').value = '';
-      if (descriptionEditor) descriptionEditor.innerHTML = "";
-    }
-
     const colorToIconMap = {
-      green: '📢',
-      yellow: '⚠️',
-      red: '❗'
+      green: ICONS.info,
+      yellow: ICONS.warning,
+      red: ICONS.danger
     };
 
     function formatDateTime(dateStr, timeStr) {
       if (!dateStr) return '';
       try {
         const date = new Date(dateStr);
-        const options = {
+        let formatted = new Intl.DateTimeFormat('fa-IR', {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
-        };
-        let formatted = new Intl.DateTimeFormat('fa-IR', options).format(date);
-        if (timeStr) {
-          formatted += ` - ساعت ${timeStr}`;
-        }
+        }).format(date);
+        if (timeStr) formatted += ` - ساعت ${timeStr}`;
         return formatted;
       } catch (e) {
         return dateStr;
       }
     }
 
-    /**
-     * SECURE RENDER FUNCTION
-     */
     function renderItems() {
       itemListDiv.innerHTML = "";
       if (jsonData.length === 0) {
         itemListDiv.innerHTML = '<p style="text-align: center; margin-top: 50px; font-size: 1.2rem; color: #555;">اطلاعیه‌ای برای نمایش وجود ندارد.</p>';
         return;
       }
-
       jsonData.forEach((item, index) => {
         const card = document.createElement("div");
         card.className = `announcement-card ${item.color}`;
-
-        const cardHeader = document.createElement('div');
-        cardHeader.className = 'card-header';
-        const cardIcon = document.createElement('span');
-        cardIcon.className = 'card-icon';
-        cardIcon.textContent = colorToIconMap[item.color] || '🔹';
-        const cardTitle = document.createElement('h3');
-        cardTitle.className = 'card-title';
-        cardTitle.textContent = item.title;
-        cardHeader.appendChild(cardIcon);
-        cardHeader.appendChild(cardTitle);
-
-        const cardBody = document.createElement('div');
-        cardBody.className = 'card-body';
-        cardBody.innerHTML = item.description;
 
         const start = formatDateTime(item.startDate, item.startTime);
         const end = formatDateTime(item.endDate, item.endTime);
@@ -1198,33 +686,20 @@ $claims = requireAuth('admin', '/auth/login.html');
         else if (start) timeInfo = `از ${start}`;
         else if (end) timeInfo = `تا ${end}`;
 
-        const cardFooter = document.createElement('div');
-        cardFooter.className = 'card-footer';
-        const timeInfoSpan = document.createElement('span');
-        timeInfoSpan.textContent = `🗓️ ${timeInfo}`;
-
-        const cardActions = document.createElement('div');
-        cardActions.className = 'card-actions';
-
-        const editButton = document.createElement('button');
-        editButton.className = 'edit-btn';
-        editButton.dataset.index = index;
-        editButton.innerHTML = '✏️ ویرایش';
-
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'delete-btn';
-        deleteButton.dataset.index = index;
-        deleteButton.innerHTML = '🗑️ حذف';
-
-        cardActions.appendChild(editButton);
-        cardActions.appendChild(deleteButton);
-        cardFooter.appendChild(timeInfoSpan);
-        cardFooter.appendChild(cardActions);
-
-        card.appendChild(cardHeader);
-        card.appendChild(cardBody);
-        card.appendChild(cardFooter);
-
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="card-icon">${colorToIconMap[item.color] || ''}</span>
+                <h3 class="card-title">${item.title}</h3>
+            </div>
+            <div class="card-body">${item.description}</div>
+            <div class="card-footer">
+                <span>${ICONS.calendar} ${timeInfo}</span>
+                <div class="card-actions">
+                    <button class="btn btn-outline-info edit-btn" data-index="${index}">${ICONS.edit} <span>ویرایش</span></button>
+                    <button class="btn btn-outline-danger delete-btn" data-index="${index}">${ICONS.delete} <span>حذف</span></button>
+                </div>
+            </div>
+        `;
         itemListDiv.appendChild(card);
       });
 
@@ -1240,13 +715,14 @@ $claims = requireAuth('admin', '/auth/login.html');
       descriptionEditor.innerHTML = item.description;
       document.getElementById("color").value = item.color;
       document.getElementById("startDate").value = item.startDate;
-      document.getElementById("startDateDisplay").value = gregorianToJalaliDisplay(item.startDate);
+      document.getElementById("startDateDisplay").value = item.startDate ? new Date(item.startDate).toLocaleDateString('fa-IR-u-nu-latn').replace(/\//g, '/') : '';
       document.getElementById("startTime").value = item.startTime;
       document.getElementById("endDate").value = item.endDate;
-      document.getElementById("endDateDisplay").value = gregorianToJalaliDisplay(item.endDate);
+      document.getElementById("endDateDisplay").value = item.endDate ? new Date(item.endDate).toLocaleDateString('fa-IR-u-nu-latn').replace(/\//g, '/') : '';
       document.getElementById("endTime").value = item.endTime;
       modalTitle.textContent = "ویرایش اطلاعیه";
-      openModal();
+      document.getElementById('save-item-btn').innerHTML = `${ICONS.save} <span>ذخیره تغییرات</span>`;
+      itemModal.classList.add('visible');
     }
 
     addNewItemBtn.addEventListener("click", () => {
@@ -1254,15 +730,15 @@ $claims = requireAuth('admin', '/auth/login.html');
       itemForm.reset();
       descriptionEditor.innerHTML = "";
       modalTitle.textContent = "افزودن اطلاعیه جدید";
-      openModal();
+      document.getElementById('save-item-btn').innerHTML = `${ICONS.add} <span>افزودن</span>`;
+      itemModal.classList.add('visible');
     });
 
     itemForm.addEventListener("submit", (e) => {
       e.preventDefault();
       let descriptionValue = descriptionEditor.innerHTML.trim();
-      if (!descriptionEditor.textContent.trim() || descriptionValue === '<br>') {
-        descriptionValue = '';
-      }
+      if (!descriptionEditor.textContent.trim() || descriptionValue === '<br>') descriptionValue = '';
+
       const newItem = {
         title: document.getElementById("title").value,
         description: descriptionValue,
@@ -1272,22 +748,23 @@ $claims = requireAuth('admin', '/auth/login.html');
         endDate: document.getElementById("endDate").value,
         endTime: document.getElementById("endTime").value,
       };
-      if (currentItemIndex === -1) {
-        jsonData.push(newItem);
-      } else {
-        jsonData[currentItemIndex] = newItem;
-      }
+
+      if (currentItemIndex === -1) jsonData.push(newItem);
+      else jsonData[currentItemIndex] = newItem;
+
       renderItems();
-      closeModal();
+      itemModal.classList.remove('visible');
       saveDataToServer();
+      showToast('اطلاعیه با موفقیت ذخیره شد.', 'success');
     });
 
     function deleteItem(index) {
-      if (confirm("آیا از حذف این اطلاعیه اطمینان دارید؟")) {
+      showConfirmation("آیا از حذف این اطلاعیه اطمینان دارید؟", () => {
         jsonData.splice(index, 1);
         renderItems();
         saveDataToServer();
-      }
+        showToast('اطلاعیه با موفقیت حذف شد.', 'info');
+      });
     }
 
     editorToolbar.addEventListener("click", (event) => {
@@ -1300,37 +777,29 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     async function loadInitialJson() {
       try {
-        const response = await fetch(`/data/news-alerts.json?v=${new Date().getTime()}`);
-        if (response.ok) {
-          jsonData = await response.json();
-        } else if (response.status === 404) {
-          jsonData = [];
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetch(API_LOAD_URL);
+        if (response.ok) jsonData = await response.json();
+        else if (response.status === 404) jsonData = [];
+        else throw new Error(`HTTP error! status: ${response.status}`);
       } catch (error) {
-        console.error("Error loading news-alerts.json:", error);
-        alert("خطا در بارگذاری اولیه فایل JSON.");
+        showToast("خطا در بارگذاری اولیه فایل JSON.", 'error');
         jsonData = [];
       } finally {
         renderItems();
       }
     }
 
-    closeButton.onclick = closeModal;
-    window.onclick = (event) => {
-      if (event.target == itemModal) closeModal();
-    };
-    cancelEditBtn.onclick = closeModal;
-
-    document.addEventListener("DOMContentLoaded", () => {
-      loadInitialJson();
-      new JalaliDatePicker("startDateDisplay", "startDate");
-      new JalaliDatePicker("endDateDisplay", "endDate");
-      new TimePicker("startTime");
-      new TimePicker("endTime");
+    document.querySelectorAll('.close-button, #cancel-edit-btn, #close-modal-btn').forEach(el => el.addEventListener('click', () => itemModal.classList.remove('visible')));
+    itemModal.addEventListener('click', e => {
+      if (e.target === itemModal) itemModal.classList.remove('visible');
     });
+
+    loadInitialJson();
+    new JalaliDatePicker("startDateDisplay", "startDate");
+    new JalaliDatePicker("endDateDisplay", "endDate");
+    new TimePicker("startTime");
+    new TimePicker("endTime");
   </script>
 </body>
 
-</html>
+</html> 

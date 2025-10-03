@@ -1,10 +1,8 @@
 <?php
-// فایل: quizzes.php (نسخه کاملاً نهایی و یکپارچه)
 require_once __DIR__ . '/../../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../../auth/login.html');
 require_once __DIR__ . '/../../../db/database.php';
 
-// کوئری بهینه‌سازی شده برای دریافت اطلاعات آزمون (بدون تاریخ)
 $stmt_quizzes = $pdo->query("
     SELECT
         q.id,
@@ -20,7 +18,6 @@ $stmt_quizzes = $pdo->query("
 ");
 $quizzes = $stmt_quizzes->fetchAll(PDO::FETCH_ASSOC);
 
-// خواندن اطلاعات مورد نیاز برای مودال
 $stmt_questions = $pdo->query("SELECT id, question_text, category FROM Questions ORDER BY category, id");
 $questions_by_category = [];
 foreach ($stmt_questions->fetchAll(PDO::FETCH_ASSOC) as $question) {
@@ -50,10 +47,16 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             --secondary-text: #555;
             --header-text: #fff;
             --border-color: #e9e9e9;
-            --footer-h: 60px;
             --radius: 12px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
             --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --success-light: #e9f7eb;
+            --info-light: #e8f6f8;
+            --danger-light: #fbebec;
         }
 
         @font-face {
@@ -76,7 +79,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            direction: rtl;
             background: var(--bg-color);
             color: var(--text-color);
         }
@@ -93,58 +95,91 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            z-index: 10;
+            padding: 0 2rem;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
+            min-height: 60px;
+            font-size: .85rem;
         }
-
-        footer {
-            min-height: var(--footer-h);
-            font-size: .85rem
-        }
-
 
         main {
             flex: 1;
-            width: min(1200px, 100%);
-            padding: 2.5rem 2rem;
+            max-width: 1500px;
+            width: 100%;
+            padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem);
             margin-inline: auto;
+        }
+
+        .page-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1.5rem;
         }
 
         .page-title {
             color: var(--primary-dark);
             font-weight: 800;
-            font-size: 1.8rem;
-            margin-bottom: .5rem;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-block-end: .5rem;
         }
 
         .page-subtitle {
             color: var(--secondary-text);
             font-weight: 400;
-            font-size: 1rem;
+            font-size: clamp(.95rem, 2.2vw, 1rem);
+        }
+
+        .icon {
+            width: 1.1em;
+            height: 1.1em;
+            stroke-width: 2.2;
+            vertical-align: -0.15em;
         }
 
         .btn {
             position: relative;
+            padding: .8em 1.5em;
+            font-size: .95rem;
+            font-weight: 600;
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, filter 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: .5rem;
-            padding: .75rem 1.25rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: .95rem;
-            font-weight: 600;
-            text-align: center;
-            margin: 0;
-            transition: all .2s ease;
+            gap: 0.6em;
+            white-space: nowrap;
         }
 
-        .btn:disabled {
-            background-color: #ccc;
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.92);
+        }
+
+        .btn:disabled,
+        .btn.loading {
+            background-color: var(--border-color);
+            color: var(--secondary-text);
             cursor: not-allowed;
+            transform: none;
+            filter: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-text);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
         }
 
         .btn .btn-text {
@@ -157,17 +192,19 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
         .btn .spinner {
             position: absolute;
-            top: 50%;
-            left: 50%;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--secondary-text);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             opacity: 0;
             transition: opacity .2s ease;
-            transform: translate(-50%, -50%);
+        }
+
+        .btn.btn-primary .spinner {
+            border-top-color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .btn.loading .spinner {
@@ -176,66 +213,30 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
         @keyframes spin {
             to {
-                transform: translate(-50%, -50%) rotate(360deg);
+                transform: rotate(360deg);
             }
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        /* Dashboard Styles */
-        .page-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .search-box {
-            position: relative;
-            width: 300px;
         }
 
         .search-box input {
             width: 100%;
-            padding: .75rem 1rem;
+            font-size: 1rem;
+            padding: .8em 1.2em;
             border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            font-size: .9rem;
-            transition: all .2s ease;
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            transition: border-color .2s, box-shadow .2s;
+            min-width: 300px;
         }
 
-        .search-box input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-light);
+        .search-box input:focus-visible {
             outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
         }
 
         .quiz-card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 1.5rem;
         }
 
@@ -262,7 +263,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .quiz-card-header h3 {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             margin: 0;
             color: var(--text-color);
@@ -281,7 +282,11 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         .meta-item {
             display: flex;
             align-items: center;
-            gap: .5rem;
+            gap: .6rem;
+        }
+
+        .meta-item .icon {
+            color: var(--primary-color);
         }
 
         .quiz-card-actions {
@@ -297,30 +302,35 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         .actions-menu-btn {
             background: none;
             border: none;
-            padding: .25rem .5rem;
+            padding: .5rem;
             cursor: pointer;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            line-height: 1;
-            font-weight: bold;
+            border-radius: 50%;
+            display: flex;
+            color: var(--secondary-text);
         }
 
         .actions-menu-btn:hover {
             background-color: var(--bg-color);
         }
 
+        .actions-menu-btn .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
         .dropdown-menu {
             display: none;
             position: absolute;
             left: 0;
-            top: 100%;
+            top: calc(100% + 5px);
             background-color: var(--card-bg);
             border-radius: 8px;
             box-shadow: var(--shadow-md);
             list-style: none;
             padding: .5rem 0;
-            width: 120px;
+            width: 140px;
             z-index: 10;
+            border: 1px solid var(--border-color);
         }
 
         .dropdown-menu.show {
@@ -328,8 +338,10 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .dropdown-menu a {
-            display: block;
-            padding: .5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .6rem 1rem;
             font-size: .9rem;
         }
 
@@ -338,7 +350,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .dropdown-menu .delete-action {
-            color: #dc3545;
+            color: var(--danger-color);
         }
 
         .empty-state {
@@ -349,9 +361,19 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             border: 2px dashed var(--border-color);
         }
 
+        .empty-state .icon {
+            width: 4rem;
+            height: 4rem;
+            stroke-width: 1.5;
+            color: var(--primary-color);
+            opacity: 0.6;
+            margin-bottom: 1rem;
+        }
+
         .empty-state h2 {
             margin-bottom: .5rem;
             font-weight: 700;
+            font-size: 1.5rem;
         }
 
         .empty-state p {
@@ -359,7 +381,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             color: var(--secondary-text);
         }
 
-        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -413,15 +434,26 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             display: block;
             margin-bottom: .5rem;
             font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
+            font-size: 1rem;
             padding: .8em 1.2em;
             border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .form-group input:focus-visible,
+        .form-group textarea:focus-visible {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
         }
 
         #questions-container {
@@ -469,10 +501,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
         .searchable-list-controls input[type="text"] {
             flex-grow: 1;
-            padding: .5em .8em;
-            border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            font-size: .9rem;
         }
 
         .select-all-label {
@@ -485,7 +513,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             color: var(--secondary-text);
         }
 
-        /* Modern Selection Styles for Modal */
         .modern-selection-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -540,7 +567,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 600;
         }
 
-        /* Multi-step Form Styles */
         .form-step {
             display: none;
             animation: fadeIn 0.5s;
@@ -568,46 +594,67 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 500;
         }
 
-        /* Toast Notification Styles */
         #toast-container {
             position: fixed;
-            bottom: 20px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 200;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
         }
 
         .toast {
             padding: 12px 20px;
-            background-color: var(--primary-dark);
+            border-radius: var(--radius);
             color: white;
-            border-radius: 8px;
+            font-weight: 500;
             box-shadow: var(--shadow-md);
-            margin-bottom: 10px;
             opacity: 0;
-            transform: translateY(20px);
-            animation: fade-in-out 4s forwards;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            min-width: 280px;
+            text-align: center;
         }
 
-        .toast.error {
-            background-color: #c82333;
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        @keyframes fade-in-out {
-            5% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .toast-success {
+            background-color: var(--success-color);
+        }
 
-            90% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .toast-error {
+            background-color: var(--danger-color);
+        }
 
-            100% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+        .toast-info {
+            background-color: var(--info-color);
+        }
+
+        .toast-confirm {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .toast-confirm .toast-message {
+            margin-bottom: 1rem;
+        }
+
+        .toast-confirm .toast-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .toast-confirm .btn {
+            font-size: 0.85rem;
+            padding: 0.5em 1em;
         }
     </style>
 </head>
@@ -617,22 +664,31 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
     <main>
         <div class="page-toolbar">
             <div>
-                <h2 class="page-title" style="margin: 0;">لیست آزمون‌ها</h2>
+                <h1 class="page-title">لیست آزمون‌ها</h1>
                 <p class="page-subtitle">آزمون‌های خود را مدیریت، ویرایش یا حذف کنید.</p>
             </div>
-            <div style="display: flex; gap: 1rem; align-items:center;">
+            <div style="display: flex; gap: 1rem; align-items:center; flex-wrap: wrap;">
                 <div class="search-box">
                     <input type="text" id="quiz-search-input" placeholder="جستجوی آزمون...">
                 </div>
                 <button id="add-new-quiz-btn" class="btn btn-primary">
-                    ➕ <span>آزمون جدید</span>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                    <span>آزمون جدید</span>
                 </button>
             </div>
         </div>
 
         <?php if (empty($quizzes)): ?>
             <div class="empty-state">
-                <h2>هنوز هیچ آزمونی نساخته‌اید! 🙁</h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" x2="12" y1="9" y2="13" />
+                    <line x1="12" x2="12.01" y1="17" y2="17" />
+                </svg>
+                <h2>هنوز هیچ آزمونی نساخته‌اید!</h2>
                 <p>برای شروع، اولین آزمون خود را ایجاد کرده و به کاربران خود تخصیص دهید.</p>
                 <button id="add-new-quiz-btn-empty" class="btn btn-primary">ایجاد اولین آزمون</button>
             </div>
@@ -643,19 +699,49 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                         <div class="quiz-card-header">
                             <h3><?= htmlspecialchars($quiz['title']) ?></h3>
                             <div class="actions-menu">
-                                <button class="actions-menu-btn">...</button>
+                                <button class="actions-menu-btn">
+                                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="1" />
+                                        <circle cx="12" cy="5" r="1" />
+                                        <circle cx="12" cy="19" r="1" />
+                                    </svg>
+                                </button>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#" onclick="editQuiz(<?= $quiz['id'] ?>)">ویرایش</a></li>
-                                    <li><a href="#" onclick="deleteQuiz(<?= $quiz['id'] ?>)" class="delete-action">حذف</a></li>
+                                    <li><a href="#" onclick="editQuiz(event, <?= $quiz['id'] ?>)">
+                                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                            </svg>
+                                            <span>ویرایش</span></a>
+                                    </li>
+                                    <li><a href="#" onclick="deleteQuiz(event, <?= $quiz['id'] ?>)" class="delete-action">
+                                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M3 6h18" />
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                            </svg>
+                                            <span>حذف</span></a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                         <div class="quiz-card-meta">
                             <span class="meta-item">
-                                📝 <span><?= $quiz['question_count'] ?> سوال</span>
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <line x1="10" y1="9" x2="8" y2="9" />
+                                </svg>
+                                <span><?= $quiz['question_count'] ?> سوال</span>
                             </span>
                             <span class="meta-item">
-                                👥
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
                                 <?php if ($quiz['assignment_count'] > 0): ?>
                                     <span>تخصیص به <?= $quiz['assignment_count'] ?> گروه/فرد</span>
                                 <?php else: ?>
@@ -675,7 +761,7 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
     <div id="modal-overlay" class="modal-overlay">
         <div id="modal-form" class="modal-form">
             <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
-                <h2 id="form-title" class="page-title">افزودن آزمون جدید</h2>
+                <h2 id="form-title" class="page-title" style="font-size: 1.5rem;">افزودن آزمون جدید</h2>
                 <span id="step-indicator">مرحله ۱ از ۴</span>
             </div>
             <form id="quiz-form">
@@ -747,12 +833,11 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                 </div>
-
                 <input type="hidden" id="quiz-id">
                 <input type="hidden" id="action">
             </form>
             <div class="form-actions">
-                <button type="button" id="cancel-btn" class="btn">انصراف</button>
+                <button type="button" id="cancel-btn" class="btn btn-secondary">انصراف</button>
                 <div class="navigation-buttons">
                     <button type="button" id="prev-btn" class="btn btn-secondary">قبلی</button>
                     <button type="button" id="next-btn" class="btn btn-primary">بعدی</button>
@@ -765,83 +850,105 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script>
-        // Global functions for card buttons
-        function editQuiz(id) {
-            const modalOverlay = document.getElementById('modal-overlay');
-            const form = document.getElementById('quiz-form');
-            const formTitle = document.getElementById('form-title');
-
-            fetch(`quizzes_api.php?action=get_quiz&id=${id}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        form.reset();
-                        // Reset search lists and other UI elements if necessary
-
-                        const quiz = data.quiz;
-                        formTitle.textContent = 'ویرایش آزمون';
-                        document.getElementById('quiz-id').value = quiz.id;
-                        document.getElementById('action').value = 'update_quiz';
-                        document.getElementById('quiz-title').value = quiz.title;
-                        document.getElementById('quiz-description').value = quiz.description;
-
-                        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-                        quiz.questions.forEach(qId => {
-                            const cb = document.querySelector(`input[name="questions"][value="${qId}"]`);
-                            if (cb) cb.checked = true;
-                        });
-                        quiz.assigned_teams.forEach(tId => {
-                            const cb = document.querySelector(`input[name="teams"][value="${tId}"]`);
-                            if (cb) cb.checked = true;
-                        });
-                        quiz.assigned_users.forEach(uId => {
-                            const cb = document.querySelector(`input[name="users"][value="${uId}"]`);
-                            if (cb) cb.checked = true;
-                        });
-
-                        document.dispatchEvent(new CustomEvent('openModal', {
-                            detail: {
-                                startStep: 1
-                            }
-                        }));
-                    } else {
-                        // showToast function should be available
-                        alert(data.message);
-                    }
-                });
+        function showToast(message, type = 'success', duration = 4000) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, duration);
         }
 
-        function deleteQuiz(id) {
-            if (confirm(`آیا از حذف این آزمون مطمئن هستید؟`)) {
-                const formData = new FormData();
-                formData.append('action', 'delete_quiz');
-                formData.append('id', id);
+        function showConfirmation(message, onConfirm) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-confirm';
+            toast.innerHTML = `
+                <div class="toast-message">${message}</div>
+                <div class="toast-buttons">
+                    <button class="btn btn-danger" id="confirmAction">بله، حذف کن</button>
+                    <button class="btn btn-secondary" id="cancelAction">لغو</button>
+                </div>`;
+            const removeToast = () => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            };
+            toast.querySelector('#confirmAction').onclick = () => {
+                onConfirm();
+                removeToast();
+            };
+            toast.querySelector('#cancelAction').onclick = removeToast;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+        }
 
-                fetch('quizzes_api.php', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(res => res.json())
-                    .then(result => {
-                        if (result.success) {
-                            const itemToRemove = document.querySelector(`.quiz-card a[onclick*="deleteQuiz(${id})"]`).closest('.quiz-card');
-                            if (itemToRemove) {
-                                itemToRemove.style.transition = 'opacity 0.3s, transform 0.3s';
-                                itemToRemove.style.opacity = '0';
-                                itemToRemove.style.transform = 'scale(0.9)';
-                                setTimeout(() => itemToRemove.remove(), 300);
-                            }
-                            // showToast('آزمون با موفقیت حذف شد.');
-                        } else {
-                            // showToast(result.message, 'error');
-                            alert(result.message);
-                        }
+        async function editQuiz(event, id) {
+            event.preventDefault();
+            try {
+                const response = await fetch(`quizzes_api.php?action=get_quiz&id=${id}`);
+                const data = await response.json();
+                if (data.success) {
+                    const quiz = data.quiz;
+                    document.getElementById('form-title').textContent = 'ویرایش آزمون';
+                    document.getElementById('quiz-id').value = quiz.id;
+                    document.getElementById('action').value = 'update_quiz';
+                    document.getElementById('quiz-title').value = quiz.title;
+                    document.getElementById('quiz-description').value = quiz.description;
+
+                    document.querySelectorAll('#quiz-form input[type="checkbox"]').forEach(cb => cb.checked = false);
+                    quiz.questions.forEach(qId => {
+                        const cb = document.querySelector(`input[name="questions"][value="${qId}"]`);
+                        if (cb) cb.checked = true;
                     });
+                    quiz.assigned_teams.forEach(tId => {
+                        const cb = document.querySelector(`input[name="teams"][value="${tId}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                    quiz.assigned_users.forEach(uId => {
+                        const cb = document.querySelector(`input[name="users"][value="${uId}"]`);
+                        if (cb) cb.checked = true;
+                    });
+
+                    document.dispatchEvent(new CustomEvent('openModal', {
+                        detail: {
+                            startStep: 1
+                        }
+                    }));
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch (error) {
+                showToast('خطا در ارتباط با سرور.', 'error');
             }
         }
 
+        function deleteQuiz(event, id) {
+            event.preventDefault();
+            showConfirmation('آیا از حذف این آزمون مطمئن هستید؟', async () => {
+                const formData = new FormData();
+                formData.append('action', 'delete_quiz');
+                formData.append('id', id);
+                try {
+                    const response = await fetch('quizzes_api.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    showToast(result.message, result.success ? 'success' : 'error');
+                    if (result.success) {
+                        setTimeout(() => window.location.reload(), 1200);
+                    }
+                } catch (error) {
+                    showToast('خطا در ارتباط با سرور.', 'error');
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Elements ---
             const modalOverlay = document.getElementById('modal-overlay');
             const form = document.getElementById('quiz-form');
             const formTitle = document.getElementById('form-title');
@@ -851,47 +958,28 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             const cancelBtn = document.getElementById('cancel-btn');
             const stepIndicator = document.getElementById('step-indicator');
             const steps = document.querySelectorAll('.form-step');
-
-            // --- State ---
             let currentStep = 1;
             const totalSteps = steps.length;
 
-            // --- Helper Functions ---
             const showModal = () => modalOverlay.classList.add('visible');
             const hideModal = () => modalOverlay.classList.remove('visible');
-
-            const showToast = (message, type = 'success') => {
-                const toastContainer = document.getElementById('toast-container');
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                toast.textContent = message;
-                toastContainer.appendChild(toast);
-                setTimeout(() => toast.remove(), 4000);
-            };
-
             const toggleLoading = (button, isLoading) => {
                 button.disabled = isLoading;
                 button.classList.toggle('loading', isLoading);
             };
 
-            // --- Dashboard Search ---
             const searchInput = document.getElementById('quiz-search-input');
             const quizzesGrid = document.getElementById('quizzes-grid');
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
+                    const searchTerm = e.target.value.toLowerCase().trim();
                     const cards = quizzesGrid.querySelectorAll('.quiz-card');
                     cards.forEach(card => {
-                        if (card.dataset.title.includes(searchTerm)) {
-                            card.style.display = 'flex';
-                        } else {
-                            card.style.display = 'none';
-                        }
+                        card.style.display = card.dataset.title.includes(searchTerm) ? 'flex' : 'none';
                     });
                 });
             }
 
-            // --- Dashboard Kebab Menu ---
             document.querySelectorAll('.actions-menu-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -903,13 +991,12 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             });
             document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show')));
 
-            // --- Multi-step Modal Logic ---
             const updateFormSteps = () => {
                 steps.forEach(step => step.classList.toggle('active-step', parseInt(step.dataset.step) === currentStep));
                 stepIndicator.textContent = `مرحله ${currentStep} از ${totalSteps}`;
-                prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
-                nextBtn.style.display = currentStep < totalSteps ? 'inline-block' : 'none';
-                saveBtn.style.display = currentStep === totalSteps ? 'inline-block' : 'none';
+                prevBtn.style.display = currentStep > 1 ? 'inline-flex' : 'none';
+                nextBtn.style.display = currentStep < totalSteps ? 'inline-flex' : 'none';
+                saveBtn.style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
             };
 
             const validateStep = (stepNumber) => {
@@ -942,14 +1029,13 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 }
             });
 
-            // --- Modal Search & Select All Logic ---
             const setupSearchableList = (searchInputId, selectAllCheckboxId, containerId) => {
                 const searchInput = document.getElementById(searchInputId);
                 const selectAllCheckbox = document.getElementById(selectAllCheckboxId);
                 const container = document.getElementById(containerId);
                 const items = container.querySelectorAll('.filterable-item');
                 searchInput.addEventListener('input', () => {
-                    const searchTerm = searchInput.value.toLowerCase();
+                    const searchTerm = searchInput.value.toLowerCase().trim();
                     items.forEach(item => item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none');
                     selectAllCheckbox.checked = false;
                 });
@@ -962,7 +1048,6 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             setupSearchableList('team-search', 'select-all-teams', 'teams-container');
             setupSearchableList('user-search', 'select-all-users', 'users-container');
 
-            // --- Modal Opening / Submission ---
             const openAddModal = () => {
                 form.reset();
                 formTitle.textContent = 'افزودن آزمون جدید';
@@ -998,22 +1083,27 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                     assigned_users: Array.from(form.querySelectorAll('input[name="users"]:checked')).map(cb => parseInt(cb.value))
                 };
                 const action = document.getElementById('action').value;
-                const response = await fetch(`quizzes_api.php?action=${action}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                if (result.success) {
-                    hideModal();
-                    showToast('عملیات با موفقیت انجام شد.');
-                    setTimeout(() => window.location.reload(), 1000); // Reload to show new/updated card
-                } else {
-                    showToast(result.message, 'error');
+                try {
+                    const response = await fetch(`quizzes_api.php?action=${action}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        hideModal();
+                        showToast('عملیات با موفقیت انجام شد.');
+                        setTimeout(() => window.location.reload(), 1200);
+                    } else {
+                        showToast(result.message, 'error');
+                    }
+                } catch (error) {
+                    showToast('خطا در ارتباط با سرور.', 'error');
+                } finally {
+                    toggleLoading(saveBtn, false);
                 }
-                toggleLoading(saveBtn, false);
             });
         });
     </script>

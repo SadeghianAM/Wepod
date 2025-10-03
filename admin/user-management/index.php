@@ -10,21 +10,25 @@ $claims = requireAuth('admin', '/auth/login.html');
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>مدیریت کاربران</title>
     <style>
-        /* === متغیرهای اصلی طراحی === */
         :root {
             --primary-color: #00ae70;
             --primary-dark: #089863;
-            --primary-light: #e6f2ff;
-            --bg-color: #f4f7f9;
-            --text-color: #212529;
-            --secondary-text-color: #6c757d;
-            --header-text: #ffffff;
-            --card-bg: #ffffff;
-            --border-color: #dee2e6;
-            --danger-color: #dc3545;
+            --primary-light: #e6f7f2;
+            --bg-color: #f7f9fa;
+            --card-bg: #fff;
+            --text-color: #1a1a1a;
+            --secondary-text: #555;
+            --header-text: #fff;
+            --border-color: #e9e9e9;
+            --radius: 12px;
+            --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
+            --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
             --success-color: #28a745;
-            --border-radius: 8px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --success-light: #e9f7eb;
+            --danger-light: #fbebec;
         }
 
         @font-face {
@@ -34,7 +38,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             font-display: swap;
         }
 
-        /* === استایل‌های پایه === */
         *,
         *::before,
         *::after {
@@ -52,7 +55,6 @@ $claims = requireAuth('admin', '/auth/login.html');
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            direction: rtl;
             font-size: 16px;
             line-height: 1.6;
             display: flex;
@@ -60,42 +62,29 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
 
         main {
-            padding: 2rem 1.5rem;
-            max-width: 1600px;
+            padding: 2.5rem 2rem;
+            max-width: 1500px;
             width: 100%;
             margin: 0 auto;
             flex-grow: 1;
-            /* ✨ تغییر: این باعث می‌شود main تمام فضای خالی را پر کند و فوتر را به پایین هل دهد */
         }
 
-        header,
         footer {
             background: var(--primary-color);
             color: var(--header-text);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px rgba(0, 174, 112, 0.07);
-            position: relative;
-            z-index: 10;
             flex-shrink: 0;
-        }
-
-        header {
-            height: 70px;
-        }
-
-        footer {
             height: 60px;
             font-size: 0.85rem;
         }
 
-        /* === هدر و دکمه‌ها === */
         .content-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2.5rem;
             flex-wrap: wrap;
             gap: 1rem;
         }
@@ -103,21 +92,36 @@ $claims = requireAuth('admin', '/auth/login.html');
         .page-title {
             color: var(--primary-dark);
             font-weight: 800;
-            font-size: 1.8rem;
-            margin-bottom: .5rem;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .icon {
+            width: 1.1em;
+            height: 1.1em;
+            stroke-width: 2.2;
+            vertical-align: -0.15em;
         }
 
         .btn {
-            padding: 0.6rem 1.2rem;
-            border: 1px solid transparent;
-            border-radius: var(--border-radius);
+            position: relative;
+            padding: .8em 1.5em;
+            font-size: .95rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            border-radius: var(--radius);
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s ease;
+            gap: 0.6em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.92);
         }
 
         .btn-primary {
@@ -125,48 +129,63 @@ $claims = requireAuth('admin', '/auth/login.html');
             color: white;
         }
 
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        .btn-secondary {
+            background-color: var(--secondary-text);
+            color: white;
         }
 
-        .icon-btn {
+        .btn-icon {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1.25rem;
-            color: var(--secondary-text-color);
-            padding: 0.25rem;
-            transition: color 0.2s;
+            color: var(--secondary-text);
+            padding: .5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, color 0.2s;
         }
 
-        .icon-btn:hover {
-            color: var(--primary-dark);
+        .btn-icon:hover {
+            background-color: var(--border-color);
+            color: var(--text-color);
         }
 
-        /* === کانتینر اصلی و جستجو === */
+        .btn-icon .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
         .content-body {
             background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-color);
         }
 
         .toolbar {
-            padding: 1.5rem;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
         }
 
         #searchInput {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
+            padding: 0.8em 1.2em;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius);
             font-size: 1rem;
+            transition: all .2s ease;
         }
 
-        /* === جدول کاربران === */
+        #searchInput:focus-visible {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
+        }
+
         .table-container {
             overflow-x: auto;
         }
@@ -178,20 +197,19 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         .users-table th,
         .users-table td {
-            padding: 1rem 1.5rem;
+            padding: 1.25rem 1.5rem;
             text-align: right;
             white-space: nowrap;
         }
 
         .users-table thead {
-            background-color: #f8f9fa;
+            background-color: var(--bg-color);
         }
 
         .users-table th {
             font-weight: 600;
-            color: var(--secondary-text-color);
-            font-size: 0.85rem;
-            text-transform: uppercase;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
         }
 
         .users-table tbody tr {
@@ -204,32 +222,34 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
 
         .users-table tbody tr:hover {
-            background-color: #f1f3f5;
+            background-color: var(--primary-light);
         }
 
         .user-name {
-            font-weight: 500;
-        }
-
-        /* === نشان (Badge) === */
-        .badge {
-            padding: 0.25em 0.6em;
-            font-size: 0.75rem;
             font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .status {
+            padding: 6px 14px;
             border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: .5em;
         }
 
-        .badge-success {
-            background-color: var(--success-color);
-            color: white;
+        .status-success {
+            background-color: var(--success-light);
+            color: var(--success-color);
         }
 
-        .badge-secondary {
-            background-color: #e9ecef;
-            color: var(--secondary-text-color);
+        .status-secondary {
+            background-color: var(--border-color);
+            color: var(--secondary-text);
         }
 
-        /* === انیمیشن اسکلتی (Skeleton Loader) === */
         .skeleton-loader td .skeleton-item {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
@@ -248,9 +268,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             }
         }
 
-        /* === حالت خالی (Empty State) === */
         .empty-state td {
-            /* ✨ تغییر: استایل به td منتقل شد تا داخل جدول اعمال شود */
             text-align: center;
             padding: 4rem 2rem;
         }
@@ -263,10 +281,9 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         .empty-state p {
             font-size: 1.1rem;
-            color: var(--secondary-text-color);
+            color: var(--secondary-text);
         }
 
-        /* === پنل کشویی (Drawer) === */
         .drawer {
             position: fixed;
             top: 0;
@@ -313,7 +330,11 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         .drawer-title {
             font-size: 1.25rem;
-            font-weight: 600;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: .6rem;
         }
 
         .drawer-body {
@@ -327,7 +348,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             border-top: 1px solid var(--border-color);
         }
 
-        /* === فرم در پنل کشویی === */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -335,18 +355,26 @@ $claims = requireAuth('admin', '/auth/login.html');
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--secondary-text);
+            font-size: .9rem;
         }
 
         .form-group input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
+            padding: 0.8em 1.2em;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius);
             font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        /* کلید تاگل (Toggle Switch) */
+        .form-group input:focus-visible {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
+        }
+
         .toggle-switch {
             display: flex;
             align-items: center;
@@ -364,7 +392,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             cursor: pointer;
             width: 50px;
             height: 26px;
-            background: #ccc;
+            background: var(--border-color);
             border-radius: 34px;
             transition: background-color 0.2s;
         }
@@ -389,7 +417,65 @@ $claims = requireAuth('admin', '/auth/login.html');
             transform: translateX(24px);
         }
 
-        /* === واکنش‌گرایی (Responsiveness) === */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            color: white;
+            font-weight: 500;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            min-width: 280px;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-success {
+            background-color: var(--success-color);
+        }
+
+        .toast-error {
+            background-color: var(--danger-color);
+        }
+
+        .toast-confirm {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .toast-confirm .toast-message {
+            margin-bottom: 1rem;
+        }
+
+        .toast-confirm .toast-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .toast-confirm .btn {
+            font-size: 0.85rem;
+            padding: 0.5em 1em;
+        }
+
         @media (max-width: 768px) {
             .users-table thead {
                 display: none;
@@ -398,7 +484,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             .users-table tr {
                 display: block;
                 border: 1px solid var(--border-color);
-                border-radius: var(--border-radius);
+                border-radius: var(--radius);
                 margin-bottom: 1rem;
                 padding: 1rem;
             }
@@ -420,11 +506,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 font-weight: 600;
                 margin-left: 1rem;
             }
-
-            .actions-cell {
-                grid-area: actions;
-                justify-content: flex-end;
-            }
         }
     </style>
 </head>
@@ -433,8 +514,22 @@ $claims = requireAuth('admin', '/auth/login.html');
     <div id="header-placeholder"></div>
     <main>
         <div class="content-header">
-            <h1 class="page-title">مدیریت کاربران</h1>
-            <button id="add-new-user-btn" class="btn btn-primary"><span>➕</span> افزودن کاربر جدید</button>
+            <h1 class="page-title">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <span>مدیریت کاربران</span>
+            </h1>
+            <button id="add-new-user-btn" class="btn btn-primary">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                </svg>
+                <span>افزودن کاربر جدید</span>
+            </button>
         </div>
         <div class="content-body">
             <div class="toolbar">
@@ -448,15 +543,14 @@ $claims = requireAuth('admin', '/auth/login.html');
                             <th>نام کاربری</th>
                             <th>شناسه</th>
                             <th>تاریخ شروع</th>
-                            <th>وضعیت</th>
-                            <th>امتیاز</th>
                             <th>نقش</th>
+                            <th>امتیاز</th>
+                            <th>ادمین</th>
                             <th>تعداد شانس</th>
                             <th>عملیات</th>
                         </tr>
                     </thead>
-                    <tbody id="user-list">
-                    </tbody>
+                    <tbody id="user-list"></tbody>
                 </table>
             </div>
         </div>
@@ -465,8 +559,13 @@ $claims = requireAuth('admin', '/auth/login.html');
     <div id="user-drawer" class="drawer">
         <div class="drawer-content">
             <div class="drawer-header">
-                <h2 id="drawer-title" class="drawer-title">افزودن کاربر جدید</h2>
-                <button id="close-drawer-btn" class="icon-btn">&times;</button>
+                <h2 id="drawer-title" class="drawer-title"></h2>
+                <button id="close-drawer-btn" class="btn-icon">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
             </div>
             <form id="user-form" class="drawer-body" autocomplete="off">
                 <div class="form-group">
@@ -487,7 +586,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 </div>
                 <div class="form-group">
                     <label for="password">رمز عبور:</label>
-                    <input type="password" id="password" placeholder="(برای کاربر جدید یا تغییر رمز)" />
+                    <input type="password" id="password" placeholder="(برای کاربر جدید یا تغییر رمز)" autocomplete="new-password" />
                 </div>
                 <div class="form-group">
                     <label for="start_work">تاریخ شروع به کار:</label>
@@ -516,6 +615,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         </div>
     </div>
 
+    <div id="toast-container"></div>
     <div id="footer-placeholder"></div>
 
     <script>
@@ -525,18 +625,56 @@ $claims = requireAuth('admin', '/auth/login.html');
             const searchInput = document.getElementById("searchInput");
             const drawer = document.getElementById("user-drawer");
             const form = document.getElementById('user-form');
+            const drawerTitle = document.getElementById('drawer-title');
             const apiEndpoint = '/admin/user-management/user-api.php';
 
-            // === توابع مدیریت پنل کشویی (Drawer) ===
-            const openDrawer = (title) => {
-                document.getElementById('drawer-title').textContent = title;
-                drawer.classList.add('open');
-            };
-            const closeDrawer = () => {
-                drawer.classList.remove('open');
+            const ICONS = {
+                add: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`,
+                edit: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>`,
+                delete: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`
             };
 
-            // === توابع API و رندر کردن ===
+            const openDrawer = (title) => {
+                drawerTitle.innerHTML = title;
+                drawer.classList.add('open');
+            };
+            const closeDrawer = () => drawer.classList.remove('open');
+
+            function showToast(message, type = 'success', duration = 4000) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.textContent = message;
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, duration);
+            }
+
+            function showConfirmation(message, onConfirm) {
+                const toastContainer = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast toast-confirm';
+                toast.innerHTML = `<div class="toast-message">${message}</div>
+                    <div class="toast-buttons">
+                        <button class="btn btn-danger" id="confirmAction">بله، حذف کن</button>
+                        <button class="btn btn-secondary" id="cancelAction">لغو</button>
+                    </div>`;
+                const removeToast = () => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                };
+                toast.querySelector('#confirmAction').onclick = () => {
+                    onConfirm();
+                    removeToast();
+                };
+                toast.querySelector('#cancelAction').onclick = removeToast;
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+            }
+
             async function apiCall(method, body) {
                 try {
                     const options = {
@@ -547,13 +685,13 @@ $claims = requireAuth('admin', '/auth/login.html');
                     };
                     if (body) options.body = JSON.stringify(body);
                     const response = await fetch(apiEndpoint, options);
+                    const data = await response.json();
                     if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                        throw new Error(data.message || `HTTP error! status: ${response.status}`);
                     }
-                    return await response.json();
+                    return data;
                 } catch (error) {
-                    alert('خطا: ' + error.message);
+                    showToast('خطا: ' + error.message, 'error');
                     return null;
                 }
             }
@@ -561,19 +699,18 @@ $claims = requireAuth('admin', '/auth/login.html');
             const showSkeletonLoader = () => {
                 let skeletonHTML = '';
                 for (let i = 0; i < 5; i++) {
-                    // ✨ تغییر: یک ستون به لودر اسکلتی اضافه شد
                     skeletonHTML += `
-                <tr class="skeleton-loader">
-                    <td><div class="skeleton-item" style="width: 120px;"></div></td>
-                    <td><div class="skeleton-item" style="width: 100px;"></div></td>
-                    <td><div class="skeleton-item" style="width: 50px;"></div></td>
-                    <td><div class="skeleton-item" style="width: 90px;"></div></td>
-                    <td><div class="skeleton-item" style="width: 60px;"></div></td>
-                    <td><div class="skeleton-item" style="width: 50px;"></div></td>
-                    <td><div class="skeleton-item" style="width: 80px;"></div></td>
-                    <td><div class="skeleton-item" style="width: 70px;"></div></td>
-                    <td><div class="skeleton-item" style="width: 70px;"></div></td>
-                </tr>`;
+                        <tr class="skeleton-loader">
+                            <td><div class="skeleton-item" style="width: 120px;"></div></td>
+                            <td><div class="skeleton-item" style="width: 100px;"></div></td>
+                            <td><div class="skeleton-item" style="width: 50px;"></div></td>
+                            <td><div class="skeleton-item" style="width: 90px;"></div></td>
+                            <td><div class="skeleton-item" style="width: 80px;"></div></td>
+                            <td><div class="skeleton-item" style="width: 50px;"></div></td>
+                            <td><div class="skeleton-item" style="width: 60px;"></div></td>
+                            <td><div class="skeleton-item" style="width: 70px;"></div></td>
+                            <td><div class="skeleton-item" style="width: 70px;"></div></td>
+                        </tr>`;
                 }
                 userListBody.innerHTML = skeletonHTML;
             };
@@ -584,8 +721,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 if (users) {
                     renderUsers(users);
                 } else {
-                    // ✨ تغییر: colspan از 8 به 9 تغییر کرد
-                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="9"><div class="empty-state-icon">📂</div><p>خطا در بارگذاری اطلاعات.</p></td></tr>`;
+                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="9">خطا در بارگذاری اطلاعات.</td></tr>`;
                 }
             }
 
@@ -599,46 +735,44 @@ $claims = requireAuth('admin', '/auth/login.html');
 
                 userListBody.innerHTML = "";
                 if (filteredUsers.length === 0) {
-                    // ✨ تغییر: colspan از 8 به 9 تغییر کرد
-                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="9"><div class="empty-state-icon">🤷</div><p>${searchTerm ? 'کاربری با این مشخصات یافت نشد.' : 'هنوز کاربری اضافه نشده است.'}</p></td></tr>`;
+                    userListBody.innerHTML = `<tr class="empty-state"><td colspan="9"><p>${searchTerm ? 'کاربری با این مشخصات یافت نشد.' : 'هنوز کاربری اضافه نشده است.'}</p></td></tr>`;
                     return;
                 }
                 filteredUsers.forEach(user => {
                     const row = document.createElement("tr");
                     row.dataset.user = JSON.stringify(user);
                     const isAdminBadge = user.is_admin ?
-                        '<span class="badge badge-success">ادمین</span>' :
-                        '<span class="badge badge-secondary">کاربر</span>';
+                        '<span class="status status-success">ادمین</span>' :
+                        '<span class="status status-secondary">کاربر</span>';
 
-                    // ✨ تغییر: اضافه کردن ستون (td) برای نمایش تعداد شانس
                     row.innerHTML = `
-                <td data-label="نام کامل" class="user-name">${user.name}</td>
-                <td data-label="نام کاربری">${user.username}</td>
-                <td data-label="شناسه">${user.id}</td>
-                <td data-label="تاریخ شروع">${user.start_work || '-'}</td>
-                <td data-label="وضعیت">${isAdminBadge}</td>
-                <td data-label="امتیاز">${user.score ?? 0}</td>
-                <td data-label="نقش">${user.role || '-'}</td>
-                <td data-label="تعداد شانس">${user.spin_chances ?? 0}</td>
-                <td data-label="عملیات" class="actions-cell">
-                    <button class="icon-btn edit-btn">✏️</button>
-                    <button class="icon-btn delete-btn">🗑️</button>
-                </td>`;
+                        <td data-label="نام کامل" class="user-name">${user.name}</td>
+                        <td data-label="نام کاربری">${user.username}</td>
+                        <td data-label="شناسه">${user.id}</td>
+                        <td data-label="تاریخ شروع">${user.start_work || '-'}</td>
+                        <td data-label="نقش">${user.role || '-'}</td>
+                        <td data-label="امتیاز">${user.score ?? 0}</td>
+                        <td data-label="ادمین">${isAdminBadge}</td>
+                        <td data-label="تعداد شانس">${user.spin_chances ?? 0}</td>
+                        <td data-label="عملیات">
+                            <div class="actions-cell">
+                                <button class="btn-icon edit-btn" title="ویرایش">${ICONS.edit}</button>
+                                <button class="btn-icon delete-btn" title="حذف">${ICONS.delete}</button>
+                            </div>
+                        </td>`;
                     row.querySelector('.edit-btn').addEventListener('click', handleEdit);
                     row.querySelector('.delete-btn').addEventListener('click', handleDelete);
                     userListBody.appendChild(row);
                 });
             }
 
-            // === مدیریت رویدادها ===
             document.getElementById("add-new-user-btn").addEventListener("click", () => {
                 currentUserId = null;
                 form.reset();
                 form.elements['score'].value = 0;
-                // ✨ تغییر: مقدار پیش‌فرض شانس برای کاربر جدید
                 form.elements['spin_chances'].value = 1;
                 document.getElementById("password").required = true;
-                openDrawer("افزودن کاربر جدید");
+                openDrawer(`${ICONS.add} <span>افزودن کاربر جدید</span>`);
             });
 
             function handleEdit(e) {
@@ -652,26 +786,24 @@ $claims = requireAuth('admin', '/auth/login.html');
                 form.elements['start_work'].value = user.start_work || "";
                 form.elements['score'].value = user.score ?? 0;
                 form.elements['role'].value = user.role || "";
-                // ✨ تغییر: پر کردن فیلد شانس با مقدار کاربر
                 form.elements['spin_chances'].value = user.spin_chances ?? 0;
                 form.elements['is_admin'].checked = user.is_admin == 1;
-                openDrawer("ویرایش کاربر");
+                openDrawer(`${ICONS.edit} <span>ویرایش کاربر</span>`);
             }
 
-            async function handleDelete(e) {
+            function handleDelete(e) {
                 const user = JSON.parse(e.target.closest('tr').dataset.user);
-                if (confirm(`آیا از حذف کاربر "${user.name}" مطمئن هستید؟`)) {
+                showConfirmation(`آیا از حذف کاربر "${user.name}" مطمئن هستید؟`, async () => {
                     const result = await apiCall('POST', {
                         action: 'delete',
                         id: user.id
                     });
                     if (result && result.success) loadUsersAndRender();
-                }
+                });
             }
 
             form.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                // ✨ تغییر: اضافه کردن فیلد spin_chances به اطلاعات ارسالی
                 const payload = {
                     action: currentUserId !== null ? 'update' : 'create',
                     id: currentUserId,
@@ -689,6 +821,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 if (result && result.success) {
                     closeDrawer();
                     loadUsersAndRender();
+                    showToast('عملیات با موفقیت انجام شد.', 'success');
                 }
             });
 
@@ -700,7 +833,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 if (e.target === drawer) closeDrawer();
             });
 
-            // بارگذاری اولیه
             loadUsersAndRender();
         });
     </script>

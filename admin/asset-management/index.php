@@ -84,8 +84,9 @@ $claims = requireAuth('admin', '/../auth/login.html');
 
         main {
             flex: 1 1 auto;
-            width: min(1600px, 100%);
-            padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem);
+            max-width: 1500px;
+            width: 100%;
+            padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem);
             margin-inline: auto;
         }
 
@@ -109,6 +110,12 @@ $claims = requireAuth('admin', '/../auth/login.html');
             color: var(--secondary-text);
             font-weight: 400;
             font-size: clamp(.95rem, 2.2vw, 1rem);
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .content-layout {
@@ -151,25 +158,53 @@ $claims = requireAuth('admin', '/../auth/login.html');
             box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
         }
 
+        .icon {
+            width: 1.1em;
+            height: 1.1em;
+            stroke-width: 2.2;
+            vertical-align: -0.15em;
+        }
+
         .btn {
             padding: .8em 1.5em;
             font-size: .95rem;
             font-weight: 600;
-            background-color: var(--primary-color);
             color: white;
             border: none;
             border-radius: var(--radius);
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
+            transition: background-color 0.2s, transform 0.2s, filter 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5em;
+            gap: 0.6em;
+            white-space: nowrap;
         }
 
         .btn:hover {
-            background-color: var(--primary-dark);
             transform: translateY(-2px);
+            filter: brightness(0.92);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-text);
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: var(--text-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
         }
 
         .btn.btn-full-width {
@@ -242,38 +277,27 @@ $claims = requireAuth('admin', '/../auth/login.html');
             font-size: .9rem;
             color: var(--secondary-text);
             background-color: var(--bg-color);
-            position: relative;
         }
 
         .data-table th.sortable {
             cursor: pointer;
             user-select: none;
-            padding-left: 24px;
+            position: relative;
         }
 
-        .data-table th.sortable::after {
-            content: '';
+        .data-table th.sortable .sort-icon {
             position: absolute;
             left: 8px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.9em;
+            width: 1em;
+            height: 1em;
             color: var(--secondary-text);
             opacity: 0.4;
         }
 
-        .data-table th.sortable:not(.sort-asc):not(.sort-desc)::after {
-            content: '↕';
-        }
-
-        .data-table th.sort-asc::after {
-            content: '▲';
-            opacity: 1;
-            color: var(--primary-dark);
-        }
-
-        .data-table th.sort-desc::after {
-            content: '▼';
+        .data-table th.sort-asc .sort-icon,
+        .data-table th.sort-desc .sort-icon {
             opacity: 1;
             color: var(--primary-dark);
         }
@@ -292,8 +316,15 @@ $claims = requireAuth('admin', '/../auth/login.html');
             font-size: 0.85rem;
             font-weight: 600;
             text-align: center;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
             white-space: nowrap;
+        }
+
+        .status .icon {
+            width: 1.2em;
+            height: 1.2em;
         }
 
         .status-in-stock {
@@ -317,39 +348,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             font-size: 0.85rem;
             font-weight: 500;
             border-radius: 8px;
-        }
-
-        .btn-assign {
-            background-color: #007bff;
-        }
-
-        .btn-assign:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-return {
-            background-color: var(--warning-color);
-            color: #333;
-        }
-
-        .btn-return:hover {
-            background-color: #e0a800;
-        }
-
-        .btn-delete {
-            background-color: var(--danger-color);
-        }
-
-        .btn-delete:hover {
-            background-color: #c82333;
-        }
-
-        .btn-edit {
-            background-color: var(--info-color);
-        }
-
-        .btn-edit:hover {
-            background-color: #117a8b;
         }
 
         .modal {
@@ -397,18 +395,37 @@ $claims = requireAuth('admin', '/../auth/login.html');
         .modal-header h3 {
             font-size: 1.3rem;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6em;
+            color: var(--primary-dark);
+        }
+
+        .modal-header .icon {
+            color: var(--primary-color);
         }
 
         .modal-close {
-            font-size: 2rem;
-            font-weight: bold;
+            background: none;
+            border: none;
             cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--secondary-text);
-            transition: color 0.2s;
+            transition: color 0.2s, background-color 0.2s;
+        }
+
+        .modal-close .icon {
+            width: 1.5rem;
+            height: 1.5rem;
         }
 
         .modal-close:hover {
             color: var(--text-color);
+            background-color: var(--bg-color);
         }
 
         #toast-container {
@@ -543,9 +560,22 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 <h1 class="page-title">سامانه مدیریت اموال</h1>
                 <p class="page-subtitle">اموال و تجهیزات مربوط به مرکز پشتیبانی را ثبت و مدیریت کنید.</p>
             </div>
-            <div style="display: flex; gap: 1rem;">
-                <button class="btn" id="printBtn" style="background-color: var(--secondary-text);">🖨️ چاپ لیست</button>
-                <button class="btn" id="openAddModalBtn">+ افزودن کالای جدید</button>
+            <div class="page-actions">
+                <button class="btn btn-secondary" id="printBtn">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 9V2h12v7" />
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                        <path d="M6 14h12v8H6z" />
+                    </svg>
+                    <span>چاپ لیست</span>
+                </button>
+                <button class="btn btn-primary" id="openAddModalBtn">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                    <span>افزودن کالای جدید</span>
+                </button>
             </div>
         </div>
         <div class="content-layout">
@@ -563,10 +593,34 @@ $claims = requireAuth('admin', '/../auth/login.html');
                             <tr>
                                 <th>کد</th>
                                 <th>نام کالا</th>
-                                <th class="sortable" data-sort-by="serial_number">شماره سریال</th>
+                                <th class="sortable" data-sort-by="serial_number">
+                                    شماره سریال
+                                    <svg class="icon sort-icon" id="sort-icon-serial_number" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m3 16 4 4 4-4" />
+                                        <path d="M7 20V4" />
+                                        <path d="m21 8-4-4-4 4" />
+                                        <path d="M17 4v16" />
+                                    </svg>
+                                </th>
                                 <th>وضعیت</th>
-                                <th class="sortable" data-sort-by="assigned_to_name">تحویل‌گیرنده</th>
-                                <th class="sortable" data-sort-by="assigned_at_formatted">تاریخ تحویل</th>
+                                <th class="sortable" data-sort-by="assigned_to_name">
+                                    تحویل‌گیرنده
+                                    <svg class="icon sort-icon" id="sort-icon-assigned_to_name" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m3 16 4 4 4-4" />
+                                        <path d="M7 20V4" />
+                                        <path d="m21 8-4-4-4 4" />
+                                        <path d="M17 4v16" />
+                                    </svg>
+                                </th>
+                                <th class="sortable" data-sort-by="assigned_at_formatted">
+                                    تاریخ تحویل
+                                    <svg class="icon sort-icon" id="sort-icon-assigned_at_formatted" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m3 16 4 4 4-4" />
+                                        <path d="M7 20V4" />
+                                        <path d="m21 8-4-4-4 4" />
+                                        <path d="M17 4v16" />
+                                    </svg>
+                                </th>
                                 <th>عملیات</th>
                             </tr>
                         </thead>
@@ -600,8 +654,19 @@ $claims = requireAuth('admin', '/../auth/login.html');
     <div id="addAssetModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>✨ افزودن اموال جدید</h3>
-                <span class="modal-close">&times;</span>
+                <h3>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                    <span>افزودن اموال جدید</span>
+                </h3>
+                <button class="modal-close">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                </button>
             </div>
             <form id="addAssetForm">
                 <div class="form-group">
@@ -612,15 +677,27 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     <label for="assetSerial">شماره سریال</label>
                     <input type="text" id="assetSerial" placeholder="شماره منحصر به فرد کالا" required>
                 </div>
-                <button type="submit" class="btn btn-full-width">افزودن کالا</button>
+                <button type="submit" class="btn btn-primary btn-full-width">افزودن کالا</button>
             </form>
         </div>
     </div>
     <div id="assignModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>تخصیص به کارشناس</h3>
-                <span class="modal-close">&times;</span>
+                <h3>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <polyline points="16 11 18 13 22 9" />
+                    </svg>
+                    <span>تخصیص به کارشناس</span>
+                </h3>
+                <button class="modal-close">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                </button>
             </div>
             <div class="form-group">
                 <label for="expertSelect">انتخاب کارشناس</label>
@@ -632,14 +709,25 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 <input type="text" id="assignDateDisplay" placeholder="تاریخ را انتخاب کنید..." readonly style="cursor: pointer; background-color: #fff;">
                 <input type="hidden" id="assignDate">
             </div>
-            <button id="confirmAssignBtn" class="btn btn-full-width">تایید تخصیص</button>
+            <button id="confirmAssignBtn" class="btn btn-primary btn-full-width">تایید تخصیص</button>
         </div>
     </div>
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>ویرایش اموال</h3>
-                <span class="modal-close">&times;</span>
+                <h3>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                        <path d="m15 5 4 4" />
+                    </svg>
+                    <span>ویرایش اموال</span>
+                </h3>
+                <button class="modal-close">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                </button>
             </div>
             <form id="editAssetForm">
                 <div class="form-group">
@@ -650,7 +738,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     <label for="editAssetSerial">شماره سریال</label>
                     <input type="text" id="editAssetSerial" required>
                 </div>
-                <button type="submit" class="btn btn-full-width">ذخیره تغییرات</button>
+                <button type="submit" class="btn btn-primary btn-full-width">ذخیره تغییرات</button>
             </form>
         </div>
     </div>
@@ -666,7 +754,6 @@ $claims = requireAuth('admin', '/../auth/login.html');
             const addAssetModal = document.getElementById('addAssetModal');
             const openAddModalBtn = document.getElementById('openAddModalBtn');
             const printBtn = document.getElementById('printBtn');
-            const closeAddModalBtn = addAssetModal.querySelector('.modal-close');
             const addAssetForm = document.getElementById('addAssetForm');
             const assignModal = document.getElementById('assignModal');
             const expertSelect = document.getElementById('expertSelect');
@@ -685,6 +772,18 @@ $claims = requireAuth('admin', '/../auth/login.html');
             let processedAssets = [];
             let currentSortBy = null;
             let currentSortDir = 'asc';
+
+            const ICONS = {
+                edit: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`,
+                delete: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+                assign: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>`,
+                return: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M21 12A9 9 0 0 0 6 5.3L3 8"/><path d="M21 22v-6h-6"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/></svg>`,
+                statusInStock: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>`,
+                statusAssigned: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>`,
+                sortAsc: `<svg class="icon sort-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>`,
+                sortDesc: `<svg class="icon sort-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
+                sortDefault: `<svg class="icon sort-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>`
+            };
 
             function generatePrintContent() {
                 const printTableBody = document.getElementById('printTableBody');
@@ -756,8 +855,8 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 toast.innerHTML = `
                     <div class="toast-message">${message}</div>
                     <div class="toast-buttons">
-                        <button class="btn btn-delete" id="confirmAction">بله، مطمئنم</button>
-                        <button class="btn" style="background-color: var(--secondary-text);" id="cancelAction">لغو</button>
+                        <button class="btn btn-danger" id="confirmAction">بله، مطمئنم</button>
+                        <button class="btn btn-secondary" id="cancelAction">لغو</button>
                     </div>
                 `;
                 toast.querySelector('#confirmAction').onclick = () => {
@@ -795,10 +894,10 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     statusBadge.className = 'status';
                     if (asset.status === 'In Stock') {
                         statusBadge.classList.add('status-in-stock');
-                        statusBadge.textContent = '📦 موجود در انبار';
+                        statusBadge.innerHTML = `${ICONS.statusInStock} <span>موجود در انبار</span>`;
                     } else {
                         statusBadge.classList.add('status-assigned');
-                        statusBadge.textContent = '🧑‍💼 تحویل داده شده';
+                        statusBadge.innerHTML = `${ICONS.statusAssigned} <span>تحویل داده شده</span>`;
                     }
                     statusCell.appendChild(statusBadge);
                     row.insertCell().textContent = asset.assigned_to_name || '---';
@@ -817,32 +916,32 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     const actionsCell = row.insertCell();
                     actionsCell.className = 'actions-cell';
                     const editButton = document.createElement('button');
-                    editButton.textContent = 'ویرایش';
-                    editButton.className = 'btn action-button btn-edit';
+                    editButton.innerHTML = `${ICONS.edit} <span>ویرایش</span>`;
+                    editButton.className = 'btn action-button btn-info';
                     editButton.dataset.id = asset.id;
                     editButton.dataset.name = asset.name;
                     editButton.dataset.serial = asset.serial_number;
                     actionsCell.appendChild(editButton);
                     if (asset.status === 'In Stock') {
                         const assignButton = document.createElement('button');
-                        assignButton.textContent = 'تخصیص';
-                        assignButton.className = 'btn action-button btn-assign';
+                        assignButton.innerHTML = `${ICONS.assign} <span>تخصیص</span>`;
+                        assignButton.className = 'btn action-button btn-primary';
                         assignButton.dataset.id = asset.id;
                         actionsCell.appendChild(assignButton);
                         const deleteButton = document.createElement('button');
-                        deleteButton.innerHTML = 'حذف 🗑️';
-                        deleteButton.className = 'btn action-button btn-delete';
+                        deleteButton.innerHTML = `${ICONS.delete} <span>حذف</span>`;
+                        deleteButton.className = 'btn action-button btn-danger';
                         deleteButton.dataset.id = asset.id;
                         actionsCell.appendChild(deleteButton);
                     } else {
                         const reassignButton = document.createElement('button');
-                        reassignButton.textContent = 'تغییر تخصیص';
-                        reassignButton.className = 'btn action-button btn-assign';
+                        reassignButton.innerHTML = `${ICONS.assign} <span>تغییر تخصیص</span>`;
+                        reassignButton.className = 'btn action-button btn-primary';
                         reassignButton.dataset.id = asset.id;
                         actionsCell.appendChild(reassignButton);
                         const returnButton = document.createElement('button');
-                        returnButton.textContent = 'بازگرداندن';
-                        returnButton.className = 'btn action-button btn-return';
+                        returnButton.innerHTML = `${ICONS.return} <span>بازگرداندن</span>`;
+                        returnButton.className = 'btn action-button btn-warning';
                         returnButton.dataset.id = asset.id;
                         actionsCell.appendChild(returnButton);
                     }
@@ -949,7 +1048,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 if (result) {
                     showToast('کالا با موفقیت افزوده شد.', 'success');
                     addAssetForm.reset();
-                    addAssetModal.classList.remove('show');
+                    closeModal(addAssetModal);
                     await fetchAssets();
                 }
             });
@@ -964,22 +1063,34 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     currentSortBy = sortBy;
                     currentSortDir = 'asc';
                 }
+
                 assetTable.querySelectorAll('th.sortable').forEach(th => {
                     th.classList.remove('sort-asc', 'sort-desc');
+                    const icon = th.querySelector('.sort-icon');
+                    if (icon) icon.innerHTML = ICONS.sortDefault.match(/<path.*\/?>/g).join('');
                 });
+
                 header.classList.add(`sort-${currentSortDir}`);
+                const icon = header.querySelector('.sort-icon');
+                if (icon) {
+                    const iconSVG = currentSortDir === 'asc' ? ICONS.sortAsc : ICONS.sortDesc;
+                    icon.innerHTML = iconSVG.match(/<path.*\/?>/g).join('');
+                }
+
                 updateDisplay();
             });
             assetTableBody.addEventListener('click', async (e) => {
                 const target = e.target.closest('.btn');
                 if (!target) return;
                 currentAssetId = target.dataset.id;
-                if (target.classList.contains('btn-assign')) {
+
+                const classList = target.classList;
+                if (classList.contains('btn-primary')) {
                     const assetToAssign = allAssets.find(a => a.id == currentAssetId);
                     await openAssignModal(assetToAssign);
-                } else if (target.classList.contains('btn-edit')) {
+                } else if (classList.contains('btn-info')) {
                     openEditModal(target.dataset.name, target.dataset.serial);
-                } else if (target.classList.contains('btn-return')) {
+                } else if (classList.contains('btn-warning')) {
                     showConfirmation('آیا از بازگرداندن این کالا به انبار مطمئن هستید؟', async () => {
                         const result = await apiPost('return_asset', {
                             asset_id: currentAssetId
@@ -989,7 +1100,7 @@ $claims = requireAuth('admin', '/../auth/login.html');
                             await fetchAssets();
                         }
                     });
-                } else if (target.classList.contains('btn-delete')) {
+                } else if (classList.contains('btn-danger')) {
                     showConfirmation(`آیا از حذف کامل کالای با کد ${currentAssetId} اطمینان دارید؟`, async () => {
                         const result = await apiPost('delete_asset', {
                             asset_id: currentAssetId
@@ -1003,7 +1114,13 @@ $claims = requireAuth('admin', '/../auth/login.html');
             });
             const closeModal = (modal) => modal.classList.remove('show');
             openAddModalBtn.addEventListener('click', () => addAssetModal.classList.add('show'));
-            closeAddModalBtn.addEventListener('click', () => closeModal(addAssetModal));
+
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    closeModal(e.target.closest('.modal'));
+                });
+            });
+
             async function openAssignModal(asset = null) {
                 try {
                     const response = await fetch(`${API_URL}?action=get_experts`);
@@ -1035,19 +1152,19 @@ $claims = requireAuth('admin', '/../auth/login.html');
                     showToast(error.message, 'error');
                 }
             }
-            assignModal.querySelector('.modal-close').addEventListener('click', () => closeModal(assignModal));
 
             function openEditModal(name, serial) {
                 editAssetName.value = name;
                 editAssetSerial.value = serial;
                 editModal.classList.add('show');
             }
-            editModal.querySelector('.modal-close').addEventListener('click', () => closeModal(editModal));
+
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     closeModal(e.target);
                 }
             });
+
             confirmAssignBtn.addEventListener('click', async () => {
                 const userId = expertSelect.value;
                 const assignDate = assignDateInput.value;

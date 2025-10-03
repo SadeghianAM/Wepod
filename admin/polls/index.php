@@ -1,5 +1,4 @@
 <?php
-// فایل: admin/polls/index.php
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/auth/login.html');
 ?>
@@ -17,17 +16,20 @@ $claims = requireAuth('admin', '/auth/login.html');
             --primary-dark: #089863;
             --primary-light: #e6f7f2;
             --bg-color: #f7f9fa;
+            --card-bg: #fff;
             --text-color: #1a1a1a;
-            --secondary-text-color: #555;
-            --card-bg: #ffffff;
+            --secondary-text: #555;
             --header-text: #fff;
-            --footer-h: 60px;
             --border-color: #e9e9e9;
-            --shadow-light: rgba(0, 120, 80, 0.06);
-            --danger-color: #dc2626;
-            --danger-bg: #fef2f2;
-            --success-color: #16a34a;
-            --border-radius: 0.75rem;
+            --radius: 12px;
+            --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
+            --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --success-light: #e9f7eb;
+            --danger-light: #fbebec;
         }
 
         @font-face {
@@ -49,10 +51,17 @@ $claims = requireAuth('admin', '/auth/login.html');
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            direction: rtl;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+        }
+
+        main {
+            padding: 2.5rem 2rem;
+            max-width: 1500px;
+            width: 100%;
+            margin: 0 auto;
+            flex-grow: 1;
         }
 
         footer {
@@ -61,23 +70,13 @@ $claims = requireAuth('admin', '/auth/login.html');
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 2rem;
-            z-index: 10;
             flex-shrink: 0;
-            min-height: var(--footer-h);
+            min-height: 60px;
             font-size: .85rem;
         }
 
-        main {
-            padding: 2rem;
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
-            flex-grow: 1;
-        }
-
         .page-header {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -86,21 +85,31 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
 
         .page-title h1 {
-            font-size: 1.8rem;
+            font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 800;
             color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: .75rem;
         }
 
         .page-title p {
-            font-size: 1rem;
-            color: var(--secondary-text-color);
-            margin-top: 0.25rem;
+            font-size: clamp(.95rem, 2.2vw, 1rem);
+            color: var(--secondary-text);
+            margin-top: 0.5rem;
+        }
+
+        .icon {
+            width: 1.1em;
+            height: 1.1em;
+            stroke-width: 2.2;
+            vertical-align: -0.15em;
         }
 
         .content-card {
             background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 15px var(--shadow-light);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-color);
             margin-bottom: 2rem;
             overflow: hidden;
@@ -128,18 +137,24 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
 
         .btn {
-            padding: 0.6rem 1.2rem;
+            position: relative;
+            padding: .8em 1.5em;
+            font-size: .95rem;
             font-weight: 600;
-            border-radius: 0.5rem;
-            transition: all 0.2s;
+            border: 1.5px solid transparent;
+            border-radius: var(--radius);
             cursor: pointer;
-            font-size: 0.95rem;
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            border: 1px solid transparent;
+            gap: 0.6em;
             white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.92);
         }
 
         .btn-primary {
@@ -147,61 +162,39 @@ $claims = requireAuth('admin', '/auth/login.html');
             color: white;
         }
 
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
         .btn-danger {
             background-color: var(--danger-color);
             color: white;
         }
 
-        .btn-danger:hover {
-            background-color: #b91c1c;
-        }
-
-        .btn.loading {
-            pointer-events: none;
-            color: transparent;
-        }
-
-        .btn.loading::after {
-            content: '';
-            display: block;
-            position: absolute;
-            width: 1.2em;
-            height: 1.2em;
-            border: 2px solid white;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .btn-secondary {
+            background-color: var(--secondary-text);
+            color: white;
         }
 
         .btn-icon {
-            background: none;
+            background: transparent;
             border: none;
-            padding: 0.4rem;
+            padding: .5rem;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 1.2rem;
-            line-height: 1;
-            width: 36px;
-            height: 36px;
-            display: flex;
+            color: var(--secondary-text);
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, color 0.2s;
         }
 
         .btn-icon:hover {
-            background-color: #f1f1f1;
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-icon .icon {
+            width: 1.25rem;
+            height: 1.25rem;
         }
 
         .table-responsive {
@@ -216,16 +209,17 @@ $claims = requireAuth('admin', '/auth/login.html');
 
         th,
         td {
-            padding: 1rem 1.5rem;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
             text-align: right;
             vertical-align: middle;
         }
 
         thead th {
-            background-color: #f9fafb;
-            font-weight: 700;
-            color: var(--secondary-text-color);
+            background-color: var(--bg-color);
+            font-weight: 600;
+            color: var(--secondary-text);
+            font-size: .9rem;
         }
 
         tbody tr:last-child td {
@@ -266,7 +260,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         .modal-content {
             background: white;
             padding: 2rem;
-            border-radius: var(--border-radius);
+            border-radius: var(--radius);
             width: 90%;
             max-width: 600px;
             transform: scale(0.9);
@@ -287,6 +281,14 @@ $claims = requireAuth('admin', '/auth/login.html');
         .modal-header h2 {
             font-size: 1.4rem;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            color: var(--primary-dark);
+        }
+
+        .modal-header .icon {
+            color: var(--primary-color);
         }
 
         .form-group {
@@ -299,14 +301,15 @@ $claims = requireAuth('admin', '/auth/login.html');
             margin-bottom: 0.5rem;
             font-weight: 600;
             font-size: 0.9rem;
+            color: var(--secondary-text);
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
+            padding: 0.8em 1.2em;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius);
             font-size: 1rem;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
@@ -314,7 +317,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         .form-group input:focus,
         .form-group select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+            box-shadow: 0 0 0 4px rgba(0, 174, 112, 0.15);
             outline: none;
         }
 
@@ -325,95 +328,39 @@ $claims = requireAuth('admin', '/auth/login.html');
             gap: 0.75rem;
         }
 
-        .btn-secondary {
-            background-color: #f1f5f9;
-            color: #334155;
-            border: 1px solid #e2e8f0;
-        }
-
-        .btn-secondary:hover {
-            background-color: #e2e8f0;
-        }
-
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1001;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .toast {
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            border-left: 5px solid;
-            animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 3.7s forwards;
-        }
-
-        .toast.success {
-            border-color: var(--success-color);
-        }
-
-        .toast.error {
-            border-color: var(--danger-color);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-        }
-
         .status-badge {
-            padding: 0.2rem 0.6rem;
-            border-radius: 99px;
-            font-size: 0.8rem;
+            padding: .4em .9em;
+            border-radius: 20px;
+            font-size: .85rem;
             font-weight: 600;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: .5em;
+        }
+
+        .status-badge .icon {
+            width: 1.2em;
+            height: 1.2em;
         }
 
         .status-badge.active {
-            background-color: var(--success-color);
-            color: white;
+            background-color: var(--success-light);
+            color: var(--success-color);
         }
 
         .status-badge.inactive {
-            background-color: #f1f5f9;
-            color: #64748b;
+            background-color: var(--border-color);
+            color: var(--secondary-text);
         }
 
         #options-list {
             list-style: none;
             padding: 0;
             margin-top: 1.5rem;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             border: 1px solid var(--border-color);
-            border-radius: .5rem;
+            border-radius: var(--radius);
         }
 
         #options-list li {
@@ -447,7 +394,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             overflow-y: auto;
         }
 
-        /* Skeleton Loader Styles */
         .skeleton-loader td {
             padding: 1rem 1.5rem;
         }
@@ -455,7 +401,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         .skeleton-line {
             width: 100%;
             height: 1.2rem;
-            background-color: #f0f0f0;
+            background-color: var(--border-color);
             border-radius: 0.25rem;
             margin-bottom: 0.75rem;
             animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -466,21 +412,84 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
             50% {
-                opacity: 0.5;
+                opacity: 0.6;
             }
         }
 
-        /* Responsive Table Styles */
+        .back-link {
+            display: block;
+            margin-top: 2rem;
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            color: white;
+            font-weight: 500;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            min-width: 280px;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-success {
+            background-color: var(--success-color);
+        }
+
+        .toast-error {
+            background-color: var(--danger-color);
+        }
+
+        .toast-confirm {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .toast-confirm .toast-message {
+            margin-bottom: 1rem;
+        }
+
+        .toast-confirm .toast-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .toast-confirm .btn {
+            font-size: 0.85rem;
+            padding: 0.5em 1em;
+        }
+
         @media screen and (max-width: 768px) {
-            .table-responsive {
-                overflow-x: hidden;
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
             }
 
             table,
@@ -490,12 +499,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             td,
             tr {
                 display: block;
-            }
-
-            thead tr {
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
             }
 
             tr {
@@ -524,7 +527,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 white-space: nowrap;
                 text-align: right;
                 font-weight: 700;
-                color: var(--secondary-text-color);
+                color: var(--secondary-text);
             }
 
             td:nth-of-type(1):before {
@@ -552,30 +555,31 @@ $claims = requireAuth('admin', '/auth/login.html');
                 justify-content: flex-start;
             }
         }
-
-        .back-link {
-            display: block;
-            margin-top: 2rem;
-            text-align: center;
-            color: var(--primary-color);
-            font-weight: 500;
-            text-decoration: none;
-        }
     </style>
 </head>
 
 <body>
     <div id="header-placeholder"></div>
-
     <main>
         <div class="page-header">
             <div class="page-title">
-                <h1>🗳️ مدیریت نظرسنجی</h1>
+                <h1>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 9/9-2-2-2 2-2-2Z" />
+                        <path d="m12 15-3-3a3 3 0 0 1 3-3 3 3 0 0 1 3 3Z" />
+                    </svg>
+                    <span>مدیریت نظرسنجی</span>
+                </h1>
                 <p>نظرسنجی‌ها، گزینه‌ها و وضعیت آن‌ها را مدیریت کنید.</p>
             </div>
-            <button id="add-new-poll-btn" class="btn btn-primary">➕ افزودن نظرسنجی جدید</button>
+            <button id="add-new-poll-btn" class="btn btn-primary">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                </svg>
+                <span>افزودن نظرسنجی جدید</span>
+            </button>
         </div>
-
         <div class="content-card">
             <div class="card-header">
                 <h2>لیست نظرسنجی‌ها</h2>
@@ -620,7 +624,12 @@ $claims = requireAuth('admin', '/auth/login.html');
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="poll-modal-title">افزودن نظرسنجی</h2>
-                <button class="btn-icon close-modal-btn" title="بستن">✖️</button>
+                <button class="btn-icon close-modal-btn" title="بستن">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
             </div>
             <form id="poll-modal-form" onsubmit="return false;">
                 <div class="form-group">
@@ -629,7 +638,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary close-modal-btn">لغو</button>
-                    <button type="submit" id="poll-submit-btn" class="btn btn-primary">افزودن</button>
+                    <button type="submit" id="poll-submit-btn" class="btn btn-primary"></button>
                 </div>
             </form>
         </div>
@@ -638,10 +647,21 @@ $claims = requireAuth('admin', '/auth/login.html');
     <div id="options-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="options-modal-title">مدیریت گزینه‌ها</h2>
-                <button class="btn-icon close-modal-btn" title="بستن">✖️</button>
+                <h2 id="options-modal-title">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span>مدیریت گزینه‌ها</span>
+                </h2>
+                <button class="btn-icon close-modal-btn" title="بستن">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
             </div>
-            <p id="options-modal-question" style="font-weight: 500; color: var(--secondary-text-color); margin-bottom: 1rem;"></p>
+            <p id="options-modal-question" style="font-weight: 500; color: var(--secondary-text); margin-bottom: 1rem;"></p>
             <ul id="options-list"></ul>
             <form id="add-option-form" onsubmit="return false;">
                 <div class="form-group" style="margin-bottom: 0;">
@@ -652,7 +672,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                     <label for="option-capacity">ظرفیت</label>
                     <input type="number" id="option-capacity" min="1" value="10" required>
                 </div>
-                <button type="submit" id="add-option-btn" class="btn btn-primary">افزودن</button>
+                <button type="submit" id="add-option-btn" class="btn btn-primary"></button>
             </form>
         </div>
     </div>
@@ -660,37 +680,31 @@ $claims = requireAuth('admin', '/auth/login.html');
     <div id="results-modal" class="modal-overlay">
         <div class="modal-content modal-lg">
             <div class="modal-header">
-                <h2 id="results-modal-title">نتایج نظرسنجی</h2>
-                <button class="btn-icon close-modal-btn" title="بستن">✖️</button>
+                <h2 id="results-modal-title">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" x2="12" y1="20" y2="10" />
+                        <line x1="18" x2="18" y1="20" y2="4" />
+                        <line x1="6" x2="6" y1="20" y2="16" />
+                    </svg>
+                    <span>نتایج نظرسنجی</span>
+                </h2>
+                <button class="btn-icon close-modal-btn" title="بستن">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
             </div>
-            <p id="results-modal-question" style="font-weight: 500; color: var(--secondary-text-color); margin-bottom: 1.5rem;"></p>
-
+            <p id="results-modal-question" style="font-weight: 500; color: var(--secondary-text); margin-bottom: 1.5rem;"></p>
             <div style="height: 300px; margin-bottom: 2rem; position: relative;">
                 <canvas id="results-chart"></canvas>
             </div>
-
             <div id="results-table-container"></div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-modal-btn">بستن</button>
             </div>
         </div>
     </div>
-
-    <div id="confirm-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header">
-                <h2 id="confirm-modal-title">تایید عملیات</h2>
-                <button class="btn-icon close-modal-btn" title="بستن">✖️</button>
-            </div>
-            <p id="confirm-modal-message">آیا از انجام این عملیات اطمینان دارید؟</p>
-            <div class="modal-footer">
-                <button type="button" id="confirm-cancel-btn" class="btn btn-secondary">لغو</button>
-                <button type="button" id="confirm-ok-btn" class="btn btn-danger">تایید و انجام</button>
-            </div>
-        </div>
-    </div>
-
 
     <div id="toast-container"></div>
     <div id="footer-placeholder"></div>
@@ -701,50 +715,76 @@ $claims = requireAuth('admin', '/auth/login.html');
             let pollsData = [];
             let currentPollId = null;
             let resultsChart = null;
+            const ICONS = {
+                add: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`,
+                save: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+                results: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`,
+                options: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`,
+                edit: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>`,
+                setActive: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+                delete: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+                statusActive: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3H7c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4V7c0-2.2-1.8-4-4-4z"/><path d="m9 12 2 2 4-4"/></svg>`,
+                statusInactive: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3H7c-2.2 0-4 1.8-4 4v10c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4V7c0-2.2-1.8-4-4-4z"/><line x1="9" x2="15" y1="15" y2="9"/></svg>`
+            };
 
-            // --- DOM Elements ---
             const pollsListBody = document.getElementById('polls-list-body');
-            // Modals
             const pollModal = document.getElementById('poll-modal');
             const optionsModal = document.getElementById('options-modal');
             const resultsModal = document.getElementById('results-modal');
-            const confirmModal = document.getElementById('confirm-modal');
-            // Poll Modal
             const pollModalForm = document.getElementById('poll-modal-form');
             const pollModalTitle = document.getElementById('poll-modal-title');
             const pollSubmitBtn = document.getElementById('poll-submit-btn');
             const pollQuestionInput = document.getElementById('poll-question');
-            // Options Modal
             const optionsModalQuestion = document.getElementById('options-modal-question');
             const optionsList = document.getElementById('options-list');
             const addOptionForm = document.getElementById('add-option-form');
             const optionTextInput = document.getElementById('option-text');
             const optionCapacityInput = document.getElementById('option-capacity');
-            // Results Modal
+            const addOptionBtn = document.getElementById('add-option-btn');
             const resultsModalQuestion = document.getElementById('results-modal-question');
             const resultsTableContainer = document.getElementById('results-table-container');
             const resultsChartCanvas = document.getElementById('results-chart');
-            // Confirm Modal
-            const confirmModalTitle = document.getElementById('confirm-modal-title');
-            const confirmModalMessage = document.getElementById('confirm-modal-message');
-            const confirmOkBtn = document.getElementById('confirm-ok-btn');
-            const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
 
-
-            // --- Helper Functions ---
             const escapeHTML = (str) => {
                 const p = document.createElement('p');
                 p.textContent = str;
                 return p.innerHTML;
             }
-            const showToast = (message, type = 'success') => {
+            const showToast = (message, type = 'success', duration = 4000) => {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
+                toast.className = `toast toast-${type}`;
                 toast.innerHTML = `<span>${message}</span>`;
                 container.appendChild(toast);
-                setTimeout(() => toast.remove(), 4000);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, duration);
             };
+
+            function showConfirmation(message, title, onConfirm) {
+                const toastContainer = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast toast-confirm show';
+                toast.innerHTML = `
+                    <div class="toast-message">${message}</div>
+                    <div class="toast-buttons">
+                        <button class="btn btn-danger" id="confirmAction">${title}</button>
+                        <button class="btn btn-secondary" id="cancelAction">لغو</button>
+                    </div>`;
+                const removeToast = () => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                };
+                toast.querySelector('#confirmAction').onclick = () => {
+                    onConfirm();
+                    removeToast();
+                };
+                toast.querySelector('#cancelAction').onclick = removeToast;
+                toastContainer.appendChild(toast);
+            }
+
             const apiRequest = async (action, method = 'GET', body = null) => {
                 const upperMethod = method.toUpperCase();
                 const options = {
@@ -752,14 +792,12 @@ $claims = requireAuth('admin', '/auth/login.html');
                     headers: {}
                 };
                 let url = `${API_URL}?action=${action}`;
-
                 if (upperMethod === 'GET' && body) {
                     url += '&' + new URLSearchParams(body).toString();
                 } else if (body && (upperMethod === 'POST' || upperMethod === 'PUT')) {
                     options.headers['Content-Type'] = 'application/json';
                     options.body = JSON.stringify(body);
                 }
-
                 try {
                     const response = await fetch(url, options);
                     const result = await response.json();
@@ -773,46 +811,28 @@ $claims = requireAuth('admin', '/auth/login.html');
                     return null;
                 }
             };
-
-            // --- Modal Handling ---
             const openModal = (modal) => modal.classList.add('visible');
             const closeModal = () => {
                 document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
                 currentPollId = null;
             };
-            const showConfirmationModal = (title, message, onConfirm) => {
-                confirmModalTitle.textContent = title;
-                confirmModalMessage.innerHTML = message; // Use innerHTML to allow simple formatting like <br>
-                openModal(confirmModal);
-
-                // Clone and replace the button to remove old event listeners
-                const newOkBtn = confirmOkBtn.cloneNode(true);
-                confirmOkBtn.parentNode.replaceChild(newOkBtn, confirmOkBtn);
-
-                newOkBtn.addEventListener('click', () => {
-                    closeModal();
-                    onConfirm();
-                }, {
-                    once: true
-                });
-            };
-
             const openPollModal = (mode = 'add', poll = {}) => {
                 pollModalForm.reset();
                 currentPollId = null;
                 if (mode === 'edit') {
-                    pollModalTitle.textContent = "📝 ویرایش نظرسنجی";
-                    pollSubmitBtn.innerHTML = "💾 ذخیره تغییرات";
+                    pollModalTitle.innerHTML = `${ICONS.edit} <span>ویرایش نظرسنجی</span>`;
+                    pollSubmitBtn.innerHTML = `${ICONS.save} <span>ذخیره تغییرات</span>`;
                     currentPollId = poll.id;
                     pollQuestionInput.value = poll.question;
                 } else {
-                    pollModalTitle.textContent = "✨ افزودن نظرسنجی جدید";
-                    pollSubmitBtn.innerHTML = "➕ افزودن";
+                    pollModalTitle.innerHTML = `${ICONS.add} <span>افزودن نظرسنجی جدید</span>`;
+                    pollSubmitBtn.innerHTML = `${ICONS.add} <span>افزودن</span>`;
                 }
                 openModal(pollModal);
             };
             const openOptionsModal = async (poll) => {
                 currentPollId = poll.id;
+                addOptionBtn.innerHTML = `${ICONS.add} <span>افزودن</span>`;
                 optionsModalQuestion.textContent = poll.question;
                 openModal(optionsModal);
                 await loadOptionsForPoll(poll.id);
@@ -820,9 +840,8 @@ $claims = requireAuth('admin', '/auth/login.html');
             const openResultsModal = async (poll) => {
                 openModal(resultsModal);
                 resultsModalQuestion.textContent = poll.question;
-                resultsTableContainer.innerHTML = '<p>در حال بارگذاری نتایج...</p>';
+                resultsTableContainer.innerHTML = '<p style="text-align: center; padding: 1rem;">در حال بارگذاری نتایج...</p>';
                 if (resultsChart) resultsChart.destroy();
-
                 const results = await apiRequest('getPollResults', 'GET', {
                     poll_id: poll.id
                 });
@@ -831,8 +850,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                     renderResultsChart(results);
                 }
             };
-
-            // --- Data Rendering ---
             const renderPollsList = () => {
                 pollsListBody.innerHTML = '';
                 if (pollsData.length === 0) {
@@ -842,20 +859,19 @@ $claims = requireAuth('admin', '/auth/login.html');
                 pollsData.forEach(poll => {
                     const row = document.createElement('tr');
                     const statusBadge = poll.is_active ?
-                        '<span class="status-badge active">فعال</span>' :
-                        '<span class="status-badge inactive">غیرفعال</span>';
-
+                        `<span class="status-badge active">${ICONS.statusActive} <span>فعال</span></span>` :
+                        `<span class="status-badge inactive">${ICONS.statusInactive} <span>غیرفعال</span></span>`;
                     row.innerHTML = `
                         <td data-label="سوال">${escapeHTML(poll.question)}</td>
                         <td data-label="گزینه‌ها">${poll.options_count ?? 'N/A'}</td>
                         <td data-label="آرا">${poll.votes_count ?? 'N/A'}</td>
                         <td data-label="وضعیت">${statusBadge}</td>
                         <td class="actions-cell">
-                            <button class="btn-icon view-results-btn" data-id="${poll.id}" title="نمایش نتایج">📊</button>
-                            <button class="btn-icon manage-options-btn" data-id="${poll.id}" title="مدیریت گزینه‌ها">⚙️</button>
-                            <button class="btn-icon edit-poll-btn" data-id="${poll.id}" title="ویرایش سوال">✏️</button>
-                            ${!poll.is_active ? `<button class="btn-icon set-active-btn" data-id="${poll.id}" title="فعال‌سازی">✅</button>` : ''}
-                            <button class="btn-icon delete-poll-btn" data-id="${poll.id}" title="حذف نظرسنجی">🗑️</button>
+                            <button class="btn-icon view-results-btn" data-id="${poll.id}" title="نمایش نتایج">${ICONS.results}</button>
+                            <button class="btn-icon manage-options-btn" data-id="${poll.id}" title="مدیریت گزینه‌ها">${ICONS.options}</button>
+                            <button class="btn-icon edit-poll-btn" data-id="${poll.id}" title="ویرایش سوال">${ICONS.edit}</button>
+                            ${!poll.is_active ? `<button class="btn-icon set-active-btn" data-id="${poll.id}" title="فعال‌سازی">${ICONS.setActive}</button>` : ''}
+                            <button class="btn-icon delete-poll-btn" data-id="${poll.id}" title="حذف نظرسنجی">${ICONS.delete}</button>
                         </td>`;
                     pollsListBody.appendChild(row);
                 });
@@ -863,13 +879,13 @@ $claims = requireAuth('admin', '/auth/login.html');
             const renderOptionsList = (options) => {
                 optionsList.innerHTML = '';
                 if (options.length === 0) {
-                    optionsList.innerHTML = '<li style="justify-content:center; color: var(--secondary-text-color);">هنوز گزینه‌ای اضافه نشده است.</li>';
+                    optionsList.innerHTML = '<li style="justify-content:center; color: var(--secondary-text);">هنوز گزینه‌ای اضافه نشده است.</li>';
                 }
                 options.forEach(opt => {
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <span>${escapeHTML(opt.option_text)} (ظرفیت: ${opt.capacity})</span>
-                        <button class="btn-icon delete-option-btn" data-id="${opt.id}" title="حذف گزینه">🗑️</button>`;
+                        <button class="btn-icon delete-option-btn" data-id="${opt.id}" title="حذف گزینه">${ICONS.delete}</button>`;
                     optionsList.appendChild(li);
                 });
             };
@@ -880,9 +896,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 }
                 let tableHTML = `<table><thead><tr><th>نام کاربر</th><th>گزینه انتخابی</th><th>زمان ثبت</th></tr></thead><tbody>`;
                 results.forEach(record => {
-                    const votedAt = new Date(record.voted_at + 'Z').toLocaleString('fa-IR', {
-                        timeZone: 'Asia/Tehran'
-                    });
+                    const votedAt = new Date(record.voted_at + 'Z').toLocaleString('fa-IR');
                     tableHTML += `<tr><td>${escapeHTML(record.user_name)}</td><td>${escapeHTML(record.option_text)}</td><td>${votedAt}</td></tr>`;
                 });
                 tableHTML += '</tbody></table>';
@@ -893,12 +907,9 @@ $claims = requireAuth('admin', '/auth/login.html');
                     acc[vote.option_text] = (acc[vote.option_text] || 0) + 1;
                     return acc;
                 }, {});
-
                 const labels = Object.keys(voteCounts);
                 const data = Object.values(voteCounts);
-
                 if (labels.length === 0) return;
-
                 resultsChart = new Chart(resultsChartCanvas, {
                     type: 'bar',
                     data: {
@@ -931,16 +942,11 @@ $claims = requireAuth('admin', '/auth/login.html');
                     }
                 });
             };
-
-            // --- Main Logic Functions ---
             const loadPageData = async () => {
                 document.querySelectorAll('.skeleton-loader').forEach(el => el.style.display = 'table-row');
                 pollsListBody.querySelectorAll('tr:not(.skeleton-loader)').forEach(el => el.remove());
-
                 const result = await apiRequest('getPolls');
-
                 document.querySelectorAll('.skeleton-loader').forEach(el => el.style.display = 'none');
-
                 if (result) {
                     pollsData = result;
                     renderPollsList();
@@ -953,8 +959,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 });
                 if (options) renderOptionsList(options);
             };
-
-            // --- Event Handlers ---
             const handlePollFormSubmit = async (e) => {
                 e.preventDefault();
                 const pollData = {
@@ -986,10 +990,9 @@ $claims = requireAuth('admin', '/auth/login.html');
                     showToast('متن و ظرفیت گزینه را به درستی وارد کنید.', 'error');
                     return;
                 }
-                const addBtn = document.getElementById('add-option-btn');
-                addBtn.classList.add('loading');
+                addOptionBtn.classList.add('loading');
                 const result = await apiRequest('addOption', 'POST', optionData);
-                addBtn.classList.remove('loading');
+                addOptionBtn.classList.remove('loading');
                 if (result) {
                     showToast('گزینه با موفقیت افزوده شد.');
                     addOptionForm.reset();
@@ -998,22 +1001,16 @@ $claims = requireAuth('admin', '/auth/login.html');
                 }
             };
 
-            // --- Event Listeners ---
             document.getElementById('add-new-poll-btn').addEventListener('click', () => openPollModal('add'));
             document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', closeModal));
-            confirmCancelBtn.addEventListener('click', closeModal);
-
             pollModalForm.addEventListener('submit', handlePollFormSubmit);
             addOptionForm.addEventListener('submit', handleAddOptionSubmit);
-
             pollsListBody.addEventListener('click', async (e) => {
                 const target = e.target.closest('.btn-icon');
                 if (!target) return;
-
                 const id = parseInt(target.dataset.id, 10);
                 const poll = pollsData.find(p => p.id === id);
                 if (!poll) return;
-
                 if (target.classList.contains('view-results-btn')) {
                     await openResultsModal(poll);
                 } else if (target.classList.contains('edit-poll-btn')) {
@@ -1021,40 +1018,30 @@ $claims = requireAuth('admin', '/auth/login.html');
                 } else if (target.classList.contains('manage-options-btn')) {
                     await openOptionsModal(poll);
                 } else if (target.classList.contains('delete-poll-btn')) {
-                    showConfirmationModal(
-                        'حذف نظرسنجی',
-                        `آیا از حذف نظرسنجی "<b style="color:var(--danger-color);">${escapeHTML(poll.question)}</b>" و تمام رای‌های آن مطمئن هستید؟`,
-                        async () => {
-                            if (await apiRequest('deletePoll', 'POST', {
-                                    id
-                                })) {
-                                showToast('نظرسنجی با موفقیت حذف شد.');
-                                await loadPageData();
-                            }
+                    showConfirmation(`آیا از حذف نظرسنجی "<b style="color:var(--danger-color);">${escapeHTML(poll.question)}</b>" و تمام رای‌های آن مطمئن هستید؟`, "تایید و حذف", async () => {
+                        if (await apiRequest('deletePoll', 'POST', {
+                                id
+                            })) {
+                            showToast('نظرسنجی با موفقیت حذف شد.');
+                            await loadPageData();
                         }
-                    );
+                    });
                 } else if (target.classList.contains('set-active-btn')) {
-                    showConfirmationModal(
-                        'فعال‌سازی نظرسنجی',
-                        'آیا می‌خواهید این نظرسنجی را فعال کنید؟<br>(نظرسنجی فعال قبلی غیرفعال خواهد شد)',
-                        async () => {
-                            if (await apiRequest('setActivePoll', 'POST', {
-                                    id
-                                })) {
-                                showToast('نظرسنجی با موفقیت فعال شد.');
-                                await loadPageData();
-                            }
+                    showConfirmation('آیا می‌خواهید این نظرسنجی را فعال کنید؟ (نظرسنجی فعال قبلی غیرفعال خواهد شد)', "تایید و فعال‌سازی", async () => {
+                        if (await apiRequest('setActivePoll', 'POST', {
+                                id
+                            })) {
+                            showToast('نظرسنجی با موفقیت فعال شد.');
+                            await loadPageData();
                         }
-                    );
+                    });
                 }
             });
-
             optionsList.addEventListener('click', async (e) => {
                 const target = e.target.closest('.delete-option-btn');
                 if (!target) return;
                 const id = parseInt(target.dataset.id, 10);
-
-                showConfirmationModal('حذف گزینه', 'آیا از حذف این گزینه مطمئن هستید؟', async () => {
+                showConfirmation('آیا از حذف این گزینه مطمئن هستید؟', 'تایید و حذف', async () => {
                     if (await apiRequest('deleteOption', 'POST', {
                             id
                         })) {
@@ -1063,8 +1050,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                     }
                 });
             });
-
-            // --- Initial Load ---
             loadPageData();
         });
     </script>

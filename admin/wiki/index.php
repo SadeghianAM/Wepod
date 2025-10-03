@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../../auth/require-auth.php';
 $claims = requireAuth('admin', '/auth/login.html');
 ?>
@@ -16,18 +15,18 @@ $claims = requireAuth('admin', '/auth/login.html');
       --primary-dark: #089863;
       --primary-light: #e6f7f2;
       --bg-color: #f7f9fa;
+      --card-bg: #fff;
       --text-color: #1a1a1a;
-      --secondary-text-color: #555;
-      --card-bg: #ffffff;
-      --header-text: #ffffff;
+      --secondary-text: #555;
+      --header-text: #fff;
       --border-color: #e9e9e9;
-      --shadow-light: rgba(0, 120, 80, 0.06);
-      --shadow-medium: rgba(0, 120, 80, 0.12);
-      --border-radius: 0.75rem;
-      --blue-color: #007bff;
-      --blue-dark: #0056b3;
+      --radius: 12px;
       --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
-      --footer-h: 60px;
+      --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
+      --success-color: #28a745;
+      --info-color: #17a2b8;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
     }
 
     @font-face {
@@ -49,14 +48,21 @@ $claims = requireAuth('admin', '/auth/login.html');
     body {
       background-color: var(--bg-color);
       color: var(--text-color);
-      direction: rtl;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
 
     a {
       text-decoration: none;
+    }
+
+    main {
+      flex-grow: 1;
+      padding: 2.5rem 2rem;
+      max-width: 1500px;
+      width: 100%;
+      margin: 0 auto;
     }
 
     footer {
@@ -65,21 +71,9 @@ $claims = requireAuth('admin', '/auth/login.html');
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      z-index: 10;
-      box-shadow: var(--shadow-sm);
       flex-shrink: 0;
-      min-height: var(--footer-h);
-      font-size: .85rem
-    }
-
-    main {
-      flex-grow: 1;
-      padding: 2.5rem 2rem;
-      max-width: 1400px;
-      /* Max width increased for table */
-      width: 100%;
-      margin: 0 auto;
+      min-height: 60px;
+      font-size: .85rem;
     }
 
     .page-header {
@@ -87,15 +81,15 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     .page-title {
-      font-size: 1.8rem;
+      font-size: clamp(1.5rem, 3vw, 2rem);
       font-weight: 800;
       color: var(--primary-dark);
     }
 
     .page-subtitle {
-      font-size: 1rem;
+      font-size: clamp(.95rem, 2.2vw, 1rem);
       font-weight: 400;
-      color: var(--secondary-text-color);
+      color: var(--secondary-text);
       margin-top: 0.25rem;
       margin-bottom: 2rem;
     }
@@ -109,26 +103,67 @@ $claims = requireAuth('admin', '/auth/login.html');
       margin-bottom: 2rem;
     }
 
-    #add-new-item-btn {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      box-shadow: 0 4px 15px rgba(0, 174, 112, 0.2);
-      transition: all 0.2s ease-in-out;
+    .icon {
+      width: 1.1em;
+      height: 1.1em;
+      stroke-width: 2.2;
+      vertical-align: -0.15em;
     }
 
-    #add-new-item-btn:hover {
-      background-color: var(--primary-dark);
+    .btn {
+      position: relative;
+      padding: .8em 1.5em;
+      font-size: .95rem;
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6em;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(.loading) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 174, 112, 0.25);
+      filter: brightness(0.92);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary-text);
+      color: white;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      padding: .5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--secondary-text);
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .btn-icon:hover {
+      background-color: var(--border-color);
+      color: var(--text-color);
+    }
+
+    .btn-icon .icon {
+      width: 1.25rem;
+      height: 1.25rem;
     }
 
     .search-container {
@@ -138,9 +173,9 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     #search-input {
       width: 100%;
-      padding: 0.75rem 1.25rem;
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius);
+      padding: 0.8em 1.2em;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius);
       font-size: 1rem;
       background-color: var(--card-bg);
       transition: border-color 0.2s, box-shadow 0.2s;
@@ -148,18 +183,16 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     #search-input:focus {
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+      box-shadow: 0 0 0 4px rgba(0, 174, 112, 0.15);
       outline: none;
     }
 
-    /* --- [START] NEW TABLE STYLES --- */
     .table-container {
       background-color: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: 0 4px 15px var(--shadow-light);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
       border: 1px solid var(--border-color);
       overflow-x: auto;
-      /* For responsiveness */
     }
 
     #item-table {
@@ -169,22 +202,20 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     #item-table thead {
-      background-color: #f9fafb;
+      background-color: var(--bg-color);
     }
 
     #item-table th,
     #item-table td {
-      padding: 1rem 1.25rem;
+      padding: 1.25rem;
       vertical-align: middle;
     }
 
     #item-table th {
       font-weight: 600;
-      color: var(--secondary-text-color);
+      color: var(--secondary-text);
       font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
     }
 
     #item-table tbody tr {
@@ -203,25 +234,23 @@ $claims = requireAuth('admin', '/auth/login.html');
     .id-cell {
       font-weight: 600;
       color: var(--primary-dark);
-      width: 5%;
     }
 
     .title-cell {
       font-weight: 600;
       color: var(--text-color);
-      width: 20%;
     }
 
     .categories-cell {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 0.5rem;
-      width: 25%;
     }
 
     .category-pill {
-      background-color: #f3f4f6;
-      color: #4b5563;
+      background-color: var(--bg-color);
+      color: var(--secondary-text);
       padding: 0.2rem 0.6rem;
       border-radius: 999px;
       font-size: 0.8rem;
@@ -230,7 +259,7 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     .description-cell {
-      max-width: 300px;
+      max-width: 450px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -241,46 +270,8 @@ $claims = requireAuth('admin', '/auth/login.html');
       display: flex;
       gap: 0.5rem;
       justify-content: flex-start;
-      width: 15%;
     }
 
-    .actions-cell button {
-      background: none;
-      border: none;
-      padding: 0.5rem;
-      border-radius: 999px;
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      font-size: 1rem;
-      color: var(--secondary-text-color);
-      transition: all 0.2s;
-    }
-
-    .actions-cell .copy-btn {
-      color: var(--primary-dark);
-    }
-
-    .actions-cell .edit-btn:hover {
-      background-color: #e9f5ff;
-      color: #007bff;
-    }
-
-    .actions-cell .delete-btn:hover {
-      background-color: #fef2f2;
-      color: #dc3545;
-    }
-
-    .actions-cell .copy-btn:hover {
-      background-color: var(--primary-light);
-    }
-
-    /* --- [END] NEW TABLE STYLES --- */
-
-
-    /* --- Modal Styles (Unchanged) --- */
     .modal {
       display: none;
       position: fixed;
@@ -289,71 +280,81 @@ $claims = requireAuth('admin', '/auth/login.html');
       top: 0;
       width: 100%;
       height: 100%;
-      overflow: auto;
       background-color: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(4px);
-      padding-top: 5vh;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.visible {
+      display: flex;
+      opacity: 1;
     }
 
     .modal-content {
       background-color: var(--card-bg);
-      margin: 0 auto;
+      margin: auto;
       padding: 2rem;
-      border: none;
-      border-radius: var(--border-radius);
+      border-radius: var(--radius);
       width: 90%;
-      max-width: 600px;
-      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+      max-width: 700px;
+      box-shadow: var(--shadow-md);
       position: relative;
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
     }
 
-    .close-button {
-      color: #aaa;
-      position: absolute;
-      left: 1rem;
-      top: 1rem;
-      font-size: 2rem;
-      font-weight: bold;
-      cursor: pointer;
-      line-height: 1;
-      transition: color 0.2s;
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .close-button:hover {
-      color: #333;
+    .modal-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
     }
 
-    .modal-content label {
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 600;
-      color: #333;
+      color: var(--secondary-text);
+      font-size: .9rem;
     }
 
     .modal-content input[type="text"],
     .modal-content input[type="number"],
     .modal-content textarea {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.8em 1.2em;
       margin-bottom: 1.25rem;
-      border: 1px solid var(--border-color);
-      border-radius: 0.5rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius);
       font-size: 1rem;
-      background-color: #fcfdff;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .modal-content input[type="text"]:focus,
-    .modal-content input[type="number"]:focus,
-    .modal-content textarea:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(0, 174, 112, 0.15);
+    .modal-content input:focus-visible,
+    .modal-content textarea:focus-visible {
       outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
     }
 
     .modal-content textarea {
       resize: vertical;
-      min-height: 120px;
+      min-height: 150px;
       line-height: 1.7;
     }
 
@@ -364,7 +365,9 @@ $claims = requireAuth('admin', '/auth/login.html');
       margin-bottom: 1.25rem;
       border: 1px solid var(--border-color);
       padding: 1rem;
-      border-radius: 0.5rem;
+      border-radius: var(--radius);
+      max-height: 250px;
+      overflow-y: auto;
     }
 
     #categories-checkbox-container div {
@@ -383,55 +386,122 @@ $claims = requireAuth('admin', '/auth/login.html');
       cursor: pointer;
     }
 
-    .modal-content .button-group {
+    .form-actions {
       display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
+      justify-content: space-between;
+      align-items: center;
       margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
     }
 
-    .modal-content button {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      transition: all 0.2s;
+    .navigation-buttons {
+      display: flex;
+      gap: 10px;
     }
 
-    #save-item-btn {
-      background-color: var(--primary-color);
-      color: white;
+    .form-step {
+      display: none;
     }
 
-    #save-item-btn:hover {
-      background-color: var(--primary-dark);
-    }
-
-    #cancel-edit-btn {
-      background-color: #f1f1f1;
-      color: #555;
-      border: 1px solid #ccc;
-    }
-
-    #cancel-edit-btn:hover {
-      background-color: #e7e7e7;
-    }
-
-    .back-link {
+    .form-step.active-step {
       display: block;
-      margin-top: 2rem;
-      text-align: center;
-      color: var(--primary-color);
-      text-decoration: none;
-      font-size: 1rem;
+      animation: fadeIn .5s;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    #step-indicator {
+      font-size: .9rem;
+      color: var(--secondary-text);
       font-weight: 500;
     }
 
-    .back-link:hover {
-      text-decoration: underline;
-      color: var(--primary-dark);
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      color: white;
+      font-weight: 500;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s, transform 0.3s;
+      min-width: 280px;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.success {
+      background-color: var(--success-color);
+    }
+
+    .toast.error {
+      background-color: var(--danger-color);
+    }
+
+    .toast.info {
+      background-color: var(--info-color);
+    }
+
+    .toast-confirm {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .toast-confirm .toast-message {
+      margin-bottom: 1rem;
+    }
+
+    .toast-confirm .toast-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .toast-confirm .btn {
+      font-size: 0.85rem;
+      padding: 0.5em 1em;
+    }
+
+    .spinner {
+      border: 5px solid var(--bg-color);
+      border-top: 5px solid var(--primary-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    mark {
+      background-color: #fef08a;
+      padding: 0 2px;
+      border-radius: 3px;
     }
   </style>
 </head>
@@ -440,371 +510,427 @@ $claims = requireAuth('admin', '/auth/login.html');
   <div id="header-placeholder"></div>
   <main>
     <div class="page-header">
-      <h1 class="page-title">مدیریت پیام‌های آماده</h1>
-      <p class="page-subtitle">پیام‌ها و اسکریپت‌های پاسخگویی را از اینجا جستجو، ویرایش و مدیریت کنید.</p>
+      <div>
+        <h1 class="page-title">مدیریت پیام‌های آماده</h1>
+        <p class="page-subtitle">پیام‌ها و اسکریپت‌های پاسخگویی را از اینجا جستجو، ویرایش و مدیریت کنید.</p>
+      </div>
     </div>
-
     <div class="action-bar">
-      <button id="add-new-item-btn">✨ افزودن پیام جدید</button>
+      <button id="add-new-item-btn" class="btn btn-primary">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+        <span>افزودن پیام جدید</span>
+      </button>
       <div class="search-container">
         <input type="text" id="search-input" placeholder="جستجو در عنوان، متن، دسته‌بندی یا ID..." />
       </div>
     </div>
-
     <div class="table-container">
       <table id="item-table">
         <thead>
           <tr>
-            <th class="id-cell">شناسه</th>
-            <th class="title-cell">عنوان</th>
-            <th class="categories-cell">دسته‌بندی‌ها</th>
-            <th class="description-cell">متن پیام</th>
-            <th class="actions-cell">عملیات</th>
+            <th style="width: 5%;">شناسه</th>
+            <th style="width: 20%;">عنوان</th>
+            <th style="width: 10%;">دسته‌بندی‌ها</th>
+            <th>متن پیام</th>
+            <th style="width: 15%;">عملیات</th>
           </tr>
         </thead>
         <tbody id="item-list-body">
+          <tr id="loading-row">
+            <td colspan="5" style="text-align: center; padding: 4rem;">
+              <div class="spinner"></div>
+              <p style="margin-top: 1rem; color: var(--secondary-text);">در حال بارگذاری اطلاعات...</p>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <div id="no-results" style="display: none; text-align: center; padding: 3rem; font-size: 1.2rem; color: #555;">
+    <div id="no-results" style="display: none; text-align: center; padding: 3rem; font-size: 1.2rem; color: var(--secondary-text);">
       موردی برای نمایش یافت نشد.
     </div>
-    <a href="/admin/index.php" class="back-link">بازگشت به پنل مدیریت</a>
   </main>
   <div id="itemModal" class="modal">
     <div class="modal-content">
-      <span class="close-button">×</span>
-      <h2 id="modalTitle" style="text-align: right; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;"></h2>
+      <div class="modal-header">
+        <h2 id="modalTitle"></h2>
+        <span id="step-indicator"></span>
+      </div>
       <form id="itemForm">
         <input type="hidden" id="itemId" />
-        <label for="id-input">ID (شناسه یکتا):</label>
-        <input type="number" id="id-input" name="id" required min="1" />
-        <label for="title">عنوان پیام:</label>
-        <input type="text" id="title" name="title" required />
-        <label>دسته‌بندی‌ها (حداقل یک مورد):</label>
-        <div id="categories-checkbox-container"></div>
-        <label for="description-textarea">متن پیام:</label>
-        <textarea id="description-textarea" name="description" rows="7" required></textarea>
-        <div class="button-group">
-          <button type="button" id="cancel-edit-btn">لغو</button>
-          <button type="submit" id="save-item-btn">ذخیره</button>
+        <div class="form-step" data-step="1">
+          <div class="form-group">
+            <label for="id-input">شناسه (ID) یکتا:</label>
+            <input type="number" id="id-input" name="id" required min="1" />
+          </div>
+          <div class="form-group">
+            <label for="title">عنوان پیام:</label>
+            <input type="text" id="title" name="title" required />
+          </div>
+        </div>
+        <div class="form-step" data-step="2">
+          <div class="form-group">
+            <label>دسته‌بندی‌ها (حداقل یک مورد):</label>
+            <div id="categories-checkbox-container"></div>
+          </div>
+        </div>
+        <div class="form-step" data-step="3">
+          <div class="form-group">
+            <label for="description-textarea">متن پیام:</label>
+            <textarea id="description-textarea" name="description" rows="7" required></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-edit-btn">لغو</button>
+          <div class="navigation-buttons">
+            <button type="button" id="prev-btn" class="btn btn-secondary">قبلی</button>
+            <button type="button" id="next-btn" class="btn btn-primary">بعدی</button>
+            <button type="submit" id="save-item-btn" class="btn btn-primary"></button>
+          </div>
         </div>
       </form>
     </div>
   </div>
+
+  <div id="toast-container"></div>
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
   <script>
-    const API_URL = "/admin/wiki/wiki-api.php";
-    let jsonData = [];
-    let searchValue = "";
+    document.addEventListener("DOMContentLoaded", () => {
+      const API_URL = "/admin/wiki/wiki-api.php";
+      let jsonData = [];
+      let searchValue = "";
+      let currentStep = 1;
+      const totalSteps = 3;
 
-    const availableCategories = [
-      "عمومی", "اختلالات", "احراز هویت", "اعتبار سنجی", "تنظیمات امنیت حساب", "تغییر شماره تلفن همراه",
-      "عدم دریافت پیامک", "کارت فیزیکی", "کارت و حساب دیجیتال", "مسدودی و رفع مسدودی حساب",
-      "انتقال وجه", "خدمات قبض", "شارژ و بسته اینترنت", "تسهیلات برآیند", "تسهیلات برآیند چک یار",
-      "تسهیلات پشتوانه", "تسهیلات پیمان", "تسهیلات تکلیفی", "تسهیلات سازمانی",
-      "بیمه پاسارگاد", "چک", "خدمات چکاد", "صندوق های سرمایه گذاری", "طرح سرمایه گذاری رویش",
-      "دعوت از دوستان", "هدیه دیجیتال", "وی کلاب"
-    ];
+      const availableCategories = ["عمومی", "اختلالات", "احراز هویت", "اعتبار سنجی", "تنظیمات امنیت حساب", "تغییر شماره تلفن همراه", "عدم دریافت پیامک", "کارت فیزیکی", "کارت و حساب دیجیتال", "مسدودی و رفع مسدودی حساب", "انتقال وجه", "خدمات قبض", "شارژ و بسته اینترنت", "تسهیلات برآیند", "تسهیلات برآیند چک یار", "تسهیلات پشتوانه", "تسهیلات پیمان", "تسهیلات تکلیفی", "تسهیلات سازمانی", "بیمه پاسارگاد", "چک", "خدمات چکاد", "صندوق های سرمایه گذاری", "طرح سرمایه گذاری رویش", "دعوت از دوستان", "هدیه دیجیتال", "وی کلاب"];
 
-    const itemListBody = document.getElementById("item-list-body");
-    const itemModal = document.getElementById("itemModal");
-    const closeButton = document.querySelector(".close-button");
-    const itemForm = document.getElementById("itemForm");
-    const cancelEditBtn = document.getElementById("cancel-edit-btn");
-    const addNewItemBtn = document.getElementById("add-new-item-btn");
-    const modalTitle = document.getElementById("modalTitle");
-    const searchInput = document.getElementById("search-input");
-    const idInput = document.getElementById("id-input");
-    const titleInput = document.getElementById("title");
-    const descriptionTextarea = document.getElementById("description-textarea");
-    const categoriesCheckboxContainer = document.getElementById("categories-checkbox-container");
-    const noResultsDiv = document.getElementById("no-results");
+      const itemListBody = document.getElementById("item-list-body");
+      const itemModal = document.getElementById("itemModal");
+      const itemForm = document.getElementById("itemForm");
+      const cancelEditBtn = document.getElementById("cancel-edit-btn");
+      const addNewItemBtn = document.getElementById("add-new-item-btn");
+      const modalTitle = document.getElementById("modalTitle");
+      const searchInput = document.getElementById("search-input");
+      const idInput = document.getElementById("id-input");
+      const titleInput = document.getElementById("title");
+      const descriptionTextarea = document.getElementById("description-textarea");
+      const categoriesCheckboxContainer = document.getElementById("categories-checkbox-container");
+      const noResultsDiv = document.getElementById("no-results");
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const saveBtn = document.getElementById('save-item-btn');
+      const stepIndicator = document.getElementById('step-indicator');
+      const steps = document.querySelectorAll('.form-step');
 
-    async function apiRequest(action, data) {
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            action,
-            data
-          }),
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "خطای سرور");
-        return result;
-      } catch (error) {
-        console.error(`خطا در عملیات ${action}:`, error);
-        alert(`خطا: ${error.message}`);
-        throw error;
-      }
-    }
-
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('✅ متن کپی شد!');
-      }).catch(err => {
-        console.error('ناموفق در کپی متن: ', err);
-        alert('کپی متن انجام نشد.');
-      });
-    }
-
-    /**
-     * [NEW] Creates a table row (<tr>) for an item.
-     * @param {object} item - The data item.
-     * @returns {HTMLTableRowElement} The created <tr> element.
-     */
-    function createTableRow(item) {
-      const row = document.createElement("tr");
-      row.dataset.id = item.id;
-
-      // 1. ID Cell
-      const idCell = document.createElement("td");
-      idCell.className = "id-cell";
-      idCell.textContent = item.id;
-      row.appendChild(idCell);
-
-      // 2. Title Cell
-      const titleCell = document.createElement("td");
-      titleCell.className = "title-cell";
-      titleCell.textContent = item.title;
-      row.appendChild(titleCell);
-
-      // 3. Categories Cell
-      const categoriesCell = document.createElement("td");
-      const categoriesContainer = document.createElement("div");
-      categoriesContainer.className = "categories-cell";
-      (item.categories || []).forEach(cat => {
-        const pill = document.createElement("span");
-        pill.className = "category-pill";
-        pill.textContent = cat;
-        categoriesContainer.appendChild(pill);
-      });
-      categoriesCell.appendChild(categoriesContainer);
-      row.appendChild(categoriesCell);
-
-      // 4. Description Cell
-      const descriptionCell = document.createElement("td");
-      descriptionCell.className = "description-cell";
-      descriptionCell.textContent = item.description;
-      descriptionCell.title = item.description; // Show full text on hover
-      row.appendChild(descriptionCell);
-
-      // 5. Actions Cell
-      const actionsCell = document.createElement("td");
-      const actionsContainer = document.createElement("div");
-      actionsContainer.className = "actions-cell";
-
-      const editButton = document.createElement('button');
-      editButton.className = 'edit-btn';
-      editButton.title = 'ویرایش';
-      editButton.innerHTML = '✏️';
-      editButton.onclick = () => editItem(item.id);
-
-      const deleteButton = document.createElement('button');
-      deleteButton.className = 'delete-btn';
-      deleteButton.title = 'حذف';
-      deleteButton.innerHTML = '🗑️';
-      deleteButton.onclick = () => deleteItem(item.id);
-
-      const copyButton = document.createElement('button');
-      copyButton.className = 'copy-btn';
-      copyButton.title = 'کپی متن';
-      copyButton.innerHTML = '📋';
-      copyButton.onclick = () => copyToClipboard(item.description);
-
-      actionsContainer.appendChild(copyButton);
-      actionsContainer.appendChild(editButton);
-      actionsContainer.appendChild(deleteButton);
-      actionsCell.appendChild(actionsContainer);
-      row.appendChild(actionsCell);
-
-      return row;
-    }
-
-    /**
-     * [MODIFIED] Renders items based on search filter.
-     */
-    function renderItems() {
-      itemListBody.innerHTML = "";
-
-      let filtered = jsonData;
-      if (searchValue.trim()) {
-        const q = searchValue.trim().toLowerCase();
-        filtered = jsonData.filter(item =>
-          (item.title && item.title.toLowerCase().includes(q)) ||
-          (item.description && item.description.toLowerCase().includes(q)) ||
-          (item.categories && item.categories.some(c => c.toLowerCase().includes(q))) ||
-          (String(item.id).includes(q))
-        );
-      }
-
-      noResultsDiv.style.display = filtered.length === 0 ? 'block' : 'none';
-
-      filtered.sort((a, b) => a.id - b.id);
-
-      filtered.forEach(item => {
-        const row = createTableRow(item);
-        itemListBody.appendChild(row);
-      });
-    }
-
-    function openModal() {
-      itemModal.style.display = "block";
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      itemModal.style.display = "none";
-      document.body.style.overflow = '';
-      itemForm.reset();
-      document.getElementById("itemId").value = '';
-    }
-
-    searchInput.addEventListener("input", (e) => {
-      searchValue = e.target.value;
-      renderItems();
-    });
-
-    function renderCategoryCheckboxes(selectedCategories = []) {
-      categoriesCheckboxContainer.innerHTML = "";
-      availableCategories.forEach(category => {
-        const div = document.createElement("div");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.id = `cat-${category}`;
-        checkbox.name = "category";
-        checkbox.value = category;
-        checkbox.checked = selectedCategories.includes(category);
-        const label = document.createElement("label");
-        label.htmlFor = `cat-${category}`;
-        label.textContent = category;
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        categoriesCheckboxContainer.appendChild(div);
-      });
-    }
-
-    function editItem(id) {
-      const item = jsonData.find(i => i.id === id);
-      if (!item) return;
-      document.getElementById("itemId").value = item.id;
-      idInput.value = item.id;
-      idInput.readOnly = true;
-      titleInput.value = item.title;
-      descriptionTextarea.value = item.description;
-      modalTitle.textContent = "ویرایش پیام";
-      renderCategoryCheckboxes(item.categories);
-      openModal();
-    }
-
-    addNewItemBtn.addEventListener("click", () => {
-      itemForm.reset();
-      document.getElementById("itemId").value = '';
-      const maxId = jsonData.length > 0 ? Math.max(...jsonData.map(i => i.id || 0)) : 0;
-      idInput.value = maxId + 1;
-      idInput.readOnly = false;
-      modalTitle.textContent = "افزودن پیام جدید";
-      renderCategoryCheckboxes([]);
-      openModal();
-    });
-
-    /**
-     * [MODIFIED] Handles form submission without full page reload.
-     */
-    itemForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const editingItemId = parseInt(document.getElementById("itemId").value, 10);
-      const isEditing = !!editingItemId;
-
-      const selectedCategories = Array.from(categoriesCheckboxContainer.querySelectorAll('input:checked')).map(cb => cb.value);
-      if (!titleInput.value.trim() || selectedCategories.length === 0) {
-        alert("عنوان و حداقل یک دسته‌بندی الزامی است.");
-        return;
-      }
-
-      const itemData = {
-        id: parseInt(idInput.value, 10),
-        title: titleInput.value.trim(),
-        categories: selectedCategories,
-        description: descriptionTextarea.value.trim(),
+      const ICONS = {
+        add: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`,
+        save: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+        copy: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
+        edit: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>`,
+        delete: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`
       };
 
-      if (!isEditing && jsonData.some(item => item.id === itemData.id)) {
-        alert("این شناسه قبلاً استفاده شده است.");
-        return;
+      function showToast(message, type = 'success', duration = 4000) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `<span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+          toast.classList.remove('show');
+          toast.addEventListener('transitionend', () => toast.remove());
+        }, duration);
       }
 
-      try {
-        if (isEditing) {
-          // --- UPDATE LOGIC ---
-          await apiRequest('update', itemData);
-          const index = jsonData.findIndex(i => i.id === editingItemId);
-          if (index !== -1) jsonData[index] = itemData; // Update local data
-
-          // Update only the specific row in the table
-          const rowToUpdate = itemListBody.querySelector(`tr[data-id="${itemData.id}"]`);
-          if (rowToUpdate) {
-            const newRow = createTableRow(itemData);
-            rowToUpdate.innerHTML = newRow.innerHTML; // Replace content
-          }
-        } else {
-          // --- CREATE LOGIC ---
-          await apiRequest('create', itemData);
-          jsonData.push(itemData); // Add to local data
-          jsonData.sort((a, b) => a.id - b.id); // Keep it sorted
-          renderItems(); // Re-render to place new item correctly
-        }
-        closeModal();
-      } catch (error) {
-        // Error is already alerted by apiRequest
+      function showConfirmation(message, onConfirm) {
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-confirm';
+        toast.innerHTML = `<div class="toast-message">${message}</div>
+                    <div class="toast-buttons">
+                        <button class="btn btn-danger" id="confirmAction">بله، حذف کن</button>
+                        <button class="btn btn-secondary" id="cancelAction">لغو</button>
+                    </div>`;
+        const removeToast = () => {
+          toast.classList.remove('show');
+          toast.addEventListener('transitionend', () => toast.remove());
+        };
+        toast.querySelector('#confirmAction').onclick = () => {
+          onConfirm();
+          removeToast();
+        };
+        toast.querySelector('#cancelAction').onclick = removeToast;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
       }
-    });
 
-    /**
-     * [MODIFIED] Deletes an item without full page reload.
-     */
-    async function deleteItem(id) {
-      if (confirm("آیا از حذف این پیام مطمئن هستید؟")) {
+      async function apiRequest(action, data) {
         try {
-          await apiRequest('delete', {
-            id
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              action,
+              data
+            }),
           });
-          jsonData = jsonData.filter(item => item.id !== id); // Update local data
-
-          // Remove only the specific row from the table
-          const rowToDelete = itemListBody.querySelector(`tr[data-id="${id}"]`);
-          if (rowToDelete) {
-            rowToDelete.remove();
-          }
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message || "خطای سرور");
+          return result;
         } catch (error) {
-          // Error is already alerted by apiRequest
+          console.error(`خطا در عملیات ${action}:`, error);
+          showToast(`خطا: ${error.message}`, 'error');
+          throw error;
         }
       }
-    }
 
-    async function loadInitialData() {
-      try {
-        const response = await fetch(`${API_URL}?v=${new Date().getTime()}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        jsonData = await response.json();
-        renderItems();
-      } catch (error) {
-        console.error("خطا در بارگذاری اولیه داده‌ها:", error);
-        alert("خطا در ارتباط با سرور.");
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('متن با موفقیت کپی شد.', 'info');
+        }).catch(err => {
+          showToast('خطا در کپی کردن متن.', 'error');
+        });
       }
-    }
 
-    closeButton.onclick = closeModal;
-    window.onclick = function(event) {
-      if (event.target == itemModal) closeModal();
-    };
-    cancelEditBtn.onclick = closeModal;
-    document.addEventListener("DOMContentLoaded", loadInitialData);
+      function highlightText(text, query) {
+        if (!query || !text) return text;
+        const regex = new RegExp(`(${query.replace(/[\.\+\*?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/g, "\\$&")})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+      }
+
+      function createTableRow(item) {
+        const row = document.createElement("tr");
+        row.dataset.id = item.id;
+        row.innerHTML = `
+                    <td class="id-cell">${item.id}</td>
+                    <td class="title-cell">${item.title}</td>
+                    <td><div class="categories-cell">${(item.categories || []).map(cat => `<span class="category-pill">${cat}</span>`).join('')}</div></td>
+                    <td class="description-cell" title="${item.description}">${item.description}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn-icon" onclick="copyToClipboard(jsonData.find(i => i.id === ${item.id}).description)" title="کپی متن">${ICONS.copy}</button>
+                            <button class="btn-icon" onclick="editItem(${item.id})" title="ویرایش">${ICONS.edit}</button>
+                            <button class="btn-icon" onclick="deleteItem(${item.id})" title="حذف">${ICONS.delete}</button>
+                        </div>
+                    </td>
+                `;
+        return row;
+      }
+
+      function renderItems() {
+        const loadingRow = document.getElementById('loading-row');
+        if (loadingRow) loadingRow.style.display = 'none';
+        itemListBody.innerHTML = "";
+        let filtered = jsonData;
+        if (searchValue.trim()) {
+          const q = searchValue.trim().toLowerCase();
+          filtered = jsonData.filter(item =>
+            (item.title && item.title.toLowerCase().includes(q)) ||
+            (item.description && item.description.toLowerCase().includes(q)) ||
+            (item.categories && item.categories.some(c => c.toLowerCase().includes(q))) ||
+            (String(item.id).includes(q))
+          );
+        }
+        noResultsDiv.style.display = filtered.length === 0 ? 'block' : 'none';
+        filtered.sort((a, b) => a.id - b.id);
+        filtered.forEach(item => {
+          const row = createTableRow(item);
+          if (searchValue.trim()) {
+            const query = searchValue.trim();
+            row.querySelector('.title-cell').innerHTML = highlightText(item.title, query);
+            row.querySelector('.description-cell').innerHTML = highlightText(item.description, query);
+            row.querySelectorAll('.category-pill').forEach(pill => {
+              pill.innerHTML = highlightText(pill.textContent, query);
+            });
+          }
+          itemListBody.appendChild(row);
+        });
+      }
+
+      const openModal = () => {
+        itemModal.style.display = "flex";
+        document.body.style.overflow = 'hidden';
+      };
+      const closeModal = () => {
+        itemModal.style.display = "none";
+        document.body.style.overflow = '';
+        itemForm.reset();
+        document.getElementById("itemId").value = '';
+      };
+
+      function renderCategoryCheckboxes(selectedCategories = []) {
+        categoriesCheckboxContainer.innerHTML = "";
+        availableCategories.forEach(category => {
+          const div = document.createElement("div");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = `cat-${category}`;
+          checkbox.name = "category";
+          checkbox.value = category;
+          checkbox.checked = selectedCategories.includes(category);
+          const label = document.createElement("label");
+          label.htmlFor = `cat-${category}`;
+          label.textContent = category;
+          div.appendChild(checkbox);
+          div.appendChild(label);
+          categoriesCheckboxContainer.appendChild(div);
+        });
+      }
+
+      window.editItem = (id) => {
+        const item = jsonData.find(i => i.id === id);
+        if (!item) return;
+        document.getElementById("itemId").value = item.id;
+        idInput.value = item.id;
+        idInput.readOnly = true;
+        titleInput.value = item.title;
+        descriptionTextarea.value = item.description;
+        modalTitle.textContent = "ویرایش پیام";
+        renderCategoryCheckboxes(item.categories);
+        currentStep = 1;
+        updateStepUI();
+        openModal();
+      };
+
+      window.deleteItem = (id) => {
+        showConfirmation("آیا از حذف این پیام مطمئن هستید؟ این عملیات غیرقابل بازگشت است.", async () => {
+          try {
+            const result = await apiRequest('delete', {
+              id
+            });
+            showToast(result.message || 'پیام با موفقیت حذف شد.', 'success');
+            jsonData = jsonData.filter(item => item.id !== id);
+            renderItems();
+          } catch (error) {
+            /* Error is handled by apiRequest */
+          }
+        });
+      };
+
+      addNewItemBtn.addEventListener("click", () => {
+        itemForm.reset();
+        document.getElementById("itemId").value = '';
+        const maxId = jsonData.length > 0 ? Math.max(...jsonData.map(i => i.id || 0)) : 0;
+        idInput.value = maxId + 1;
+        idInput.readOnly = false;
+        modalTitle.textContent = "افزودن پیام جدید";
+        renderCategoryCheckboxes([]);
+        currentStep = 1;
+        updateStepUI();
+        openModal();
+      });
+
+      itemForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        saveBtn.classList.add('loading');
+        try {
+          const editingItemId = parseInt(document.getElementById("itemId").value, 10);
+          const isEditing = !!editingItemId;
+          const selectedCategories = Array.from(categoriesCheckboxContainer.querySelectorAll('input:checked')).map(cb => cb.value);
+
+          const itemData = {
+            id: parseInt(idInput.value, 10),
+            title: titleInput.value.trim(),
+            categories: selectedCategories,
+            description: descriptionTextarea.value.trim(),
+          };
+
+          if (isEditing) {
+            const result = await apiRequest('update', itemData);
+            showToast(result.message || 'پیام با موفقیت به‌روزرسانی شد.', 'success');
+            const index = jsonData.findIndex(i => i.id === editingItemId);
+            if (index !== -1) jsonData[index] = itemData;
+          } else {
+            const result = await apiRequest('create', itemData);
+            showToast(result.message || 'پیام جدید با موفقیت ذخیره شد.', 'success');
+            jsonData.push(itemData);
+          }
+          closeModal();
+          renderItems();
+        } catch (error) {
+          /* Handled in apiRequest */
+        } finally {
+          saveBtn.classList.remove('loading');
+        }
+      });
+
+      const updateStepUI = () => {
+        steps.forEach(step => step.classList.toggle('active-step', parseInt(step.dataset.step) === currentStep));
+        stepIndicator.textContent = `مرحله ${currentStep} از ${totalSteps}`;
+        prevBtn.style.display = currentStep > 1 ? 'inline-flex' : 'none';
+        nextBtn.style.display = currentStep < totalSteps ? 'inline-flex' : 'none';
+        saveBtn.style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
+        if (currentStep === totalSteps) {
+          saveBtn.innerHTML = `${ICONS.save} <span>ذخیره</span>`;
+        }
+      };
+
+      const validateStep = (step) => {
+        if (step === 1) {
+          if (!idInput.value.trim() || !titleInput.value.trim()) {
+            showToast("شناسه و عنوان پیام الزامی است.", "error");
+            return false;
+          }
+          const isEditing = !!document.getElementById("itemId").value;
+          if (!isEditing && jsonData.some(item => item.id === parseInt(idInput.value, 10))) {
+            showToast("این شناسه قبلاً استفاده شده است.", "error");
+            return false;
+          }
+        }
+        if (step === 2) {
+          const selectedCategories = Array.from(categoriesCheckboxContainer.querySelectorAll('input:checked')).length;
+          if (selectedCategories === 0) {
+            showToast("انتخاب حداقل یک دسته‌بندی الزامی است.", "error");
+            return false;
+          }
+        }
+        return true;
+      };
+
+      nextBtn.addEventListener('click', () => {
+        if (validateStep(currentStep)) {
+          currentStep++;
+          updateStepUI();
+        }
+      });
+
+      prevBtn.addEventListener('click', () => {
+        currentStep--;
+        updateStepUI();
+      });
+
+      async function loadInitialData() {
+        const loadingRow = document.getElementById('loading-row');
+        try {
+          loadingRow.style.display = 'table-row';
+          const response = await fetch(`${API_URL}?v=${new Date().getTime()}`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          jsonData = await response.json();
+          renderItems();
+        } catch (error) {
+          if (loadingRow) loadingRow.style.display = 'none';
+          console.error("خطا در بارگذاری اولیه داده‌ها:", error);
+          showToast("خطا در ارتباط با سرور.", "error");
+        }
+      }
+
+      itemModal.addEventListener('click', (e) => {
+        if (e.target === itemModal) closeModal();
+      });
+      cancelEditBtn.onclick = closeModal;
+      searchInput.addEventListener("input", (e) => {
+        searchValue = e.target.value;
+        renderItems();
+      });
+
+      loadInitialData();
+    });
   </script>
 </body>
 

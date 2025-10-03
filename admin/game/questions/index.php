@@ -1,10 +1,8 @@
 <?php
-// فایل: questions.php (نسخه بازطراحی شده با طرح‌بندی جدولی و UX بهبودیافته)
 require_once __DIR__ . '/../../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../../auth/login.html');
 require_once __DIR__ . '/../../../db/database.php';
 
-// کوئری بهینه‌سازی شده برای دریافت اطلاعات سوالات
 $stmt = $pdo->query("
     SELECT
         q.id,
@@ -28,7 +26,6 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>داشبورد مدیریت سوالات</title>
     <style>
-        /* General Styles (from original file, slightly adapted) */
         :root {
             --primary-color: #00ae70;
             --primary-dark: #089863;
@@ -38,11 +35,17 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             --text-color: #1a1a1a;
             --secondary-text: #555;
             --header-text: #fff;
-            --footer-h: 60px;
             --border-color: #e9e9e9;
             --radius: 12px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
             --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --success-light: #e9f7eb;
+            --info-light: #e8f6f8;
+            --danger-light: #fbebec;
         }
 
         @font-face {
@@ -71,8 +74,9 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         main {
             flex: 1;
-            width: min(1200px, 100%);
-            padding: 2.5rem 2rem;
+            max-width: 1500px;
+            width: 100%;
+            padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem);
             margin-inline: auto;
         }
 
@@ -80,94 +84,111 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             background: var(--primary-color);
             color: var(--header-text);
             display: flex;
-            justify-content: space-between;
             align-items: center;
             justify-content: center;
-            position: relative;
-            z-index: 10;
+            padding: 0 2rem;
             box-shadow: var(--shadow-sm);
             flex-shrink: 0;
-            min-height: var(--footer-h);
-            font-size: .85rem
+            min-height: 60px;
+            font-size: .85rem;
         }
 
         .page-toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .page-title {
             color: var(--primary-dark);
             font-weight: 800;
-            font-size: 1.8rem;
-            margin-bottom: .5rem;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-block-end: .5rem;
         }
 
         .page-subtitle {
             color: var(--secondary-text);
             font-weight: 400;
-            font-size: 1rem;
+            font-size: clamp(.95rem, 2.2vw, 1rem);
+        }
+
+        .icon {
+            width: 1.1em;
+            height: 1.1em;
+            stroke-width: 2.2;
+            vertical-align: -0.15em;
         }
 
         .btn {
+            padding: .8em 1.5em;
+            font-size: .95rem;
+            font-weight: 600;
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, filter 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: .5rem;
-            padding: .75rem 1.25rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: .95rem;
-            font-weight: 600;
-            transition: all .2s ease;
+            gap: 0.6em;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.92);
         }
 
         .btn-primary {
             background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
         }
 
         .btn-secondary {
-            background-color: #6c757d;
-            color: white;
+            background-color: var(--secondary-text);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+        }
+
+        .action-button {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 8px;
         }
 
         .search-box input {
             width: 100%;
-            padding: .75rem 1rem;
+            font-size: 1rem;
+            padding: .8em 1.2em;
             border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            font-size: .9rem;
-            transition: all .2s ease;
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            transition: border-color .2s, box-shadow .2s;
+            min-width: 300px;
         }
 
-        .search-box input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-light);
+        .search-box input:focus-visible {
             outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
         }
 
-        /* ⭐ New Table Styles ⭐ */
         .table-container {
             background-color: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             overflow: hidden;
-            /* Important for border-radius */
+            border: 1px solid var(--border-color);
         }
 
         .questions-table {
@@ -180,6 +201,11 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .questions-table td {
             padding: 1rem 1.25rem;
             vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .questions-table tr:last-child td {
+            border-bottom: none;
         }
 
         .questions-table thead {
@@ -190,19 +216,6 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: 600;
             color: var(--secondary-text);
             font-size: 0.85rem;
-            text-transform: uppercase;
-        }
-
-        .questions-table tbody tr {
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .questions-table tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        .questions-table tbody tr:nth-child(even) {
-            background-color: #fcfcfc;
         }
 
         .questions-table tbody tr:hover {
@@ -210,7 +223,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .question-text-cell {
-            max-width: 400px;
+            max-width: 450px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -220,79 +233,32 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .category-badge {
             background-color: var(--primary-light);
             color: var(--primary-dark);
-            padding: .25rem .6rem;
-            border-radius: 12px;
+            padding: .25rem .75rem;
+            border-radius: 20px;
             font-size: .8rem;
             font-weight: 600;
             display: inline-block;
         }
 
+        .points-cell.correct {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .points-cell.incorrect {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
         .actions-cell {
             text-align: left;
+            white-space: nowrap;
         }
 
-        .actions-cell .btn-action {
-            background: none;
-            border: 1px solid transparent;
-            cursor: pointer;
-            padding: 0.5rem;
+        .actions-cell .btn {
             margin: 0 0.2rem;
-            border-radius: 6px;
-            font-size: 1rem;
-            line-height: 1;
-            transition: all 0.2s ease;
         }
 
-        .actions-cell .btn-action:hover {
-            border-color: #ccc;
-            background-color: var(--bg-color);
-        }
-
-        /* Responsive Table Styles */
-        @media (max-width: 768px) {
-            .questions-table thead {
-                display: none;
-            }
-
-            .questions-table,
-            .questions-table tbody,
-            .questions-table tr,
-            .questions-table td {
-                display: block;
-                width: 100%;
-            }
-
-            .questions-table tr {
-                margin-bottom: 1rem;
-                border: 1px solid var(--border-color);
-                border-radius: var(--radius);
-            }
-
-            .questions-table td {
-                text-align: left;
-                padding-left: 50%;
-                position: relative;
-            }
-
-            .questions-table td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 1rem;
-                width: 40%;
-                padding-right: 1rem;
-                text-align: right;
-                font-weight: bold;
-                color: var(--text-color);
-            }
-
-            .question-text-cell {
-                white-space: normal;
-                max-width: 100%;
-            }
-        }
-
-
-        /* Empty State (no changes) */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -301,9 +267,19 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border: 2px dashed var(--border-color);
         }
 
+        .empty-state .icon {
+            width: 4rem;
+            height: 4rem;
+            stroke-width: 1.5;
+            color: var(--primary-color);
+            opacity: 0.6;
+            margin-bottom: 1rem;
+        }
+
         .empty-state h2 {
             margin-bottom: .5rem;
             font-weight: 700;
+            font-size: 1.5rem;
         }
 
         .empty-state p {
@@ -311,7 +287,6 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: var(--secondary-text);
         }
 
-        /* Modal & Form Styles (no changes) */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -357,15 +332,26 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             display: block;
             margin-bottom: .5rem;
             font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
+            font-size: 1rem;
             padding: .8em 1.2em;
             border: 1.5px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .form-group input:focus-visible,
+        .form-group textarea:focus-visible {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
         }
 
         .form-actions {
@@ -378,15 +364,11 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .score-fields {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 1rem;
         }
 
-        .score-fields .form-group {
-            flex: 1;
-        }
-
-        /* Answer Option Styles (no changes) */
         .answer-option {
             position: relative;
             margin-bottom: .75rem;
@@ -397,7 +379,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             align-items: center;
             padding: .75rem;
             border: 2px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: var(--radius);
             cursor: pointer;
             transition: all .2s;
         }
@@ -457,15 +439,12 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             transform: scale(1);
         }
 
-        /* Loading spinner for buttons */
         .btn.loading .btn-text {
             opacity: 0;
         }
 
         .btn .spinner {
             position: absolute;
-            top: 50%;
-            left: 50%;
             width: 20px;
             height: 20px;
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -474,7 +453,6 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             animation: spin 1s linear infinite;
             opacity: 0;
             transition: opacity .2s ease;
-            transform: translate(-50%, -50%);
         }
 
         .btn.loading .spinner {
@@ -483,50 +461,71 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         @keyframes spin {
             to {
-                transform: translate(-50%, -50%) rotate(360deg);
+                transform: rotate(360deg);
             }
         }
 
-        /* Toast Notification Styles */
         #toast-container {
             position: fixed;
-            bottom: 20px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 200;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
         }
 
         .toast {
             padding: 12px 20px;
-            background-color: var(--primary-dark);
+            border-radius: var(--radius);
             color: white;
-            border-radius: 8px;
+            font-weight: 500;
             box-shadow: var(--shadow-md);
-            margin-bottom: 10px;
             opacity: 0;
-            transform: translateY(20px);
-            animation: fade-in-out 4s forwards;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            min-width: 280px;
+            text-align: center;
         }
 
-        .toast.error {
-            background-color: #c82333;
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        @keyframes fade-in-out {
-            5% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .toast-success {
+            background-color: var(--success-color);
+        }
 
-            90% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .toast-error {
+            background-color: var(--danger-color);
+        }
 
-            100% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+        .toast-info {
+            background-color: var(--info-color);
+        }
+
+        .toast-confirm {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .toast-confirm .toast-message {
+            margin-bottom: 1rem;
+        }
+
+        .toast-confirm .toast-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .toast-confirm .btn {
+            font-size: 0.85rem;
+            padding: 0.5em 1em;
         }
     </style>
 </head>
@@ -536,20 +535,31 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <main>
         <div class="page-toolbar">
             <div>
-                <h2 class="page-title" style="margin: 0;">بانک سوالات</h2>
+                <h1 class="page-title">بانک سوالات</h1>
                 <p class="page-subtitle">سوالات آزمون را از اینجا مدیریت، ویرایش یا حذف کنید.</p>
             </div>
-            <div style="display: flex; gap: 1rem; align-items:center;">
+            <div style="display: flex; gap: 1rem; align-items:center; flex-wrap: wrap;">
                 <div class="search-box">
                     <input type="text" id="question-search-input" placeholder="جستجوی سوال یا دسته‌بندی...">
                 </div>
-                <button id="add-new-question-btn" class="btn btn-primary">➕ <span>سوال جدید</span></button>
+                <button id="add-new-question-btn" class="btn btn-primary">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                    <span>سوال جدید</span>
+                </button>
             </div>
         </div>
 
         <?php if (empty($questions)): ?>
             <div class="empty-state">
-                <h2>هنوز هیچ سوالی نساخته‌اید! 🙁</h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" x2="12" y1="9" y2="13" />
+                    <line x1="12" x2="12.01" y1="17" y2="17" />
+                </svg>
+                <h2>هنوز هیچ سوالی نساخته‌اید!</h2>
                 <p>برای شروع، اولین سوال خود را ایجاد کرده و در آزمون‌ها از آن استفاده کنید.</p>
                 <button id="add-new-question-btn-empty" class="btn btn-primary">ایجاد اولین سوال</button>
             </div>
@@ -575,12 +585,22 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td data-label="دسته‌بندی">
                                     <span class="category-badge"><?= htmlspecialchars($question['category'] ?: 'عمومی') ?></span>
                                 </td>
-                                <td data-label="امتیاز مثبت" style="color: #28a745; font-weight: 500;"><?= htmlspecialchars($question['points_correct']) ?></td>
-                                <td data-label="نمره منفی" style="color: #dc3545; font-weight: 500;"><?= htmlspecialchars($question['points_incorrect']) ?></td>
+                                <td data-label="امتیاز مثبت" class="points-cell correct"><?= htmlspecialchars($question['points_correct']) ?></td>
+                                <td data-label="نمره منفی" class="points-cell incorrect"><?= htmlspecialchars($question['points_incorrect']) ?></td>
                                 <td data-label="تعداد گزینه‌ها"><?= $question['answer_count'] ?></td>
                                 <td data-label="عملیات" class="actions-cell">
-                                    <button class="btn-action" onclick="editQuestion(<?= $question['id'] ?>)" title="ویرایش">✏️</button>
-                                    <button class="btn-action" onclick="deleteQuestion(<?= $question['id'] ?>)" title="حذف">🗑️</button>
+                                    <button class="btn btn-info action-button" onclick="editQuestion(<?= $question['id'] ?>)" title="ویرایش">
+                                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                        </svg>
+                                    </button>
+                                    <button class="btn btn-danger action-button" onclick="deleteQuestion(<?= $question['id'] ?>)" title="حذف">
+                                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 6h18" />
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                        </svg>
+                                    </button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -592,7 +612,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div id="modal-overlay" class="modal-overlay">
         <div id="modal-form" class="modal-form">
-            <h2 id="form-title" class="page-title">افزودن سوال جدید</h2>
+            <h2 id="form-title" class="page-title" style="font-size: 1.5rem;">افزودن سوال جدید</h2>
             <form id="question-form">
                 <input type="hidden" id="question-id">
                 <input type="hidden" id="action">
@@ -620,7 +640,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <button type="button" id="cancel-btn" class="btn btn-secondary">انصراف</button>
                     <button type="submit" id="save-btn" class="btn btn-primary">
                         <span class="btn-text">ذخیره</span>
-                        <span class="spinner"></span>
+                        <div class="spinner"></div>
                     </button>
                 </div>
             </form>
@@ -632,7 +652,45 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <script src="/js/header.js"></script>
     <script>
-        // Global functions for action buttons
+        function showToast(message, type = 'success', duration = 4000) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, duration);
+        }
+
+        function showConfirmation(message, onConfirm) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-confirm';
+            toast.innerHTML = `
+                <div class="toast-message">${message}</div>
+                <div class="toast-buttons">
+                    <button class="btn btn-danger" id="confirmAction">بله، حذف کن</button>
+                    <button class="btn btn-secondary" id="cancelAction">لغو</button>
+                </div>`;
+
+            const removeToast = () => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            };
+
+            toast.querySelector('#confirmAction').onclick = () => {
+                onConfirm();
+                removeToast();
+            };
+            toast.querySelector('#cancelAction').onclick = removeToast;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+        }
+
         async function editQuestion(id) {
             document.dispatchEvent(new CustomEvent('openEditModal', {
                 detail: {
@@ -642,31 +700,25 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         async function deleteQuestion(id) {
-            if (confirm('آیا از حذف این سوال مطمئن هستید؟')) {
+            showConfirmation('آیا از حذف این سوال و تمام گزینه‌های آن مطمئن هستید؟', async () => {
                 const formData = new FormData();
                 formData.append('action', 'delete_question');
                 formData.append('id', id);
-                const response = await fetch('questions_api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
 
-                showToast(result.message, result.success ? 'success' : 'error');
-                if (result.success) {
-                    setTimeout(() => window.location.reload(), 1000);
+                try {
+                    const response = await fetch('questions_api.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    showToast(result.message, result.success ? 'success' : 'error');
+                    if (result.success) {
+                        setTimeout(() => window.location.reload(), 1200);
+                    }
+                } catch (error) {
+                    showToast('خطا در ارتباط با سرور.', 'error');
                 }
-            }
-        }
-
-        // Reusable showToast function
-        function showToast(message, type = 'success') {
-            const toastContainer = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            toastContainer.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -679,7 +731,9 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const hideModal = () => modalOverlay.classList.remove('visible');
             const toggleLoading = (button, isLoading) => {
                 button.disabled = isLoading;
-                button.classList.toggle('loading', isLoading);
+                if (button.querySelector('.spinner')) {
+                    button.classList.toggle('loading', isLoading);
+                }
             };
 
             const addAnswerInput = (answer = {}, index) => {
@@ -691,8 +745,7 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="${uniqueId}" class="answer-label">
                         <span class="radio-custom"></span>
                         <input type="text" class="answer-text" placeholder="متن گزینه ${index + 1}..." value="${answer.answer_text || ''}" required>
-                    </label>
-                `;
+                    </label>`;
                 document.getElementById('answers-container').appendChild(div);
             };
 
@@ -715,25 +768,28 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const {
                     id
                 } = e.detail;
-                const response = await fetch(`questions_api.php?action=get_question&id=${id}`);
-                const data = await response.json();
-                if (data.success) {
-                    const q = data.question;
-                    form.reset();
-                    document.getElementById('answers-container').innerHTML = '';
-                    document.getElementById('question-id').value = q.id;
-                    document.getElementById('action').value = 'update_question';
-                    document.getElementById('question-text').value = q.question_text;
-                    document.getElementById('question-category').value = q.category;
-                    document.getElementById('points-correct').value = q.points_correct;
-                    document.getElementById('points-incorrect').value = q.points_incorrect;
-
-                    formTitle.textContent = 'ویرایش سوال';
-                    let answers = q.answers.length < 4 ? [...q.answers, ...Array(4 - q.answers.length).fill({})] : q.answers;
-                    answers.slice(0, 4).forEach((ans, i) => addAnswerInput(ans, i));
-                    showModal();
-                } else {
-                    showToast(data.message || 'خطا در دریافت اطلاعات', 'error');
+                try {
+                    const response = await fetch(`questions_api.php?action=get_question&id=${id}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        const q = data.question;
+                        form.reset();
+                        document.getElementById('answers-container').innerHTML = '';
+                        document.getElementById('question-id').value = q.id;
+                        document.getElementById('action').value = 'update_question';
+                        document.getElementById('question-text').value = q.question_text;
+                        document.getElementById('question-category').value = q.category;
+                        document.getElementById('points-correct').value = q.points_correct;
+                        document.getElementById('points-incorrect').value = q.points_incorrect;
+                        formTitle.textContent = 'ویرایش سوال';
+                        let answers = q.answers.length < 4 ? [...q.answers, ...Array(4 - q.answers.length).fill({})] : q.answers;
+                        answers.slice(0, 4).forEach((ans, i) => addAnswerInput(ans, i));
+                        showModal();
+                    } else {
+                        showToast(data.message || 'خطا در دریافت اطلاعات', 'error');
+                    }
+                } catch (error) {
+                    showToast('خطا در ارتباط با سرور.', 'error');
                 }
             });
 
@@ -773,31 +829,35 @@ $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     answers: answers
                 };
                 const action = document.getElementById('action').value;
-                const response = await fetch(`questions_api.php?action=${action}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
 
-                if (result.success) {
-                    hideModal();
-                    showToast('عملیات با موفقیت انجام شد.');
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    showToast(result.message || 'خطایی رخ داد.', 'error');
+                try {
+                    const response = await fetch(`questions_api.php?action=${action}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        hideModal();
+                        showToast('عملیات با موفقیت انجام شد.');
+                        setTimeout(() => window.location.reload(), 1200);
+                    } else {
+                        showToast(result.message || 'خطایی رخ داد.', 'error');
+                    }
+                } catch (error) {
+                    showToast('خطا در ارتباط با سرور.', 'error');
+                } finally {
+                    toggleLoading(saveBtn, false);
                 }
-                toggleLoading(saveBtn, false);
             });
 
-            // --- Dashboard Search (Updated for Table) ---
             const searchInput = document.getElementById('question-search-input');
             const questionsTbody = document.getElementById('questions-tbody');
             if (searchInput && questionsTbody) {
                 searchInput.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
+                    const searchTerm = e.target.value.toLowerCase().trim();
                     const rows = questionsTbody.querySelectorAll('tr');
                     rows.forEach(row => {
                         const display = row.dataset.searchTerm.includes(searchTerm) ? '' : 'none';

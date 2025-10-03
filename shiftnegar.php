@@ -473,83 +473,13 @@ $claims = requireAuth(null, '/auth/login.html');
       border: 1px solid #ddd;
       line-height: 1.5;
     }
-
-    .jdp-popover {
-      position: absolute;
-      background: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: 0.5rem;
-      box-shadow: 0 8px 24px var(--shadow-color-medium);
-      padding: 0.75rem;
-      width: 280px;
-      z-index: 9999;
-    }
-
-    .jdp-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-      font-weight: 700;
-      color: var(--primary-dark);
-    }
-
-    .jdp-nav-btn {
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      padding: 0.25rem 0.6rem;
-      border-radius: 0.4rem;
-      cursor: pointer;
-    }
-
-    .jdp-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
-
-    .jdp-weekday {
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--secondary-text-color);
-      padding: 0.3rem 0;
-    }
-
-    .jdp-day {
-      text-align: center;
-      padding: 0.4rem 0;
-      border-radius: 0.4rem;
-      cursor: pointer;
-      background: #fafafa;
-      border: 1px solid #f0f0f0;
-    }
-
-    .jdp-day:hover {
-      background: var(--primary-light);
-    }
-
-    .jdp-day.other {
-      color: #bbb;
-      background: #f8f9fa;
-    }
-
-    .jdp-hidden {
-      display: none;
-    }
   </style>
 </head>
 
 <body>
   <div id="header-placeholder"></div>
   <main>
-    <div class="tabs-container">
-      <button id="monthly-tab" class="tab-button active">
-        برنامه شیفت ماهانه
-      </button>
-      <button id="my-shift-tab" class="tab-button">شیفت من</button>
-    </div>
-    <div id="monthly-view" class="tab-content active">
+    <div id="monthly-view">
       <h1>برنامه شیفت ماهانه</h1>
       <div class="filters-container">
         <div class="filter-group">
@@ -582,11 +512,11 @@ $claims = requireAuth(null, '/auth/login.html');
       <div id="loader">در حال بارگذاری اطلاعات...</div>
       <div id="schedule-container" class="table-container"></div>
     </div>
-    <div id="my-shift-view" class="tab-content"></div>
   </main>
   <div id="footer-placeholder"></div>
 
   <script src="/js/header.js?v=1.0"></script>
+  <script src="/js/jalali-datepicker.js"></script>
 
   <script>
     function fetchNoCache(url, options = {}) {
@@ -598,7 +528,6 @@ $claims = requireAuth(null, '/auth/login.html');
 
     let allExperts = [];
     let allAvailableDates = [];
-    let currentCalendarDate = new Date();
     const shiftColorMap = new Map();
     const colorPalette = [
       "#E3F2FD",
@@ -610,248 +539,10 @@ $claims = requireAuth(null, '/auth/login.html');
     ];
     let nextColorIndex = 0;
 
-    async function getLoggedInUser() {
-      try {
-        // ✅ MODIFIED: Using fetchNoCache
-        const res = await fetchNoCache("/auth/get-user-info.php", {
-          credentials: "same-origin",
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data && data.ok && data.user ? data.user : null;
-      } catch {
-        return null;
-      }
-    }
-
-    let startWorkMap = null;
-    async function getStartWorkMap() {
-      if (startWorkMap) return startWorkMap;
-      try {
-        const res = await fetchNoCache("/data/start-work.json");
-        if (!res.ok)
-          throw new Error(
-            `فایل start-work.json یافت نشد (کد: ${res.status})`
-          );
-        const json = await res.json();
-        if (Array.isArray(json)) {
-          startWorkMap = new Map(json.map((it) => [String(it.id), it]));
-        } else if (json && typeof json === "object" && "id" in json) {
-          startWorkMap = new Map([
-            [String(json.id), json]
-          ]);
-        } else if (json && typeof json === "object") {
-          startWorkMap = new Map(
-            Object.values(json).map((it) => [String(it.id), it])
-          );
-        } else {
-          startWorkMap = new Map();
-        }
-      } catch (e) {
-        console.error(e);
-        startWorkMap = new Map();
-      }
-      return startWorkMap;
-    }
-
-    function diffDaysInclusive(fromDate, toDate) {
-      const d1 = new Date(
-        fromDate.getFullYear(),
-        fromDate.getMonth(),
-        fromDate.getDate()
-      );
-      const d2 = new Date(
-        toDate.getFullYear(),
-        toDate.getMonth(),
-        toDate.getDate()
-      );
-      const ms = d2 - d1;
-      if (ms < 0) return 0;
-      return Math.floor(ms / 86400000) + 1;
-    }
-
-    function jalaliToGregorian(jy, jm, jd) {
-      var sal_a, gy, gm, gd, days;
-      jy += 1595;
-      days = -355668 +
-        365 * jy +
-        ~~(jy / 33) * 8 +
-        ~~(((jy % 33) + 3) / 4) +
-        jd +
-        (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
-      gy = 400 * ~~(days / 146097);
-      days %= 146097;
-      if (days > 36524) {
-        gy += 100 * ~~(--days / 36524);
-        days %= 36524;
-        if (days >= 365) days++;
-      }
-      gy += 4 * ~~(days / 1461);
-      days %= 1461;
-      if (days > 365) {
-        gy += ~~((days - 1) / 365);
-        days = (days - 1) % 365;
-      }
-      gd = days + 1;
-      sal_a = [
-        0,
-        31,
-        (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28,
-        31,
-        30,
-        31,
-        30,
-        31,
-        31,
-        30,
-        31,
-        30,
-        31,
-      ];
-      for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
-      return new Date(gy, gm - 1, gd);
-    }
-
-    function toPersian(date) {
-      const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
-      return parts.map((p) => parseInt(p, 10));
-    }
-
-    function pad2(n) {
-      return String(n).padStart(2, "0");
-    }
-
-    function formatJalaliDisplay(jy, jm, jd) {
-      return `${jy}/${pad2(jm)}/${pad2(jd)}`;
-    }
-
-    function formatISO(date) {
-      return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(
-          date.getDate()
-        )}`;
-    }
-
-    function isJalaliLeap(jy) {
-      return (
-        ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 <
-        682
-      );
-    }
-
-    function jalaliMonthLength(jy, jm) {
-      if (jm <= 6) return 31;
-      if (jm <= 11) return 30;
-      return isJalaliLeap(jy) ? 30 : 29;
-    }
-
-    class JalaliDatePicker {
-      constructor(inputId, altId) {
-        this.input = document.getElementById(inputId);
-        this.alt = document.getElementById(altId);
-        if (!this.input || !this.alt) return;
-        const gNow = new Date();
-        const [jy, jm, jd] = toPersian(gNow);
-        this.jy = jy;
-        this.jm = jm;
-        this.jd = jd;
-        this.pop = document.createElement("div");
-        this.pop.className = "jdp-popover jdp-hidden";
-        document.body.appendChild(this.pop);
-        this.boundClickOutside = (e) => {
-          if (!this.pop.contains(e.target) && e.target !== this.input) {
-            this.hide();
-          }
-        };
-        this.input.addEventListener("focus", () => this.show());
-        this.input.addEventListener("click", () => this.show());
-        window.addEventListener("resize", () => this.position());
-      }
-      show() {
-        this.render();
-        this.position();
-        this.pop.classList.remove("jdp-hidden");
-        setTimeout(
-          () =>
-          document.addEventListener("mousedown", this.boundClickOutside),
-          0
-        );
-      }
-      hide() {
-        this.pop.classList.add("jdp-hidden");
-        document.removeEventListener("mousedown", this.boundClickOutside);
-      }
-      position() {
-        const rect = this.input.getBoundingClientRect();
-        this.pop.style.top = window.scrollY + rect.bottom + 6 + "px";
-        this.pop.style.left = window.scrollX + rect.left + "px";
-      }
-      nav(delta) {
-        this.jm += delta;
-        if (this.jm < 1) {
-          this.jm = 12;
-          this.jy--;
-        }
-        if (this.jm > 12) {
-          this.jm = 1;
-          this.jy++;
-        }
-        this.render();
-      }
-      render() {
-        const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
-        const firstG = jalaliToGregorian(this.jy, this.jm, 1);
-        const firstWeekday = (firstG.getDay() + 1) % 7;
-        const daysInMonth = jalaliMonthLength(this.jy, this.jm);
-        let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat(
-            "fa-IR",
-            { month: "long" }
-          ).format(firstG)} ${new Intl.NumberFormat("fa-IR").format(
-            this.jy
-          )}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${weekDays
-            .map((w) => `<div class="jdp-weekday">${w}</div>`)
-            .join("")}`;
-        for (let i = 0; i < firstWeekday; i++) {
-          html += `<div class="jdp-day other"></div>`;
-        }
-        for (let d = 1; d <= daysInMonth; d++) {
-          html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat(
-              "fa-IR"
-            ).format(d)}</div>`;
-        }
-        html += `</div>`;
-        this.pop.innerHTML = html;
-        this.pop.querySelectorAll("[data-nav]").forEach((btn) => {
-          btn.addEventListener("click", (e) =>
-            this.nav(parseInt(e.currentTarget.dataset.nav, 10))
-          );
-        });
-        this.pop.querySelectorAll("[data-day]").forEach((cell) => {
-          cell.addEventListener("click", (e) => {
-            const d = parseInt(e.currentTarget.dataset.day, 10);
-            const gDate = jalaliToGregorian(this.jy, this.jm, d);
-            this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
-            this.alt.value = formatISO(gDate);
-            this.hide();
-            if (typeof applyFilters === "function") applyFilters();
-          });
-        });
-      }
-      setInitialFromGregorian(date) {
-        const [jy, jm, jd] = toPersian(date);
-        this.jy = jy;
-        this.jm = jm;
-        this.jd = jd;
-        this.input.value = formatJalaliDisplay(jy, jm, jd);
-        this.alt.value = formatISO(date);
-      }
-    }
-
     document.addEventListener("DOMContentLoaded", initializePage);
     async function initializePage() {
-      setupTabs();
       const loader = document.getElementById("loader");
       try {
-        // ✅ MODIFIED: Using fetchNoCache
         const response = await fetchNoCache("/php/get-shifts.php");
         if (!response.ok)
           throw new Error(
@@ -875,232 +566,6 @@ $claims = requireAuth(null, '/auth/login.html');
         loader.textContent = `خطا: ${error.message}`;
         loader.style.color = "var(--error-color)";
       }
-    }
-
-    function setupTabs() {
-      const tabs = document.querySelectorAll(".tab-button");
-      const contents = document.querySelectorAll(".tab-content");
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", async () => {
-          tabs.forEach((i) => i.classList.remove("active"));
-          contents.forEach((c) => c.classList.remove("active"));
-          tab.classList.add("active");
-          const activeContent = document.getElementById(
-            tab.id.replace("-tab", "-view")
-          );
-          activeContent.classList.add("active");
-          if (tab.id === "my-shift-tab") await handleMyShiftTabClick();
-        });
-      });
-    }
-
-    function hasShiftsInMonth(date, userShifts) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const monthPrefix = `${year}-${month}-`;
-      return Object.keys(userShifts).some((shiftDate) =>
-        shiftDate.startsWith(monthPrefix)
-      );
-    }
-
-    async function handleMyShiftTabClick() {
-      const myShiftContainer = document.getElementById("my-shift-view");
-      const user = await getLoggedInUser();
-      if (!user) {
-        myShiftContainer.innerHTML = `<div class="not-logged-in">
-                    <p>برای مشاهده شیفت شخصی خود، لطفاً ابتدا وارد شوید.</p>
-                    <a href="/auth/login.html">رفتن به صفحه ورود</a>
-                  </div>`;
-        return;
-      }
-      const userId = user.id ?? user.sub ?? user.userId ?? null;
-      let userShiftData = null;
-      if (userId !== null) {
-        userShiftData = allExperts.find(
-          (expert) => String(expert.id) === String(userId)
-        );
-      }
-      if (!userShiftData && user.username) {
-        userShiftData = allExperts.find(
-          (expert) =>
-          String(expert.username || "").toLowerCase() ===
-          String(user.username).toLowerCase()
-        );
-      }
-      if (!userShiftData) {
-        myShiftContainer.innerHTML = `<div class="not-logged-in">
-                    <p>اطلاعات شیفت برای شما در سیستم یافت نشد.</p>
-                  </div>`;
-        return;
-      }
-      const swMap = await getStartWorkMap();
-      const startInfo = swMap.get(String(userId)) || null;
-      renderMyShiftView(userShiftData, startInfo);
-    }
-
-    function renderMyShiftView(userData, startInfo) {
-      const container = document.getElementById("my-shift-view");
-      const monthName = currentCalendarDate.toLocaleDateString("fa-IR", {
-        month: "long",
-      });
-      const year = new Intl.NumberFormat("fa-IR", {
-        useGrouping: false,
-      }).format(
-        currentCalendarDate.toLocaleDateString("fa-IR-u-nu-latn", {
-          year: "numeric",
-        })
-      );
-      const prevMonthDate = new Date(currentCalendarDate);
-      prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-      const nextMonthDate = new Date(currentCalendarDate);
-      nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
-      const hasPrevShifts = hasShiftsInMonth(prevMonthDate, userData.shifts);
-      const hasNextShifts = hasShiftsInMonth(nextMonthDate, userData.shifts);
-      const breakTime = userData["break-time"];
-      let breakLabel = "ساعت استراحت";
-      let breakValue = breakTime || "تعیین نشده";
-      if (breakTime && breakTime.includes(" - ")) {
-        const endTime = breakTime.split(" - ")[1].trim();
-        if (endTime)
-          breakLabel = endTime <= "17:00" ? "🌮 تایم ناهار" : "🌮 تایم شام";
-      }
-      let startWorkText =
-        startInfo && startInfo.start_work ? startInfo.start_work : null;
-      let startWorkDays = null;
-      if (startWorkText) {
-        const parts = startWorkText.split("/");
-        if (parts.length === 3) {
-          const [jy, jm, jd] = parts.map(Number);
-          const gStart = jalaliToGregorian(jy, jm, jd);
-          startWorkDays = diffDaysInclusive(gStart, new Date());
-        }
-      }
-      container.innerHTML = `
-                <h1>تقویم شیفت من</h1>
-                <div id="user-shift-info">
-                  <p>👤 کارشناس: <span>${userData.name}</span></p>
-                  <p>⏰ ساعت شیفت: <span>${
-                    userData["shifts-time"] || "تعیین نشده"
-                  }</span></p>
-                  <p>${breakLabel}: <span>${breakValue}</span></p>
-                  ${
-                    startWorkText
-                      ? `<p>📅 داتینی از تاریخ: <span>${startWorkText}</span></p><p><span>🚀 ${new Intl.NumberFormat(
-                          "fa-IR"
-                        ).format(
-                          startWorkDays ?? 0
-                        )}</span> روزه که داتینی هستی</p>`
-                      : ""
-                  }
-                </div>
-                <div id="calendar-controls">
-                  <button id="prev-month" ${
-                    hasPrevShifts ? "" : "disabled"
-                  }>&rarr; ماه قبل</button>
-                  <span id="current-month-year">${monthName} ${year}</span>
-                  <button id="next-month" ${
-                    hasNextShifts ? "" : "disabled"
-                  }>ماه بعد &larr;</button>
-                </div>
-                <div id="calendar-container"></div>
-              `;
-      document.getElementById("prev-month").addEventListener("click", () => {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-        renderMyShiftView(userData, startInfo);
-      });
-      document.getElementById("next-month").addEventListener("click", () => {
-        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
-        renderMyShiftView(userData, startInfo);
-      });
-      renderCalendar(currentCalendarDate, userData.shifts);
-    }
-
-    function renderCalendar(date, shiftsData) {
-      const container = document.getElementById("calendar-container");
-      const weekDays = [
-        "شنبه",
-        "یکشنبه",
-        "دوشنبه",
-        "سه‌شنبه",
-        "چهارشنبه",
-        "پنجشنبه",
-        "جمعه",
-      ];
-      let html = '<div id="calendar-grid">';
-      weekDays.forEach(
-        (day) => (html += `<div class="calendar-header">${day}</div>`)
-      );
-      const [pYear, pMonth] = toPersian(date);
-      const firstDayOfPersianMonth = jalaliToGregorian(pYear, pMonth, 1);
-      const daysInMonth = jalaliMonthLength(pYear, pMonth);
-      const lastDayOfPersianMonth = jalaliToGregorian(
-        pYear,
-        pMonth,
-        daysInMonth
-      );
-      const calendarStartDate = new Date(firstDayOfPersianMonth);
-      const startDayOfWeek = firstDayOfPersianMonth.getDay();
-      const offsetToSaturday = (startDayOfWeek + 1) % 7;
-      calendarStartDate.setDate(
-        calendarStartDate.getDate() - offsetToSaturday
-      );
-      const calendarEndDate = new Date(lastDayOfPersianMonth);
-      const endDayOfWeek = lastDayOfPersianMonth.getDay();
-      const offsetToFriday = (5 - endDayOfWeek + 7) % 7;
-      calendarEndDate.setDate(calendarEndDate.getDate() + offsetToFriday);
-      let loopDate = new Date(calendarStartDate);
-      while (loopDate <= calendarEndDate) {
-        const [, currentPMonth] = toPersian(loopDate);
-        const isOtherMonth = currentPMonth !== pMonth;
-        const dateString = formatISO(loopDate);
-        const shiftDetails = getShiftDetails(shiftsData[dateString]);
-        let statusClass = "";
-        let statusText = shiftDetails.displayText;
-        let extraDetailsHtml = "";
-        if (shiftDetails.isSwap) {
-          statusClass = "status-swap";
-          if (shiftDetails.displayText.includes("حضور")) {
-            const originalExpert = allExperts.find(
-              (exp) =>
-              String(exp.id) === String(shiftDetails.linkedTo.expertId)
-            );
-            if (originalExpert) {
-              const originalShiftTime =
-                originalExpert["shifts-time"] || "نامشخص";
-              const originalBreakTime =
-                originalExpert["break-time"] || "نامشخص";
-              extraDetailsHtml = `<div class="swapped-shift-details"><div>⏰ ${originalShiftTime}</div><div>🌮 ${originalBreakTime}</div></div>`;
-            }
-          }
-        } else {
-          const classMap = {
-            "on-duty": "status-on-duty",
-            remote: "status-remote",
-            off: "status-off",
-            leave: "status-special",
-            unknown: "status-unknown",
-          };
-          statusClass = classMap[shiftDetails.status] || "status-special";
-        }
-        if (shiftDetails.status === "unknown") statusText = "";
-        html += `<div class="calendar-day ${
-            isOtherMonth ? "other-month" : ""
-          }">
-                    <div class="day-number">${loopDate.toLocaleDateString(
-                      "fa-IR",
-                      { day: "numeric" }
-                    )}</div>
-                    ${
-                      statusText
-                        ? `<div class="shift-info ${statusClass}">${statusText}</div>`
-                        : ""
-                    }
-                    ${extraDetailsHtml}
-                  </div>`;
-        loopDate.setDate(loopDate.getDate() + 1);
-      }
-      html += "</div>";
-      container.innerHTML = html;
     }
 
     function getShiftStyle(shiftTime) {
@@ -1261,19 +726,32 @@ $claims = requireAuth(null, '/auth/login.html');
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      // Set initial dates
       const today = new Date();
       const nextWeek = new Date();
       nextWeek.setDate(today.getDate() + 7);
-      const dpStart = new JalaliDatePicker("startDate", "startDateAlt");
-      dpStart.setInitialFromGregorian(today);
-      const dpEnd = new JalaliDatePicker("endDate", "endDateAlt");
-      dpEnd.setInitialFromGregorian(nextWeek);
+
+      // Set start date inputs
+      const [startJy, startJm, startJd] = toPersian(today);
+      document.getElementById("startDate").value = formatJalaliDisplay(startJy, startJm, startJd);
+      document.getElementById("startDateAlt").value = formatISO(today);
+
+      // Set end date inputs
+      const [endJy, endJm, endJd] = toPersian(nextWeek);
+      document.getElementById("endDate").value = formatJalaliDisplay(endJy, endJm, endJd);
+      document.getElementById("endDateAlt").value = formatISO(nextWeek);
+
+      // Initialize date pickers
+      new JalaliDatePicker("startDate", "startDateAlt");
+      new JalaliDatePicker("endDate", "endDateAlt");
+
+      // Add event listeners to trigger filtering when a date is selected
       document
-        .getElementById("startDate")
-        .addEventListener("blur", applyFilters);
+        .getElementById("startDateAlt")
+        .addEventListener("change", applyFilters);
       document
-        .getElementById("endDate")
-        .addEventListener("blur", applyFilters);
+        .getElementById("endDateAlt")
+        .addEventListener("change", applyFilters);
     });
   </script>
 </body>
