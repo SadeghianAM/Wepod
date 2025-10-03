@@ -557,6 +557,7 @@ function toPersianNumber($number)
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
+        <div id="toast-container"></div>
     </main>
     <div id="footer-placeholder"></div>
 
