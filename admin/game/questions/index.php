@@ -1,8 +1,8 @@
 <?php
 // فایل: questions.php (نسخه بازطراحی شده با طرح‌بندی جدولی و UX بهبودیافته)
-require_once __DIR__ . '/../../auth/require-auth.php';
-$claims = requireAuth('admin', '/../auth/login.html');
-require_once __DIR__ . '/../../db/database.php';
+require_once __DIR__ . '/../../../auth/require-auth.php';
+$claims = requireAuth('admin', '/../../auth/login.html');
+require_once __DIR__ . '/../../../db/database.php';
 
 // کوئری بهینه‌سازی شده برای دریافت اطلاعات سوالات
 $stmt = $pdo->query("

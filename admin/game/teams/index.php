@@ -1,8 +1,8 @@
 <?php
 // فایل: teams.php (نسخه کامل - بدون اسکرول اعضا)
-require_once __DIR__ . '/../../auth/require-auth.php';
-$claims = requireAuth('admin', '/../auth/login.html');
-require_once __DIR__ . '/../../db/database.php';
+require_once __DIR__ . '/../../../auth/require-auth.php';
+$claims = requireAuth('admin', '/../../auth/login.html');
+require_once __DIR__ . '/../../../db/database.php';
 
 // کوئری برای خواندن تیم‌ها به همراه تعداد و اسامی اعضا
 $stmt_teams = $pdo->query("

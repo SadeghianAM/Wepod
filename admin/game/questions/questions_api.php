@@ -1,7 +1,7 @@
 <?php
 // فایل: questions_api.php (با قابلیت امتیازدهی سفارشی)
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../db/database.php';
+require_once __DIR__ . '/../../../db/database.php';
 $action = $_REQUEST['action'] ?? null;
 $response = ['success' => false, 'message' => 'عملیات نامعتبر است.'];
 

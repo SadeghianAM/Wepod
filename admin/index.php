@@ -298,7 +298,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         </a>
       </li>
       <li class="tool-card">
-        <a href="/admin/wiki.php">
+        <a href="/admin/wiki/">
           <span class="tool-icon">📚</span>
           <span class="tool-title">ویرایش ویکی</span>
         </a>

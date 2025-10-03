@@ -9,6 +9,7 @@ if (!$task_id) {
 }
 $user_id = $claims['sub'];
 
+// Fetch Task Details
 $stmt_task = $pdo->prepare("SELECT title, description FROM Tasks WHERE id = ?");
 $stmt_task->execute([$task_id]);
 $task = $stmt_task->fetch(PDO::FETCH_ASSOC);
@@ -17,10 +18,12 @@ if (!$task) {
     die("تکلیف یافت نشد.");
 }
 
+// Fetch All Questions for the Task
 $stmt_questions = $pdo->prepare("SELECT id, question_text FROM TaskQuestions WHERE task_id = ? ORDER BY question_order ASC");
 $stmt_questions->execute([$task_id]);
 $questions = $stmt_questions->fetchAll(PDO::FETCH_ASSOC);
 
+// Fetch All User Answers for these Questions
 $answers = [];
 if (!empty($questions)) {
     $question_ids = array_column($questions, 'id');
@@ -35,6 +38,7 @@ if (!empty($questions)) {
     $stmt_answers->execute($params);
     $user_answers_raw = $stmt_answers->fetchAll(PDO::FETCH_ASSOC);
 
+    // Keep only the latest answer for each question
     foreach ($user_answers_raw as $answer) {
         if (!isset($answers[$answer['task_question_id']])) {
             $answers[$answer['task_question_id']] = $answer;
@@ -42,13 +46,31 @@ if (!empty($questions)) {
     }
 }
 
-$is_task_completed = false;
-if (!empty($questions)) {
-    $last_question_id = end($questions)['id'];
-    if (isset($answers[$last_question_id]) && $answers[$last_question_id]['status'] === 'approved') {
-        $is_task_completed = true;
+// Determine the state of each question (completed, active, locked)
+$question_states = [];
+$previous_question_approved = true;
+$approved_count = 0;
+
+foreach ($questions as $question) {
+    $question_id = $question['id'];
+    $status = $answers[$question_id]['status'] ?? null;
+    $state = 'locked'; // Default state
+
+    if ($previous_question_approved) {
+        if ($status === 'approved') {
+            $state = 'completed';
+            $approved_count++;
+        } else {
+            $state = 'active';
+            $previous_question_approved = false;
+        }
     }
+    $question_states[$question_id] = $state;
 }
+
+$total_questions = count($questions);
+$is_task_completed = ($total_questions > 0 && $approved_count === $total_questions);
+
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -67,16 +89,19 @@ if (!empty($questions)) {
             --text-color: #1a1a1a;
             --secondary-text: #555;
             --border-color: #e9e9e9;
+            --disabled-color: #ccc;
             --radius: 16px;
             --footer-h: 60px;
             --header-text: #fff;
             --shadow-md: 0 8px 25px rgba(0, 120, 80, .12);
-            --status-pending-bg: #fff3cd;
-            --status-pending-text: #856404;
-            --status-approved-bg: #d4edda;
-            --status-approved-text: #155724;
-            --status-rejected-bg: #f8d7da;
-            --status-rejected-text: #721c24;
+            --status-pending-bg: #fff8e1;
+            --status-pending-text: #8d6e00;
+            --status-approved-bg: #e8f5e9;
+            --status-approved-text: #1b5e20;
+            --status-rejected-bg: #ffebee;
+            --status-rejected-text: #c62828;
+            --feedback-bg: #f3e5f5;
+            --feedback-text: #6a1b9a;
         }
 
         @font-face {
@@ -92,13 +117,14 @@ if (!empty($questions)) {
             margin: 0;
             padding: 0;
             font-family: "Vazirmatn", system-ui, sans-serif;
+            /* Font applied to all elements */
         }
 
         body {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: linear-gradient(to top, #f3fdf9 0%, #f7f9fa 100%);
+            background-color: var(--bg-color);
             color: var(--text-color);
         }
 
@@ -146,10 +172,33 @@ if (!empty($questions)) {
             margin-bottom: 2rem;
         }
 
+        .progress-bar {
+            background-color: #e9ecef;
+            border-radius: .5rem;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+
+        .progress-bar-inner {
+            height: 10px;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width .4s ease-in-out;
+        }
+
+        .progress-label {
+            text-align: center;
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--secondary-text);
+            margin-top: .5rem;
+        }
+
         .question-box {
-            margin-top: 2rem;
-            padding-top: 2rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--border-color);
+            transition: opacity .3s;
         }
 
         .question-box:first-child {
@@ -158,18 +207,40 @@ if (!empty($questions)) {
             border-top: none;
         }
 
-        .question-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            line-height: 1.7;
-            color: #333;
+        .question-box.locked {
+            opacity: 0.5;
+        }
+
+        .question-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
             margin-bottom: 1.5rem;
         }
 
+        .question-icon {
+            font-size: 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            flex: 1;
+        }
+
+        .question-box.locked .question-text {
+            color: var(--secondary-text);
+        }
+
         .status-message {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
             padding: 1rem;
             border-radius: 10px;
             font-weight: 500;
+            margin-bottom: 1rem;
         }
 
         .status-message.pending {
@@ -187,6 +258,11 @@ if (!empty($questions)) {
             color: var(--status-rejected-text);
         }
 
+        .feedback-box {
+            background-color: var(--feedback-bg);
+            color: var(--feedback-text);
+        }
+
         textarea {
             width: 100%;
             padding: 1rem;
@@ -195,6 +271,7 @@ if (!empty($questions)) {
             font-size: 1rem;
             min-height: 150px;
             transition: border-color .2s;
+            resize: vertical;
         }
 
         textarea:focus {
@@ -242,6 +319,12 @@ if (!empty($questions)) {
             color: var(--primary-dark);
             margin-top: 1rem;
         }
+
+        .final-message p {
+            font-size: 1.1rem;
+            color: var(--secondary-text);
+            margin-top: .5rem;
+        }
     </style>
 </head>
 
@@ -258,51 +341,77 @@ if (!empty($questions)) {
                 <div class="final-message">
                     <div class="icon">🎉</div>
                     <h2>شما این تکلیف را با موفقیت به پایان رسانده‌اید!</h2>
+                    <p>خسته نباشید، منتظر تکالیف بعدی باشید.</p>
                 </div>
             <?php else: ?>
-                <?php
-                $previous_question_approved = true;
-                foreach ($questions as $index => $question):
-                    if (!$previous_question_approved) {
-                        break;
-                    }
+                <?php if ($total_questions > 0): ?>
+                    <div class="progress-bar">
+                        <div class="progress-bar-inner" style="width: <?= ($approved_count / $total_questions) * 100 ?>%;"></div>
+                    </div>
+                    <p class="progress-label">
+                        <?= $approved_count ?> از <?= $total_questions ?> سوال تایید شده است.
+                    </p>
+                <?php endif; ?>
 
+                <?php foreach ($questions as $index => $question):
                     $question_id = $question['id'];
+                    $current_state = $question_states[$question_id];
                     $answer_data = $answers[$question_id] ?? null;
                     $status = $answer_data['status'] ?? null;
                     $feedback = $answer_data['feedback'] ?? null;
                 ?>
-                    <div class="question-box">
-                        <h2 class="question-text">سوال <?= $index + 1 ?>: <?= htmlspecialchars($question['question_text']); ?></h2>
+                    <div class="question-box <?= $current_state ?>">
+                        <div class="question-header">
+                            <div class="question-icon">
+                                <?php if ($current_state === 'completed') echo '✅'; ?>
+                                <?php if ($current_state === 'active') echo '📝'; ?>
+                                <?php if ($current_state === 'locked') echo '🔒'; ?>
+                            </div>
+                            <h2 class="question-text">سوال <?= $index + 1 ?>: <?= htmlspecialchars($question['question_text']); ?></h2>
+                        </div>
 
-                        <?php if ($status === null || $status === 'rejected'): ?>
+                        <?php if ($current_state === 'active'): ?>
                             <?php if ($status === 'rejected'): ?>
-                                <p class="status-message rejected">پاسخ قبلی شما رد شد. لطفاً دوباره تلاش کنید.</p>
+                                <p class="status-message rejected">
+                                    <span>⚠️</span>
+                                    <span>پاسخ شما نیاز به بازبینی دارد. لطفاً با توجه به بازخورد، پاسخ خود را اصلاح و مجدداً ارسال کنید.</span>
+                                </p>
                                 <?php if (!empty($feedback)): ?>
-                                    <div class="status-message pending" style="margin-top: 1rem;">
-                                        <strong>بازخورد ادمین:</strong>
-                                        <p style="margin-top: .5rem;"><?= htmlspecialchars($feedback); ?></p>
+                                    <div class="status-message feedback-box">
+                                        <span>💬</span>
+                                        <div>
+                                            <strong>بازخورد ادمین:</strong>
+                                            <p style="margin-top: .5rem; line-height: 1.7;"><?= nl2br(htmlspecialchars($feedback)); ?></p>
+                                        </div>
                                     </div>
                                 <?php endif; ?>
+                            <?php elseif ($status === 'submitted'): ?>
+                                <p class="status-message pending">
+                                    <span>⏳</span>
+                                    <span>پاسخ شما ارسال شده و منتظر تایید ادمین است. پس از تایید، سوال بعدی برای شما فعال خواهد شد.</span>
+                                </p>
                             <?php endif; ?>
-                            <form action="submit_task_answer.php" method="post">
-                                <input type="hidden" name="task_id" value="<?= $task_id; ?>">
-                                <input type="hidden" name="task_question_id" value="<?= $question_id; ?>">
-                                <textarea name="answer_text" placeholder="پاسخ خود را اینجا بنویسید..." required></textarea>
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary">ارسال پاسخ</button>
-                                </div>
-                            </form>
-                            <?php $previous_question_approved = false; ?>
 
-                        <?php elseif ($status === 'submitted'): ?>
-                            <p class="status-message pending">پاسخ شما ارسال شده و منتظر تایید ادمین است.</p>
-                            <?php $previous_question_approved = false; ?>
+                            <?php if ($status === null || $status === 'rejected'): ?>
+                                <form action="submit_task_answer.php" method="post">
+                                    <input type="hidden" name="task_id" value="<?= $task_id; ?>">
+                                    <input type="hidden" name="task_question_id" value="<?= $question_id; ?>">
+                                    <textarea name="answer_text" placeholder="پاسخ خود را اینجا بنویسید..." required></textarea>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary">ارسال پاسخ</button>
+                                    </div>
+                                </form>
+                            <?php endif; ?>
 
-                        <?php elseif ($status === 'approved'): ?>
-                            <p class="status-message approved">پاسخ شما برای این سوال تایید شد.</p>
-                            <?php $previous_question_approved = true; ?>
+                        <?php elseif ($current_state === 'completed'): ?>
+                            <p class="status-message approved">
+                                <span>✔️</span>
+                                <span>پاسخ شما برای این سوال تایید شد.</span>
+                            </p>
                         <?php endif; ?>
+
+                        <?php // For locked questions, nothing is shown in the body
+                        ?>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>

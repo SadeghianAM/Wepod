@@ -9,9 +9,8 @@ $claims = requireAuth('admin', '/auth/login.html');
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>مدیریت اسکریپت‌ها و پیام‌های آماده</title>
+  <title>مدیریت پیام‌های آماده</title>
   <style>
-    /* All previous styles remain unchanged */
     :root {
       --primary-color: #00ae70;
       --primary-dark: #089863;
@@ -60,8 +59,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       text-decoration: none;
     }
 
-    /* --- [START] UNCHANGED HEADER & FOOTER STYLES --- */
-
     footer {
       background: var(--primary-color);
       color: var(--header-text);
@@ -72,51 +69,19 @@ $claims = requireAuth('admin', '/auth/login.html');
       z-index: 10;
       box-shadow: var(--shadow-sm);
       flex-shrink: 0;
-    }
-
-
-    footer {
       min-height: var(--footer-h);
       font-size: .85rem
     }
 
-    #today-date,
-    #user-info {
-      position: static !important;
-      transform: none !important;
-      white-space: nowrap;
-      opacity: .9;
-      font-weight: 500;
-      font-size: clamp(.9rem, 2vw, 1rem);
-    }
-
-    #today-date {
-      inset-inline-start: 1.5rem;
-    }
-
-    #user-info {
-      inset-inline-end: 1.5rem;
-      cursor: pointer;
-      padding: 0.5rem 0.8rem;
-      border-radius: 0.5rem;
-      transition: background-color 0.2s;
-    }
-
-    #user-info:hover {
-      background-color: rgba(255, 255, 255, 0.15);
-    }
-
-    /* --- [END] UNCHANGED HEADER & FOOTER STYLES --- */
-
     main {
       flex-grow: 1;
       padding: 2.5rem 2rem;
-      max-width: 1200px;
+      max-width: 1400px;
+      /* Max width increased for table */
       width: 100%;
       margin: 0 auto;
     }
 
-    /* --- Page Header & Actions --- */
     .page-header {
       margin-bottom: 2rem;
     }
@@ -141,6 +106,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       align-items: center;
       gap: 1.5rem;
       flex-wrap: wrap;
+      margin-bottom: 2rem;
     }
 
     #add-new-item-btn {
@@ -186,57 +152,71 @@ $claims = requireAuth('admin', '/auth/login.html');
       outline: none;
     }
 
-    /* --- Script Cards --- */
-    #item-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .script-card {
+    /* --- [START] NEW TABLE STYLES --- */
+    .table-container {
       background-color: var(--card-bg);
       border-radius: var(--border-radius);
       box-shadow: 0 4px 15px var(--shadow-light);
       border: 1px solid var(--border-color);
-      transition: all 0.2s ease-in-out;
-      display: flex;
-      flex-direction: column;
+      overflow-x: auto;
+      /* For responsiveness */
     }
 
-    .script-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 25px var(--shadow-medium);
+    #item-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
     }
 
-    .card-header {
-      padding: 1.25rem;
+    #item-table thead {
+      background-color: #f9fafb;
     }
 
-    .card-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text-color);
+    #item-table th,
+    #item-table td {
+      padding: 1rem 1.25rem;
+      vertical-align: middle;
     }
 
-    .card-meta {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.5rem 1rem;
-      padding: 0 1.25rem 1.25rem;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 0.9rem;
-    }
-
-    .card-id {
-      color: var(--primary-dark);
+    #item-table th {
       font-weight: 600;
+      color: var(--secondary-text-color);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border-color);
     }
 
-    .card-categories {
+    #item-table tbody tr {
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.2s;
+    }
+
+    #item-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    #item-table tbody tr:hover {
+      background-color: var(--primary-light);
+    }
+
+    .id-cell {
+      font-weight: 600;
+      color: var(--primary-dark);
+      width: 5%;
+    }
+
+    .title-cell {
+      font-weight: 600;
+      color: var(--text-color);
+      width: 20%;
+    }
+
+    .categories-cell {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
+      width: 25%;
     }
 
     .category-pill {
@@ -246,39 +226,25 @@ $claims = requireAuth('admin', '/auth/login.html');
       border-radius: 999px;
       font-size: 0.8rem;
       font-weight: 500;
+      white-space: nowrap;
     }
 
-    .card-body {
-      padding: 1.25rem;
-      flex-grow: 1;
+    .description-cell {
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: help;
     }
 
-    .card-description {
-      line-height: 1.7;
-      color: var(--text-color);
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.75rem 1.25rem;
-      border-top: 1px solid var(--border-color);
-      background-color: #fafbfc;
-      border-bottom-left-radius: var(--border-radius);
-      border-bottom-right-radius: var(--border-radius);
-    }
-
-    .card-actions {
+    .actions-cell {
       display: flex;
       gap: 0.5rem;
-      flex-shrink: 0;
+      justify-content: flex-start;
+      width: 15%;
     }
 
-    .card-actions button {
+    .actions-cell button {
       background: none;
       border: none;
       padding: 0.5rem;
@@ -293,68 +259,28 @@ $claims = requireAuth('admin', '/auth/login.html');
       transition: all 0.2s;
     }
 
-    .card-actions .edit-btn:hover {
+    .actions-cell .copy-btn {
+      color: var(--primary-dark);
+    }
+
+    .actions-cell .edit-btn:hover {
       background-color: #e9f5ff;
       color: #007bff;
     }
 
-    .card-actions .delete-btn:hover {
+    .actions-cell .delete-btn:hover {
       background-color: #fef2f2;
       color: #dc3545;
     }
 
-    .copy-btn {
+    .actions-cell .copy-btn:hover {
       background-color: var(--primary-light);
-      color: var(--primary-dark);
-      border: 1px solid var(--primary-color);
-      flex-grow: 1;
-      padding: 0.6rem 1rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-align: center;
-      transition: all 0.2s;
     }
 
-    .copy-btn:hover {
-      background-color: var(--primary-color);
-      color: white;
-    }
+    /* --- [END] NEW TABLE STYLES --- */
 
-    .copy-btn.copied {
-      background-color: #28a745;
-      color: white;
-      border-color: #28a745;
-    }
 
-    #load-more-btn {
-      background-color: var(--blue-color);
-      color: white;
-      padding: 0.75rem 2rem;
-      border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      display: block;
-      margin: 2rem auto 0;
-      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
-      transition: all 0.2s;
-    }
-
-    #load-more-btn:hover {
-      background-color: var(--blue-dark);
-      transform: translateY(-2px);
-    }
-
-    #load-more-btn:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    /* --- Modal Styles --- */
+    /* --- Modal Styles (Unchanged) --- */
     .modal {
       display: none;
       position: fixed;
@@ -507,31 +433,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       text-decoration: underline;
       color: var(--primary-dark);
     }
-
-    @media (max-width: 768px) {
-      #item-list {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 480px) {
-      main {
-        padding: 1.5rem 1rem;
-      }
-
-      .action-bar {
-        justify-content: center;
-      }
-
-      .page-title {
-        font-size: 1.5rem;
-      }
-
-      #today-date,
-      #user-info {
-        display: none;
-      }
-    }
   </style>
 </head>
 
@@ -542,14 +443,32 @@ $claims = requireAuth('admin', '/auth/login.html');
       <h1 class="page-title">مدیریت پیام‌های آماده</h1>
       <p class="page-subtitle">پیام‌ها و اسکریپت‌های پاسخگویی را از اینجا جستجو، ویرایش و مدیریت کنید.</p>
     </div>
+
     <div class="action-bar">
       <button id="add-new-item-btn">✨ افزودن پیام جدید</button>
       <div class="search-container">
         <input type="text" id="search-input" placeholder="جستجو در عنوان، متن، دسته‌بندی یا ID..." />
       </div>
     </div>
-    <div id="item-list" style="margin-top: 2rem;"></div>
-    <div id="load-more-container"></div>
+
+    <div class="table-container">
+      <table id="item-table">
+        <thead>
+          <tr>
+            <th class="id-cell">شناسه</th>
+            <th class="title-cell">عنوان</th>
+            <th class="categories-cell">دسته‌بندی‌ها</th>
+            <th class="description-cell">متن پیام</th>
+            <th class="actions-cell">عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="item-list-body">
+        </tbody>
+      </table>
+    </div>
+    <div id="no-results" style="display: none; text-align: center; padding: 3rem; font-size: 1.2rem; color: #555;">
+      موردی برای نمایش یافت نشد.
+    </div>
     <a href="/admin/index.php" class="back-link">بازگشت به پنل مدیریت</a>
   </main>
   <div id="itemModal" class="modal">
@@ -576,13 +495,9 @@ $claims = requireAuth('admin', '/auth/login.html');
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
   <script>
-    // URL فایل API جدید شما
     const API_URL = "/admin/wiki/wiki-api.php";
-
-    let jsonData = []; // این آرایه به عنوان یک حافظه موقت (cache) از داده‌ها عمل می‌کند
+    let jsonData = [];
     let searchValue = "";
-    let currentPage = 1;
-    const itemsPerPage = 9;
 
     const availableCategories = [
       "عمومی", "احراز هویت", "اعتبار سنجی", "تنظیمات امنیت حساب", "تغییر شماره تلفن همراه",
@@ -593,9 +508,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       "دعوت از دوستان", "هدیه دیجیتال", "وی کلاب"
     ];
 
-    // --- تمامی Element-‌ها مثل قبل تعریف می‌شوند ---
-    const itemListDiv = document.getElementById("item-list");
-    const loadMoreContainer = document.getElementById("load-more-container");
+    const itemListBody = document.getElementById("item-list-body");
     const itemModal = document.getElementById("itemModal");
     const closeButton = document.querySelector(".close-button");
     const itemForm = document.getElementById("itemForm");
@@ -607,12 +520,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     const titleInput = document.getElementById("title");
     const descriptionTextarea = document.getElementById("description-textarea");
     const categoriesCheckboxContainer = document.getElementById("categories-checkbox-container");
+    const noResultsDiv = document.getElementById("no-results");
 
-    /**
-     * تابع جدید برای ارسال درخواست به API
-     * @param {string} action - نوع عملیات (create, update, delete)
-     * @param {object} data - داده‌های مورد نیاز برای عملیات
-     */
     async function apiRequest(action, data) {
       try {
         const response = await fetch(API_URL, {
@@ -627,35 +536,101 @@ $claims = requireAuth('admin', '/auth/login.html');
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "خطای سرور");
-        console.log(result.message);
         return result;
       } catch (error) {
         console.error(`خطا در عملیات ${action}:`, error);
-        alert(`خطا در عملیات ${action}: ` + error.message);
-        throw error; // اجازه می‌دهد تا خطای اصلی در جای دیگر مدیریت شود
+        alert(`خطا: ${error.message}`);
+        throw error;
       }
     }
 
-    // تابع copyToClipboard بدون تغییر باقی می‌ماند...
-    function copyToClipboard(text, button) {
+    function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
-        const originalText = button.innerHTML;
-        button.innerHTML = '✅ کپی شد!';
-        button.classList.add('copied');
-        setTimeout(() => {
-          button.innerHTML = originalText;
-          button.classList.remove('copied');
-        }, 1500);
+        alert('✅ متن کپی شد!');
       }).catch(err => {
         console.error('ناموفق در کپی متن: ', err);
         alert('کپی متن انجام نشد.');
       });
     }
 
-    // تابع renderItems با تغییرات جزئی برای استفاده از ایندکس اصلی
+    /**
+     * [NEW] Creates a table row (<tr>) for an item.
+     * @param {object} item - The data item.
+     * @returns {HTMLTableRowElement} The created <tr> element.
+     */
+    function createTableRow(item) {
+      const row = document.createElement("tr");
+      row.dataset.id = item.id;
+
+      // 1. ID Cell
+      const idCell = document.createElement("td");
+      idCell.className = "id-cell";
+      idCell.textContent = item.id;
+      row.appendChild(idCell);
+
+      // 2. Title Cell
+      const titleCell = document.createElement("td");
+      titleCell.className = "title-cell";
+      titleCell.textContent = item.title;
+      row.appendChild(titleCell);
+
+      // 3. Categories Cell
+      const categoriesCell = document.createElement("td");
+      const categoriesContainer = document.createElement("div");
+      categoriesContainer.className = "categories-cell";
+      (item.categories || []).forEach(cat => {
+        const pill = document.createElement("span");
+        pill.className = "category-pill";
+        pill.textContent = cat;
+        categoriesContainer.appendChild(pill);
+      });
+      categoriesCell.appendChild(categoriesContainer);
+      row.appendChild(categoriesCell);
+
+      // 4. Description Cell
+      const descriptionCell = document.createElement("td");
+      descriptionCell.className = "description-cell";
+      descriptionCell.textContent = item.description;
+      descriptionCell.title = item.description; // Show full text on hover
+      row.appendChild(descriptionCell);
+
+      // 5. Actions Cell
+      const actionsCell = document.createElement("td");
+      const actionsContainer = document.createElement("div");
+      actionsContainer.className = "actions-cell";
+
+      const editButton = document.createElement('button');
+      editButton.className = 'edit-btn';
+      editButton.title = 'ویرایش';
+      editButton.innerHTML = '✏️';
+      editButton.onclick = () => editItem(item.id);
+
+      const deleteButton = document.createElement('button');
+      deleteButton.className = 'delete-btn';
+      deleteButton.title = 'حذف';
+      deleteButton.innerHTML = '🗑️';
+      deleteButton.onclick = () => deleteItem(item.id);
+
+      const copyButton = document.createElement('button');
+      copyButton.className = 'copy-btn';
+      copyButton.title = 'کپی متن';
+      copyButton.innerHTML = '📋';
+      copyButton.onclick = () => copyToClipboard(item.description);
+
+      actionsContainer.appendChild(copyButton);
+      actionsContainer.appendChild(editButton);
+      actionsContainer.appendChild(deleteButton);
+      actionsCell.appendChild(actionsContainer);
+      row.appendChild(actionsCell);
+
+      return row;
+    }
+
+    /**
+     * [MODIFIED] Renders items based on search filter.
+     */
     function renderItems() {
-      if (currentPage === 1) itemListDiv.innerHTML = "";
-      loadMoreContainer.innerHTML = "";
+      itemListBody.innerHTML = "";
 
       let filtered = jsonData;
       if (searchValue.trim()) {
@@ -663,143 +638,38 @@ $claims = requireAuth('admin', '/auth/login.html');
         filtered = jsonData.filter(item =>
           (item.title && item.title.toLowerCase().includes(q)) ||
           (item.description && item.description.toLowerCase().includes(q)) ||
-          (item.categories && Array.isArray(item.categories) && item.categories.some(c => c.toLowerCase().includes(q))) ||
-          (item.id && String(item.id).includes(q))
+          (item.categories && item.categories.some(c => c.toLowerCase().includes(q))) ||
+          (String(item.id).includes(q))
         );
       }
 
-      if (filtered.length === 0) {
-        itemListDiv.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; margin-top: 50px; font-size: 1.2rem; color: #555;">موردی برای نمایش نیست.</p>';
-        return;
-      }
+      noResultsDiv.style.display = filtered.length === 0 ? 'block' : 'none';
 
-      filtered.sort((a, b) => (a.id > b.id ? 1 : -1));
-      const itemsToShow = filtered.slice(0, currentPage * itemsPerPage);
+      filtered.sort((a, b) => a.id - b.id);
 
-      const currentRenderedIds = new Set(Array.from(itemListDiv.querySelectorAll('.script-card')).map(card => card.dataset.id));
-      const newItems = itemsToShow.filter(item => !currentRenderedIds.has(String(item.id)));
-
-      newItems.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "script-card";
-        card.dataset.id = String(item.id);
-
-        // ... بخش ساخت کارت بدون تغییر باقی می‌ماند ...
-        // فقط در دکمه‌های edit و delete به جای ایندکس از ID استفاده می‌کنیم
-        const originalIndex = jsonData.findIndex(originalItem => originalItem.id === item.id);
-        const cardHeader = document.createElement('div');
-        cardHeader.className = 'card-header';
-        const cardTitle = document.createElement('h3');
-        cardTitle.className = 'card-title';
-        cardTitle.textContent = item.title || "بدون عنوان";
-        cardHeader.appendChild(cardTitle);
-
-        const cardMeta = document.createElement('div');
-        cardMeta.className = 'card-meta';
-        const cardId = document.createElement('span');
-        cardId.className = 'card-id';
-        cardId.textContent = `شناسه: ${item.id || "-"}`;
-        const cardCategories = document.createElement('div');
-        cardCategories.className = 'card-categories';
-        if (item.categories && item.categories.length) {
-          item.categories.forEach(cat => {
-            const pill = document.createElement('span');
-            pill.className = 'category-pill';
-            pill.textContent = cat;
-            cardCategories.appendChild(pill);
-          });
-        } else {
-          const pill = document.createElement('span');
-          pill.className = 'category-pill';
-          pill.style.opacity = '0.7';
-          pill.textContent = 'بدون دسته‌بندی';
-          cardCategories.appendChild(pill);
-        }
-        cardMeta.appendChild(cardId);
-        cardMeta.appendChild(cardCategories);
-
-        const cardBody = document.createElement('div');
-        cardBody.className = 'card-body';
-        const cardDescription = document.createElement('div');
-        cardDescription.className = 'card-description';
-        cardDescription.textContent = item.description || "";
-        cardBody.appendChild(cardDescription);
-
-        const cardFooter = document.createElement('div');
-        cardFooter.className = 'card-footer';
-        const cardActions = document.createElement('div');
-        cardActions.className = 'card-actions';
-
-        const editButton = document.createElement('button');
-        editButton.className = 'edit-btn';
-        editButton.title = 'ویرایش';
-        editButton.dataset.id = item.id; // استفاده از ID
-        editButton.innerHTML = '✏️';
-
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'delete-btn';
-        deleteButton.title = 'حذف';
-        deleteButton.dataset.id = item.id; // استفاده از ID
-        deleteButton.innerHTML = '🗑️';
-
-        cardActions.appendChild(editButton);
-        cardActions.appendChild(deleteButton);
-
-        const copyButton = document.createElement('button');
-        copyButton.className = 'copy-btn';
-        copyButton.dataset.description = item.description;
-        copyButton.innerHTML = '📋 کپی متن';
-
-        cardFooter.appendChild(cardActions);
-        cardFooter.appendChild(copyButton);
-
-        card.appendChild(cardHeader);
-        card.appendChild(cardMeta);
-        card.appendChild(cardBody);
-        card.appendChild(cardFooter);
-
-        itemListDiv.appendChild(card);
+      filtered.forEach(item => {
+        const row = createTableRow(item);
+        itemListBody.appendChild(row);
       });
-
-      if (itemsToShow.length < filtered.length) {
-        const loadMoreBtn = document.createElement("button");
-        loadMoreBtn.id = "load-more-btn";
-        loadMoreBtn.textContent = "نمایش بیشتر";
-        loadMoreBtn.onclick = () => {
-          currentPage++;
-          renderItems();
-        };
-        loadMoreContainer.appendChild(loadMoreBtn);
-      }
-
-      // Event listener ها برای دکمه‌های جدید
-      document.querySelectorAll(".edit-btn").forEach(button => button.onclick = (e) => editItem(parseInt(e.currentTarget.dataset.id)));
-      document.querySelectorAll(".delete-btn").forEach(button => button.onclick = (e) => deleteItem(parseInt(e.currentTarget.dataset.id)));
-      document.querySelectorAll('.copy-btn').forEach(button => button.onclick = (e) => copyToClipboard(e.currentTarget.dataset.description, e.currentTarget));
     }
 
-    // تابع openModal و closeModal بدون تغییر باقی می‌مانند...
     function openModal() {
       itemModal.style.display = "block";
       document.body.style.overflow = 'hidden';
-      titleInput.focus();
     }
 
     function closeModal() {
       itemModal.style.display = "none";
       document.body.style.overflow = '';
       itemForm.reset();
-      document.getElementById("itemId").value = ''; // پاک کردن ID مخفی
+      document.getElementById("itemId").value = '';
     }
 
-    // جستجو مثل قبل کار می‌کند
     searchInput.addEventListener("input", (e) => {
       searchValue = e.target.value;
-      currentPage = 1;
       renderItems();
     });
 
-    // تابع renderCategoryCheckboxes بدون تغییر باقی می‌ماند...
     function renderCategoryCheckboxes(selectedCategories = []) {
       categoriesCheckboxContainer.innerHTML = "";
       availableCategories.forEach(category => {
@@ -822,20 +692,19 @@ $claims = requireAuth('admin', '/auth/login.html');
     function editItem(id) {
       const item = jsonData.find(i => i.id === id);
       if (!item) return;
-
-      document.getElementById("itemId").value = item.id; // استفاده از فیلد مخفی
-      idInput.value = item.id || "";
-      idInput.readOnly = true; // شناسه در زمان ویرایش نباید تغییر کند
-      titleInput.value = item.title || "";
-      descriptionTextarea.value = item.description || "";
+      document.getElementById("itemId").value = item.id;
+      idInput.value = item.id;
+      idInput.readOnly = true;
+      titleInput.value = item.title;
+      descriptionTextarea.value = item.description;
       modalTitle.textContent = "ویرایش پیام";
-      renderCategoryCheckboxes(item.categories || []);
+      renderCategoryCheckboxes(item.categories);
       openModal();
     }
 
     addNewItemBtn.addEventListener("click", () => {
       itemForm.reset();
-      document.getElementById("itemId").value = ''; // حالت افزودن
+      document.getElementById("itemId").value = '';
       const maxId = jsonData.length > 0 ? Math.max(...jsonData.map(i => i.id || 0)) : 0;
       idInput.value = maxId + 1;
       idInput.readOnly = false;
@@ -845,53 +714,59 @@ $claims = requireAuth('admin', '/auth/login.html');
     });
 
     /**
-     * مدیریت ثبت فرم برای افزودن و ویرایش
+     * [MODIFIED] Handles form submission without full page reload.
      */
     itemForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const editingItemId = parseInt(document.getElementById("itemId").value, 10);
       const isEditing = !!editingItemId;
 
-      const selectedCategories = Array.from(categoriesCheckboxContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      const selectedCategories = Array.from(categoriesCheckboxContainer.querySelectorAll('input:checked')).map(cb => cb.value);
       if (!titleInput.value.trim() || selectedCategories.length === 0) {
         alert("عنوان و حداقل یک دسته‌بندی الزامی است.");
         return;
       }
 
-      const newItemData = {
+      const itemData = {
         id: parseInt(idInput.value, 10),
-        title: titleInput.value,
+        title: titleInput.value.trim(),
         categories: selectedCategories,
-        description: descriptionTextarea.value,
+        description: descriptionTextarea.value.trim(),
       };
 
-      // چک کردن یکتا بودن ID فقط در حالت افزودن
-      if (!isEditing && jsonData.some(item => item.id === newItemData.id)) {
+      if (!isEditing && jsonData.some(item => item.id === itemData.id)) {
         alert("این شناسه قبلاً استفاده شده است.");
         return;
       }
 
       try {
         if (isEditing) {
-          // ویرایش
-          await apiRequest('update', newItemData);
+          // --- UPDATE LOGIC ---
+          await apiRequest('update', itemData);
           const index = jsonData.findIndex(i => i.id === editingItemId);
-          if (index !== -1) jsonData[index] = newItemData;
+          if (index !== -1) jsonData[index] = itemData; // Update local data
+
+          // Update only the specific row in the table
+          const rowToUpdate = itemListBody.querySelector(`tr[data-id="${itemData.id}"]`);
+          if (rowToUpdate) {
+            const newRow = createTableRow(itemData);
+            rowToUpdate.innerHTML = newRow.innerHTML; // Replace content
+          }
         } else {
-          // افزودن
-          await apiRequest('create', newItemData);
-          jsonData.push(newItemData);
+          // --- CREATE LOGIC ---
+          await apiRequest('create', itemData);
+          jsonData.push(itemData); // Add to local data
+          jsonData.sort((a, b) => a.id - b.id); // Keep it sorted
+          renderItems(); // Re-render to place new item correctly
         }
-        currentPage = 1;
-        renderItems();
         closeModal();
       } catch (error) {
-        // خطا قبلا نمایش داده شده است
+        // Error is already alerted by apiRequest
       }
     });
 
     /**
-     * تابع جدید برای حذف آیتم
+     * [MODIFIED] Deletes an item without full page reload.
      */
     async function deleteItem(id) {
       if (confirm("آیا از حذف این پیام مطمئن هستید؟")) {
@@ -899,34 +774,31 @@ $claims = requireAuth('admin', '/auth/login.html');
           await apiRequest('delete', {
             id
           });
-          jsonData = jsonData.filter(item => item.id !== id);
-          currentPage = 1;
-          renderItems();
+          jsonData = jsonData.filter(item => item.id !== id); // Update local data
+
+          // Remove only the specific row from the table
+          const rowToDelete = itemListBody.querySelector(`tr[data-id="${id}"]`);
+          if (rowToDelete) {
+            rowToDelete.remove();
+          }
         } catch (error) {
-          // خطا قبلا نمایش داده شده است
+          // Error is already alerted by apiRequest
         }
       }
     }
 
-    /**
-     * بارگذاری اولیه داده‌ها از API
-     */
     async function loadInitialData() {
       try {
         const response = await fetch(`${API_URL}?v=${new Date().getTime()}`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         jsonData = await response.json();
+        renderItems();
       } catch (error) {
         console.error("خطا در بارگذاری اولیه داده‌ها:", error);
         alert("خطا در ارتباط با سرور.");
-        jsonData = [];
-      } finally {
-        currentPage = 1;
-        renderItems();
       }
     }
 
-    // --- Event Listeners نهایی ---
     closeButton.onclick = closeModal;
     window.onclick = function(event) {
       if (event.target == itemModal) closeModal();
