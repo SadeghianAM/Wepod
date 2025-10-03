@@ -19,7 +19,7 @@ if (!$task) {
 }
 
 // Fetch All Questions for the Task
-$stmt_questions = $pdo->prepare("SELECT id, question_text FROM TaskQuestions WHERE task_id = ? ORDER BY question_order ASC");
+$stmt_questions = $pdo->prepare("SELECT id, question_text, question_image FROM TaskQuestions WHERE task_id = ? ORDER BY question_order ASC");
 $stmt_questions->execute([$task_id]);
 $questions = $stmt_questions->fetchAll(PDO::FETCH_ASSOC);
 
@@ -325,6 +325,24 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
             color: var(--secondary-text);
             margin-top: .5rem;
         }
+
+        .attachment-link {
+            display: inline-block;
+            margin-top: .75rem;
+            margin-bottom: 1rem;
+            text-decoration: none;
+            color: var(--primary-dark);
+            font-weight: 600;
+            background-color: var(--primary-light);
+            padding: .5rem 1rem;
+            border-radius: 8px;
+            transition: background-color .2s;
+        }
+
+        .attachment-link:hover {
+            background-color: #d4f3e9;
+            color: var(--primary-dark);
+        }
     </style>
 </head>
 
@@ -368,6 +386,11 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
                                 <?php if ($current_state === 'locked') echo '🔒'; ?>
                             </div>
                             <h2 class="question-text">سوال <?= $index + 1 ?>: <?= htmlspecialchars($question['question_text']); ?></h2>
+                            <?php if (!empty($question['question_image'])): ?>
+                                <a href="/quiz-img/<?= htmlspecialchars($question['question_image']) ?>" target="_blank" class="attachment-link">
+                                    🖼️ مشاهده تصویر پیوست
+                                </a>
+                            <?php endif; ?>
                         </div>
 
                         <?php if ($current_state === 'active'): ?>

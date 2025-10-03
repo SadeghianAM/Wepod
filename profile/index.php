@@ -893,12 +893,17 @@ if ($agentId) {
                         </a>
                     </li>
                     <li>
+                        <a href="/game/">
+                            <span class="menu-emoji">📑</span>
+                            <span>آزمون</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="/leaderboard/">
                             <span class="menu-emoji">🏆</span>
                             <span>جدول امتیازات</span>
                         </a>
                     </li>
-
                     <li>
                         <a href="#poll" class="profile-tab-link">
                             <span class="menu-emoji">🗳️</span>

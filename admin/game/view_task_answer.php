@@ -33,6 +33,13 @@ if (!$answer) {
 }
 
 $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_title']);
+
+$status_map = [
+    'submitted' => ['text' => 'در انتظار بازبینی', 'class' => 'medium', 'icon' => '⏳'],
+    'approved' => ['text' => 'تایید شده', 'class' => 'correct', 'icon' => '✅'],
+    'rejected' => ['text' => 'رد شده', 'class' => 'incorrect', 'icon' => '❌']
+];
+$status_info = $status_map[$answer['status']] ?? ['text' => $answer['status'], 'class' => '', 'icon' => ''];
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -56,11 +63,13 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
             --radius: 12px;
             --shadow-sm: 0 2px 6px rgba(0, 120, 80, .06);
             --shadow-md: 0 6px 20px rgba(0, 120, 80, .10);
-            --status-approved: #28a745;
-            --status-rejected: #dc3545;
-            --status-submitted: #ffc107;
-            --danger-light: #f8d7da;
-            --danger-dark: #721c24;
+            --correct-color: #28a745;
+            --correct-light: #d4edda;
+            --incorrect-color: #dc3545;
+            --footer-h: 60px;
+            --incorrect-light: #f8d7da;
+            --medium-color: #ffc107;
+            --medium-light: #fff3cd;
         }
 
         @font-face {
@@ -91,6 +100,22 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
             margin-inline: auto;
         }
 
+        footer {
+            background: var(--primary-color);
+            color: var(--header-text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+            min-height: var(--footer-h);
+            font-size: .85rem;
+            justify-content: center;
+        }
+
+        /* --- Header --- */
         .page-header {
             margin-bottom: 2rem;
         }
@@ -104,7 +129,10 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
+            text-decoration: none;
+            color: var(--secondary-text);
             font-weight: 500;
+            transition: all .2s;
         }
 
         .back-link:hover {
@@ -125,92 +153,106 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
             font-size: 1rem;
         }
 
-        .answer-card {
+        /* --- Summary Card --- */
+        .task-summary {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .summary-main {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .summary-status-visual {
+            font-size: 4rem;
+            flex-shrink: 0;
+        }
+
+        .summary-details .summary-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .summary-details .summary-user,
+        .summary-details .summary-date {
+            font-size: 1rem;
+            color: var(--secondary-text);
+        }
+
+        .summary-details strong {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            font-size: 1rem;
+            font-weight: 700;
+            padding: .4rem 1rem;
+            border-radius: 20px;
+        }
+
+        .status-badge.correct {
+            background-color: var(--correct-light);
+            color: var(--correct-color);
+        }
+
+        .status-badge.incorrect {
+            background-color: var(--incorrect-light);
+            color: var(--incorrect-color);
+        }
+
+        .status-badge.medium {
+            background-color: var(--medium-light);
+            color: var(--medium-color);
+        }
+
+
+        /* --- Content Cards --- */
+        .content-card {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             margin-bottom: 1.5rem;
-            padding: 2rem;
+            overflow: hidden;
         }
 
-        .answer-card h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
+        .content-header {
+            padding: 1rem 1.5rem;
+            background-color: var(--primary-light);
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
         }
 
-        .answer-text {
+        .content-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+        }
+
+        .content-body {
+            padding: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .answer-text-display {
             white-space: pre-wrap;
             background-color: var(--bg-color);
             padding: 1rem;
             border-radius: 8px;
-            line-height: 1.7;
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .info-item {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .info-label {
-            color: var(--secondary-text);
-            font-size: .9rem;
-            margin-bottom: .25rem;
-            display: block;
-        }
-
-        .info-value {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .status-badge {
-            padding: .25em .8em;
-            font-size: .8rem;
-            font-weight: 700;
-            border-radius: 15px;
-            color: white;
-        }
-
-        .status-approved {
-            background-color: var(--status-approved);
-        }
-
-        .status-rejected {
-            background-color: var(--status-rejected);
-        }
-
-        .status-submitted {
-            background-color: var(--status-submitted);
-            color: #333;
-        }
-
-        .review-section {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 2rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .review-section h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-        }
-
+        /* --- Action Section --- */
         .review-actions {
             display: flex;
             gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -220,15 +262,24 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-approve {
-            background-color: var(--status-approved);
+            background-color: var(--correct-color);
             color: white;
         }
 
         .btn-reject {
-            background-color: var(--status-rejected);
+            background-color: var(--incorrect-color);
             color: white;
         }
 
@@ -238,11 +289,17 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
         }
 
         .feedback-display {
-            background-color: var(--danger-light);
-            color: var(--danger-dark);
-            border: 1px solid var(--danger-dark);
+            background-color: var(--incorrect-light);
+            color: var(--incorrect-color);
+            border: 1.5px solid var(--incorrect-color);
             padding: 1rem;
             border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .feedback-display strong {
+            display: block;
+            margin-bottom: .5rem;
         }
     </style>
 </head>
@@ -255,59 +312,72 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
                 <span>&larr;</span> بازگشت به لیست پاسخ‌ها
             </a>
             <h1 class="page-title"><?= $page_title ?></h1>
-            <p class="page-subtitle">کاربر: <?= htmlspecialchars($answer['user_name']) ?></p>
+            <p class="page-subtitle">بررسی پاسخ ارسال‌شده توسط: <?= htmlspecialchars($answer['user_name']) ?></p>
         </div>
 
-        <?php
-        $status_map = [
-            'submitted' => ['text' => 'در انتظار بازبینی', 'class' => 'status-submitted'],
-            'approved' => ['text' => 'تایید شده', 'class' => 'status-approved'],
-            'rejected' => ['text' => 'رد شده', 'class' => 'status-rejected']
-        ];
-        $status_info = $status_map[$answer['status']] ?? ['text' => $answer['status'], 'class' => ''];
-        ?>
-
-        <div class="info-grid">
-            <div class="info-item">
-                <span class="info-label">وضعیت</span>
-                <span class="info-value"><span class="status-badge <?= $status_info['class'] ?>"><?= $status_info['text'] ?></span></span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">تاریخ ارسال</span>
-                <span class="info-value" id="submission-date" data-timestamp="<?= htmlspecialchars($answer['submitted_at']) ?>">...</span>
-            </div>
-        </div>
-
-        <div class="answer-card">
-            <h3>سوال تکلیف</h3>
-            <p><?= htmlspecialchars($answer['question_text']) ?></p>
-        </div>
-
-        <div class="answer-card">
-            <h3>پاسخ ارسال شده توسط کاربر</h3>
-            <div class="answer-text"><?= nl2br(htmlspecialchars($answer['answer_text'])) ?></div>
-        </div>
-
-        <div class="review-section">
-            <?php if ($answer['status'] === 'submitted'): ?>
-                <h3>عملیات بازبینی</h3>
-                <div class="review-actions">
-                    <button class="btn btn-approve" onclick="reviewAnswer(<?= $answer_id ?>, 'approved')">✅ تایید پاسخ</button>
-                    <button class="btn btn-reject" onclick="reviewAnswer(<?= $answer_id ?>, 'rejected')">❌ رد پاسخ</button>
+        <div class="task-summary">
+            <div class="summary-main">
+                <div class="summary-status-visual"><?= $status_info['icon'] ?></div>
+                <div class="summary-details">
+                    <h2 class="summary-title">خلاصه وضعیت</h2>
+                    <p class="summary-user">کاربر: <strong><?= htmlspecialchars($answer['user_name']) ?></strong></p>
+                    <p class="summary-date">
+                        تاریخ ارسال:
+                        <strong id="submission-date" data-timestamp="<?= htmlspecialchars($answer['submitted_at']) ?>">...</strong>
+                    </p>
+                    <div style="margin-top: 1rem;">
+                        <span class="status-badge <?= $status_info['class'] ?>"><?= $status_info['text'] ?></span>
+                    </div>
                 </div>
-            <?php else: ?>
-                <h3>نتیجه بازبینی</h3>
-                <?php if ($answer['status'] === 'rejected' && !empty($answer['feedback'])): ?>
-                    <p><strong>دلیل رد شدن:</strong></p>
-                    <div class="feedback-display"><?= nl2br(htmlspecialchars($answer['feedback'])) ?></div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="content-header">
+                <p class="content-title">سوال تکلیف</p>
+            </div>
+            <div class="content-body">
+                <p><?= htmlspecialchars($answer['question_text']) ?></p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="content-header">
+                <p class="content-title">پاسخ کاربر</p>
+            </div>
+            <div class="content-body">
+                <div class="answer-text-display"><?= nl2br(htmlspecialchars($answer['answer_text'])) ?></div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="content-header">
+                <p class="content-title">عملیات بازبینی</p>
+            </div>
+            <div class="content-body">
+                <?php if ($answer['status'] === 'submitted'): ?>
+                    <p style="margin-bottom: 1.5rem;">پاسخ کاربر را تایید یا رد کنید.</p>
+                    <div class="review-actions">
+                        <button class="btn btn-approve" onclick="reviewAnswer(<?= $answer_id ?>, 'approved')">✅ تایید پاسخ</button>
+                        <button class="btn btn-reject" onclick="reviewAnswer(<?= $answer_id ?>, 'rejected')">❌ رد پاسخ</button>
+                    </div>
                 <?php else: ?>
                     <p>این پاسخ قبلاً بازبینی شده است.</p>
+
+                    <?php if ($answer['status'] === 'rejected' && !empty($answer['feedback'])): ?>
+                        <div class="feedback-display">
+                            <strong>دلیل رد شدن:</strong>
+                            <?= nl2br(htmlspecialchars($answer['feedback'])) ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="review-actions" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <button class="btn btn-delete" onclick="deleteAnswer(<?= $answer_id ?>)">🗑️ حذف کامل این پاسخ</button>
+                    </div>
                 <?php endif; ?>
-                <div class="review-actions" style="margin-top: 1.5rem;">
-                    <button class="btn btn-delete" onclick="deleteAnswer(<?= $answer_id ?>)">حذف کامل این پاسخ</button>
-                </div>
-            <?php endif; ?>
+            </div>
         </div>
+
     </main>
 
     <div id="footer-placeholder"></div>
@@ -316,24 +386,29 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
         // --- Date Formatting ---
         document.addEventListener('DOMContentLoaded', () => {
             const dateCell = document.getElementById('submission-date');
-            const timestamp = dateCell.getAttribute('data-timestamp');
-            if (timestamp) {
-                try {
-                    const date = new Date(timestamp.replace(' ', 'T') + 'Z');
-                    dateCell.textContent = date.toLocaleString('fa-IR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                } catch (e) {
-                    dateCell.textContent = timestamp;
+            if (dateCell) {
+                const timestamp = dateCell.getAttribute('data-timestamp');
+                if (timestamp) {
+                    try {
+                        // Adjust for UTC by adding 'Z' if not present
+                        const dateStr = timestamp.includes('Z') ? timestamp : timestamp.replace(' ', 'T') + 'Z';
+                        const date = new Date(dateStr);
+                        dateCell.textContent = date.toLocaleString('fa-IR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    } catch (e) {
+                        console.error("Error parsing date:", e);
+                        dateCell.textContent = timestamp; // Fallback
+                    }
                 }
             }
         });
 
-        // --- Action Handlers (reusing logic from your original file) ---
+        // --- Action Handlers ---
         function reviewAnswer(answerId, statusAction) {
             let feedback = null;
             if (statusAction === 'rejected') {
@@ -373,7 +448,7 @@ $page_title = "بازبینی تکلیف: " . htmlspecialchars($answer['task_tit
                 .then(res => res.json())
                 .then(result => {
                     alert(result.message);
-                    if (result.success) window.location.href = 'task_answers.php';
+                    if (result.success) window.location.href = 'task_answers.php?task_id=<?= $answer['task_id'] ?>';
                 })
                 .catch(error => alert('خطای شبکه رخ داد.'));
         }

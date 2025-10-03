@@ -171,27 +171,39 @@ $claims = requireAuth('admin', '/../auth/login.html');
         <p class="page-subtitle">بخش مورد نظر خود را برای مدیریت انتخاب کنید.</p>
         <ul class="tools-grid" id="tools-list">
             <li class="tool-card">
-                <a href="questions.php">
+                <a href="/admin/game/questions/">
                     <span class="tool-icon">📝</span>
                     <span class="tool-title">مدیریت سوالات</span>
                 </a>
             </li>
             <li class="tool-card">
-                <a href="teams.php">
+                <a href="/admin/game/teams/">
                     <span class="tool-icon">👥</span>
                     <span class="tool-title">مدیریت تیم‌ها</span>
                 </a>
             </li>
             <li class="tool-card">
-                <a href="quizzes.php">
+                <a href="/admin/game/quiz/">
                     <span class="tool-icon">📋</span>
                     <span class="tool-title">مدیریت آزمون‌ها</span>
                 </a>
             </li>
             <li class="tool-card">
+                <a href="/admin/game/tasks/">
+                    <span class="tool-icon">📋</span>
+                    <span class="tool-title">مدیریت تکالیف</span>
+                </a>
+            </li>
+            <li class="tool-card">
                 <a href="results.php">
                     <span class="tool-icon">📊</span>
-                    <span class="tool-title">مشاهده نتایج</span>
+                    <span class="tool-title">مشاهده نتایج آزمون</span>
+                </a>
+            </li>
+            <li class="tool-card">
+                <a href="task_answers.php">
+                    <span class="tool-icon">📊</span>
+                    <span class="tool-title">مشاهده پاسخ های ارسالی </span>
                 </a>
             </li>
         </ul>

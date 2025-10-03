@@ -1,52 +1,47 @@
 [
-  {
-    "name": "ورود و احراز هویت",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "انتقال وجه",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "مشاهده موجودی و گردش حساب",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "پرداخت‌ها (قبض، شارژ، بسته اینترنت)",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "مدیریت کارت",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "خدمات چکاد",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "اعتبارسنجی",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "تسهیلات (دریافت و پرداخت)",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "صندوق‌های سرمایه‌گذاری",
-    "status": "فعال",
-    "description": ""
-  },
-  {
-    "name": "بانکداری ویدیویی",
-    "status": "فعال",
-    "description": ""
-  }
+    {
+        "name": "ورود و احراز هویت",
+        "status": "فعال",
+        "description": ""
+    },
+    {
+        "name": "انتقال وجه",
+        "status": "فعال",
+        "description": ""
+    },
+    {
+        "name": "پرداخت‌ها (قبض، شارژ، بسته اینترنت)",
+        "status": "فعال",
+        "description": ""
+    },
+    {
+        "name": "مدیریت کارت",
+        "status": "فعال",
+        "description": ""
+    },
+    {
+        "name": "خدمات چکاد",
+        "status": "فعال",
+        "description": ""
+    },
+    {
+        "name": "اعتبارسنجی",
+        "status": "فعال",
+        "description": ""
+    },
+    {
+        "name": "تسهیلات (دریافت و پرداخت)",
+        "status": "فعال",
+        "description": ""
+    },
+    {
+        "name": "صندوق‌های سرمایه‌گذاری",
+        "status": "فعال",
+        "description": ""
+    },
+    {
+        "name": "بانکداری ویدیویی",
+        "status": "فعال",
+        "description": ""
+    }
 ]

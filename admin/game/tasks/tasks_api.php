@@ -1,10 +1,10 @@
 <?php
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../auth/require-auth.php';
+require_once __DIR__ . '/../../../auth/require-auth.php';
 $claims = requireAuth('admin');
-require_once __DIR__ . '/../../db/database.php';
+require_once __DIR__ . '/../../../db/database.php';
 
-define('UPLOAD_DIR', __DIR__ . '/../../quiz-img/');
+define('UPLOAD_DIR', __DIR__ . '/../../../quiz-img/');
 
 if (!is_dir(UPLOAD_DIR)) {
     mkdir(UPLOAD_DIR, 0777, true);
@@ -71,7 +71,10 @@ try {
             $stmt_q = $pdo->prepare("INSERT INTO TaskQuestions (task_id, question_text, question_image, question_order) VALUES (?, ?, ?, ?)");
             foreach ($questions_text as $index => $q_text) {
                 if (empty(trim($q_text))) continue;
-                $image_filename = handle_upload($_FILES['questions_images'], $index);
+                $image_filename = null;
+                if (isset($_FILES['questions_images'])) {
+                    $image_filename = handle_upload($_FILES['questions_images'], $index);
+                }
                 $order = $index + 1;
                 $stmt_q->execute([$taskId, $q_text, $image_filename, $order]);
             }
@@ -110,10 +113,13 @@ try {
 
                 $q_id = !empty($questions_ids[$index]) ? (int)$questions_ids[$index] : null;
                 $order = $index + 1;
-                $new_image_filename = handle_upload($_FILES['questions_images'], $index);
+
+                $new_image_filename = null;
+                if (isset($_FILES['questions_images'])) {
+                    $new_image_filename = handle_upload($_FILES['questions_images'], $index);
+                }
 
                 if ($q_id && array_key_exists($q_id, $db_questions)) {
-                    // UPDATE existing question
                     $submitted_ids[] = $q_id;
                     $current_image = $db_questions[$q_id];
                     $image_to_set = $current_image;
@@ -126,7 +132,6 @@ try {
                     }
                     $stmt_update_q->execute([$q_text, $image_to_set, $order, $q_id]);
                 } else {
-                    // INSERT new question
                     $stmt_insert_q->execute([$id, $q_text, $new_image_filename, $order]);
                     $submitted_ids[] = $pdo->lastInsertId();
                 }
