@@ -357,6 +357,12 @@ $claims = requireAuth('admin', '/auth/login.html');
           <span class="tool-title">مدیریت کاربران</span>
         </a>
       </li>
+      <li class="tool-card">
+        <a href="/db/database.db">
+          <span class="tool-icon">🗄️</span>
+          <span class="tool-title">دانلود دیتابیس</span>
+        </a>
+      </li>
     </ul>
     <div id="no-results">
       <p>هیچ ابزاری با عبارت جستجو شده مطابقت ندارد.</p>
