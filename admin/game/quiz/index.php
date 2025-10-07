@@ -28,6 +28,7 @@ $stmt_teams = $pdo->query("SELECT id, team_name FROM Teams ORDER BY team_name");
 $teams = $stmt_teams->fetchAll(PDO::FETCH_ASSOC);
 $stmt_users = $pdo->query("SELECT id, name FROM Users ORDER BY name");
 $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -178,6 +179,10 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             background-color: var(--secondary-text);
         }
 
+        .btn-info {
+            background-color: var(--info-color);
+        }
+
         .btn-danger {
             background-color: var(--danger-color);
         }
@@ -203,6 +208,11 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .btn.btn-primary .spinner {
+            border-top-color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn.btn-info .spinner {
             border-top-color: #fff;
             border-color: rgba(255, 255, 255, 0.3);
         }
@@ -449,6 +459,10 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             transition: border-color .2s, box-shadow .2s;
         }
 
+        .form-group input[type="number"] {
+            max-width: 200px;
+        }
+
         .form-group input:focus-visible,
         .form-group textarea:focus-visible {
             outline: none;
@@ -501,6 +515,8 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
 
         .searchable-list-controls input[type="text"] {
             flex-grow: 1;
+            padding: .6em 1.1em;
+            border-radius: 25px;
         }
 
         .select-all-label {
@@ -588,7 +604,8 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
-        #step-indicator {
+        #step-indicator,
+        #builder-step-indicator {
             font-size: .9rem;
             color: var(--secondary-text);
             font-weight: 500;
@@ -671,6 +688,23 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 <div class="search-box">
                     <input type="text" id="quiz-search-input" placeholder="جستجوی آزمون...">
                 </div>
+                <button id="quiz-builder-btn" class="btn btn-info">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" />
+                        <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+                        <path d="M12 2v2" />
+                        <path d="M12 22v-2" />
+                        <path d="m17 20.66-1-1.73" />
+                        <path d="m7 3.34 1 1.73" />
+                        <path d="m22 12-2-3.46" />
+                        <path d="m4 12 2 3.46" />
+                        <path d="m20.66 7-1.73-1" />
+                        <path d="m3.34 17 1.73 1" />
+                        <path d="m17 3.34-1.73-1" />
+                        <path d="m7 20.66 1.73-1" />
+                    </svg>
+                    <span>آزمون ساز</span>
+                </button>
                 <button id="add-new-quiz-btn" class="btn btn-primary">
                     <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14" />
@@ -846,6 +880,91 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
+    <div id="builder-modal-overlay" class="modal-overlay">
+        <div class="modal-form">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
+                <h2 class="page-title" style="font-size: 1.5rem;">آزمون ساز هوشمند</h2>
+                <span id="builder-step-indicator">مرحله ۱ از ۴</span>
+            </div>
+            <form id="quiz-builder-form">
+                <div class="form-step active-step" data-step="1">
+                    <div class="form-group">
+                        <label for="builder-quiz-title">عنوان آزمون:</label>
+                        <input type="text" id="builder-quiz-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="builder-quiz-description">توضیحات (اختیاری):</label>
+                        <textarea id="builder-quiz-description" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="form-step" data-step="2">
+                    <h3>معیار انتخاب سوالات</h3>
+                    <p class="page-subtitle" style="margin-bottom: 1rem; font-size: .9rem;">تعداد سوالات و دسته‌بندی‌های مورد نظر را برای انتخاب تصادفی سوالات مشخص کنید.</p>
+                    <div class="form-group">
+                        <label for="builder-question-count">تعداد کل سوالات آزمون:</label>
+                        <input type="number" id="builder-question-count" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>انتخاب دسته‌بندی‌ها (حداقل یک مورد):</label>
+                        <div class="assignment-grid-container" style="max-height: 200px;">
+                            <div class="modern-selection-grid">
+                                <?php foreach (array_keys($questions_by_category) as $category): ?>
+                                    <div class="selectable-item">
+                                        <input type="checkbox" name="builder-categories" value="<?= htmlspecialchars($category) ?>" id="cat-<?= htmlspecialchars(str_replace(' ', '-', $category)) ?>">
+                                        <label for="cat-<?= htmlspecialchars(str_replace(' ', '-', $category)) ?>"><?= htmlspecialchars($category) ?></label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-step" data-step="3">
+                    <h3>تخصیص به تیم‌ها (اختیاری)</h3>
+                    <p class="page-subtitle" style="margin-bottom: 1rem; font-size: .9rem;">می‌توانید این مرحله را نادیده بگیرید تا آزمون برای همه در دسترس باشد.</p>
+                    <div class="searchable-list-controls">
+                        <input type="text" id="builder-team-search" placeholder="جستجوی تیم...">
+                        <label class="select-all-label"><input type="checkbox" id="builder-select-all-teams"> انتخاب همه</label>
+                    </div>
+                    <div class="assignment-grid-container">
+                        <div id="builder-teams-container" class="modern-selection-grid">
+                            <?php foreach ($teams as $team): ?>
+                                <div class="selectable-item filterable-item">
+                                    <input type="checkbox" name="builder-teams" value="<?= $team['id'] ?>" id="builder-team-<?= $team['id'] ?>">
+                                    <label for="builder-team-<?= $team['id'] ?>"><?= htmlspecialchars($team['team_name']) ?></label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-step" data-step="4">
+                    <h3>تخصیص به کاربران خاص (اختیاری)</h3>
+                    <p class="page-subtitle" style="margin-bottom: 1rem; font-size: .9rem;">این افراد علاوه بر تیم‌های منتخب به آزمون دسترسی خواهند داشت.</p>
+                    <div class="searchable-list-controls">
+                        <input type="text" id="builder-user-search" placeholder="جستجوی کاربر...">
+                        <label class="select-all-label"><input type="checkbox" id="builder-select-all-users"> انتخاب همه</label>
+                    </div>
+                    <div class="assignment-grid-container">
+                        <div id="builder-users-container" class="modern-selection-grid">
+                            <?php foreach ($users as $user): ?>
+                                <div class="selectable-item filterable-item">
+                                    <input type="checkbox" name="builder-users" value="<?= $user['id'] ?>" id="builder-user-<?= $user['id'] ?>">
+                                    <label for="builder-user-<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="form-actions">
+                <button type="button" id="builder-cancel-btn" class="btn btn-secondary">انصراف</button>
+                <div class="navigation-buttons">
+                    <button type="button" id="builder-prev-btn" class="btn btn-secondary">قبلی</button>
+                    <button type="button" id="builder-next-btn" class="btn btn-primary">بعدی</button>
+                    <button type="submit" form="quiz-builder-form" id="builder-save-btn" class="btn btn-primary"><span class="btn-text">ایجاد آزمون</span><span class="spinner"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="toast-container"></div>
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
@@ -949,23 +1068,28 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const modalOverlay = document.getElementById('modal-overlay');
-            const form = document.getElementById('quiz-form');
-            const formTitle = document.getElementById('form-title');
-            const saveBtn = document.getElementById('save-btn');
-            const nextBtn = document.getElementById('next-btn');
-            const prevBtn = document.getElementById('prev-btn');
-            const cancelBtn = document.getElementById('cancel-btn');
-            const stepIndicator = document.getElementById('step-indicator');
-            const steps = document.querySelectorAll('.form-step');
-            let currentStep = 1;
-            const totalSteps = steps.length;
-
-            const showModal = () => modalOverlay.classList.add('visible');
-            const hideModal = () => modalOverlay.classList.remove('visible');
             const toggleLoading = (button, isLoading) => {
                 button.disabled = isLoading;
                 button.classList.toggle('loading', isLoading);
+            };
+
+            const setupSearchableList = (searchInputId, selectAllCheckboxId, containerId) => {
+                const searchInput = document.getElementById(searchInputId);
+                const selectAllCheckbox = document.getElementById(selectAllCheckboxId);
+                const container = document.getElementById(containerId);
+                const items = container.querySelectorAll('.filterable-item');
+                searchInput.addEventListener('input', () => {
+                    const searchTerm = searchInput.value.toLowerCase().trim();
+                    items.forEach(item => item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none');
+                    if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                });
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.addEventListener('change', () => {
+                        items.forEach(item => {
+                            if (item.style.display !== 'none') item.querySelector('input[type="checkbox"]').checked = selectAllCheckbox.checked;
+                        });
+                    });
+                }
             };
 
             const searchInput = document.getElementById('quiz-search-input');
@@ -991,120 +1115,234 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
             });
             document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show')));
 
-            const updateFormSteps = () => {
-                steps.forEach(step => step.classList.toggle('active-step', parseInt(step.dataset.step) === currentStep));
-                stepIndicator.textContent = `مرحله ${currentStep} از ${totalSteps}`;
-                prevBtn.style.display = currentStep > 1 ? 'inline-flex' : 'none';
-                nextBtn.style.display = currentStep < totalSteps ? 'inline-flex' : 'none';
-                saveBtn.style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
-            };
+            const modalOverlay = document.getElementById('modal-overlay');
+            const form = document.getElementById('quiz-form');
+            const formTitle = document.getElementById('form-title');
+            const saveBtn = document.getElementById('save-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const stepIndicator = document.getElementById('step-indicator');
+            const steps = modalOverlay.querySelectorAll('.form-step');
+            let currentStep = 1;
+            const totalSteps = steps.length;
 
-            const validateStep = (stepNumber) => {
-                if (stepNumber === 1) {
-                    if (!document.getElementById('quiz-title').value.trim()) {
-                        showToast('لطفاً عنوان آزمون را وارد کنید.', 'error');
-                        return false;
-                    }
-                }
-                if (stepNumber === 2) {
-                    if (form.querySelectorAll('input[name="questions"]:checked').length < 1) {
-                        showToast('حداقل یک سوال باید برای آزمون انتخاب شود.', 'error');
-                        return false;
-                    }
-                }
-                return true;
-            };
+            if (modalOverlay) {
+                const showModal = () => modalOverlay.classList.add('visible');
+                const hideModal = () => modalOverlay.classList.remove('visible');
 
-            nextBtn.addEventListener('click', () => {
-                if (validateStep(currentStep) && currentStep < totalSteps) {
-                    currentStep++;
-                    updateFormSteps();
-                }
-            });
-
-            prevBtn.addEventListener('click', () => {
-                if (currentStep > 1) {
-                    currentStep--;
-                    updateFormSteps();
-                }
-            });
-
-            const setupSearchableList = (searchInputId, selectAllCheckboxId, containerId) => {
-                const searchInput = document.getElementById(searchInputId);
-                const selectAllCheckbox = document.getElementById(selectAllCheckboxId);
-                const container = document.getElementById(containerId);
-                const items = container.querySelectorAll('.filterable-item');
-                searchInput.addEventListener('input', () => {
-                    const searchTerm = searchInput.value.toLowerCase().trim();
-                    items.forEach(item => item.style.display = item.textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none');
-                    selectAllCheckbox.checked = false;
-                });
-                selectAllCheckbox.addEventListener('change', () => {
-                    items.forEach(item => {
-                        if (item.style.display !== 'none') item.querySelector('input[type="checkbox"]').checked = selectAllCheckbox.checked;
-                    });
-                });
-            };
-            setupSearchableList('team-search', 'select-all-teams', 'teams-container');
-            setupSearchableList('user-search', 'select-all-users', 'users-container');
-
-            const openAddModal = () => {
-                form.reset();
-                formTitle.textContent = 'افزودن آزمون جدید';
-                document.getElementById('quiz-id').value = '';
-                document.getElementById('action').value = 'create_quiz';
-                currentStep = 1;
-                updateFormSteps();
-                showModal();
-            };
-
-            document.getElementById('add-new-quiz-btn')?.addEventListener('click', openAddModal);
-            document.getElementById('add-new-quiz-btn-empty')?.addEventListener('click', openAddModal);
-            document.addEventListener('openModal', (e) => {
-                currentStep = e.detail.startStep || 1;
-                updateFormSteps();
-                showModal();
-            });
-
-            cancelBtn.addEventListener('click', hideModal);
-            modalOverlay.addEventListener('click', e => {
-                if (e.target === modalOverlay) hideModal();
-            });
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                toggleLoading(saveBtn, true);
-                const data = {
-                    id: document.getElementById('quiz-id').value,
-                    title: document.getElementById('quiz-title').value,
-                    description: document.getElementById('quiz-description').value,
-                    questions: Array.from(form.querySelectorAll('input[name="questions"]:checked')).map(cb => parseInt(cb.value)),
-                    assigned_teams: Array.from(form.querySelectorAll('input[name="teams"]:checked')).map(cb => parseInt(cb.value)),
-                    assigned_users: Array.from(form.querySelectorAll('input[name="users"]:checked')).map(cb => parseInt(cb.value))
+                const updateFormSteps = () => {
+                    steps.forEach(step => step.classList.toggle('active-step', parseInt(step.dataset.step) === currentStep));
+                    stepIndicator.textContent = `مرحله ${currentStep} از ${totalSteps}`;
+                    prevBtn.style.display = currentStep > 1 ? 'inline-flex' : 'none';
+                    nextBtn.style.display = currentStep < totalSteps ? 'inline-flex' : 'none';
+                    saveBtn.style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
                 };
-                const action = document.getElementById('action').value;
-                try {
-                    const response = await fetch(`quizzes_api.php?action=${action}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await response.json();
-                    if (result.success) {
-                        hideModal();
-                        showToast('عملیات با موفقیت انجام شد.');
-                        setTimeout(() => window.location.reload(), 1200);
-                    } else {
-                        showToast(result.message, 'error');
+
+                const validateStep = (stepNumber) => {
+                    if (stepNumber === 1) {
+                        if (!document.getElementById('quiz-title').value.trim()) {
+                            showToast('لطفاً عنوان آزمون را وارد کنید.', 'error');
+                            return false;
+                        }
                     }
-                } catch (error) {
-                    showToast('خطا در ارتباط با سرور.', 'error');
-                } finally {
-                    toggleLoading(saveBtn, false);
-                }
-            });
+                    if (stepNumber === 2) {
+                        if (form.querySelectorAll('input[name="questions"]:checked').length < 1) {
+                            showToast('حداقل یک سوال باید برای آزمون انتخاب شود.', 'error');
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+
+                nextBtn.addEventListener('click', () => {
+                    if (validateStep(currentStep) && currentStep < totalSteps) {
+                        currentStep++;
+                        updateFormSteps();
+                    }
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    if (currentStep > 1) {
+                        currentStep--;
+                        updateFormSteps();
+                    }
+                });
+
+                setupSearchableList('team-search', 'select-all-teams', 'teams-container');
+                setupSearchableList('user-search', 'select-all-users', 'users-container');
+
+                const openAddModal = () => {
+                    form.reset();
+                    formTitle.textContent = 'افزودن آزمون جدید';
+                    document.getElementById('quiz-id').value = '';
+                    document.getElementById('action').value = 'create_quiz';
+                    currentStep = 1;
+                    updateFormSteps();
+                    showModal();
+                };
+
+                document.getElementById('add-new-quiz-btn')?.addEventListener('click', openAddModal);
+                document.getElementById('add-new-quiz-btn-empty')?.addEventListener('click', openAddModal);
+                document.addEventListener('openModal', (e) => {
+                    currentStep = e.detail.startStep || 1;
+                    updateFormSteps();
+                    showModal();
+                });
+
+                cancelBtn.addEventListener('click', hideModal);
+                modalOverlay.addEventListener('click', e => {
+                    if (e.target === modalOverlay) hideModal();
+                });
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    toggleLoading(saveBtn, true);
+                    const data = {
+                        id: document.getElementById('quiz-id').value,
+                        title: document.getElementById('quiz-title').value,
+                        description: document.getElementById('quiz-description').value,
+                        questions: Array.from(form.querySelectorAll('input[name="questions"]:checked')).map(cb => parseInt(cb.value)),
+                        assigned_teams: Array.from(form.querySelectorAll('input[name="teams"]:checked')).map(cb => parseInt(cb.value)),
+                        assigned_users: Array.from(form.querySelectorAll('input[name="users"]:checked')).map(cb => parseInt(cb.value))
+                    };
+                    const action = document.getElementById('action').value;
+                    try {
+                        const response = await fetch(`quizzes_api.php?action=${action}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            hideModal();
+                            showToast('عملیات با موفقیت انجام شد.');
+                            setTimeout(() => window.location.reload(), 1200);
+                        } else {
+                            showToast(result.message, 'error');
+                        }
+                    } catch (error) {
+                        showToast('خطا در ارتباط با سرور.', 'error');
+                    } finally {
+                        toggleLoading(saveBtn, false);
+                    }
+                });
+            }
+
+            const builderModalOverlay = document.getElementById('builder-modal-overlay');
+            if (builderModalOverlay) {
+                const builderForm = document.getElementById('quiz-builder-form');
+                const builderSaveBtn = document.getElementById('builder-save-btn');
+                const builderNextBtn = document.getElementById('builder-next-btn');
+                const builderPrevBtn = document.getElementById('builder-prev-btn');
+                const builderCancelBtn = document.getElementById('builder-cancel-btn');
+                const builderStepIndicator = document.getElementById('builder-step-indicator');
+                const builderSteps = builderModalOverlay.querySelectorAll('.form-step');
+                let currentBuilderStep = 1;
+                const totalBuilderSteps = builderSteps.length;
+
+                const showBuilderModal = () => builderModalOverlay.classList.add('visible');
+                const hideBuilderModal = () => builderModalOverlay.classList.remove('visible');
+
+                const updateBuilderFormSteps = () => {
+                    builderSteps.forEach(step => step.classList.toggle('active-step', parseInt(step.dataset.step) === currentBuilderStep));
+                    builderStepIndicator.textContent = `مرحله ${currentBuilderStep} از ${totalBuilderSteps}`;
+                    builderPrevBtn.style.display = currentBuilderStep > 1 ? 'inline-flex' : 'none';
+                    builderNextBtn.style.display = currentBuilderStep < totalBuilderSteps ? 'inline-flex' : 'none';
+                    builderSaveBtn.style.display = currentBuilderStep === totalBuilderSteps ? 'inline-flex' : 'none';
+                };
+
+                const validateBuilderStep = (stepNumber) => {
+                    if (stepNumber === 1) {
+                        if (!document.getElementById('builder-quiz-title').value.trim()) {
+                            showToast('لطفاً عنوان آزمون را وارد کنید.', 'error');
+                            return false;
+                        }
+                    }
+                    if (stepNumber === 2) {
+                        const count = document.getElementById('builder-question-count').value;
+                        if (!count || parseInt(count) < 1) {
+                            showToast('تعداد سوالات باید یک عدد بزرگتر از صفر باشد.', 'error');
+                            return false;
+                        }
+                        if (builderForm.querySelectorAll('input[name="builder-categories"]:checked').length < 1) {
+                            showToast('حداقل یک دسته‌بندی باید انتخاب شود.', 'error');
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+
+                builderNextBtn.addEventListener('click', () => {
+                    if (validateBuilderStep(currentBuilderStep) && currentBuilderStep < totalBuilderSteps) {
+                        currentBuilderStep++;
+                        updateBuilderFormSteps();
+                    }
+                });
+
+                builderPrevBtn.addEventListener('click', () => {
+                    if (currentBuilderStep > 1) {
+                        currentBuilderStep--;
+                        updateBuilderFormSteps();
+                    }
+                });
+
+                document.getElementById('quiz-builder-btn')?.addEventListener('click', () => {
+                    builderForm.reset();
+                    currentBuilderStep = 1;
+                    updateBuilderFormSteps();
+                    showBuilderModal();
+                });
+
+                builderCancelBtn.addEventListener('click', hideBuilderModal);
+                builderModalOverlay.addEventListener('click', e => {
+                    if (e.target === builderModalOverlay) hideBuilderModal();
+                });
+
+                setupSearchableList('builder-team-search', 'builder-select-all-teams', 'builder-teams-container');
+                setupSearchableList('builder-user-search', 'builder-select-all-users', 'builder-users-container');
+
+
+                builderForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (!validateBuilderStep(currentBuilderStep)) return;
+
+                    toggleLoading(builderSaveBtn, true);
+
+                    const data = {
+                        title: document.getElementById('builder-quiz-title').value,
+                        description: document.getElementById('builder-quiz-description').value,
+                        question_count: parseInt(document.getElementById('builder-question-count').value),
+                        categories: Array.from(builderForm.querySelectorAll('input[name="builder-categories"]:checked')).map(cb => cb.value),
+                        assigned_teams: Array.from(builderForm.querySelectorAll('input[name="builder-teams"]:checked')).map(cb => parseInt(cb.value)),
+                        assigned_users: Array.from(builderForm.querySelectorAll('input[name="builder-users"]:checked')).map(cb => parseInt(cb.value))
+                    };
+
+                    try {
+                        const response = await fetch(`quizzes_api.php?action=create_quiz_from_builder`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            hideBuilderModal();
+                            showToast(result.message || 'آزمون با موفقیت ساخته شد.');
+                            setTimeout(() => window.location.reload(), 1500);
+                        } else {
+                            showToast(result.message, 'error');
+                        }
+                    } catch (error) {
+                        showToast('خطا در ارتباط با سرور.', 'error');
+                    } finally {
+                        toggleLoading(builderSaveBtn, false);
+                    }
+                });
+            }
         });
     </script>
 </body>

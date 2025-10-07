@@ -1,5 +1,5 @@
 <?php
-// فایل: quizzes_api.php (نسخه نهایی با قابلیت تخصیص)
+// فایل: quizzes_api.php (نسخه نهایی با قابلیت تخصیص و آزمون ساز)
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../../auth/require-auth.php';
 $claims = requireAuth('admin', '/../../auth/login.html');
@@ -35,6 +35,73 @@ try {
             } else {
                 throw new Exception('آزمون یافت نشد.');
             }
+            break;
+
+        case 'create_quiz_from_builder':
+            $data = json_decode(file_get_contents('php://input'), true);
+            if (empty($data['title']) || !isset($data['question_count']) || empty($data['categories'])) {
+                throw new Exception('داده‌های ارسالی برای آزمون ساز ناقص است.');
+            }
+
+            $question_count = filter_var($data['question_count'], FILTER_VALIDATE_INT);
+            if ($question_count <= 0) throw new Exception('تعداد سوالات باید یک عدد مثبت باشد.');
+
+            // ایجاد رشته placeholder برای کوئری IN
+            $placeholders = implode(',', array_fill(0, count($data['categories']), '?'));
+            $sql = "SELECT id FROM Questions WHERE category IN ($placeholders)";
+
+            // اگر 'بدون دسته‌بندی' انتخاب شده باشد، کوئری را برای NULL نیز تنظیم می‌کنیم
+            if (in_array('بدون دسته‌بندی', $data['categories'])) {
+                $categories = array_filter($data['categories'], fn($c) => $c !== 'بدون دسته‌بندی');
+                if (!empty($categories)) {
+                    $placeholders = implode(',', array_fill(0, count($categories), '?'));
+                    $sql = "SELECT id FROM Questions WHERE category IN ($placeholders) OR category IS NULL";
+                } else {
+                    $sql = "SELECT id FROM Questions WHERE category IS NULL";
+                }
+            } else {
+                $categories = $data['categories'];
+            }
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($categories ?? []);
+            $available_questions = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+
+            if (count($available_questions) < $question_count) {
+                throw new Exception("تعداد سوالات موجود (" . count($available_questions) . ") از تعداد درخواستی (" . $question_count . ") کمتر است.");
+            }
+
+            shuffle($available_questions);
+            $selected_questions = array_slice($available_questions, 0, $question_count);
+
+            $pdo->beginTransaction();
+
+            $stmt_quiz = $pdo->prepare("INSERT INTO Quizzes (title, description) VALUES (?, ?)");
+            $stmt_quiz->execute([$data['title'], $data['description']]);
+            $quiz_id = $pdo->lastInsertId();
+
+            $stmt_q_link = $pdo->prepare("INSERT INTO QuizQuestions (quiz_id, question_id) VALUES (?, ?)");
+            foreach ($selected_questions as $q_id) {
+                $stmt_q_link->execute([$quiz_id, $q_id]);
+            }
+
+            if (!empty($data['assigned_teams'])) {
+                $stmt_t_link = $pdo->prepare("INSERT INTO QuizTeamAssignments (quiz_id, team_id) VALUES (?, ?)");
+                foreach ($data['assigned_teams'] as $t_id) {
+                    $stmt_t_link->execute([$quiz_id, $t_id]);
+                }
+            }
+
+            if (!empty($data['assigned_users'])) {
+                $stmt_u_link = $pdo->prepare("INSERT INTO QuizUserAssignments (quiz_id, user_id) VALUES (?, ?)");
+                foreach ($data['assigned_users'] as $u_id) {
+                    $stmt_u_link->execute([$quiz_id, $u_id]);
+                }
+            }
+
+            $pdo->commit();
+
+            $response = ['success' => true, 'message' => 'آزمون با موفقیت توسط آزمون ساز ایجاد شد.'];
             break;
 
         case 'create_quiz':

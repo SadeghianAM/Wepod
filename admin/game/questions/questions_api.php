@@ -1,5 +1,7 @@
 <?php
-// فایل: questions_api.php (با قابلیت امتیازدهی سفارشی)
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
 header('Content-Type: application/json');
 require_once __DIR__ . '/../../../db/database.php';
 $action = $_REQUEST['action'] ?? null;

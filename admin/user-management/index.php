@@ -8,7 +8,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>مدیریت کاربران</title>
+    <title>مدیریت کارشناسان</title>
     <style>
         :root {
             --primary-color: #00ae70;
@@ -569,7 +569,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             </div>
             <form id="user-form" class="drawer-body" autocomplete="off">
                 <div class="form-group">
-                    <label for="userIdInput">شناسه (ID):</label>
+                    <label for="userIdInput">داخلی:</label>
                     <input type="number" id="userIdInput" name="id" required />
                 </div>
                 <div class="form-group">
