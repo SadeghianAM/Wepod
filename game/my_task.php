@@ -374,6 +374,12 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
                 <?php foreach ($questions as $index => $question):
                     $question_id = $question['id'];
                     $current_state = $question_states[$question_id];
+
+                    // ✨ CHANGE: If the question is locked, stop rendering anything further.
+                    if ($current_state === 'locked') {
+                        break;
+                    }
+
                     $answer_data = $answers[$question_id] ?? null;
                     $status = $answer_data['status'] ?? null;
                     $feedback = $answer_data['feedback'] ?? null;
@@ -383,7 +389,8 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
                             <div class="question-icon">
                                 <?php if ($current_state === 'completed') echo '✅'; ?>
                                 <?php if ($current_state === 'active') echo '📝'; ?>
-                                <?php if ($current_state === 'locked') echo '🔒'; ?>
+                                <?php // 'locked' case is now unreachable due to the break statement above
+                                ?>
                             </div>
                             <h2 class="question-text">سوال <?= $index + 1 ?>: <?= htmlspecialchars($question['question_text']); ?></h2>
                             <?php if (!empty($question['question_image'])): ?>
@@ -432,9 +439,6 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
                                 <span>پاسخ شما برای این سوال تایید شد.</span>
                             </p>
                         <?php endif; ?>
-
-                        <?php // For locked questions, nothing is shown in the body
-                        ?>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>

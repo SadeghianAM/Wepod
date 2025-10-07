@@ -906,6 +906,12 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     <div class="form-group">
                         <label>انتخاب دسته‌بندی‌ها (حداقل یک مورد):</label>
+                        <div class="searchable-list-controls" style="justify-content: flex-end; margin-bottom: .5rem;">
+                            <label class="select-all-label">
+                                <input type="checkbox" id="builder-select-all-categories">
+                                <span>انتخاب همه</span>
+                            </label>
+                        </div>
                         <div class="assignment-grid-container" style="max-height: 200px;">
                             <div class="modern-selection-grid">
                                 <?php foreach (array_keys($questions_by_category) as $category): ?>
@@ -1300,6 +1306,16 @@ $users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
                 builderModalOverlay.addEventListener('click', e => {
                     if (e.target === builderModalOverlay) hideBuilderModal();
                 });
+
+                const selectAllCategoriesCheckbox = document.getElementById('builder-select-all-categories');
+                if (selectAllCategoriesCheckbox) {
+                    selectAllCategoriesCheckbox.addEventListener('change', () => {
+                        const categoryCheckboxes = builderForm.querySelectorAll('input[name="builder-categories"]');
+                        categoryCheckboxes.forEach(checkbox => {
+                            checkbox.checked = selectAllCategoriesCheckbox.checked;
+                        });
+                    });
+                }
 
                 setupSearchableList('builder-team-search', 'builder-select-all-teams', 'builder-teams-container');
                 setupSearchableList('builder-user-search', 'builder-select-all-users', 'builder-users-container');

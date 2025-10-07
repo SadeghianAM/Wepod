@@ -504,6 +504,8 @@ $unassigned_users = $stmt_unassigned_users->fetchAll(PDO::FETCH_ASSOC);
 
         .searchable-list-controls input[type="text"] {
             flex-grow: 1;
+            padding: .6em 1.1em;
+            border-radius: 25px;
         }
 
         .select-all-label {
