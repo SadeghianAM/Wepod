@@ -3,74 +3,68 @@ require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth(null, '/auth/login.html');
 require_once __DIR__ . '/../db/database.php';
 
-$task_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-if (!$task_id) {
-    die("شناسه تکلیف نامعتبر است.");
+$scenario_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$scenario_id) {
+    die("شناسه سناریو نامعتبر است.");
 }
+
 $user_id = $claims['sub'];
 
-// Fetch Task Details
-$stmt_task = $pdo->prepare("SELECT title, description FROM Tasks WHERE id = ?");
-$stmt_task->execute([$task_id]);
-$task = $stmt_task->fetch(PDO::FETCH_ASSOC);
-
-if (!$task) {
-    die("تکلیف یافت نشد.");
+$stmt_scenario = $pdo->prepare("SELECT title, description FROM Scenarios WHERE id = ?");
+$stmt_scenario->execute([$scenario_id]);
+$scenario = $stmt_scenario->fetch(PDO::FETCH_ASSOC);
+if (!$scenario) {
+    die("سناریو یافت نشد.");
 }
 
-// Fetch All Questions for the Task
-$stmt_questions = $pdo->prepare("SELECT id, question_text, question_image FROM TaskQuestions WHERE task_id = ? ORDER BY question_order ASC");
-$stmt_questions->execute([$task_id]);
-$questions = $stmt_questions->fetchAll(PDO::FETCH_ASSOC);
+$stmt_challenges = $pdo->prepare("SELECT id, challenge_text, challenge_image FROM Challenges WHERE scenario_id = ? ORDER BY challenge_order ASC");
+$stmt_challenges->execute([$scenario_id]);
+$challenges = $stmt_challenges->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch All User Answers for these Questions
 $answers = [];
-if (!empty($questions)) {
-    $question_ids = array_column($questions, 'id');
-    $placeholders = implode(',', array_fill(0, count($question_ids), '?'));
+if (!empty($challenges)) {
+    $challenge_ids = array_column($challenges, 'id');
+    $placeholders = implode(',', array_fill(0, count($challenge_ids), '?'));
 
     $stmt_answers = $pdo->prepare(
-        "SELECT task_question_id, status, feedback FROM TaskAnswers
-         WHERE user_id = ? AND task_question_id IN ($placeholders)
+        "SELECT challenge_id, status, feedback FROM ChallengeAnswers
+         WHERE user_id = ? AND challenge_id IN ($placeholders)
          ORDER BY submitted_at DESC"
     );
-    $params = array_merge([$user_id], $question_ids);
+    $params = array_merge([$user_id], $challenge_ids);
     $stmt_answers->execute($params);
     $user_answers_raw = $stmt_answers->fetchAll(PDO::FETCH_ASSOC);
 
-    // Keep only the latest answer for each question
     foreach ($user_answers_raw as $answer) {
-        if (!isset($answers[$answer['task_question_id']])) {
-            $answers[$answer['task_question_id']] = $answer;
+        if (!isset($answers[$answer['challenge_id']])) {
+            $answers[$answer['challenge_id']] = $answer;
         }
     }
 }
 
-// Determine the state of each question (completed, active, locked)
-$question_states = [];
-$previous_question_approved = true;
+$challenge_states = [];
+$previous_challenge_approved = true;
 $approved_count = 0;
 
-foreach ($questions as $question) {
-    $question_id = $question['id'];
-    $status = $answers[$question_id]['status'] ?? null;
-    $state = 'locked'; // Default state
+foreach ($challenges as $challenge) {
+    $challenge_id = $challenge['id'];
+    $status = $answers[$challenge_id]['status'] ?? null;
+    $state = 'locked';
 
-    if ($previous_question_approved) {
+    if ($previous_challenge_approved) {
         if ($status === 'approved') {
             $state = 'completed';
             $approved_count++;
         } else {
             $state = 'active';
-            $previous_question_approved = false;
+            $previous_challenge_approved = false;
         }
     }
-    $question_states[$question_id] = $state;
+    $challenge_states[$challenge_id] = $state;
 }
 
-$total_questions = count($questions);
-$is_task_completed = ($total_questions > 0 && $approved_count === $total_questions);
-
+$total_challenges = count($challenges);
+$is_scenario_completed = ($total_challenges > 0 && $approved_count === $total_challenges);
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -78,7 +72,7 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تکلیف: <?= htmlspecialchars($task['title']) ?></title>
+    <title>سناریو: <?= htmlspecialchars($scenario['title']) ?></title>
     <style>
         :root {
             --primary-color: #00ae70;
@@ -89,10 +83,7 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
             --text-color: #1a1a1a;
             --secondary-text: #555;
             --border-color: #e9e9e9;
-            --disabled-color: #ccc;
             --radius: 16px;
-            --footer-h: 60px;
-            --header-text: #fff;
             --shadow-md: 0 8px 25px rgba(0, 120, 80, .12);
             --status-pending-bg: #fff8e1;
             --status-pending-text: #8d6e00;
@@ -117,7 +108,6 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
             margin: 0;
             padding: 0;
             font-family: "Vazirmatn", system-ui, sans-serif;
-            /* Font applied to all elements */
         }
 
         body {
@@ -133,21 +123,6 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
             width: min(900px, 95%);
             padding: 2.5rem 1rem;
             margin-inline: auto;
-        }
-
-        footer {
-            background: var(--primary-color);
-            color: var(--header-text);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            z-index: 10;
-            box-shadow: var(--shadow-sm);
-            flex-shrink: 0;
-            min-height: var(--footer-h);
-            font-size: .85rem;
-            justify-content: center;
         }
 
         .task-container {
@@ -351,81 +326,64 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
     <main>
         <div class="task-container">
             <div class="task-header">
-                <h1><?= htmlspecialchars($task['title']) ?></h1>
-                <p><?= nl2br(htmlspecialchars($task['description'])) ?></p>
+                <h1><?= htmlspecialchars($scenario['title']) ?></h1>
+                <p><?= nl2br(htmlspecialchars($scenario['description'])) ?></p>
             </div>
 
-            <?php if ($is_task_completed): ?>
+            <?php if ($is_scenario_completed): ?>
                 <div class="final-message">
                     <div class="icon">🎉</div>
-                    <h2>شما این تکلیف را با موفقیت به پایان رسانده‌اید!</h2>
-                    <p>خسته نباشید، منتظر تکالیف بعدی باشید.</p>
+                    <h2>شما این سناریو را با موفقیت به پایان رسانده‌اید!</h2>
+                    <p>خسته نباشید، منتظر چالش‌های بعدی باشید.</p>
                 </div>
             <?php else: ?>
-                <?php if ($total_questions > 0): ?>
+                <?php if ($total_challenges > 0): ?>
                     <div class="progress-bar">
-                        <div class="progress-bar-inner" style="width: <?= ($approved_count / $total_questions) * 100 ?>%;"></div>
+                        <div class="progress-bar-inner" style="width: <?= ($approved_count / $total_challenges) * 100 ?>%;"></div>
                     </div>
-                    <p class="progress-label">
-                        <?= $approved_count ?> از <?= $total_questions ?> سوال تایید شده است.
-                    </p>
+                    <p class="progress-label"><?= $approved_count ?> از <?= $total_challenges ?> چالش تایید شده است.</p>
                 <?php endif; ?>
 
-                <?php foreach ($questions as $index => $question):
-                    $question_id = $question['id'];
-                    $current_state = $question_states[$question_id];
+                <?php foreach ($challenges as $index => $challenge):
+                    $challenge_id = $challenge['id'];
+                    $current_state = $challenge_states[$challenge_id];
 
-                    // ✨ CHANGE: If the question is locked, stop rendering anything further.
                     if ($current_state === 'locked') {
                         break;
                     }
 
-                    $answer_data = $answers[$question_id] ?? null;
+                    $answer_data = $answers[$challenge_id] ?? null;
                     $status = $answer_data['status'] ?? null;
                     $feedback = $answer_data['feedback'] ?? null;
                 ?>
                     <div class="question-box <?= $current_state ?>">
                         <div class="question-header">
-                            <div class="question-icon">
-                                <?php if ($current_state === 'completed') echo '✅'; ?>
-                                <?php if ($current_state === 'active') echo '📝'; ?>
-                                <?php // 'locked' case is now unreachable due to the break statement above
-                                ?>
-                            </div>
-                            <h2 class="question-text">سوال <?= $index + 1 ?>: <?= htmlspecialchars($question['question_text']); ?></h2>
-                            <?php if (!empty($question['question_image'])): ?>
-                                <a href="/quiz-img/<?= htmlspecialchars($question['question_image']) ?>" target="_blank" class="attachment-link">
-                                    🖼️ مشاهده تصویر پیوست
-                                </a>
+                            <div class="question-icon"><?= $current_state === 'completed' ? '✅' : '📝' ?></div>
+                            <h2 class="question-text">چالش <?= $index + 1 ?>: <?= htmlspecialchars($challenge['challenge_text']); ?></h2>
+                            <?php if (!empty($challenge['challenge_image'])): ?>
+                                <a href="/quiz-img/<?= htmlspecialchars($challenge['challenge_image']) ?>" target="_blank" class="attachment-link">🖼️ مشاهده تصویر پیوست</a>
                             <?php endif; ?>
                         </div>
 
                         <?php if ($current_state === 'active'): ?>
                             <?php if ($status === 'rejected'): ?>
-                                <p class="status-message rejected">
-                                    <span>⚠️</span>
-                                    <span>پاسخ شما نیاز به بازبینی دارد. لطفاً با توجه به بازخورد، پاسخ خود را اصلاح و مجدداً ارسال کنید.</span>
-                                </p>
+                                <p class="status-message rejected"><span>⚠️</span><span>پاسخ شما نیاز به بازبینی دارد. لطفاً با توجه به بازخورد، پاسخ خود را اصلاح و مجدداً ارسال کنید.</span></p>
                                 <?php if (!empty($feedback)): ?>
                                     <div class="status-message feedback-box">
                                         <span>💬</span>
-                                        <div>
-                                            <strong>بازخورد ادمین:</strong>
+                                        <div><strong>بازخورد ادمین:</strong>
                                             <p style="margin-top: .5rem; line-height: 1.7;"><?= nl2br(htmlspecialchars($feedback)); ?></p>
                                         </div>
                                     </div>
                                 <?php endif; ?>
                             <?php elseif ($status === 'submitted'): ?>
-                                <p class="status-message pending">
-                                    <span>⏳</span>
-                                    <span>پاسخ شما ارسال شده و منتظر تایید ادمین است. پس از تایید، سوال بعدی برای شما فعال خواهد شد.</span>
-                                </p>
+                                <p class="status-message pending"><span>⏳</span><span>پاسخ شما ارسال شده و منتظر تایید ادمین است. پس از تایید، چالش بعدی برای شما فعال خواهد شد.</span></p>
                             <?php endif; ?>
 
                             <?php if ($status === null || $status === 'rejected'): ?>
-                                <form action="submit_task_answer.php" method="post">
-                                    <input type="hidden" name="task_id" value="<?= $task_id; ?>">
-                                    <input type="hidden" name="task_question_id" value="<?= $question_id; ?>">
+                                <form action="submit_challenge_answer.php" method="post">
+                                    <input type="hidden" name="scenario_id" value="<?= $scenario_id; ?>">
+                                    <input type="hidden" name="challenge_id" value="<?= $challenge_id; ?>">
                                     <textarea name="answer_text" placeholder="پاسخ خود را اینجا بنویسید..." required></textarea>
                                     <div class="form-actions">
                                         <button type="submit" class="btn btn-primary">ارسال پاسخ</button>
@@ -436,7 +394,7 @@ $is_task_completed = ($total_questions > 0 && $approved_count === $total_questio
                         <?php elseif ($current_state === 'completed'): ?>
                             <p class="status-message approved">
                                 <span>✔️</span>
-                                <span>پاسخ شما برای این سوال تایید شد.</span>
+                                <span>پاسخ شما برای این چالش تایید شد.</span>
                             </p>
                         <?php endif; ?>
                     </div>

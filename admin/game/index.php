@@ -189,15 +189,21 @@ $claims = requireAuth('admin', '/../auth/login.html');
                 </a>
             </li>
             <li class="tool-card">
-                <a href="/admin/game/tasks/">
-                    <span class="tool-icon">📋</span>
-                    <span class="tool-title">مدیریت تکالیف</span>
-                </a>
-            </li>
-            <li class="tool-card">
                 <a href="results.php">
                     <span class="tool-icon">📊</span>
                     <span class="tool-title">مشاهده نتایج آزمون</span>
+                </a>
+            </li>
+            <li class="tool-card">
+                <a href="/admin/game/tasks/manage_scenarios.php">
+                    <span class="tool-icon">📋</span>
+                    <span class="tool-title">مدیریت سناریوها</span>
+                </a>
+            </li>
+            <li class="tool-card">
+                <a href="/admin/game/tasks/">
+                    <span class="tool-icon">📋</span>
+                    <span class="tool-title">تخصیص سناریوها</span>
                 </a>
             </li>
             <li class="tool-card">

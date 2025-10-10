@@ -1,15 +1,9 @@
 <?php
-// فایل: quiz/index.php (یکپارچه شده با آزمون‌ها و تکالیف)
-
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth(null, '/auth/login.html');
 require_once __DIR__ . '/../db/database.php';
 
 $user_id = $claims['sub'];
-
-// ====================================================================
-// بخش ۱: منطق واکشی آزمون‌ها (بدون هیچ تغییری)
-// ====================================================================
 
 $stmt_team = $pdo->prepare("SELECT team_id FROM TeamMembers WHERE user_id = ?");
 $stmt_team->execute([$user_id]);
@@ -34,39 +28,36 @@ $stmt_quizzes = $pdo->prepare($sql_quizzes);
 $stmt_quizzes->execute([':user_id' => $user_id, ':team_id' => $team_id ?: null]);
 $quizzes = $stmt_quizzes->fetchAll(PDO::FETCH_ASSOC);
 
-
-// ====================================================================
-// بخش ۲: منطق جدید برای واکشی تکالیف دومرحله‌ای
-// ====================================================================
-
-$tasks = [];
-$completed_task_ids = [];
+$scenarios = [];
+$completed_scenario_ids = [];
 
 if ($team_id) {
-    // واکشی تمام تکالیف مربوط به تیم کاربر
-    $stmt_tasks = $pdo->prepare("
-        SELECT id, title, description
-        FROM Tasks
-        WHERE team_id = ?
-        ORDER BY id DESC
+    $stmt_scenarios = $pdo->prepare("
+        SELECT s.id, s.title, s.description, sa.is_active
+        FROM ScenarioAssignments sa
+        JOIN Scenarios s ON sa.scenario_id = s.id
+        WHERE sa.team_id = ?
+        ORDER BY s.id DESC
     ");
-    $stmt_tasks->execute([$team_id]);
-    $tasks = $stmt_tasks->fetchAll(PDO::FETCH_ASSOC);
+    $stmt_scenarios->execute([$team_id]);
+    $scenarios = $stmt_scenarios->fetchAll(PDO::FETCH_ASSOC);
 
-    // پیدا کردن تکالیفی که کاربر آن‌ها را تکمیل کرده است
-    // (شرط تکمیل: پاسخ سوال دوم با موفقیت تایید شده باشد)
-    $stmt_completed_tasks = $pdo->prepare("
-        SELECT DISTINCT t.id
-        FROM Tasks t
-        JOIN TaskQuestions tq ON t.id = tq.task_id
-        JOIN TaskAnswers ta ON tq.id = ta.task_question_id
-        WHERE t.team_id = :team_id
-          AND ta.user_id = :user_id
-          AND tq.question_order = 2
-          AND ta.status = 'approved'
-    ");
-    $stmt_completed_tasks->execute([':team_id' => $team_id, ':user_id' => $user_id]);
-    $completed_task_ids = $stmt_completed_tasks->fetchAll(PDO::FETCH_COLUMN);
+    if (!empty($scenarios)) {
+        $scenario_ids = array_column($scenarios, 'id');
+        $placeholders = implode(',', array_fill(0, count($scenario_ids), '?'));
+
+        $stmt_completed = $pdo->prepare("
+            SELECT s.id
+            FROM Scenarios s
+            WHERE s.id IN ($placeholders)
+            AND (SELECT COUNT(*) FROM Challenges c WHERE c.scenario_id = s.id) =
+                (SELECT COUNT(*) FROM ChallengeAnswers ca JOIN Challenges c ON ca.challenge_id = c.id WHERE c.scenario_id = s.id AND ca.user_id = ? AND ca.status = 'approved')
+            AND (SELECT COUNT(*) FROM Challenges c WHERE c.scenario_id = s.id) > 0
+        ");
+        $params = array_merge($scenario_ids, [$user_id]);
+        $stmt_completed->execute($params);
+        $completed_scenario_ids = $stmt_completed->fetchAll(PDO::FETCH_COLUMN);
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -75,7 +66,7 @@ if ($team_id) {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>لیست آزمون‌ها و تکالیف</title>
+    <title>لیست آزمون‌ها و سناریوها</title>
     <style>
         :root {
             --primary-color: #00ae70;
@@ -189,6 +180,7 @@ if ($team_id) {
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
+            height: 100%;
         }
 
         .tool-card a:hover {
@@ -200,7 +192,7 @@ if ($team_id) {
 
         .tool-card.completed a {
             background-color: #f1f3f5;
-            cursor: not-allowed;
+            cursor: default;
             color: #868e96;
             border-color: var(--border-color);
         }
@@ -210,16 +202,19 @@ if ($team_id) {
             box-shadow: var(--shadow-sm);
         }
 
-        .completed-badge {
+        .badge {
             font-size: 0.8rem;
             font-weight: bold;
-            color: var(--primary-dark);
-            background-color: var(--primary-light);
             padding: 5px 10px;
             border-radius: 12px;
             position: absolute;
             top: 1.25rem;
             left: 1.25rem;
+        }
+
+        .completed-badge {
+            color: var(--primary-dark);
+            background-color: var(--primary-light);
         }
 
         .tool-icon {
@@ -238,6 +233,24 @@ if ($team_id) {
             line-height: 1.6;
             margin-top: .5rem;
         }
+
+        .tool-card.disabled a {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .tool-card.disabled a:hover {
+            transform: none;
+            box-shadow: var(--shadow-sm);
+            border-color: var(--border-color);
+            color: #adb5bd;
+        }
+
+        .disabled-badge {
+            color: #6c757d;
+            background-color: #e9ecef;
+        }
     </style>
 </head>
 
@@ -251,19 +264,14 @@ if ($team_id) {
                 <p>در حال حاضر هیچ آزمونی برای شما تعریف نشده است.</p>
             <?php else: ?>
                 <?php foreach ($quizzes as $quiz):
-                    $is_completed = in_array($quiz['id'], $completed_quiz_ids);
-                ?>
-                    <li class="tool-card <?= $is_completed ? 'completed' : '' ?>">
-                        <a href="<?= $is_completed ? '#' : 'take_quiz.php?id=' . $quiz['id'] ?>">
-                            <?php if ($is_completed): ?>
-                                <span class="completed-badge">✔ تکمیل شده</span>
-                            <?php endif; ?>
+                    $is_quiz_completed = in_array($quiz['id'], $completed_quiz_ids); ?>
+                    <li class="tool-card <?= $is_quiz_completed ? 'completed' : '' ?>">
+                        <a href="<?= $is_quiz_completed ? '#' : 'take_quiz.php?id=' . $quiz['id'] ?>">
+                            <?php if ($is_quiz_completed): ?><span class="badge completed-badge">✔ تکمیل شده</span><?php endif; ?>
                             <span class="tool-icon">📋</span>
                             <div>
                                 <span class="tool-title"><?= htmlspecialchars($quiz['title']) ?></span>
-                                <?php if (!empty($quiz['description'])): ?>
-                                    <p class="tool-description"><?= htmlspecialchars($quiz['description']) ?></p>
-                                <?php endif; ?>
+                                <?php if (!empty($quiz['description'])): ?><p class="tool-description"><?= htmlspecialchars($quiz['description']) ?></p><?php endif; ?>
                             </div>
                         </a>
                     </li>
@@ -273,26 +281,39 @@ if ($team_id) {
 
         <hr class="section-divider">
 
-        <h1 class="page-title">تکالیف شما</h1>
-        <p class="page-subtitle">تکالیف دومرحله‌ای که برای تیم شما تعریف شده است.</p>
+        <h1 class="page-title">سناریوهای شما</h1>
+        <p class="page-subtitle">سناریوهای چالشی که برای تیم شما تعریف شده است.</p>
         <ul class="tools-grid">
-            <?php if (empty($tasks)): ?>
-                <p>در حال حاضر هیچ تکلیفی برای تیم شما تعریف نشده است.</p>
+            <?php if (empty($scenarios)): ?>
+                <p>در حال حاضر هیچ سناریویی برای تیم شما تعریف نشده است.</p>
             <?php else: ?>
-                <?php foreach ($tasks as $task):
-                    $is_task_completed = in_array($task['id'], $completed_task_ids);
+                <?php
+                foreach ($scenarios as $scenario):
+                    $is_scenario_completed = in_array($scenario['id'], $completed_scenario_ids);
+                    $is_active = (bool)$scenario['is_active'];
+
+                    $card_class = '';
+                    $link_href = '#';
+
+                    if ($is_scenario_completed) {
+                        $card_class = 'completed';
+                    } elseif (!$is_active) {
+                        $card_class = 'disabled';
+                    } else {
+                        $link_href = 'view_scenario.php?id=' . $scenario['id'];
+                    }
                 ?>
-                    <li class="tool-card <?= $is_task_completed ? 'completed' : '' ?>">
-                        <a href="<?= $is_task_completed ? '#' : 'my_task.php?id=' . $task['id'] ?>">
-                            <?php if ($is_task_completed): ?>
-                                <span class="completed-badge">✔ تکمیل شده</span>
+                    <li class="tool-card <?= $card_class ?>">
+                        <a href="<?= $link_href ?>">
+                            <?php if ($is_scenario_completed): ?>
+                                <span class="badge completed-badge">✔ تکمیل شده</span>
+                            <?php elseif (!$is_active): ?>
+                                <span class="badge disabled-badge">غیرفعال</span>
                             <?php endif; ?>
-                            <span class="tool-icon">✅</span>
+                            <span class="tool-icon">🎯</span>
                             <div>
-                                <span class="tool-title"><?= htmlspecialchars($task['title']) ?></span>
-                                <?php if (!empty($task['description'])): ?>
-                                    <p class="tool-description"><?= htmlspecialchars($task['description']) ?></p>
-                                <?php endif; ?>
+                                <span class="tool-title"><?= htmlspecialchars($scenario['title']) ?></span>
+                                <?php if (!empty($scenario['description'])): ?><p class="tool-description"><?= htmlspecialchars($scenario['description']) ?></p><?php endif; ?>
                             </div>
                         </a>
                     </li>
