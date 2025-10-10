@@ -476,6 +476,66 @@ $claims = requireAuth('admin', '/auth/login.html');
             padding: 0.5em 1em;
         }
 
+        #printable-content {
+            display: none;
+        }
+
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+
+            #header-placeholder,
+            #footer-placeholder,
+            main,
+            .drawer,
+            #toast-container {
+                display: none !important;
+            }
+
+            #printable-content {
+                display: block;
+                margin: 1.5cm;
+            }
+
+            #printable-content h1 {
+                text-align: center;
+                margin-bottom: 0.5rem;
+                font-size: 1.5rem;
+            }
+
+            #print-timestamp {
+                text-align: center;
+                font-size: 0.9rem;
+                color: #555;
+                margin-bottom: 2rem;
+            }
+
+            #printable-content .users-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 9pt;
+            }
+
+            #printable-content .users-table th,
+            #printable-content .users-table td {
+                border: 1px solid #333;
+                padding: 8px;
+                text-align: right;
+            }
+
+            #printable-content .users-table th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+        }
+
         @media (max-width: 768px) {
             .users-table thead {
                 display: none;
@@ -523,13 +583,23 @@ $claims = requireAuth('admin', '/auth/login.html');
                 </svg>
                 <span>مدیریت کاربران</span>
             </h1>
-            <button id="add-new-user-btn" class="btn btn-primary">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14" />
-                    <path d="M12 5v14" />
-                </svg>
-                <span>افزودن کاربر جدید</span>
-            </button>
+            <div class="header-actions" style="display: flex; gap: 1rem;">
+                <button id="print-btn" class="btn btn-secondary">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9" />
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                        <rect x="6" y="14" width="12" height="8" />
+                    </svg>
+                    <span>چاپ لیست</span>
+                </button>
+                <button id="add-new-user-btn" class="btn btn-primary">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                    <span>افزودن کاربر جدید</span>
+                </button>
+            </div>
         </div>
         <div class="content-body">
             <div class="toolbar">
@@ -555,6 +625,26 @@ $claims = requireAuth('admin', '/auth/login.html');
             </div>
         </div>
     </main>
+
+    <div id="printable-content">
+        <h1>گزارش لیست کاربران</h1>
+        <p id="print-timestamp"></p>
+        <table class="users-table" id="printTable">
+            <thead>
+                <tr>
+                    <th>نام کامل</th>
+                    <th>نام کاربری</th>
+                    <th>شناسه</th>
+                    <th>تاریخ شروع</th>
+                    <th>نقش</th>
+                    <th>امتیاز</th>
+                    <th>ادمین</th>
+                    <th>تعداد شانس</th>
+                </tr>
+            </thead>
+            <tbody id="printTableBody"></tbody>
+        </table>
+    </div>
 
     <div id="user-drawer" class="drawer">
         <div class="drawer-content">
@@ -621,12 +711,15 @@ $claims = requireAuth('admin', '/auth/login.html');
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             let currentUserId = null;
+            let allFetchedUsers = [];
+            let currentlyDisplayedUsers = [];
             const userListBody = document.getElementById("user-list");
             const searchInput = document.getElementById("searchInput");
             const drawer = document.getElementById("user-drawer");
             const form = document.getElementById('user-form');
             const drawerTitle = document.getElementById('drawer-title');
             const apiEndpoint = '/admin/user-management/user-api.php';
+            const printBtn = document.getElementById('print-btn');
 
             const ICONS = {
                 add: `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`,
@@ -719,20 +812,22 @@ $claims = requireAuth('admin', '/auth/login.html');
                 showSkeletonLoader();
                 const users = await apiCall('GET');
                 if (users) {
-                    renderUsers(users);
+                    allFetchedUsers = users;
+                    renderUsers();
                 } else {
                     userListBody.innerHTML = `<tr class="empty-state"><td colspan="9">خطا در بارگذاری اطلاعات.</td></tr>`;
                 }
             }
 
-            function renderUsers(allUsers) {
+            function renderUsers() {
                 const searchTerm = searchInput.value.toLowerCase().trim();
-                const filteredUsers = searchTerm ? allUsers.filter(user =>
+                const filteredUsers = searchTerm ? allFetchedUsers.filter(user =>
                     user.name.toLowerCase().includes(searchTerm) ||
                     user.username.toLowerCase().includes(searchTerm) ||
                     String(user.id).includes(searchTerm)
-                ) : allUsers;
+                ) : allFetchedUsers;
 
+                currentlyDisplayedUsers = filteredUsers;
                 userListBody.innerHTML = "";
                 if (filteredUsers.length === 0) {
                     userListBody.innerHTML = `<tr class="empty-state"><td colspan="9"><p>${searchTerm ? 'کاربری با این مشخصات یافت نشد.' : 'هنوز کاربری اضافه نشده است.'}</p></td></tr>`;
@@ -765,6 +860,42 @@ $claims = requireAuth('admin', '/auth/login.html');
                     userListBody.appendChild(row);
                 });
             }
+
+            function generatePrintContent() {
+                const printTableBody = document.getElementById('printTableBody');
+                const printTimestamp = document.getElementById('print-timestamp');
+                printTableBody.innerHTML = '';
+
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString('fa-IR');
+                const formattedTime = now.toLocaleTimeString('fa-IR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                printTimestamp.textContent = `تاریخ گزارش: ${formattedDate} - ساعت: ${formattedTime}`;
+
+                if (!currentlyDisplayedUsers || currentlyDisplayedUsers.length === 0) {
+                    printTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">داده‌ای برای چاپ وجود ندارد.</td></tr>`;
+                    return;
+                }
+
+                currentlyDisplayedUsers.forEach(user => {
+                    const row = printTableBody.insertRow();
+                    row.insertCell().textContent = user.name;
+                    row.insertCell().textContent = user.username;
+                    row.insertCell().textContent = user.id;
+                    row.insertCell().textContent = user.start_work || '-';
+                    row.insertCell().textContent = user.role || '-';
+                    row.insertCell().textContent = user.score ?? 0;
+                    row.insertCell().textContent = user.is_admin ? 'ادمین' : 'کاربر';
+                    row.insertCell().textContent = user.spin_chances ?? 0;
+                });
+            }
+
+            printBtn.addEventListener('click', () => {
+                generatePrintContent();
+                window.print();
+            });
 
             document.getElementById("add-new-user-btn").addEventListener("click", () => {
                 currentUserId = null;
@@ -825,9 +956,7 @@ $claims = requireAuth('admin', '/auth/login.html');
                 }
             });
 
-            searchInput.addEventListener('input', () => {
-                loadUsersAndRender();
-            });
+            searchInput.addEventListener('input', renderUsers);
             document.getElementById('close-drawer-btn').addEventListener('click', closeDrawer);
             drawer.addEventListener('click', (e) => {
                 if (e.target === drawer) closeDrawer();
