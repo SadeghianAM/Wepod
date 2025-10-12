@@ -735,16 +735,6 @@
       }
 
       updateCopyButton();
-      let cityMapping = {};
-      let nameList = [];
-      fetch("data/NationalCode.json")
-        .then((res) => res.json())
-        .then((data) => {
-          cityMapping = data;
-        })
-        .catch((err) => {
-          console.error("خطا در بارگذاری NationalCode.json:", err);
-        });
 
       // --- START: بخش جدید برای بارگذاری لیست اسامی ---
       fetch("data/name.json")
@@ -764,15 +754,36 @@
           return;
         }
         const prefix = pureValue.slice(0, 3);
-        if (cityMapping.hasOwnProperty(prefix)) {
-          const prov = cityMapping[prefix].province;
-          const city = cityMapping[prefix].city;
-          provinceDiv.innerText =
-            "استان محل صدور: " + prov + " | شهر محل صدور: " + city;
-        } else {
-          provinceDiv.innerText = "❌ این کدملی در ثبت احوال وجود ندارد";
-        }
-        provinceDiv.style.display = "block";
+
+        // درخواست به API جدید برای گرفتن اطلاعات استان
+        fetch(`/api/get_province_info.php?code=${prefix}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // نمایش پیام در هر صورت
+            provinceDiv.style.display = "block";
+
+            if (data && data.province && data.city) {
+              // اگر دیتابیس نتیجه‌ای برگرداند
+              provinceDiv.innerText = `استان محل صدور: ${data.province} | شهر محل صدور: ${data.city}`;
+              provinceDiv.className = "input-message success"; // استایل موفقیت
+            } else {
+              // اگر نتیجه‌ای یافت نشد
+              provinceDiv.innerText =
+                "❌ پیش‌شماره کدملی در سیستم ثبت نشده است.";
+              provinceDiv.className = "input-message error"; // استایل خطا
+            }
+          })
+          .catch((error) => {
+            console.error("خطا در دریافت اطلاعات استان:", error);
+            provinceDiv.style.display = "block";
+            provinceDiv.innerText = "⚠️ خطایی در ارتباط با سرور رخ داد.";
+            provinceDiv.className = "input-message error";
+          });
       }
 
       function autoFillForm() {

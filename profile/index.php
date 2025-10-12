@@ -136,20 +136,6 @@ if ($agentId) {
             border-bottom: 1px solid var(--border-color);
         }
 
-        .profile-avatar {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background-color: var(--primary-light);
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            margin: 0 auto 1rem;
-            font-weight: 600;
-        }
-
         .profile-user-info h2 {
             font-size: 1.2rem;
             font-weight: 700;
@@ -857,7 +843,6 @@ if ($agentId) {
     <div class="profile-container">
         <aside class="profile-sidebar">
             <div class="profile-user-info">
-                <div class="profile-avatar"><?php echo htmlspecialchars(mb_substr($agentName, 0, 1)); ?></div>
                 <h2><?php echo htmlspecialchars($agentName); ?></h2>
                 <p class="profile-user-role"><?php echo htmlspecialchars($agentRole); ?></p>
                 <p class="profile-user-extension">داخلی: <?php echo htmlspecialchars($agentExtension); ?></p>
