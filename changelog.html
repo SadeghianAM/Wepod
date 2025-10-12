@@ -13,7 +13,6 @@
     <meta http-equiv="Expires" content="0" />
 
     <style>
-      /* ======== Your Original Styles ======== */
       :root {
         --primary-color: #00ae70;
         --primary-dark: #089863;
@@ -29,6 +28,7 @@
         --danger-bg: #fce8e6;
         --yellow-color: #f9ab00;
         --yellow-bg: #feefc3;
+        --blue-color: #1a73e8; /* For Improvements */
         --border-radius: 0.75rem;
         --border-color: #e9e9e9;
       }
@@ -58,7 +58,6 @@
         flex-direction: column;
       }
 
-      /* CORRECTED: Added Footer Styles */
       footer {
         background: var(--primary-color);
         color: var(--header-text);
@@ -90,9 +89,9 @@
       }
 
       .tool-card h2 {
-        font-size: 1.1rem;
+        font-size: 1.25rem;
         font-weight: 700;
-        padding: 0.9rem 1.5rem;
+        padding: 1.1rem 1.5rem;
         background-color: var(--bg-color);
         color: var(--primary-dark);
         border-bottom: 1px solid var(--border-color);
@@ -102,26 +101,11 @@
         padding: 1.5rem;
       }
 
-      @media (max-width: 900px) {
-        main {
-          padding: 1.5rem;
-        }
-      }
-      @media (max-width: 480px) {
-        main {
-          padding: 1rem;
-        }
-        .tool-card .card-content {
-          padding: 1rem;
-        }
-      }
-
-      /* ======== CORRECTED: Changelog Timeline Styles ======== */
+      /* ======== Changelog Timeline Styles ======== */
       .timeline {
         position: relative;
       }
 
-      /* The vertical line of the timeline */
       .timeline::before {
         content: "";
         position: absolute;
@@ -129,25 +113,22 @@
         bottom: 10px;
         width: 3px;
         background: var(--primary-light);
-        right: 10px; /* Positioned slightly away from the edge */
+        right: 10px;
         border-radius: 2px;
       }
 
-      /* Container for each version entry */
       .timeline-item {
         position: relative;
-        margin-bottom: 30px;
-        /* The space for the dot is created by the margin on the content */
+        margin-bottom: 40px; /* Increased margin for better spacing */
       }
       .timeline-item:last-child {
         margin-bottom: 0;
       }
 
-      /* The dot on the timeline */
       .timeline-dot {
         position: absolute;
-        top: 5px; /* Aligns dot with the top of the version title */
-        right: 0; /* Aligns dot so its center is on the timeline line */
+        top: 8px;
+        right: 0;
         width: 23px;
         height: 23px;
         background-color: var(--card-bg);
@@ -156,14 +137,12 @@
         z-index: 1;
       }
 
-      /* The main content box for each version */
       .timeline-content {
-        /* This margin pushes the content away from the timeline line and dot */
         margin-right: 45px;
       }
 
       .timeline-content h4 {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         font-weight: 700;
         color: var(--primary-dark);
         margin: 0 0 5px;
@@ -187,12 +166,17 @@
         color: var(--secondary-text-color);
       }
 
+      .timeline-content li strong {
+        font-weight: 600;
+        color: var(--text-color);
+      }
+
       .label {
         display: inline-block;
         padding: 3px 10px;
         border-radius: 15px;
         font-size: 0.8em;
-        font-weight: bold;
+        font-weight: 600;
         margin-left: 8px;
         color: white;
         vertical-align: middle;
@@ -202,10 +186,27 @@
         background-color: var(--primary-color);
       }
       .label.improvement {
-        background-color: var(--yellow-color);
+        background-color: var(--blue-color);
       }
       .label.fix {
         background-color: var(--danger-color);
+      }
+
+      @media (max-width: 900px) {
+        main {
+          padding: 1.5rem;
+        }
+      }
+      @media (max-width: 480px) {
+        main {
+          padding: 1rem;
+        }
+        .tool-card .card-content {
+          padding: 1rem;
+        }
+        .tool-card h2 {
+          font-size: 1.1rem;
+        }
       }
     </style>
   </head>
@@ -220,12 +221,80 @@
             <div class="timeline-item">
               <div class="timeline-dot"></div>
               <div class="timeline-content">
-                <h4>نسخه 1.0.0</h4>
+                <h4>نسخه 1.1.0</h4>
                 <span class="date">۲۱ مهر ۱۴۰۴</span>
                 <ul>
                   <li>
-                    <span class="label new">جدید</span> اولین نسخه پایدار پروژه
-                    منتشر شد!
+                    <span class="label new">جدید</span> صفحه
+                    <strong>پروفایل کاربری</strong> جامع با چند بخش کاربردی
+                    راه‌اندازی شد.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> بخش
+                    <strong>گزارش عملکرد</strong> با نمایش آمار روزانه، خلاصه
+                    هفتگی و نمودارهای گرافیکی برای تحلیل روند تماس‌ها و امتیازات
+                    اضافه شد.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> تقویم
+                    <strong>شیفت من</strong> برای مشاهده برنامه کاری ماهانه به
+                    همراه جزئیات شیفت و استراحت پیاده‌سازی شد.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> بخش
+                    <strong>اموال من</strong> برای مشاهده لیست اموال در اختیار
+                    کارشناس افزوده شد.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> سیستم
+                    <strong>نظرسنجی</strong> پویا با قابلیت نمایش ظرفیت گزینه‌ها
+                    و ثبت رای به پروفایل اضافه شد.
+                  </li>
+                  <li>
+                    <span class="label improvement">بهبود</span> دسترسی به
+                    بخش‌های <strong>آزمون</strong>،
+                    <strong>جدول امتیازات</strong> و
+                    <strong>گردونه شانس</strong> از طریق منوی پروفایل یکپارچه
+                    شد.
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <h4>نسخه 1.0.0</h4>
+                <span class="date">۲۰ مهر ۱۴۰۴</span>
+                <ul>
+                  <li>
+                    <span class="label new">جدید</span> اولین نسخه پایدار
+                    <strong>وی‌هاب</strong> به عنوان هاب مرکزی ابزارهای پشتیبانی
+                    منتشر شد.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> بخش
+                    <strong>ابزارهای اصلی پشتیبانی</strong> شامل ویکی، آموزش‌ها
+                    و راهنماهای فرآیندی (تغییر شماره، مسدودی و...) اضافه شد.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> مجموعه
+                    <strong>سرویس‌های استعلامی</strong> برای اعتبارسنجی کارت و
+                    شبا، محاسبه کارمزد و پیگیری تراکنش‌ها راه‌اندازی شد.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> قابلیت
+                    <strong>جستجوی کلی</strong> برای یافتن سریع ابزارها و
+                    لینک‌های مورد نیاز پیاده‌سازی شد.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> دسترسی سریع به
+                    <strong>لینک‌های پرکاربرد</strong>، سامانه‌های داتین و
+                    سرویس‌های رهگیری مرسولات فراهم گردید.
+                  </li>
+                  <li>
+                    <span class="label new">جدید</span> ستون‌های پویا برای
+                    <strong>اطلاع‌رسانی‌های مهم</strong> و نمایش
+                    <strong>وضعیت کلی سرویس‌ها</strong> به صفحه اصلی اضافه شد.
                   </li>
                 </ul>
               </div>
@@ -237,6 +306,29 @@
 
     <div id="footer-placeholder"></div>
 
-    <script src="/js/header.js?v=1.0"></script>
+    <script src="/js/header.js?v=1.1"></script>
+    <script>
+      // Dynamically load header and footer if needed
+      document.addEventListener("DOMContentLoaded", function () {
+        if (document.getElementById("header-placeholder")) {
+          fetch("header.html")
+            .then((response) => (response.ok ? response.text() : ""))
+            .then((data) => {
+              if (data)
+                document.getElementById("header-placeholder").innerHTML = data;
+            })
+            .catch((error) => console.error("Error loading header:", error));
+        }
+        if (document.getElementById("footer-placeholder")) {
+          fetch("footer.html")
+            .then((response) => (response.ok ? response.text() : ""))
+            .then((data) => {
+              if (data)
+                document.getElementById("footer-placeholder").innerHTML = data;
+            })
+            .catch((error) => console.error("Error loading footer:", error));
+        }
+      });
+    </script>
   </body>
 </html>
