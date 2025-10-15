@@ -442,8 +442,34 @@
                 onclick="copyRequest()"
                 disabled
               >
-                📋 کپی متن درخواست
+                📄 نمایش متن درخواست
               </button>
+            </div>
+            <div
+              id="text-display-section"
+              style="display: none; margin-top: 1.5rem"
+            >
+              <label
+                for="requestTextOutput"
+                style="font-size: 0.9rem; color: var(--primary-dark)"
+                >متن آماده شده برای کپی دستی:</label
+              >
+              <textarea
+                id="requestTextOutput"
+                readonly
+                style="
+                  width: 100%;
+                  height: 130px;
+                  margin-top: 0.5rem;
+                  background-color: var(--primary-light);
+                  color: var(--text-color);
+                  border: 1px solid var(--primary-color);
+                  padding: 0.75rem;
+                  line-height: 1.6;
+                  white-space: pre-wrap;
+                  resize: vertical;
+                "
+              ></textarea>
             </div>
             <div id="copyResult" class="result"></div>
           </div>
@@ -665,6 +691,10 @@
         }
       }
 
+      /**
+       * START: FUNCTION MODIFIED
+       * این تابع برای نمایش متن به جای کپی مستقیم تغییر کرده است
+       */
       function copyRequest() {
         const name = document.getElementById("nameInput").value.trim();
         const oldNumber = document
@@ -676,6 +706,7 @@
         const newNumber = document
           .getElementById("newNumberInput")
           .value.replace(/[^\d]/g, "");
+
         const text =
           "با سلام\n" +
           "کاربر " +
@@ -687,22 +718,30 @@
           " درخواست تغییر شماره به " +
           (newNumber ? newNumber : "نامشخص") +
           " را دارد.";
-        navigator.clipboard.writeText(text).then(
-          () => {
-            const res = document.getElementById("copyResult");
-            res.innerText = "✅ متن با موفقیت کپی شد!";
-            res.style.display = "block";
-            setTimeout(() => {
-              res.style.display = "none";
-            }, 2000);
-          },
-          () => {
-            const res = document.getElementById("copyResult");
-            res.innerText = "❌ مشکلی در کپی کردن متن رخ داد.";
-            res.style.display = "block";
-          }
-        );
+
+        const displaySection = document.getElementById("text-display-section");
+        const outputTextarea = document.getElementById("requestTextOutput");
+        const res = document.getElementById("copyResult");
+
+        // متن را در کادر قرار داده و آن را نمایش می‌دهد
+        outputTextarea.value = text;
+        displaySection.style.display = "block";
+
+        // متن را برای کپی آسان توسط کاربر انتخاب (select) می‌کند
+        outputTextarea.focus();
+        outputTextarea.select();
+
+        // نمایش پیام تایید
+        res.innerText = "✅ متن جهت کپی دستی نمایش داده شد.";
+        res.className = "result success";
+        res.style.display = "block";
+        setTimeout(() => {
+          res.style.display = "none";
+        }, 2500);
       }
+      /**
+       * END: FUNCTION MODIFIED
+       */
 
       function clearForm() {
         document.getElementById("autoFillInput").value = "";
@@ -722,6 +761,12 @@
         provinceDiv.innerText = "";
         document.getElementById("copyResult").innerText = "";
         document.getElementById("copyResult").style.display = "none";
+
+        // START: خطوط اضافه شده برای بستن کادر نمایش متن
+        document.getElementById("text-display-section").style.display = "none";
+        document.getElementById("requestTextOutput").value = "";
+        // END: خطوط اضافه شده
+
         document
           .getElementById("oldNumberInput")
           .classList.remove("input-error");

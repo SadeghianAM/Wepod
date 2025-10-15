@@ -404,8 +404,34 @@
               onclick="copyRequest()"
               disabled
             >
-              📋 کپی متن پیگیری
+              📄 نمایش متن پیگیری
             </button>
+          </div>
+          <div
+            id="text-display-section"
+            style="display: none; margin-top: 1.5rem"
+          >
+            <label
+              for="requestTextOutput"
+              style="font-size: 0.9rem; color: var(--primary-dark)"
+              >متن پیگیری (برای کپی دستی):</label
+            >
+            <textarea
+              id="requestTextOutput"
+              readonly
+              style="
+                width: 100%;
+                height: 220px;
+                margin-top: 0.5rem;
+                background-color: var(--primary-light);
+                color: var(--text-color);
+                border: 1px solid var(--primary-color);
+                padding: 0.75rem;
+                line-height: 1.7;
+                white-space: pre-wrap;
+                resize: vertical;
+              "
+            ></textarea>
           </div>
           <div id="copyResult" class="result" style="margin-top: 1.5rem"></div>
           <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
@@ -415,11 +441,9 @@
     <div id="footer-placeholder"></div>
     <script src="/js/header.js"></script>
     <script>
-      // --- Bank Identification Logic ---
       let binData = [];
       const WEPOD_BIN8 = "50222915";
 
-      // --- NEW: Fetching from API ---
       fetch("./api/validator.php?type=bins")
         .then((res) => (res.ok ? res.json() : Promise.reject(res)))
         .then((data) => {
@@ -427,7 +451,6 @@
         })
         .catch((err) => {
           console.error("BIN Fetch Error:", err);
-          // Optionally show an error to the user
           showResult(
             document.getElementById("sourceCardResult"),
             "خطا در بارگذاری اطلاعات بانک‌ها. لطفاً صفحه را رفرش کنید.",
@@ -476,7 +499,6 @@
         document.getElementById(`${prefix}Validation`).className = "result";
       }
 
-      // --- NEW: Replaced Card Input Handler ---
       function handleCardInput(event) {
         const input = event.target;
         const prefix = input.id.replace("CardInput", "");
@@ -487,12 +509,10 @@
         const rawValue = input.value.replace(/\D/g, "").substring(0, 16);
         input.value = (rawValue.match(/.{1,4}/g) || []).join(" ");
 
-        // Clear previous states
         input.classList.remove("input-error");
         resultBox.className = "result";
         validationBox.className = "result";
 
-        // WEPOD specific validation for destination card
         if (
           input.id === "destCardInput" &&
           rawValue.length >= 8 &&
@@ -510,7 +530,7 @@
 
         if (rawValue.length < 6) {
           validateFields();
-          return; // Not enough digits to identify a bank
+          return;
         }
 
         const match = binData.find((entry) => rawValue.startsWith(entry.bin));
@@ -531,7 +551,6 @@
               "warning"
             );
           } else {
-            // rawValue.length is 16
             if (validateLuhn(rawValue)) {
               showResult(validationBox, "✅ شماره کارت معتبر است.", "success");
             } else {
@@ -541,7 +560,6 @@
           }
         } else {
           showResult(resultBox, "بانکی با این شماره پیدا نشد.", "warning");
-          // Optionally validate Luhn even if bank is unknown
           if (rawValue.length === 16) {
             if (!validateLuhn(rawValue)) {
               showResult(validationBox, "❌ شماره کارت نامعتبر است.", "error");
@@ -549,10 +567,9 @@
             }
           }
         }
-        validateFields(); // Update form validity on every input
+        validateFields();
       }
 
-      // --- Mobile Number Validation Logic ---
       function formatMobileNumber(input) {
         let value = input.value.replace(/\D/g, "").slice(0, 11);
         if (value.length > 7) {
@@ -586,7 +603,6 @@
         validatePhone(input, msgEl, pureValue);
       }
 
-      // --- Amount Formatting Logic ---
       function handleAmountInput(event) {
         const input = event.target;
         let rawValue = input.value.replace(/\D/g, "");
@@ -598,7 +614,6 @@
         }
       }
 
-      // --- Main Form Logic ---
       const requiredFields = [
         "sourceNameInput",
         "sourceMobileInput",
@@ -620,7 +635,6 @@
       function validateFields() {
         let allValid = true;
 
-        // 1. Check for empty fields
         requiredFields.forEach((id) => {
           const field = document.getElementById(id);
           if (!triedSubmit) field.classList.remove("input-error");
@@ -630,7 +644,6 @@
           }
         });
 
-        // 2. Specific validation for mobile numbers
         const sourceMobileInput = document.getElementById("sourceMobileInput");
         const sourceMobileMsg = document.getElementById("sourceMobileMessage");
         const sourceMobileVal = sourceMobileInput.value.replace(/\D/g, "");
@@ -648,7 +661,6 @@
           if (triedSubmit) destMobileInput.classList.add("input-error");
         }
 
-        // 3. Check for duplicates
         const dupMobileMsg = "شماره موبایل مبدا و مقصد نباید یکسان باشد.";
         if (sourceMobileVal && sourceMobileVal === destMobileVal) {
           allValid = false;
@@ -681,7 +693,6 @@
           destCardInput.classList.add("input-error");
         }
 
-        // 4. WEPOD check
         if (
           destCardVal.length >= 8 &&
           destCardVal.substring(0, 8) !== WEPOD_BIN8
@@ -689,7 +700,6 @@
           allValid = false;
         }
 
-        // 5. Luhn validation for card numbers
         if (sourceCardVal.length !== 16 || !validateLuhn(sourceCardVal)) {
           allValid = false;
         }
@@ -715,6 +725,8 @@
         document.getElementById("destMobileMessage").className =
           "input-message";
         document.getElementById("copyResult").className = "result";
+        document.getElementById("text-display-section").style.display = "none";
+        document.getElementById("requestTextOutput").value = "";
         validateFields();
       }
 
@@ -747,21 +759,20 @@
           document.getElementById("amountInput").value.trim()
         )} ریال`;
 
-        navigator.clipboard.writeText(reportText).then(
-          () => {
-            const res = document.getElementById("copyResult");
-            res.textContent = "✅ متن پیگیری با موفقیت کپی شد!";
-            res.className = "result success";
-          },
-          () => {
-            const res = document.getElementById("copyResult");
-            res.textContent = "❌ مشکلی در کپی کردن متن رخ داد.";
-            res.className = "result error";
-          }
-        );
+        const displaySection = document.getElementById("text-display-section");
+        const outputTextarea = document.getElementById("requestTextOutput");
+        const res = document.getElementById("copyResult");
+
+        outputTextarea.value = reportText;
+        displaySection.style.display = "block";
+
+        outputTextarea.focus();
+        outputTextarea.select();
+
+        res.textContent = "✅ متن پیگیری برای کپی دستی نمایش داده شد.";
+        res.className = "result success";
       }
 
-      // Attach all event listeners
       document
         .getElementById("sourceCardInput")
         .addEventListener("input", handleCardInput);
@@ -782,7 +793,7 @@
         document.getElementById(id).addEventListener("input", validateFields)
       );
 
-      validateFields(); // Initial check
+      validateFields();
     </script>
   </body>
 </html>

@@ -45,7 +45,6 @@
         display: flex;
         flex-direction: column;
       }
-      header,
       footer {
         background: var(--primary-color);
         color: var(--header-text);
@@ -56,15 +55,6 @@
         position: relative;
         z-index: 10;
         flex-shrink: 0;
-      }
-      header {
-        height: 70px;
-      }
-      header h1 {
-        font-size: 1.2rem;
-        font-weight: 700;
-      }
-      footer {
         height: 60px;
         font-size: 0.85rem;
         margin-top: auto;
@@ -421,8 +411,34 @@
               onclick="copyRequest()"
               disabled
             >
-              📋 کپی متن درخواست
+              📄 نمایش متن درخواست
             </button>
+          </div>
+          <div
+            id="text-display-section"
+            style="display: none; margin-top: 1.5rem"
+          >
+            <label
+              for="requestTextOutput"
+              style="font-size: 0.9rem; color: var(--primary-dark)"
+              >متن آماده شده برای کپی دستی:</label
+            >
+            <textarea
+              id="requestTextOutput"
+              readonly
+              style="
+                width: 100%;
+                height: 130px;
+                margin-top: 0.5rem;
+                background-color: var(--primary-light);
+                color: var(--text-color);
+                border: 1px solid var(--primary-color);
+                padding: 0.75rem;
+                line-height: 1.6;
+                white-space: pre-wrap;
+                resize: vertical;
+              "
+            ></textarea>
           </div>
           <div id="copyResult" class="result"></div>
           <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
@@ -660,23 +676,20 @@
         return true;
       }
 
-      // --- NEW: Date Duration Calculation Function ---
+      // --- Date Duration Calculation Function ---
       function calculateJalaliDuration(startDateStr, endDateStr) {
         if (!startDateStr || !endDateStr) return "";
 
         let [y1, m1, d1] = startDateStr.split("/").map(Number);
         let [y2, m2, d2] = endDateStr.split("/").map(Number);
 
-        // Handle borrowing for days
         if (d2 < d1) {
           m2 -= 1;
-          // Get the number of days in the previous month
           const prevMonth = m2 === 0 ? 12 : m2;
           const prevYear = m2 === 0 ? y2 - 1 : y2;
           d2 += jalaliMonthLength(prevYear, prevMonth);
         }
 
-        // Handle borrowing for months
         if (m2 < m1) {
           y2 -= 1;
           m2 += 12;
@@ -686,7 +699,7 @@
         const monthDiff = m2 - m1;
         const dayDiff = d2 - d1;
 
-        if (yearDiff < 0) return ""; // Start date is after end date
+        if (yearDiff < 0) return "";
 
         const parts = [];
         if (yearDiff > 0) parts.push(`${yearDiff} سال`);
@@ -755,7 +768,6 @@
             fromDateMsg.className = "input-message error";
             fromDateInput.classList.add("input-error");
           } else {
-            // Calculate and display duration
             const durationText = calculateJalaliDuration(
               fromDateVal,
               toDateVal
@@ -771,6 +783,10 @@
         document.getElementById("copyBtn").disabled = !allValid;
       }
 
+      /**
+       * START: MODIFIED clearForm FUNCTION
+       * Added logic to hide the new text display section.
+       */
       function clearForm() {
         requiredFields.forEach((id) => {
           document.getElementById(id).value = "";
@@ -782,10 +798,22 @@
         document.getElementById("mobileMessage").className = "input-message";
         document.getElementById("fromDateMessage").className = "input-message";
         document.getElementById("copyResult").className = "result";
-        document.getElementById("dateDurationResult").className = "result"; // Clear duration
+        document.getElementById("dateDurationResult").className = "result";
+
+        // Hide the text display area
+        document.getElementById("text-display-section").style.display = "none";
+        document.getElementById("requestTextOutput").value = "";
+
         updateCopyButton();
       }
+      /**
+       * END: MODIFIED clearForm FUNCTION
+       */
 
+      /**
+       * START: MODIFIED copyRequest FUNCTION
+       * This function now shows the text in a textarea instead of copying to clipboard.
+       */
       function copyRequest() {
         if (document.getElementById("copyBtn").disabled) return;
 
@@ -803,19 +831,25 @@
 کاربر ${name} با شماره موبایل ${mobile} و کدملی ${nationalId} درخواست پرینت حساب خود را از تاریخ ${fromDate} تا تاریخ ${toDate} دارد
 باتشکر`;
 
-        navigator.clipboard.writeText(reportText).then(
-          () => {
-            const res = document.getElementById("copyResult");
-            res.textContent = "✅ متن درخواست با موفقیت کپی شد!";
-            res.className = "result success";
-          },
-          () => {
-            const res = document.getElementById("copyResult");
-            res.textContent = "❌ مشکلی در کپی کردن متن رخ داد.";
-            res.className = "result error";
-          }
-        );
+        const displaySection = document.getElementById("text-display-section");
+        const outputTextarea = document.getElementById("requestTextOutput");
+        const res = document.getElementById("copyResult");
+
+        // Populate the textarea and make it visible
+        outputTextarea.value = reportText;
+        displaySection.style.display = "block";
+
+        // Focus and select the text for easy copying
+        outputTextarea.focus();
+        outputTextarea.select();
+
+        // Show a confirmation message
+        res.textContent = "✅ متن برای کپی دستی نمایش داده شد.";
+        res.className = "result success";
       }
+      /**
+       * END: MODIFIED copyRequest FUNCTION
+       */
 
       // --- Date Parsing and Autofill Logic ---
       function findDatesInText(text) {
@@ -837,12 +871,10 @@
         };
 
         const patterns = [
-          // Pattern 1: YYYY/MM/DD
           {
             regex: /(?<![\d\/])(1[34]\d{2})\/(\d{1,2})\/(\d{1,2})(?![\d\/])/g,
             map: (m) => ({ year: m[1], month: m[2], day: m[3] }),
           },
-          // Pattern 2: DD MonthName YYYY (MODIFIED)
           {
             regex: new RegExp(
               `(?<!\\d)(\\d{1,2})\\s+(${Object.keys(monthMap).join(
@@ -856,7 +888,6 @@
               day: m[1],
             }),
           },
-          // Pattern 3: MM/DD
           {
             regex: /(?<![\d\/])(\d{1,2})\/(\d{1,2})(?![\d\/])/g,
             map: (m) => ({ year: currentYear, month: m[1], day: m[2] }),
@@ -866,17 +897,14 @@
         let processedText = text;
         let foundFullDates = [];
 
-        // First pass for full dates to avoid re-matching
         for (const match of processedText.matchAll(patterns[0].regex)) {
           const date = patterns[0].map(match);
           allMatches.push({ ...date, index: match.index });
           foundFullDates.push({ index: match.index, length: match[0].length });
         }
 
-        // Process other patterns, avoiding areas where full dates were found
         for (let i = 1; i < patterns.length; i++) {
           for (const match of processedText.matchAll(patterns[i].regex)) {
-            // Check if this match is inside an already found full date
             const isInsideFullDate = foundFullDates.some(
               (fd) =>
                 match.index >= fd.index && match.index < fd.index + fd.length
@@ -887,7 +915,6 @@
             }
           }
         }
-
         return allMatches.sort((a, b) => a.index - b.index);
       }
 
@@ -908,7 +935,6 @@
           "۰۱۲۳۴۵۶۷۸۹".indexOf(d)
         );
 
-        // Fill Mobile and National ID
         const mobileMatch = textWithEnglishNumerals.match(/09\d{9}/);
         if (mobileMatch)
           handleMobileInput({ target: { value: mobileMatch[0] } });
@@ -917,7 +943,6 @@
         if (nationalIdMatch)
           handleNationalIdInput({ target: { value: nationalIdMatch[0] } });
 
-        // Fill Dates using the robust function
         const foundDates = findDatesInText(textWithEnglishNumerals);
         if (foundDates.length > 0) {
           const startDate = foundDates[0];
@@ -935,7 +960,6 @@
             parseInt(endDate.day)
           );
         }
-
         updateCopyButton();
       }
 
@@ -982,7 +1006,7 @@
               .addEventListener("input", updateCopyButton);
           }
         });
-        updateCopyButton(); // Initial check
+        updateCopyButton();
       });
     </script>
   </body>

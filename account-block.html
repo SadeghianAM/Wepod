@@ -44,7 +44,6 @@
         display: flex;
         flex-direction: column;
       }
-      header,
       footer {
         background: var(--primary-color);
         color: var(--header-text);
@@ -55,15 +54,6 @@
         position: relative;
         z-index: 10;
         flex-shrink: 0;
-      }
-      header {
-        height: 70px;
-      }
-      header h1 {
-        font-size: 1.2rem;
-        font-weight: 700;
-      }
-      footer {
         height: 60px;
         font-size: 0.85rem;
         margin-top: auto;
@@ -382,8 +372,34 @@
                 onclick="copyRequest()"
                 disabled
               >
-                📋 کپی متن گزارش
+                📄 نمایش متن گزارش
               </button>
+            </div>
+            <div
+              id="text-display-section"
+              style="display: none; margin-top: 1.5rem"
+            >
+              <label
+                for="requestTextOutput"
+                style="font-size: 0.9rem; color: var(--primary-dark)"
+                >متن گزارش (برای کپی دستی):</label
+              >
+              <textarea
+                id="requestTextOutput"
+                readonly
+                style="
+                  width: 100%;
+                  height: 160px;
+                  margin-top: 0.5rem;
+                  background-color: var(--primary-light);
+                  color: var(--text-color);
+                  border: 1px solid var(--primary-color);
+                  padding: 0.75rem;
+                  line-height: 1.7;
+                  white-space: pre-wrap;
+                  resize: vertical;
+                "
+              ></textarea>
             </div>
             <div id="copyResult" class="result"></div>
             <a href="/index.html" class="back-link">🏠 بازگشت به صفحه اصلی</a>
@@ -496,6 +512,9 @@
         });
       });
 
+      /**
+       * START: MODIFIED clearForm FUNCTION
+       */
       function clearForm() {
         triedSubmit = false;
         [
@@ -512,12 +531,24 @@
         });
         document.getElementById("copyResult").innerText = "";
         document.getElementById("copyResult").style.display = "none";
+
+        // Hide the text display area
+        document.getElementById("text-display-section").style.display = "none";
+        document.getElementById("requestTextOutput").value = "";
+
         validateFields();
       }
+      /**
+       * END: MODIFIED clearForm FUNCTION
+       */
 
+      /**
+       * START: MODIFIED copyRequest FUNCTION
+       */
       function copyRequest() {
         triedSubmit = true;
         if (!validateFields()) return;
+
         const blockType =
           document.getElementById("blockTypeInput").value.trim() || "نامشخص";
         const reason =
@@ -529,6 +560,7 @@
         const amount =
           document.getElementById("amountInput").value.trim() || "نامشخص";
         const desc = document.getElementById("descInput").value.trim() || "-";
+
         const text =
           "باسلام و احترام\n" +
           `کاربرگرامی، طی بررسی انجام شده حساب شما دارای مسدودی ${blockType} است\n` +
@@ -539,21 +571,23 @@
           )} مسدود شده است\n` +
           `توضیحات:  ${desc}\n` +
           "باتشکر از همراهی شما";
-        navigator.clipboard.writeText(text).then(
-          () => {
-            const res = document.getElementById("copyResult");
-            res.innerText = "✅ متن گزارش با موفقیت کپی شد!";
-            res.style.display = "block";
-            setTimeout(() => {
-              res.style.display = "none";
-            }, 2000);
-          },
-          () => {
-            const res = document.getElementById("copyResult");
-            res.innerText = "❌ مشکلی در کپی کردن متن رخ داد.";
-            res.style.display = "block";
-          }
-        );
+
+        const displaySection = document.getElementById("text-display-section");
+        const outputTextarea = document.getElementById("requestTextOutput");
+        const res = document.getElementById("copyResult");
+
+        // Populate the textarea and make it visible
+        outputTextarea.value = text;
+        displaySection.style.display = "block";
+
+        // Focus and select the text for easy copying
+        outputTextarea.focus();
+        outputTextarea.select();
+
+        // Show a confirmation message
+        res.innerText = "✅ متن گزارش برای کپی دستی نمایش داده شد.";
+        res.className = "result success";
+        res.style.display = "block";
       }
       validateFields();
     </script>
