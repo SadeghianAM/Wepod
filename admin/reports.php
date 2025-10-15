@@ -2,21 +2,17 @@
 require_once __DIR__ . '/../auth/require-auth.php';
 $claims = requireAuth('admin', '/auth/login.html');
 
-// Load existing report data
 $jsonFile = __DIR__ . '/../data/reports.json';
 $existingData = file_exists($jsonFile) ? json_decode(file_get_contents($jsonFile), true) : [];
 if (!is_array($existingData)) $existingData = [];
 
-// Load users.json to map agent IDs to names
-$usersFile = __DIR__ . '/../data/users.json';
-$usersData = file_exists($usersFile) ? json_decode(file_get_contents($usersFile), true) : [];
-if (!is_array($usersData)) $usersData = [];
-
+require_once __DIR__ . '/../db/database.php';
 $agentNameMap = [];
-foreach ($usersData as $user) {
-    if (isset($user['id']) && isset($user['name'])) {
-        $agentNameMap[$user['id']] = $user['name'];
-    }
+try {
+    $stmt = $pdo->query('SELECT id, name FROM users');
+    $agentNameMap = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+} catch (PDOException $e) {
+    $agentNameMap = [];
 }
 ?>
 <!DOCTYPE html>
@@ -27,7 +23,6 @@ foreach ($usersData as $user) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>مدیریت گزارش‌ها</title>
     <style>
-        /* CSS styles remain unchanged */
         :root {
             --primary-color: #00ae70;
             --primary-dark: #089863;
@@ -497,7 +492,6 @@ foreach ($usersData as $user) {
                             $agentIds = array_keys($existingData);
                             sort($agentIds, SORT_NUMERIC);
                             foreach ($agentIds as $agentId) {
-                                // --- امنیت: استفاده از htmlspecialchars برای جلوگیری از XSS در نام کارشناس ---
                                 $agentName = isset($agentNameMap[$agentId]) ? htmlspecialchars($agentNameMap[$agentId]) : "کارشناس " . htmlspecialchars($agentId);
                                 echo "<option value='" . htmlspecialchars($agentId) . "'>{$agentName}</option>";
                             }
@@ -568,7 +562,6 @@ foreach ($usersData as $user) {
         const previewButton = document.getElementById("previewBtn");
         const previewModal = document.getElementById("previewModal");
 
-        // --- لایه امنیتی: جایگزینی innerHTML با ساخت امن عناصر DOM ---
         previewButton.addEventListener("click", () => {
             const pastedData = document.getElementById("excel_data").value.trim();
             if (!pastedData) return showToast('لطفا محتوای گزارش را وارد کنید.', 'error');
@@ -579,10 +572,9 @@ foreach ($usersData as $user) {
 
             const tableHead = document.querySelector("#preview-table thead");
             const tableBody = document.querySelector("#preview-table tbody");
-            tableHead.innerHTML = ''; // Clear previous content
-            tableBody.innerHTML = ''; // Clear previous content
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
 
-            // Create header row securely
             const headerRow = document.createElement('tr');
             UNIFIED_HEADERS.forEach(h => {
                 const th = document.createElement('th');
@@ -594,7 +586,6 @@ foreach ($usersData as $user) {
             headerRow.appendChild(thStatus);
             tableHead.appendChild(headerRow);
 
-            // Create body rows securely
             lines.forEach(line => {
                 if (!line.trim()) return;
                 const columns = line.split(/\t+/);
@@ -617,7 +608,7 @@ foreach ($usersData as $user) {
                 row.className = isValid ? "valid-row" : "invalid-row";
                 columns.forEach(c => {
                     const td = document.createElement('td');
-                    td.textContent = c; // Use textContent for safety
+                    td.textContent = c;
                     row.appendChild(td);
                 });
                 const tdStatus = document.createElement('td');
@@ -662,19 +653,17 @@ foreach ($usersData as $user) {
 
         agentSelect.addEventListener("change", () => {
             const agentId = agentSelect.value;
-            dateSelect.innerHTML = ''; // Clear existing options
+            dateSelect.innerHTML = '';
             dateSelect.disabled = true;
             dataRecordDisplay.innerHTML = '<p class="placeholder-text">برای مشاهده داده‌ها، تاریخ را انتخاب کنید.</p>';
 
             if (agentId && existingData[agentId]) {
-                // --- لایه امنیتی: ساخت امن لیست تاریخ‌ها ---
                 let defaultOption = new Option("یک تاریخ انتخاب کنید", "");
                 dateSelect.appendChild(defaultOption);
 
                 const dates = Object.keys(existingData[agentId]).sort().reverse();
                 dates.forEach(date => {
                     const jalaliDate = new Date(date).toLocaleDateString("fa-IR");
-                    // new Option(text, value) is a safe way to create options
                     dateSelect.appendChild(new Option(jalaliDate, date));
                 });
                 dateSelect.disabled = false;
@@ -694,10 +683,9 @@ foreach ($usersData as $user) {
             }
         });
 
-        // --- لایه امنیتی: بازنویسی کامل تابع برای ساخت امن عناصر به جای innerHTML ---
         const renderReportDetails = (agentId, date) => {
             const record = existingData[agentId]?.[date] || {};
-            dataRecordDisplay.innerHTML = ''; // Clear previous content
+            dataRecordDisplay.innerHTML = '';
             const ul = document.createElement('ul');
 
             for (const key of Object.keys(METRIC_LABELS)) {

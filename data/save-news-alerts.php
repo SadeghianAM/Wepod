@@ -56,7 +56,7 @@ $sanitized_items = [];
 if (is_array($items)) {
     foreach ($items as $item) {
         $sanitized_title = isset($item['title']) ? htmlspecialchars(trim($item['title']), ENT_QUOTES, 'UTF-8') : '';
-        $sanitized_description = isset($item['description']) ? strip_tags($item['description'], '<b><strong>') : '';
+        $sanitized_description = isset($item['description']) ? strip_tags($item['description'], '<b><strong><br><div><p>') : '';
         $allowed_colors = ['green', 'yellow', 'red'];
         $sanitized_color = isset($item['color']) && in_array($item['color'], $allowed_colors) ? $item['color'] : 'green';
 

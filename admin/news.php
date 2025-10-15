@@ -266,8 +266,9 @@ $claims = requireAuth('admin', '/auth/login.html');
       height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(4px);
-      align-items: center;
       justify-content: center;
+      overflow-y: auto;
+      padding: 2rem 0;
     }
 
     .modal.visible {
@@ -802,4 +803,4 @@ $claims = requireAuth('admin', '/auth/login.html');
   </script>
 </body>
 
-</html> 
+</html>

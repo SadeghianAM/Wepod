@@ -417,15 +417,23 @@
     <script>
       // --- Bank Identification Logic ---
       let binData = [];
-      const requireFullBin = ["502229", "621986"];
       const WEPOD_BIN8 = "50222915";
 
-      fetch("./data/bin-data.json")
-        .then((res) => res.json())
+      // --- NEW: Fetching from API ---
+      fetch("./api/validator.php?type=bins")
+        .then((res) => (res.ok ? res.json() : Promise.reject(res)))
         .then((data) => {
           binData = data.sort((a, b) => b.bin.length - a.bin.length);
         })
-        .catch(console.error);
+        .catch((err) => {
+          console.error("BIN Fetch Error:", err);
+          // Optionally show an error to the user
+          showResult(
+            document.getElementById("sourceCardResult"),
+            "خطا در بارگذاری اطلاعات بانک‌ها. لطفاً صفحه را رفرش کنید.",
+            "error"
+          );
+        });
 
       function validateLuhn(number) {
         if (!number || number.length !== 16) return false;
@@ -457,7 +465,7 @@
           img.onerror = () => (img.style.display = "none");
           element.appendChild(document.createTextNode("این کارت متعلق به "));
           element.appendChild(img);
-          element.appendChild(document.createTextNode(`${bankName} است.`));
+          element.appendChild(document.createTextNode(` ${bankName} است.`));
         } else {
           element.textContent = message;
         }
@@ -468,6 +476,7 @@
         document.getElementById(`${prefix}Validation`).className = "result";
       }
 
+      // --- NEW: Replaced Card Input Handler ---
       function handleCardInput(event) {
         const input = event.target;
         const prefix = input.id.replace("CardInput", "");
@@ -478,8 +487,12 @@
         const rawValue = input.value.replace(/\D/g, "").substring(0, 16);
         input.value = (rawValue.match(/.{1,4}/g) || []).join(" ");
 
-        clearCardResults(`${prefix}Card`);
+        // Clear previous states
+        input.classList.remove("input-error");
+        resultBox.className = "result";
+        validationBox.className = "result";
 
+        // WEPOD specific validation for destination card
         if (
           input.id === "destCardInput" &&
           rawValue.length >= 8 &&
@@ -491,48 +504,52 @@
             "error"
           );
           input.classList.add("input-error");
-          document.getElementById("copyBtn").disabled = true;
-          return; // توقف ادامه‌ی بررسی‌ها (تشخیص بانک/لوهن)
+          validateFields();
+          return;
         }
 
-        if (rawValue.length < 6) return;
+        if (rawValue.length < 6) {
+          validateFields();
+          return; // Not enough digits to identify a bank
+        }
 
-        const bin6 = rawValue.substring(0, 6);
-        const requires8 = requireFullBin.includes(bin6);
-        let bankMatched = false;
+        const match = binData.find((entry) => rawValue.startsWith(entry.bin));
 
-        if (requires8 && rawValue.length < 8) {
+        if (match) {
           showResult(
             resultBox,
-            "برای تشخیص دقیق‌تر، لطفاً ارقام بیشتری وارد کنید.",
-            "warning"
+            `این کارت متعلق به ${match.name} است.`,
+            "success",
+            match.logo,
+            match.name
           );
-        } else {
-          const binToMatch = requires8 ? rawValue.substring(0, 8) : bin6;
-          const match = binData.find((entry) =>
-            binToMatch.startsWith(entry.bin)
-          );
-          if (match) {
-            bankMatched = true;
+
+          if (rawValue.length < 16) {
             showResult(
-              resultBox,
-              `این کارت متعلق به ${match.name} است.`,
-              "success",
-              match.logo,
-              match.name
+              validationBox,
+              "برای اعتبارسنجی، شماره کارت را کامل وارد کنید.",
+              "warning"
             );
           } else {
-            showResult(resultBox, "بانکی با این شماره پیدا نشد.", "warning");
+            // rawValue.length is 16
+            if (validateLuhn(rawValue)) {
+              showResult(validationBox, "✅ شماره کارت معتبر است.", "success");
+            } else {
+              showResult(validationBox, "❌ شماره کارت نامعتبر است.", "error");
+              input.classList.add("input-error");
+            }
+          }
+        } else {
+          showResult(resultBox, "بانکی با این شماره پیدا نشد.", "warning");
+          // Optionally validate Luhn even if bank is unknown
+          if (rawValue.length === 16) {
+            if (!validateLuhn(rawValue)) {
+              showResult(validationBox, "❌ شماره کارت نامعتبر است.", "error");
+              input.classList.add("input-error");
+            }
           }
         }
-
-        if (bankMatched && rawValue.length === 16) {
-          if (validateLuhn(rawValue)) {
-            showResult(validationBox, "✅ شماره کارت معتبر است.", "success");
-          } else {
-            showResult(validationBox, "❌ شماره کارت نامعتبر است.", "error");
-          }
-        }
+        validateFields(); // Update form validity on every input
       }
 
       // --- Mobile Number Validation Logic ---
@@ -569,7 +586,7 @@
         validatePhone(input, msgEl, pureValue);
       }
 
-      // --- تابع جدید برای فرمت مبلغ ---
+      // --- Amount Formatting Logic ---
       function handleAmountInput(event) {
         const input = event.target;
         let rawValue = input.value.replace(/\D/g, "");
@@ -590,7 +607,7 @@
         "destNameInput",
         "destMobileInput",
         "destCardInput",
-        "amountInput", // <-- فیلد مبلغ اضافه شد
+        "amountInput",
       ];
       let triedSubmit = false;
 
@@ -606,7 +623,7 @@
         // 1. Check for empty fields
         requiredFields.forEach((id) => {
           const field = document.getElementById(id);
-          field.classList.remove("input-error");
+          if (!triedSubmit) field.classList.remove("input-error");
           if (!field.value.trim()) {
             allValid = false;
             if (triedSubmit) field.classList.add("input-error");
@@ -664,29 +681,20 @@
           destCardInput.classList.add("input-error");
         }
 
-        const destCardValidationEl =
-          document.getElementById("destCardValidation");
+        // 4. WEPOD check
         if (
           destCardVal.length >= 8 &&
           destCardVal.substring(0, 8) !== WEPOD_BIN8
         ) {
           allValid = false;
-          showResult(
-            destCardValidationEl,
-            "تنها شماره کارت ویپادی مجاز است.",
-            "error"
-          );
-          destCardInput.classList.add("input-error");
         }
 
-        // 4. Luhn validation for card numbers
-        if (sourceCardVal.length === 16 && !validateLuhn(sourceCardVal)) {
+        // 5. Luhn validation for card numbers
+        if (sourceCardVal.length !== 16 || !validateLuhn(sourceCardVal)) {
           allValid = false;
-          if (triedSubmit) sourceCardInput.classList.add("input-error");
         }
-        if (destCardVal.length === 16 && !validateLuhn(destCardVal)) {
+        if (destCardVal.length !== 16 || !validateLuhn(destCardVal)) {
           allValid = false;
-          if (triedSubmit) destCardInput.classList.add("input-error");
         }
 
         document.getElementById("copyBtn").disabled = !allValid;

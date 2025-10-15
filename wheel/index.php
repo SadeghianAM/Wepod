@@ -8,7 +8,7 @@ $claims = requireAuth(null, '/auth/login.html');
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>گردونه شانس وی هاب (نسخه نهایی و هوشمند)</title>
+    <title>گردونه شانس وی هاب</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
