@@ -611,68 +611,57 @@
         }
       }
 
+      /**
+       * تابع جدید برای انتخاب متن
+       * @param {HTMLElement} cardElement - کارتی که روی آن کلیک شده است
+       */
+      function selectText(cardElement) {
+        const textElement = cardElement.querySelector(".result-desc");
+        if (textElement) {
+          const range = document.createRange();
+          range.selectNodeContents(textElement);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          // یک فیدبک بصری کوچک برای نشان دادن موفقیت عملیات
+          cardElement.style.borderColor = "var(--primary-dark)";
+          setTimeout(() => {
+            cardElement.style.borderColor = "";
+          }, 800);
+        }
+      }
+
       function createResultCard(item, term, index) {
         const card = document.createElement("div");
         card.className = "result-item";
         card.setAttribute("tabindex", "0");
         card.style.animationDelay = `${(index % (ITEMS_PER_PAGE * 2)) * 0.05}s`;
         card.innerHTML = `
-                  <div class="result-title">${highlightTerm(
-                    item.title,
-                    term
-                  )}</div>
-                  <div class="result-meta">
-                      <span class="result-category">${(
-                        item.categories || []
-                      ).join("، ")}</span>
-                      <span class="result-id">آیدی: ${toPersianDigits(
-                        item.id
-                      )}</span>
-                  </div>
-                  <div class="result-desc">${highlightTerm(
-                    item.description.replace(/\n/g, "<br>"),
-                    term
-                  )}</div>
-              `;
-        card.addEventListener("click", () =>
-          copyToClipboard(item.description, card)
-        );
+              <div class="result-title">${highlightTerm(item.title, term)}</div>
+              <div class="result-meta">
+                  <span class="result-category">${(item.categories || []).join(
+                    "، "
+                  )}</span>
+                  <span class="result-id">آیدی: ${toPersianDigits(
+                    item.id
+                  )}</span>
+              </div>
+              <div class="result-desc">${highlightTerm(
+                item.description.replace(/\n/g, "<br>"),
+                term
+              )}</div>
+          `;
+        card.addEventListener("click", () => selectText(card));
+
         card.addEventListener("keydown", (e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            copyToClipboard(item.description, card);
+            selectText(card);
           }
         });
+
         return card;
-      }
-
-      function copyToClipboard(text, element) {
-        navigator.clipboard
-          .writeText(text)
-          .then(() => {
-            showToast("محتوا کپی شد!");
-            element.style.borderColor = "var(--primary-dark)";
-            setTimeout(() => {
-              element.style.borderColor = "";
-            }, 800);
-          })
-          .catch((err) => {
-            console.error("خطا در کپی:", err);
-            showToast("کپی نشد!");
-          });
-      }
-
-      function showToast(message = "کپی شد!") {
-        const toast = document.getElementById("toast");
-        toast.textContent = message;
-        toast.classList.add("show");
-        toast.style.display = "block";
-        setTimeout(() => {
-          toast.classList.remove("show");
-          setTimeout(() => {
-            toast.style.display = "none";
-          }, 400);
-        }, 2000);
       }
     </script>
   </body>

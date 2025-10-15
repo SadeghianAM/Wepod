@@ -26,7 +26,13 @@ $claims = requireAuth('admin', '/auth/login.html');
       --swap-color: #e8eaf6;
       --swap-text-color: #3f51b5;
       --danger-color: #dc3545;
+      --danger-light: #fbebec;
       --success-color: #28a745;
+      --success-light: #e9f7eb;
+      --warning-color: #ffc107;
+      --warning-light: #fff8e7;
+      --info-color: #17a2b8;
+      --info-light: #e8f6f8;
     }
 
     @font-face {
@@ -55,7 +61,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     main {
       width: 100%;
-      max-width: 1600px;
+      max-width: 1800px;
       margin: 0 auto;
       padding: 2.5rem 2rem;
       flex-grow: 1;
@@ -311,11 +317,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       pointer-events: none;
     }
 
-    .shift-info.status-swap {
-      background-color: var(--swap-color);
-      color: var(--swap-text-color);
-    }
-
     .swapped-shift-details {
       font-size: 0.8rem;
       background-color: #f0f0f0;
@@ -329,41 +330,17 @@ $claims = requireAuth('admin', '/auth/login.html');
       pointer-events: none;
     }
 
-    .status-on-duty {
-      background-color: #28a745;
-    }
-
-    .status-off {
-      background-color: #dc3545;
-    }
-
-    .status-remote {
-      background-color: #ede7f6;
-      color: #5e35b1;
-    }
-
-    .status-special,
-    .status-leave {
-      background-color: #ffc107;
-      color: #212529;
-    }
-
-    #report-view {
+    .filters-container {
       background-color: var(--card-bg);
+      padding: 1.5rem;
       border-radius: var(--radius);
-      padding: 2rem;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border-color);
-    }
-
-    .report-filters {
+      margin-bottom: 2rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 1.5rem;
       align-items: flex-end;
-      margin-bottom: 2rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid var(--border-color);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
     }
 
     .filter-group {
@@ -378,7 +355,8 @@ $claims = requireAuth('admin', '/auth/login.html');
       color: var(--secondary-text);
     }
 
-    .filter-group input {
+    .filter-group input,
+    .filter-group select {
       padding: 0.8em 1.2em;
       border-radius: var(--radius);
       border: 1.5px solid var(--border-color);
@@ -387,46 +365,66 @@ $claims = requireAuth('admin', '/auth/login.html');
       transition: border-color .2s, box-shadow .2s;
     }
 
-    .filter-group input:focus-visible {
+    .filter-group input:focus-visible,
+    .filter-group select:focus-visible {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 4px rgba(0, 174, 112, .15);
     }
 
-    #report-output-container {
+    #report-view {
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    #report-output-container,
+    #table-output-container {
       width: 100%;
       overflow-x: auto;
     }
 
-    .report-table {
+    .report-table,
+    .table-view-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
     }
 
     .report-table th,
-    .report-table td {
+    .report-table td,
+    .table-view-table th,
+    .table-view-table td {
       padding: 0.9rem 1rem;
       text-align: center;
       border: 1px solid var(--border-color);
       white-space: nowrap;
     }
 
-    .report-table thead th {
+    .report-table thead th,
+    .table-view-table thead th {
       background-color: var(--bg-color);
       color: var(--secondary-text);
       font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
-    .report-table tbody tr:nth-child(even) {
+    .report-table tbody tr:nth-child(even),
+    .table-view-table tbody tr:nth-child(even) {
       background-color: var(--bg-color);
     }
 
-    .report-table tbody tr:hover {
+    .report-table tbody tr:hover,
+    .table-view-table tbody tr:hover {
       background-color: var(--primary-light);
     }
 
-    .report-table td:first-child {
+    .report-table td:first-child,
+    .table-view-table td:first-child {
       font-weight: 600;
       text-align: right;
     }
@@ -436,68 +434,92 @@ $claims = requireAuth('admin', '/auth/login.html');
       font-size: 1.1rem;
     }
 
-    .jdp-popover {
-      position: absolute;
-      background: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-md);
-      padding: 0.75rem;
-      width: 280px;
-      z-index: 9999;
-    }
-
-    .jdp-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-      font-weight: 700;
-      color: var(--primary-dark);
-    }
-
-    .jdp-nav-btn {
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      padding: 0.25rem 0.6rem;
-      border-radius: 0.4rem;
+    .table-view-table .editable-cell {
       cursor: pointer;
     }
 
-    .jdp-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
-
-    .jdp-weekday {
-      text-align: center;
+    .status {
+      padding: 6px 12px;
+      border-radius: 20px;
       font-size: 0.85rem;
-      color: var(--secondary-text);
-      padding: 0.3rem 0;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: .5em;
     }
 
-    .jdp-day {
-      text-align: center;
-      padding: 0.4rem 0;
-      border-radius: 0.4rem;
+    .status .icon {
+      width: 1.2em;
+      height: 1.2em;
+    }
+
+    .status-on-duty {
+      background-color: var(--success-light);
+      color: var(--success-color);
+    }
+
+    .status-off {
+      background-color: var(--danger-light);
+      color: var(--danger-color);
+    }
+
+    .status-remote {
+      background-color: var(--info-light);
+      color: var(--info-color);
+    }
+
+    .status-leave {
+      background-color: var(--warning-light);
+      color: #a17400;
+    }
+
+    .status-swap {
+      background-color: var(--swap-color);
+      color: var(--swap-text-color);
+    }
+
+    .status-custom {
+      background-color: #e0e0e0;
+      color: #424242;
+    }
+
+    .summary-separator {
       cursor: pointer;
-      background: var(--bg-color);
-      border: 1px solid var(--border-color);
     }
 
-    .jdp-day:hover {
-      background: var(--primary-light);
+    .summary-separator .arrow {
+      display: inline-block;
+      transition: transform 0.2s ease-in-out;
+      width: 20px;
     }
 
-    .jdp-day.other {
-      color: #bbb;
-      background: #f8f9fa;
+    .summary-separator.expanded .arrow {
+      transform: rotate(90deg);
     }
 
-    .jdp-hidden {
+    .collapsed {
       display: none;
+    }
+
+    .summary-separator td {
+      background-color: #e9ecef;
+      font-weight: bold;
+      color: #495057;
+      border-top: 2px solid var(--primary-dark);
+      padding: 0.8rem;
+    }
+
+    .summary-row td:first-child {
+      text-align: right;
+      padding-right: 1.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .summary-count {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary-dark);
     }
 
     .modal-overlay {
@@ -706,6 +728,7 @@ $claims = requireAuth('admin', '/auth/login.html');
     <nav class="view-switcher">
       <button id="calendar-view-btn" class="active">📅 نمای تقویم</button>
       <button id="report-view-btn">📊 نمای گزارش</button>
+      <button id="table-view-btn">▦ نمای جدولی</button>
     </nav>
     <div id="calendar-view" class="shift-viewer-container view-section active">
       <aside id="expert-list-container" class="expert-sidebar"></aside>
@@ -714,7 +737,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       </div>
     </div>
     <div id="report-view" class="view-section">
-      <div class="report-filters">
+      <div class="report-filters filters-container">
         <div class="filter-group">
           <label for="reportStartDate">از تاریخ:</label>
           <input type="text" id="reportStartDate" placeholder="انتخاب تاریخ" autocomplete="off" />
@@ -732,6 +755,29 @@ $claims = requireAuth('admin', '/auth/login.html');
       <div id="report-output-container">
         <p class="placeholder">برای مشاهده گزارش، لطفاً بازه زمانی مورد نظر را انتخاب و روی دکمه "تولید گزارش" کلیک کنید.</p>
       </div>
+    </div>
+    <div id="table-view" class="view-section">
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="tableStartDate">از تاریخ:</label>
+          <input type="text" id="tableStartDate" placeholder="انتخاب تاریخ" autocomplete="off" />
+          <input type="hidden" id="tableStartDateAlt" />
+        </div>
+        <div class="filter-group">
+          <label for="tableEndDate">تا تاریخ:</label>
+          <input type="text" id="tableEndDate" placeholder="انتخاب تاریخ" autocomplete="off" />
+          <input type="hidden" id="tableEndDateAlt" />
+        </div>
+        <div class="filter-group">
+          <label for="expertSelect1">انتخاب کارشناس اول:</label>
+          <select id="expertSelect1"></select>
+        </div>
+        <div class="filter-group">
+          <label for="expertSelect2">انتخاب کارشناس دوم:</label>
+          <select id="expertSelect2"></select>
+        </div>
+      </div>
+      <div id="table-output-container"></div>
     </div>
   </main>
   <div id="edit-shift-modal" class="modal-overlay">
@@ -774,8 +820,10 @@ $claims = requireAuth('admin', '/auth/login.html');
   <div id="toast-container"></div>
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
+  <script src="/js/jalali-datepicker.js"></script>
   <script>
     let allExperts = [];
+    let allAvailableDates = [];
     let currentSelectedExpert = null;
     let currentCalendarDate = new Date();
     const modal = document.getElementById("edit-shift-modal");
@@ -785,136 +833,25 @@ $claims = requireAuth('admin', '/auth/login.html');
       isSwap: false,
       linkedTo: null
     };
+    const shiftColorMap = new Map();
+    const colorPalette = ["#E3F2FD", "#E8F5E9", "#FFF3E0", "#F3E5F5", "#FFEBEE", "#E0F7FA"];
+    let nextColorIndex = 0;
+
+    const ICONS = {
+      'on-duty': `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+      'off': `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+      'remote': `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+      'leave': `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+      'swap': `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>`,
+      'custom': `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>`,
+      'unknown': `<svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`
+    };
 
     function fetchNoCache(url, options = {}) {
       const timestamp = new Date().getTime();
       const separator = url.includes("?") ? "&" : "?";
       const urlWithCacheBust = `${url}${separator}t=${timestamp}`;
       return fetch(urlWithCacheBust, options);
-    }
-
-    function jalaliToGregorian(jy, jm, jd) {
-      jy += 1595;
-      let days = -355668 + 365 * jy + ~~(jy / 33) * 8 + ~~(((jy % 33) + 3) / 4) + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
-      let gy = 400 * ~~(days / 146097);
-      days %= 146097;
-      if (days > 36524) {
-        gy += 100 * ~~(--days / 36524);
-        days %= 36524;
-        if (days >= 365) days++;
-      }
-      gy += 4 * ~~(days / 1461);
-      days %= 1461;
-      if (days > 365) {
-        gy += ~~((days - 1) / 365);
-        days = (days - 1) % 365;
-      }
-      let gd = days + 1;
-      const sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-      let gm = 0;
-      for (; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
-      return new Date(gy, gm - 1, gd);
-    }
-
-    function toPersian(date) {
-      return date.toLocaleDateString("fa-IR-u-nu-latn").split("/").map((p) => parseInt(p, 10));
-    }
-
-    function isJalaliLeap(jy) {
-      return ((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816 < 682;
-    }
-
-    function jalaliMonthLength(jy, jm) {
-      if (jm <= 6) return 31;
-      if (jm <= 11) return 30;
-      return isJalaliLeap(jy) ? 30 : 29;
-    }
-
-    function formatDate(date) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-
-    function pad2(n) {
-      return String(n).padStart(2, "0");
-    }
-
-    function formatJalaliDisplay(jy, jm, jd) {
-      return `${jy}/${pad2(jm)}/${pad2(jd)}`;
-    }
-
-    class JalaliDatePicker {
-      constructor(inputId, altId) {
-        this.input = document.getElementById(inputId);
-        this.alt = document.getElementById(altId);
-        if (!this.input || !this.alt) return;
-        const [jy, jm, jd] = toPersian(new Date());
-        this.jy = jy;
-        this.jm = jm;
-        this.jd = jd;
-        this.pop = document.createElement("div");
-        this.pop.className = "jdp-popover jdp-hidden";
-        document.body.appendChild(this.pop);
-        this.boundClickOutside = e => {
-          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide();
-        };
-        this.input.addEventListener("focus", () => this.show());
-        this.input.addEventListener("click", () => this.show());
-        window.addEventListener("resize", () => this.position());
-      }
-      show() {
-        this.render();
-        this.position();
-        this.pop.classList.remove("jdp-hidden");
-        setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0);
-      }
-      hide() {
-        this.pop.classList.add("jdp-hidden");
-        document.removeEventListener("mousedown", this.boundClickOutside);
-      }
-      position() {
-        const rect = this.input.getBoundingClientRect();
-        this.pop.style.top = window.scrollY + rect.bottom + 6 + "px";
-        this.pop.style.left = window.scrollX + rect.left + "px";
-      }
-      nav(delta) {
-        this.jm += delta;
-        if (this.jm < 1) {
-          this.jm = 12;
-          this.jy--;
-        }
-        if (this.jm > 12) {
-          this.jm = 1;
-          this.jy++;
-        }
-        this.render();
-      }
-      render() {
-        const firstG = jalaliToGregorian(this.jy, this.jm, 1);
-        const firstWeekday = (firstG.getDay() + 1) % 7;
-        const daysInMonth = jalaliMonthLength(this.jy, this.jm);
-        let html = `<div class="jdp-header"><button class="jdp-nav-btn" data-nav="-1">&rarr;</button><div>${new Intl.DateTimeFormat("fa-IR", { month: "long" }).format(firstG)} ${new Intl.DateTimeFormat("fa-IR-u-nu-latn", { year: "numeric" }).format(firstG)}</div><button class="jdp-nav-btn" data-nav="1">&larr;</button></div><div class="jdp-grid">${["ش", "ی", "د", "س", "چ", "پ", "ج"].map(w => `<div class="jdp-weekday">${w}</div>`).join("")}`;
-        for (let i = 0; i < firstWeekday; i++) html += `<div class="jdp-day other"></div>`;
-        for (let d = 1; d <= daysInMonth; d++) html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`;
-        this.pop.innerHTML = html + `</div>`;
-        this.pop.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", e => this.nav(parseInt(e.currentTarget.dataset.nav, 10))));
-        this.pop.querySelectorAll("[data-day]").forEach(cell => cell.addEventListener("click", e => {
-          const d = parseInt(e.currentTarget.dataset.day, 10);
-          this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
-          this.alt.value = formatDate(jalaliToGregorian(this.jy, this.jm, d));
-          this.hide();
-        }));
-      }
-      setInitialFromGregorian(date) {
-        const [jy, jm, jd] = toPersian(date);
-        this.jy = jy;
-        this.jm = jm;
-        this.jd = jd;
-        this.input.value = formatJalaliDisplay(jy, jm, jd);
-        this.alt.value = formatDate(date);
-      }
     }
 
     document.addEventListener("DOMContentLoaded", initializePage);
@@ -929,9 +866,15 @@ $claims = requireAuth('admin', '/auth/login.html');
           document.querySelector('main').innerHTML = "<h1>مدیریت شیفت‌ها</h1><p>هیچ اطلاعاتی برای نمایش وجود ندارد.</p>";
           return;
         }
+        const allDatesSet = new Set();
+        allExperts.forEach(expert => Object.keys(expert.shifts).forEach(date => allDatesSet.add(date)));
+        allAvailableDates = Array.from(allDatesSet).sort();
+
         renderExpertList();
+        populateTableFilters();
         setupEventListeners();
         setupDatePickers();
+        applyTableFilters();
       } catch (error) {
         document.querySelector('main').innerHTML = `<h1>مدیریت شیفت‌ها</h1><p style="color: #dc3545;">خطا در بارگذاری اطلاعات: ${error.message}</p>`;
       }
@@ -940,8 +883,27 @@ $claims = requireAuth('admin', '/auth/login.html');
     function setupEventListeners() {
       document.getElementById('calendar-view-btn').addEventListener('click', () => switchView('calendar'));
       document.getElementById('report-view-btn').addEventListener('click', () => switchView('report'));
+      document.getElementById('table-view-btn').addEventListener('click', () => switchView('table'));
       document.getElementById('expert-list-container').addEventListener('click', handleExpertClick);
       document.getElementById('generate-report-btn').addEventListener('click', generateDailyReport);
+      document.getElementById("table-output-container").addEventListener("click", e => {
+        const cell = e.target.closest(".editable-cell");
+        if (cell) {
+          openEditModal(cell.dataset.expertId, cell.dataset.date);
+          return;
+        }
+        const header = e.target.closest(".summary-separator");
+        if (header) {
+          header.classList.toggle('expanded');
+          const targetClass = 'shift-summary-details';
+          let nextRow = header.nextElementSibling;
+          while (nextRow && nextRow.classList.contains(targetClass)) {
+            nextRow.classList.toggle('collapsed');
+            nextRow = nextRow.nextElementSibling;
+          }
+        }
+      });
+      ["expertSelect1", "expertSelect2"].forEach(id => document.getElementById(id).addEventListener("change", applyTableFilters));
       document.getElementById("modal-cancel-btn").addEventListener("click", closeEditModal);
       document.getElementById("modal-save-btn").addEventListener("click", saveShiftUpdate);
       document.getElementById("shift-status-select").addEventListener("change", e => {
@@ -969,8 +931,32 @@ $claims = requireAuth('admin', '/auth/login.html');
     function setupDatePickers() {
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      new JalaliDatePicker("reportStartDate", "reportStartDateAlt").setInitialFromGregorian(firstDayOfMonth);
-      new JalaliDatePicker("reportEndDate", "reportEndDateAlt").setInitialFromGregorian(today);
+      const nextWeek = new Date();
+      nextWeek.setDate(today.getDate() + 7);
+
+      new JalaliDatePicker("reportStartDate", "reportStartDateAlt");
+      new JalaliDatePicker("reportEndDate", "reportEndDateAlt");
+      new JalaliDatePicker("tableStartDate", "tableStartDateAlt");
+      new JalaliDatePicker("tableEndDate", "tableEndDateAlt");
+
+      const [todayJ] = [toPersian(today)];
+      const [firstDayJ] = [toPersian(firstDayOfMonth)];
+      const [nextWeekJ] = [toPersian(nextWeek)];
+
+      document.getElementById('reportStartDate').value = formatJalaliDisplay(firstDayJ[0], firstDayJ[1], firstDayJ[2]);
+      document.getElementById('reportStartDateAlt').value = formatISO(firstDayOfMonth);
+
+      document.getElementById('reportEndDate').value = formatJalaliDisplay(todayJ[0], todayJ[1], todayJ[2]);
+      document.getElementById('reportEndDateAlt').value = formatISO(today);
+
+      document.getElementById('tableStartDate').value = formatJalaliDisplay(todayJ[0], todayJ[1], todayJ[2]);
+      document.getElementById('tableStartDateAlt').value = formatISO(today);
+
+      document.getElementById('tableEndDate').value = formatJalaliDisplay(nextWeekJ[0], nextWeekJ[1], nextWeekJ[2]);
+      document.getElementById('tableEndDateAlt').value = formatISO(nextWeek);
+
+      document.getElementById('tableStartDateAlt').addEventListener('change', applyTableFilters);
+      document.getElementById('tableEndDateAlt').addEventListener('change', applyTableFilters);
     }
 
     function switchView(viewName) {
@@ -982,6 +968,9 @@ $claims = requireAuth('admin', '/auth/login.html');
       } else if (viewName === 'report') {
         document.getElementById('report-view').classList.add('active');
         document.getElementById('report-view-btn').classList.add('active');
+      } else if (viewName === 'table') {
+        document.getElementById('table-view').classList.add('active');
+        document.getElementById('table-view-btn').classList.add('active');
       }
     }
 
@@ -1054,7 +1043,7 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     function renderCalendar(date, shiftsData) {
       const container = document.getElementById("calendar-container");
-      const weekDays = ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه"];
+      const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
       let html = '<div id="calendar-grid">';
       weekDays.forEach(day => html += `<div class="calendar-header">${day}</div>`);
       const [pYear, pMonth] = toPersian(date);
@@ -1071,7 +1060,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       while (loopDate <= calendarEndDate) {
         const [, currentPMonth] = toPersian(loopDate);
         const isOtherMonth = currentPMonth !== pMonth;
-        const dateString = formatDate(loopDate);
+        const dateString = formatISO(loopDate);
         const shiftDetails = getShiftDetails(shiftsData[dateString]);
         let statusClass = "",
           statusText = shiftDetails.displayText,
@@ -1091,7 +1080,7 @@ $claims = requireAuth('admin', '/auth/login.html');
             "on-duty": "status-on-duty",
             "remote": "status-remote",
             "off": "status-off",
-            "leave": "status-special",
+            "leave": "status-leave",
             "unknown": "status-unknown"
           };
           statusClass = classMap[shiftDetails.status] || "status-special";
@@ -1158,11 +1147,10 @@ $claims = requireAuth('admin', '/auth/login.html');
         showToast("تاریخ شروع نمی‌تواند بعد از تاریخ پایان باشد.", "error");
         return;
       }
-
       const dailyReportData = {};
       let currentDate = new Date(startDate);
       while (currentDate <= endDate) {
-        const dateString = formatDate(currentDate);
+        const dateString = formatISO(currentDate);
         const stats = {
           onDuty: 0,
           remote: 0,
@@ -1229,6 +1217,124 @@ $claims = requireAuth('admin', '/auth/login.html');
       });
       tableHtml += `</tbody></table>`;
       container.innerHTML = tableHtml;
+    }
+
+    function populateTableFilters() {
+      const expertSelect1 = document.getElementById("expertSelect1"),
+        expertSelect2 = document.getElementById("expertSelect2");
+      let optionsHtml = '<option value="none">-- هیچکدام --</option>';
+      allExperts.sort((a, b) => a.name.localeCompare(b.name, "fa")).forEach(expert => optionsHtml += `<option value="${expert.id}">${expert.name}</option>`);
+      expertSelect1.innerHTML = optionsHtml;
+      expertSelect2.innerHTML = optionsHtml;
+      expertSelect1.value = "none";
+      expertSelect2.value = "none";
+    }
+
+    function applyTableFilters() {
+      const startDate = document.getElementById("tableStartDateAlt").value,
+        endDate = document.getElementById("tableEndDateAlt").value;
+      const expert1 = document.getElementById("expertSelect1").value,
+        expert2 = document.getElementById("expertSelect2").value;
+      const selectedExpertIds = new Set();
+      if (expert1 !== "none") selectedExpertIds.add(expert1);
+      if (expert2 !== "none") selectedExpertIds.add(expert2);
+      const filteredDates = allAvailableDates.filter(date => (!startDate || date >= startDate) && (!endDate || date <= endDate));
+      let filteredExperts = allExperts;
+      if (selectedExpertIds.size > 0) filteredExperts = allExperts.filter(expert => selectedExpertIds.has(String(expert.id)));
+      filteredExperts.sort((a, b) => (a["shifts-time"] || "").localeCompare(b["shifts-time"] || ""));
+      renderTableView(filteredExperts, filteredDates);
+    }
+
+    function getShiftStyle(shiftTime) {
+      if (!shiftTime) return "";
+      if (!shiftColorMap.has(shiftTime)) {
+        shiftColorMap.set(shiftTime, colorPalette[nextColorIndex]);
+        nextColorIndex = (nextColorIndex + 1) % colorPalette.length;
+      }
+      return `style="background-color: ${shiftColorMap.get(shiftTime)};"`;
+    }
+
+    function renderTableView(expertsToRender, datesToRender) {
+      const container = document.getElementById("table-output-container");
+      if (!expertsToRender || expertsToRender.length === 0 || !datesToRender || datesToRender.length === 0) {
+        container.innerHTML = "<p class='placeholder'>هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.</p>";
+        return;
+      }
+      const dailyCounts = {};
+      const totalCounts = {
+        onDuty: {},
+        offDuty: {},
+        leave: {}
+      };
+      datesToRender.forEach(date => {
+        dailyCounts[date] = {};
+        totalCounts.onDuty[date] = 0;
+        totalCounts.offDuty[date] = 0;
+        totalCounts.leave[date] = 0;
+        allExperts.forEach(expert => {
+          const shiftDetails = getShiftDetails(expert.shifts[date]);
+          const shiftTime = expert["shifts-time"];
+          const status = shiftDetails.status;
+          if (shiftTime) {
+            if (!dailyCounts[date][shiftTime]) dailyCounts[date][shiftTime] = {
+              onDuty: 0,
+              offDuty: 0,
+              leave: 0
+            };
+            if (status === 'off' || (status === 'swap' && shiftDetails.displayText.startsWith('عدم'))) dailyCounts[date][shiftTime].offDuty++;
+            else if (status === 'leave') dailyCounts[date][shiftTime].leave++;
+            else if (status !== 'unknown') dailyCounts[date][shiftTime].onDuty++;
+          }
+          if (status === 'off' || (status === 'swap' && shiftDetails.displayText.startsWith('عدم'))) totalCounts.offDuty[date]++;
+          else if (status === 'leave') totalCounts.leave[date]++;
+          else if (status !== 'unknown') totalCounts.onDuty[date]++;
+        });
+      });
+      let tableHtml = `<table class="table-view-table"><thead><tr><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>`;
+      datesToRender.forEach(date => {
+        const d = new Date(date);
+        tableHtml += `<th>${d.toLocaleDateString("fa-IR", { weekday: "short" })}<br>${d.toLocaleDateString("fa-IR", { day: "numeric", month: "short" })}</th>`;
+      });
+      tableHtml += "</tr></thead><tbody>";
+      expertsToRender.forEach(expert => {
+        tableHtml += `<tr><td style="text-align:right;">${expert.name}</td><td ${getShiftStyle(expert["shifts-time"])}>${expert["shifts-time"] || "-"}</td><td>${expert["break-time"] || "-"}</td>`;
+        datesToRender.forEach(date => {
+          const shiftDetails = getShiftDetails(expert.shifts[date]);
+          let statusClass = '',
+            icon = '';
+          if (shiftDetails.isSwap) {
+            statusClass = 'status-swap';
+            icon = ICONS['swap'];
+          } else {
+            const classMap = {
+              'on-duty': 'status-on-duty',
+              'remote': 'status-remote',
+              'off': 'status-off',
+              'leave': 'status-leave',
+              'unknown': 'status-unknown'
+            };
+            statusClass = classMap[shiftDetails.status] || 'status-custom';
+            icon = ICONS[shiftDetails.status] || ICONS['custom'];
+          }
+          tableHtml += `<td class="editable-cell" data-expert-id="${expert.id}" data-date="${date}"><span class="status ${statusClass}">${icon} ${shiftDetails.displayText}</span></td>`;
+        });
+        tableHtml += "</tr>";
+      });
+      const totalColumns = datesToRender.length + 3;
+      const uniqueShiftTimes = [...new Set(allExperts.map(e => e["shifts-time"]).filter(Boolean))].sort();
+      if (uniqueShiftTimes.length > 0) {
+        tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}"><span class="arrow">▶</span> خلاصه وضعیت به تفکیک شیفت</td></tr>`;
+        uniqueShiftTimes.forEach(shiftTime => {
+          tableHtml += `<tr class="summary-row shift-summary-details collapsed"><td ${getShiftStyle(shiftTime)}>حاضرین در شیفت ${shiftTime}</td><td>-</td><td>-</td>${datesToRender.map(date => `<td><span class="summary-count">${(dailyCounts[date][shiftTime] || {}).onDuty || 0}</span></td>`).join('')}</tr>`;
+          tableHtml += `<tr class="summary-row shift-summary-details collapsed"><td ${getShiftStyle(shiftTime)}>عدم حضور در شیفت ${shiftTime}</td><td>-</td><td>-</td>${datesToRender.map(date => `<td><span class="summary-count" style="color: var(--danger-color);">${(dailyCounts[date][shiftTime] || {}).offDuty || 0}</span></td>`).join('')}</tr>`;
+          tableHtml += `<tr class="summary-row shift-summary-details collapsed"><td ${getShiftStyle(shiftTime)}>مرخصی در شیفت ${shiftTime}</td><td>-</td><td>-</td>${datesToRender.map(date => `<td><span class="summary-count" style="color: var(--warning-color);">${(dailyCounts[date][shiftTime] || {}).leave || 0}</span></td>`).join('')}</tr>`;
+        });
+      }
+      tableHtml += `<tr class="summary-separator"><td colspan="${totalColumns}">جمع‌بندی کل روزانه</td></tr>`;
+      tableHtml += `<tr class="summary-row"><td style="background-color: var(--success-light);">مجموع کل کارشناسان حاضر</td><td>-</td><td>-</td>${datesToRender.map(date => `<td><span class="summary-count">${totalCounts.onDuty[date] || 0}</span></td>`).join('')}</tr>`;
+      tableHtml += `<tr class="summary-row"><td style="background-color: var(--danger-light);">مجموع کل عدم حضور</td><td>-</td><td>-</td>${datesToRender.map(date => `<td><span class="summary-count" style="color: var(--danger-color);">${totalCounts.offDuty[date] || 0}</span></td>`).join('')}</tr>`;
+      tableHtml += `<tr class="summary-row"><td style="background-color: var(--warning-light);">مجموع کل مرخصی</td><td>-</td><td>-</td>${datesToRender.map(date => `<td><span class="summary-count" style="color: #a17400;">${totalCounts.leave[date] || 0}</span></td>`).join('')}</tr>`;
+      container.innerHTML = tableHtml + "</tbody></table>";
     }
 
     function showToast(message, type = 'success', duration = 4000) {
@@ -1408,13 +1514,18 @@ $claims = requireAuth('admin', '/auth/login.html');
         }
         const data = await response.json();
         allExperts = (data && Array.isArray(data.experts)) ? data.experts : [];
-        if (currentSelectedExpert) {
+        if (document.getElementById('calendar-view').classList.contains('active') && currentSelectedExpert) {
           currentSelectedExpert = allExperts.find(e => String(e.id) === String(currentSelectedExpert.id)) || null;
           if (currentSelectedExpert) {
             renderExpertShiftView(currentSelectedExpert);
           } else {
             document.getElementById("calendar-view-main").innerHTML = '<p class="placeholder">کارشناس انتخاب شده دیگر در دسترس نیست. لطفاً فرد دیگری را انتخاب کنید.</p>';
           }
+        } else if (document.getElementById('table-view').classList.contains('active')) {
+          const allDatesSet = new Set();
+          allExperts.forEach(expert => Object.keys(expert.shifts).forEach(date => allDatesSet.add(date)));
+          allAvailableDates = Array.from(allDatesSet).sort();
+          applyTableFilters();
         }
       } catch (error) {
         showToast('خطا در به‌روزرسانی تقویم.', 'error');

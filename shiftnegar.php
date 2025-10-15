@@ -12,12 +12,10 @@ $claims = requireAuth(null, '/auth/login.html');
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta
-    http-equiv="Cache-Control"
-    content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>برنامه شیفت‌ها</title>
+  <title>شیفت نگار</title>
   <style>
     :root {
       --primary-color: #00ae70;
@@ -134,14 +132,57 @@ $claims = requireAuth(null, '/auth/login.html');
       font-size: 0.9rem;
     }
 
-    .filter-group input[type="text"],
-    .filter-group select {
+    .filter-group input[type="text"] {
       padding: 0.75rem;
       border-radius: 0.5rem;
       border: 1px solid var(--border-color);
       font-size: 1rem;
       width: 100%;
       background-color: var(--card-bg);
+    }
+
+    .custom-select-container {
+      position: relative;
+    }
+
+    .custom-select-input {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border-color);
+      font-size: 1rem;
+      width: 100%;
+      background-color: var(--card-bg);
+      cursor: pointer;
+    }
+
+    .custom-select-options {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      margin-top: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-select-option {
+      padding: 0.75rem;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .custom-select-option:hover {
+      background-color: var(--primary-light);
+    }
+
+    .custom-select-option.hidden {
+      display: none;
     }
 
     #loader {
@@ -304,175 +345,6 @@ $claims = requireAuth(null, '/auth/login.html');
       background-color: var(--swap-color);
       color: var(--swap-text-color);
     }
-
-    .tabs-container {
-      display: flex;
-      border-bottom: 2px solid var(--border-color);
-      margin-bottom: 2rem;
-    }
-
-    .tab-button {
-      padding: 1rem 1.5rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      background-color: transparent;
-      color: var(--secondary-text-color);
-      border-bottom: 3px solid transparent;
-      transition: color 0.3s, border-color 0.3s;
-      margin-left: 1rem;
-    }
-
-    .tab-button:hover {
-      color: var(--primary-dark);
-    }
-
-    .tab-button.active {
-      color: var(--primary-color);
-      border-bottom-color: var(--primary-color);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.5s ease;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    .not-logged-in {
-      text-align: center;
-      padding: 3rem;
-      background-color: #fff3cd;
-      color: #856404;
-      border: 1px solid #ffeeba;
-      border-radius: var(--border-radius);
-    }
-
-    .not-logged-in a {
-      color: var(--primary-dark);
-      font-weight: bold;
-    }
-
-    #user-shift-info {
-      background-color: var(--primary-light);
-      padding: 1.5rem;
-      border-radius: var(--border-radius);
-      margin-bottom: 2rem;
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    #user-shift-info span {
-      font-weight: 700;
-      color: var(--primary-dark);
-    }
-
-    #calendar-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    #calendar-controls button {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 0.5rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.2s, opacity 0.2s;
-    }
-
-    #calendar-controls button:hover {
-      background-color: var(--primary-dark);
-    }
-
-    #calendar-controls button:disabled {
-      background-color: #a5d8d1;
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    #current-month-year {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary-dark);
-    }
-
-    #calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-      background-color: var(--card-bg);
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      border: 1px solid var(--border-color);
-    }
-
-    .calendar-header {
-      text-align: center;
-      font-weight: 600;
-      padding: 0.8rem 0;
-      color: var(--secondary-text-color);
-      border-bottom: 2px solid var(--border-color);
-    }
-
-    .calendar-day {
-      min-height: 120px;
-      border: 1px solid #f0f0f0;
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-      font-size: 0.9rem;
-      background-color: #fafafa;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .calendar-day.other-month {
-      background-color: #f8f9fa;
-      color: #ced4da;
-    }
-
-    .calendar-day .shift-info {
-      padding: 0.4rem 0.5rem;
-      border-radius: 0.3rem;
-      color: white;
-      text-align: center;
-      font-weight: 500;
-    }
-
-    .shift-info.status-swap {
-      color: var(--swap-text-color);
-    }
-
-    .swapped-shift-details {
-      font-size: 0.8rem;
-      background-color: #f0f0f0;
-      border-radius: 0.3rem;
-      padding: 0.4rem;
-      text-align: center;
-      color: #333;
-      border: 1px solid #ddd;
-      line-height: 1.5;
-    }
   </style>
 </head>
 
@@ -484,29 +356,23 @@ $claims = requireAuth(null, '/auth/login.html');
       <div class="filters-container">
         <div class="filter-group">
           <label for="startDate">از تاریخ:</label>
-          <input
-            type="text"
-            id="startDate"
-            placeholder="انتخاب تاریخ (جلالی)"
-            autocomplete="off" />
+          <input type="text" id="startDate" placeholder="انتخاب تاریخ (جلالی)" autocomplete="off" />
           <input type="hidden" id="startDateAlt" />
         </div>
         <div class="filter-group">
           <label for="endDate">تا تاریخ:</label>
-          <input
-            type="text"
-            id="endDate"
-            placeholder="انتخاب تاریخ (جلالی)"
-            autocomplete="off" />
+          <input type="text" id="endDate" placeholder="انتخاب تاریخ (جلالی)" autocomplete="off" />
           <input type="hidden" id="endDateAlt" />
         </div>
         <div class="filter-group">
-          <label for="expertSelect1">انتخاب کارشناس اول:</label>
-          <select id="expertSelect1"></select>
+          <label for="expertSelect1-input">انتخاب کارشناس اول:</label>
+          <div id="expertSelect1-container" class="custom-select-container"></div>
+          <input type="hidden" id="expertSelect1-value" value="none">
         </div>
         <div class="filter-group">
-          <label for="expertSelect2">انتخاب کارشناس دوم:</label>
-          <select id="expertSelect2"></select>
+          <label for="expertSelect2-input">انتخاب کارشناس دوم:</label>
+          <div id="expertSelect2-container" class="custom-select-container"></div>
+          <input type="hidden" id="expertSelect2-value" value="none">
         </div>
       </div>
       <div id="loader">در حال بارگذاری اطلاعات...</div>
@@ -519,6 +385,12 @@ $claims = requireAuth(null, '/auth/login.html');
   <script src="/js/jalali-datepicker.js"></script>
 
   <script>
+    let allExperts = [];
+    let allAvailableDates = [];
+    const shiftColorMap = new Map();
+    const colorPalette = ["#E3F2FD", "#E8F5E9", "#FFF3E0", "#F3E5F5", "#FFEBEE", "#E0F7FA"];
+    let nextColorIndex = 0;
+
     function fetchNoCache(url, options = {}) {
       const timestamp = new Date().getTime();
       const separator = url.includes("?") ? "&" : "?";
@@ -526,42 +398,72 @@ $claims = requireAuth(null, '/auth/login.html');
       return fetch(urlWithCacheBust, options);
     }
 
-    let allExperts = [];
-    let allAvailableDates = [];
-    const shiftColorMap = new Map();
-    const colorPalette = [
-      "#E3F2FD",
-      "#E8F5E9",
-      "#FFF3E0",
-      "#F3E5F5",
-      "#FFEBEE",
-      "#E0F7FA",
-    ];
-    let nextColorIndex = 0;
+    function createCustomSelect(containerId, hiddenInputId, experts) {
+      const container = document.getElementById(containerId);
+      const hiddenInput = document.getElementById(hiddenInputId);
+      container.innerHTML = `<input type="text" id="${containerId}-input" class="custom-select-input" placeholder="جستجو و انتخاب کارشناس..." autocomplete="off">
+                               <div class="custom-select-options"></div>`;
+
+      const textInput = container.querySelector('.custom-select-input');
+      const optionsContainer = container.querySelector('.custom-select-options');
+
+      let optionsHtml = '<div class="custom-select-option" data-value="none">-- هیچکدام --</div>';
+      experts.forEach(expert => {
+        optionsHtml += `<div class="custom-select-option" data-value="${expert.id}">${expert.name}</div>`;
+      });
+      optionsContainer.innerHTML = optionsHtml;
+
+      textInput.addEventListener('focus', () => {
+        optionsContainer.style.display = 'block';
+      });
+
+      textInput.addEventListener('input', () => {
+        const filter = textInput.value.toLowerCase();
+        optionsContainer.querySelectorAll('.custom-select-option').forEach(option => {
+          const text = option.textContent.toLowerCase();
+          option.classList.toggle('hidden', !text.includes(filter));
+        });
+      });
+
+      optionsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('custom-select-option')) {
+          const selectedValue = e.target.getAttribute('data-value');
+          const selectedText = e.target.textContent;
+          hiddenInput.value = selectedValue;
+          textInput.value = selectedValue === 'none' ? '' : selectedText;
+          optionsContainer.style.display = 'none';
+          hiddenInput.dispatchEvent(new Event('change'));
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+          optionsContainer.style.display = 'none';
+        }
+      });
+    }
 
     document.addEventListener("DOMContentLoaded", initializePage);
+
     async function initializePage() {
       const loader = document.getElementById("loader");
       try {
         const response = await fetchNoCache("/php/get-shifts.php");
-        if (!response.ok)
-          throw new Error(
-            `فایل shifts.json یافت نشد (کد: ${response.status})`
-          );
+        if (!response.ok) throw new Error(`فایل shifts.json یافت نشد (کد: ${response.status})`);
+
         const data = await response.json();
         allExperts = data.experts || [];
+
         if (allExperts.length === 0) {
           loader.textContent = "هیچ اطلاعاتی برای نمایش وجود ندارد.";
           return;
         }
+
         populateFilterControls();
-        document
-          .getElementById("expertSelect1")
-          .addEventListener("change", applyFilters);
-        document
-          .getElementById("expertSelect2")
-          .addEventListener("change", applyFilters);
+        document.getElementById('expertSelect1-value').addEventListener('change', applyFilters);
+        document.getElementById('expertSelect2-value').addEventListener('change', applyFilters);
         applyFilters();
+
       } catch (error) {
         loader.textContent = `خطا: ${error.message}`;
         loader.style.color = "var(--error-color)";
@@ -578,62 +480,55 @@ $claims = requireAuth(null, '/auth/login.html');
     }
 
     function populateFilterControls() {
-      const t = document.getElementById("expertSelect1"),
-        e = document.getElementById("expertSelect2");
-      let l = '<option value="none">-- هیچکدام --</option>';
-      allExperts
-        .sort((a, b) => a.name.localeCompare(b.name, "fa"))
-        .forEach((t) => {
-          l += `<option value="${t.id}">${t.name}</option>`;
-        });
-      t.innerHTML = l;
-      e.innerHTML = l;
-      t.value = "none";
-      e.value = "none";
-      const n = new Set();
-      allExperts.forEach((t) => {
-        Object.keys(t.shifts).forEach((d) => n.add(d));
+      const sortedExperts = [...allExperts].sort((a, b) => a.name.localeCompare(b.name, "fa"));
+      createCustomSelect('expertSelect1-container', 'expertSelect1-value', sortedExperts);
+      createCustomSelect('expertSelect2-container', 'expertSelect2-value', sortedExperts);
+
+      const dateSet = new Set();
+      allExperts.forEach((expert) => {
+        Object.keys(expert.shifts).forEach((d) => dateSet.add(d));
       });
-      allAvailableDates = Array.from(n).sort();
+      allAvailableDates = Array.from(dateSet).sort();
     }
 
     function applyFilters() {
-      const t = document.getElementById("startDateAlt").value;
-      const e = document.getElementById("endDateAlt").value;
-      const l = document.getElementById("expertSelect1").value;
-      const n = document.getElementById("expertSelect2").value;
-      const o = new Set();
-      if (l !== "none") o.add(l);
-      if (n !== "none") o.add(n);
-      const a = allAvailableDates.filter(
-        (d) => (!t || d >= t) && (!e || d <= e)
+      const startDate = document.getElementById("startDateAlt").value;
+      const endDate = document.getElementById("endDateAlt").value;
+      const expert1 = document.getElementById("expertSelect1-value").value;
+      const expert2 = document.getElementById("expertSelect2-value").value;
+
+      const selectedExpertIds = new Set();
+      if (expert1 !== "none") selectedExpertIds.add(expert1);
+      if (expert2 !== "none") selectedExpertIds.add(expert2);
+
+      const filteredDates = allAvailableDates.filter(
+        (d) => (!startDate || d >= startDate) && (!endDate || d <= endDate)
       );
-      let r =
-        o.size > 0 ?
-        allExperts.filter((x) => o.has(String(x.id))) : [...allExperts];
-      r.sort((A, B) => {
-        const stA = A["shifts-time"] || "",
-          stB = B["shifts-time"] || "";
+
+      let filteredExperts =
+        selectedExpertIds.size > 0 ?
+        allExperts.filter((x) => selectedExpertIds.has(String(x.id))) : [...allExperts];
+
+      filteredExperts.sort((a, b) => {
+        const stA = a["shifts-time"] || "",
+          stB = b["shifts-time"] || "";
         const c1 = stA.localeCompare(stB, "fa");
         if (c1 !== 0) return c1;
-        const btA = A["break-time"] || "",
-          btB = B["break-time"] || "";
+        const btA = a["break-time"] || "",
+          btB = b["break-time"] || "";
         return btA.localeCompare(btB, "fa");
       });
-      renderTable(r, a);
+
+      renderTable(filteredExperts, filteredDates);
     }
 
     function getShiftDetails(shiftEntry) {
-      if (
-        typeof shiftEntry === "object" &&
-        shiftEntry !== null &&
-        shiftEntry.status === "swap"
-      ) {
+      if (typeof shiftEntry === "object" && shiftEntry !== null && shiftEntry.status === "swap") {
         return {
           status: "swap",
           displayText: shiftEntry.displayText,
           isSwap: true,
-          linkedTo: shiftEntry.linkedTo,
+          linkedTo: shiftEntry.linkedTo
         };
       }
       const status = shiftEntry || "unknown";
@@ -659,49 +554,44 @@ $claims = requireAuth(null, '/auth/login.html');
         status,
         displayText,
         isSwap: false,
-        linkedTo: null,
+        linkedTo: null
       };
     }
 
     function renderTable(expertsToRender, datesToRender) {
       const container = document.getElementById("schedule-container");
       const loader = document.getElementById("loader");
-      if (
-        !expertsToRender ||
-        expertsToRender.length === 0 ||
-        !datesToRender ||
-        datesToRender.length === 0
-      ) {
+
+      if (!expertsToRender || expertsToRender.length === 0 || !datesToRender || datesToRender.length === 0) {
         container.innerHTML = "";
         loader.textContent = "هیچ داده‌ای مطابق با فیلترهای شما یافت نشد.";
         loader.style.display = "block";
         return;
       }
       loader.style.display = "none";
+
       let tableHtml = `<table><thead><tr><th>ردیف</th><th>نام کارشناس</th><th>ساعت شیفت</th><th>تایم استراحت</th>`;
       datesToRender.forEach((date) => {
         const d = new Date(date);
         const day = d.toLocaleDateString("fa-IR", {
-          day: "numeric",
+          day: "numeric"
         });
         const month = d.toLocaleDateString("fa-IR", {
-          month: "short",
+          month: "short"
         });
         const weekday = d.toLocaleDateString("fa-IR", {
-          weekday: "short",
+          weekday: "short"
         });
         tableHtml += `<th>${weekday}<br>${day} ${month}<br><span style="font-size:.8rem;color:#6c757d;font-weight:400;">${date}</span></th>`;
       });
       tableHtml += "</tr></thead><tbody>";
+
       expertsToRender.forEach((expert, index) => {
         const shiftTime = expert["shifts-time"] || "-";
         const breakTime = expert["break-time"] || "-";
         const shiftStyle = getShiftStyle(shiftTime);
-        tableHtml += `<tr><td>${new Intl.NumberFormat("fa-IR").format(
-            index + 1
-          )}</td><td>${
-            expert.name
-          }</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
+        tableHtml += `<tr><td>${new Intl.NumberFormat("fa-IR").format(index + 1)}</td><td>${expert.name}</td><td ${shiftStyle}>${shiftTime}</td><td>${breakTime}</td>`;
+
         datesToRender.forEach((date) => {
           const shiftDetails = getShiftDetails(expert.shifts[date]);
           let statusClass = "";
@@ -721,37 +611,29 @@ $claims = requireAuth(null, '/auth/login.html');
         });
         tableHtml += "</tr>";
       });
+
       tableHtml += "</tbody></table>";
       container.innerHTML = tableHtml;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Set initial dates
       const today = new Date();
       const nextWeek = new Date();
       nextWeek.setDate(today.getDate() + 7);
 
-      // Set start date inputs
       const [startJy, startJm, startJd] = toPersian(today);
       document.getElementById("startDate").value = formatJalaliDisplay(startJy, startJm, startJd);
       document.getElementById("startDateAlt").value = formatISO(today);
 
-      // Set end date inputs
       const [endJy, endJm, endJd] = toPersian(nextWeek);
       document.getElementById("endDate").value = formatJalaliDisplay(endJy, endJm, endJd);
       document.getElementById("endDateAlt").value = formatISO(nextWeek);
 
-      // Initialize date pickers
       new JalaliDatePicker("startDate", "startDateAlt");
       new JalaliDatePicker("endDate", "endDateAlt");
 
-      // Add event listeners to trigger filtering when a date is selected
-      document
-        .getElementById("startDateAlt")
-        .addEventListener("change", applyFilters);
-      document
-        .getElementById("endDateAlt")
-        .addEventListener("change", applyFilters);
+      document.getElementById("startDateAlt").addEventListener("change", applyFilters);
+      document.getElementById("endDateAlt").addEventListener("change", applyFilters);
     });
   </script>
 </body>
