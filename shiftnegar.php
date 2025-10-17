@@ -327,18 +327,16 @@ $claims = requireAuth(null, '/auth/login.html');
       background-color: #dc3545;
     }
 
-    .status-unknown {
-      background-color: #6c757d;
+    .status-remote {
+      background-color: #d8b100;
     }
 
     .status-special {
-      background-color: #ffc107;
-      color: #212529;
+      background-color: #5487df;
     }
 
-    .status-remote {
-      background-color: #ede7f6;
-      color: #5e35b1;
+    .status-leave {
+      background-color: #ec7433;
     }
 
     .status-swap {
@@ -602,7 +600,7 @@ $claims = requireAuth(null, '/auth/login.html');
               "on-duty": "status-on-duty",
               remote: "status-remote",
               off: "status-off",
-              leave: "status-special",
+              leave: "status-leave",
               unknown: "status-unknown",
             };
             statusClass = classMap[shiftDetails.status] || "status-special";

@@ -436,6 +436,12 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     .table-view-table .editable-cell {
       cursor: pointer;
+      transition: background-color 0.2s, box-shadow 0.2s;
+    }
+
+    .table-view-table .editable-cell:hover {
+      background-color: #e3f2fd;
+      box-shadow: inset 0 0 0 2px var(--info-color);
     }
 
     .status {
@@ -484,6 +490,11 @@ $claims = requireAuth('admin', '/auth/login.html');
     .status-custom {
       background-color: #e0e0e0;
       color: #424242;
+    }
+
+    .status-unknown {
+      background-color: var(--border-color);
+      color: var(--secondary-text);
     }
 
     .summary-separator {
