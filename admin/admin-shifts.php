@@ -446,6 +446,7 @@ $claims = requireAuth('admin', '/auth/login.html');
       display: inline-flex;
       align-items: center;
       gap: .5em;
+      color: white;
     }
 
     .status .icon {

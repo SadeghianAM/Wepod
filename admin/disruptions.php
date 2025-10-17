@@ -12,8 +12,8 @@ $claims = requireAuth('admin', '/auth/login.html');
 
   <style>
     /* =======================
-       Design Tokens
-       ======================= */
+        Design Tokens
+        ======================= */
     :root {
       --primary-color: #00ae70;
       --primary-dark: #089863;
@@ -120,8 +120,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     /* =======================
-       Page Layout
-       ======================= */
+        Page Layout
+        ======================= */
     main {
       flex-grow: 1;
       padding: 2rem;
@@ -153,8 +153,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     /* =======================
-       Form Card
-       ======================= */
+        Form Card
+        ======================= */
     .form-container {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -431,10 +431,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       display: inline-block;
     }
 
-    .status-open {
-      background-color: #dc3545;
-    }
-
     .status-in-progress {
       background-color: #ffc107;
       color: #212529;
@@ -442,71 +438,6 @@ $claims = requireAuth('admin', '/auth/login.html');
 
     .status-resolved {
       background-color: #28a745;
-    }
-
-    /* DatePicker styles (for اسکریپت شمسی) */
-    .jdp-popover {
-      position: absolute;
-      background: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: .5rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
-      padding: .75rem;
-      width: 280px;
-      z-index: 9999;
-    }
-
-    .jdp-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: .5rem;
-      font-weight: 700;
-      color: var(--primary-dark);
-    }
-
-    .jdp-nav-btn {
-      background: var(--primary-color);
-      color: #fff;
-      border: none;
-      padding: .25rem .6rem;
-      border-radius: .4rem;
-      cursor: pointer;
-    }
-
-    .jdp-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
-
-    .jdp-weekday {
-      text-align: center;
-      font-size: .85rem;
-      color: var(--secondary-text-color);
-      padding: .3rem 0;
-    }
-
-    .jdp-day {
-      text-align: center;
-      padding: .4rem 0;
-      border-radius: .4rem;
-      cursor: pointer;
-      background: #fafafa;
-      border: 1px solid #f0f0f0;
-    }
-
-    .jdp-day:hover {
-      background: var(--primary-light);
-    }
-
-    .jdp-day.other {
-      color: #bbb;
-      background: #f8f9fa;
-    }
-
-    .jdp-hidden {
-      display: none;
     }
 
     /* ========= Action buttons in table "عملیات" ========= */
@@ -631,7 +562,6 @@ $claims = requireAuth('admin', '/auth/login.html');
   <div id="header-placeholder"></div>
 
   <main>
-    <!-- مقدمه بدون Badge مدت کل -->
     <div class="page-intro" aria-describedby="page-helper">
       <div>
         <h2>ثبت و ویرایش اختلالات</h2>
@@ -654,7 +584,6 @@ $claims = requireAuth('admin', '/auth/login.html');
         <form id="disruptionForm" novalidate>
           <input type="hidden" id="recordId" name="id" />
 
-          <!-- بخش: اطلاعات پایه -->
           <section class="form-section" aria-labelledby="sec-base">
             <div class="section-title" id="sec-base">
               <span class="emoji-icon">👤</span>
@@ -690,7 +619,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                   <span class="emoji-leading" aria-hidden="true">📝</span>
                   <select id="subject" name="subject" required aria-required="true">
                     <option value="" disabled selected>انتخاب موضوع</option>
-                    <!-- موارد توسط اسکریپت افزوده و با جستجو فیلتر می‌شود -->
                   </select>
                 </div>
               </div>
@@ -703,7 +631,6 @@ $claims = requireAuth('admin', '/auth/login.html');
                 <div class="input-wrap">
                   <span class="emoji-leading" aria-hidden="true">✅</span>
                   <select id="status" name="status" required aria-required="true">
-                    <option value="باز">باز</option>
                     <option value="درحال رسیدگی">درحال رسیدگی</option>
                     <option value="برطرف شده">برطرف شده</option>
                   </select>
@@ -726,7 +653,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             </div>
           </section>
 
-          <!-- بخش: زمان‌بندی (بدون «مدت کل») -->
           <section class="form-section" aria-labelledby="sec-time">
             <div class="section-title" id="sec-time">
               <span class="emoji-icon">🕒</span>
@@ -781,7 +707,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             </div>
           </section>
 
-          <!-- بخش: توضیحات -->
           <section class="form-section" aria-labelledby="sec-desc">
             <div class="section-title" id="sec-desc">
               <span class="emoji-icon">💬</span>
@@ -799,7 +724,6 @@ $claims = requireAuth('admin', '/auth/login.html');
             </div>
           </section>
 
-          <!-- اکشن‌ها -->
           <div class="form-actions">
             <button type="submit" class="btn btn-save" title="ذخیره رکورد">
               <span aria-hidden="true">💾</span>
@@ -814,7 +738,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       </div>
     </div>
 
-    <!-- ===== جدول (بدون تغییر در مارکاپ و نحوه نمایش) ===== -->
     <div class="table-header">
       <h2>لیست اختلالات ثبت‌شده</h2>
       <button id="exportExcelBtn" class="btn-excel">📊 خروجی Excel</button>
@@ -844,10 +767,11 @@ $claims = requireAuth('admin', '/auth/login.html');
 
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
+  <script src="/js/jalali-datepicker.js"></script>
   <script>
     /* =======================
-     Inject extra styles (TimePicker v2.1 & Subject Search)
-     ======================= */
+      Inject extra styles (TimePicker v2.1 & Subject Search)
+      ======================= */
     (function injectExtraStyles() {
       if (document.getElementById("enhanced-popovers-styles")) return;
       const css = `
@@ -914,149 +838,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     })();
 
     /* =======================
-       Jalali Date Helpers
-       ======================= */
-    function jalaliToGregorian(jy, jm, jd) {
-      var sal_a, gy, gm, gd, days;
-      jy += 1595;
-      days = -355668 +
-        365 * jy +
-        ~~(jy / 33) * 8 +
-        ~~(((jy % 33) + 3) / 4) +
-        jd +
-        (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
-      gy = 400 * ~~(days / 146097);
-      days %= 146097;
-      if (days > 36524) {
-        gy += 100 * ~~(--days / 36524);
-        days %= 36524;
-        if (days >= 365) days++;
-      }
-      gy += 4 * ~~(days / 1461);
-      days %= 1461;
-      if (days > 365) {
-        gy += ~~((days - 1) / 365);
-        days = (days - 1) % 365;
-      }
-      gd = days + 1;
-      sal_a = [0, 31, (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-      for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
-      return new Date(gy, gm - 1, gd);
-    }
-
-    function toPersian(date) {
-      const parts = date.toLocaleDateString("fa-IR-u-nu-latn").split("/");
-      return parts.map((part) => parseInt(part, 10));
-    }
-
-    function formatJalaliDisplay(jy, jm, jd) {
-      return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")}`;
-    }
-
-    function formatISO(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    }
-
-    function isJalaliLeap(jy) {
-      return (((((((jy - 474) % 2820) + 2820) % 2820) + 474 + 38) * 682) % 2816) < 682;
-    }
-
-    function jalaliMonthLength(jy, jm) {
-      if (jm <= 6) return 31;
-      if (jm <= 11) return 30;
-      return isJalaliLeap(jy) ? 30 : 29;
-    }
-
-    /* =======================
-       Jalali DatePicker (no SVG)
-       ======================= */
-    class JalaliDatePicker {
-      constructor(inputId, altId) {
-        this.input = document.getElementById(inputId);
-        this.alt = document.getElementById(altId);
-        if (!this.input || !this.alt) return;
-        const gNow = new Date();
-        const [jy, jm] = toPersian(gNow);
-        this.jy = jy;
-        this.jm = jm;
-        this.pop = document.createElement("div");
-        this.pop.className = "jdp-popover jdp-hidden";
-        document.body.appendChild(this.pop);
-        this.boundClickOutside = (e) => {
-          if (!this.pop.contains(e.target) && e.target !== this.input) this.hide();
-        };
-        this.input.addEventListener("focus", () => this.show());
-        this.input.addEventListener("click", () => this.show());
-        window.addEventListener("resize", () => this.position());
-      }
-      show() {
-        this.render();
-        this.position();
-        this.pop.classList.remove("jdp-hidden");
-        setTimeout(() => document.addEventListener("mousedown", this.boundClickOutside), 0);
-      }
-      hide() {
-        this.pop.classList.add("jdp-hidden");
-        document.removeEventListener("mousedown", this.boundClickOutside);
-      }
-      position() {
-        const rect = this.input.getBoundingClientRect();
-        this.pop.style.top = window.scrollY + rect.bottom + 6 + "px";
-        this.pop.style.left = window.scrollX + rect.left + "px";
-        if (rect.left + 280 > window.innerWidth) this.pop.style.left = window.scrollX + rect.right - 280 + "px";
-      }
-      nav(delta) {
-        this.jm += delta;
-        if (this.jm < 1) {
-          this.jm = 12;
-          this.jy--;
-        }
-        if (this.jm > 12) {
-          this.jm = 1;
-          this.jy++;
-        }
-        this.render();
-      }
-      render() {
-        const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
-        const firstG = jalaliToGregorian(this.jy, this.jm, 1);
-        const firstWeekday = (firstG.getDay() + 1) % 7;
-        const daysInMonth = jalaliMonthLength(this.jy, this.jm);
-        let html = `
-        <div class="jdp-header">
-          <button type="button" class="jdp-nav-btn" data-nav="-1">«</button>
-          <div>${new Intl.DateTimeFormat("fa-IR",{month:"long"}).format(firstG)}
-              ${new Intl.DateTimeFormat("fa-IR-u-nu-latn",{year:"numeric"}).format(firstG)}</div>
-          <button type="button" class="jdp-nav-btn" data-nav="1">»</button>
-        </div>
-        <div class="jdp-grid">
-          ${weekDays.map(w=>`<div class="jdp-weekday">${w}</div>`).join("")}
-      `;
-        for (let i = 0; i < firstWeekday; i++) html += `<div class="jdp-day other"></div>`;
-        for (let d = 1; d <= daysInMonth; d++) {
-          html += `<div class="jdp-day" data-day="${d}">${new Intl.NumberFormat("fa-IR").format(d)}</div>`;
-        }
-        html += `</div>`;
-        this.pop.innerHTML = html;
-        this.pop.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", (e) => this.nav(parseInt(e.currentTarget.dataset.nav, 10))));
-        this.pop.querySelectorAll("[data-day]").forEach(cell => {
-          cell.addEventListener("click", (e) => {
-            const d = parseInt(e.currentTarget.dataset.day, 10);
-            const gDate = jalaliToGregorian(this.jy, this.jm, d);
-            this.input.value = formatJalaliDisplay(this.jy, this.jm, d);
-            this.alt.value = formatISO(gDate);
-            this.alt.dispatchEvent(new Event("change", {
-              bubbles: true
-            }));
-            this.hide();
-          });
-        });
-      }
-    }
-
-    /* =======================
-       TimePicker v2.1 (scroll columns, RTL fixed)
-       ======================= */
+        TimePicker v2.1 (scroll columns, RTL fixed)
+        ======================= */
     class TimePicker {
       constructor(inputId) {
         this.input = document.getElementById(inputId);
@@ -1296,8 +1079,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     /* =======================
-       SubjectPicker with search
-       ======================= */
+        SubjectPicker with search
+        ======================= */
     class SubjectPicker {
       constructor(selectEl, items) {
         this.select = selectEl;
@@ -1385,8 +1168,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     /* =======================
-       Duration helper (hidden compute)
-       ======================= */
+        Duration helper (hidden compute)
+        ======================= */
     function computeDurationText(startDateISO, startTime, endDateISO, endTime) {
       if (!startDateISO || !startTime || !endDateISO || !endTime) return "";
       const start = new Date(`${startDateISO}T${startTime}`);
@@ -1412,8 +1195,8 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     /* =======================
-       Main App Logic
-       ======================= */
+        Main App Logic
+        ======================= */
     document.addEventListener("DOMContentLoaded", () => {
       const API_URL = "/php/update-disruptions.php";
 
@@ -1601,7 +1384,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       function renderTable(records) {
         tableBody.innerHTML = "";
         const statusClassMap = {
-          'باز': "status-open",
           'درحال رسیدگی': "status-in-progress",
           'برطرف شده': "status-resolved"
         };
@@ -1740,7 +1522,7 @@ $claims = requireAuth('admin', '/auth/login.html');
         recordIdInput.value = record.id;
         dayOfWeekSelect.value = record.dayOfWeek || "";
         subjectSelect.value = record.subject || "";
-        form.querySelector("#status").value = record.status || "باز";
+        form.querySelector("#status").value = record.status || "درحال رسیدگی";
         form.querySelector("#reportingTeam").value = record.reportingTeam || "اعلام از سمت فنی";
 
         startDateInput.value = record.startDate || "";
