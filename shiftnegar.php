@@ -132,7 +132,8 @@ $claims = requireAuth(null, '/auth/login.html');
       font-size: 0.9rem;
     }
 
-    .filter-group input[type="text"] {
+    .filter-group input[type="text"],
+    .filter-group select {
       padding: 0.75rem;
       border-radius: 0.5rem;
       border: 1px solid var(--border-color);
@@ -363,6 +364,10 @@ $claims = requireAuth(null, '/auth/login.html');
           <input type="hidden" id="endDateAlt" />
         </div>
         <div class="filter-group">
+          <label for="shiftFilterSelect">فیلتر بر اساس شیفت:</label>
+          <select id="shiftFilterSelect"></select>
+        </div>
+        <div class="filter-group">
           <label for="expertSelect1-input">انتخاب کارشناس اول:</label>
           <div id="expertSelect1-container" class="custom-select-container"></div>
           <input type="hidden" id="expertSelect1-value" value="none">
@@ -457,9 +462,24 @@ $claims = requireAuth(null, '/auth/login.html');
           return;
         }
 
-        populateFilterControls();
+        const dateSet = new Set();
+        allExperts.forEach((expert) => {
+          Object.keys(expert.shifts).forEach((d) => dateSet.add(d));
+        });
+        allAvailableDates = Array.from(dateSet).sort();
+
+        // START: Modified filter population and event listeners
+        populateShiftFilter();
+        populateExpertFilters();
+
+        document.getElementById('shiftFilterSelect').addEventListener('change', () => {
+          populateExpertFilters();
+          applyFilters();
+        });
         document.getElementById('expertSelect1-value').addEventListener('change', applyFilters);
         document.getElementById('expertSelect2-value').addEventListener('change', applyFilters);
+        // END: Modified filter population and event listeners
+
         applyFilters();
 
       } catch (error) {
@@ -477,35 +497,68 @@ $claims = requireAuth(null, '/auth/login.html');
       return `style="background-color: ${shiftColorMap.get(shiftTime)};"`;
     }
 
-    function populateFilterControls() {
-      const sortedExperts = [...allExperts].sort((a, b) => a.name.localeCompare(b.name, "fa"));
+    // START: New and modified filter functions
+    function populateShiftFilter() {
+      const shiftSelect = document.getElementById("shiftFilterSelect");
+      const uniqueShifts = [...new Set(allExperts.map(e => e["shifts-time"]).filter(Boolean))].sort();
+      let optionsHtml = '<option value="all">-- همه شیفت‌ها --</option>';
+      uniqueShifts.forEach(shift => {
+        optionsHtml += `<option value="${shift}">${shift}</option>`;
+      });
+      shiftSelect.innerHTML = optionsHtml;
+    }
+
+    function populateExpertFilters() {
+      const selectedShift = document.getElementById("shiftFilterSelect").value;
+      const expertsForDropdown = (selectedShift === 'all') ?
+        allExperts :
+        allExperts.filter(expert => expert["shifts-time"] === selectedShift);
+
+      const sortedExperts = [...expertsForDropdown].sort((a, b) => a.name.localeCompare(b.name, "fa"));
+
+      const oldVal1 = document.getElementById('expertSelect1-value').value;
+      const oldVal2 = document.getElementById('expertSelect2-value').value;
+
       createCustomSelect('expertSelect1-container', 'expertSelect1-value', sortedExperts);
       createCustomSelect('expertSelect2-container', 'expertSelect2-value', sortedExperts);
 
-      const dateSet = new Set();
-      allExperts.forEach((expert) => {
-        Object.keys(expert.shifts).forEach((d) => dateSet.add(d));
-      });
-      allAvailableDates = Array.from(dateSet).sort();
+      const expert1Exists = sortedExperts.some(e => String(e.id) === oldVal1);
+      if (expert1Exists) {
+        document.getElementById('expertSelect1-value').value = oldVal1;
+        document.getElementById('expertSelect1-container-input').value = sortedExperts.find(e => String(e.id) === oldVal1).name;
+      }
+
+      const expert2Exists = sortedExperts.some(e => String(e.id) === oldVal2);
+      if (expert2Exists) {
+        document.getElementById('expertSelect2-value').value = oldVal2;
+        document.getElementById('expertSelect2-container-input').value = sortedExperts.find(e => String(e.id) === oldVal2).name;
+      }
     }
 
     function applyFilters() {
       const startDate = document.getElementById("startDateAlt").value;
       const endDate = document.getElementById("endDateAlt").value;
+      const selectedShift = document.getElementById("shiftFilterSelect").value;
       const expert1 = document.getElementById("expertSelect1-value").value;
       const expert2 = document.getElementById("expertSelect2-value").value;
+
+      let filteredExperts = [...allExperts];
+
+      if (selectedShift !== 'all') {
+        filteredExperts = filteredExperts.filter(expert => expert["shifts-time"] === selectedShift);
+      }
 
       const selectedExpertIds = new Set();
       if (expert1 !== "none") selectedExpertIds.add(expert1);
       if (expert2 !== "none") selectedExpertIds.add(expert2);
 
+      if (selectedExpertIds.size > 0) {
+        filteredExperts = filteredExperts.filter((x) => selectedExpertIds.has(String(x.id)));
+      }
+
       const filteredDates = allAvailableDates.filter(
         (d) => (!startDate || d >= startDate) && (!endDate || d <= endDate)
       );
-
-      let filteredExperts =
-        selectedExpertIds.size > 0 ?
-        allExperts.filter((x) => selectedExpertIds.has(String(x.id))) : [...allExperts];
 
       filteredExperts.sort((a, b) => {
         const stA = a["shifts-time"] || "",
@@ -519,6 +572,7 @@ $claims = requireAuth(null, '/auth/login.html');
 
       renderTable(filteredExperts, filteredDates);
     }
+    // END: New and modified filter functions
 
     function getShiftDetails(shiftEntry) {
       if (typeof shiftEntry === "object" && shiftEntry !== null && shiftEntry.status === "swap") {
