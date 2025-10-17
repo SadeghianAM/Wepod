@@ -783,6 +783,10 @@ $claims = requireAuth('admin', '/auth/login.html');
           <input type="hidden" id="tableEndDateAlt" />
         </div>
         <div class="filter-group">
+          <label for="shiftFilterSelect">فیلتر بر اساس شیفت:</label>
+          <select id="shiftFilterSelect"></select>
+        </div>
+        <div class="filter-group">
           <label for="expertSelect1">انتخاب کارشناس اول:</label>
           <select id="expertSelect1"></select>
         </div>
@@ -885,7 +889,8 @@ $claims = requireAuth('admin', '/auth/login.html');
         allAvailableDates = Array.from(allDatesSet).sort();
 
         renderExpertList();
-        populateTableFilters();
+        populateShiftFilter(); // New
+        populateExpertDropdowns(); // Renamed and modified
         setupEventListeners();
         setupDatePickers();
         applyTableFilters();
@@ -916,6 +921,10 @@ $claims = requireAuth('admin', '/auth/login.html');
             nextRow = nextRow.nextElementSibling;
           }
         }
+      });
+      document.getElementById("shiftFilterSelect").addEventListener("change", () => {
+        populateExpertDropdowns();
+        applyTableFilters();
       });
       ["expertSelect1", "expertSelect2"].forEach(id => document.getElementById(id).addEventListener("change", applyTableFilters));
       document.getElementById("modal-cancel-btn").addEventListener("click", closeEditModal);
@@ -1211,8 +1220,8 @@ $claims = requireAuth('admin', '/auth/login.html');
         return;
       }
       let tableHtml = `<table class="report-table">
-                <thead><tr><th>تاریخ</th><th>✅ حضور</th><th>💻 دورکاری</th><th>❌ عدم حضور</th><th>✈️ مرخصی</th><th>📋 سایر</th></tr></thead>
-                <tbody>`;
+        <thead><tr><th>تاریخ</th><th>✅ حضور</th><th>💻 دورکاری</th><th>❌ عدم حضور</th><th>✈️ مرخصی</th><th>📋 سایر</th></tr></thead>
+        <tbody>`;
       dates.forEach(dateString => {
         const item = data[dateString];
         const displayDate = new Date(dateString).toLocaleDateString('fa-IR', {
@@ -1221,44 +1230,93 @@ $claims = requireAuth('admin', '/auth/login.html');
           month: 'long'
         });
         tableHtml += `<tr>
-                        <td>${displayDate}</td>
-                        <td class="count-cell">${item.onDuty}</td>
-                        <td class="count-cell">${item.remote}</td>
-                        <td class="count-cell">${item.off}</td>
-                        <td class="count-cell">${item.leave}</td>
-                        <td class="count-cell">${item.custom}</td>
-                    </tr>`;
+            <td>${displayDate}</td>
+            <td class="count-cell">${item.onDuty}</td>
+            <td class="count-cell">${item.remote}</td>
+            <td class="count-cell">${item.off}</td>
+            <td class="count-cell">${item.leave}</td>
+            <td class="count-cell">${item.custom}</td>
+          </tr>`;
       });
       tableHtml += `</tbody></table>`;
       container.innerHTML = tableHtml;
     }
 
-    function populateTableFilters() {
-      const expertSelect1 = document.getElementById("expertSelect1"),
-        expertSelect2 = document.getElementById("expertSelect2");
+    function populateShiftFilter() {
+      const shiftSelect = document.getElementById("shiftFilterSelect");
+      const uniqueShifts = [...new Set(allExperts.map(e => e["shifts-time"]).filter(Boolean))].sort();
+      let optionsHtml = '<option value="all">-- همه شیفت‌ها --</option>';
+      uniqueShifts.forEach(shift => {
+        optionsHtml += `<option value="${shift}">${shift}</option>`;
+      });
+      shiftSelect.innerHTML = optionsHtml;
+    }
+
+    function populateExpertDropdowns() {
+      const selectedShift = document.getElementById("shiftFilterSelect").value;
+      const expertSelect1 = document.getElementById("expertSelect1");
+      const expertSelect2 = document.getElementById("expertSelect2");
+
+      const currentExpert1 = expertSelect1.value;
+      const currentExpert2 = expertSelect2.value;
+
+      let expertsForDropdown = allExperts;
+      if (selectedShift !== 'all') {
+        expertsForDropdown = allExperts.filter(expert => expert["shifts-time"] === selectedShift);
+      }
+
       let optionsHtml = '<option value="none">-- هیچکدام --</option>';
-      allExperts.sort((a, b) => a.name.localeCompare(b.name, "fa")).forEach(expert => optionsHtml += `<option value="${expert.id}">${expert.name}</option>`);
+      expertsForDropdown
+        .sort((a, b) => a.name.localeCompare(b.name, "fa"))
+        .forEach(expert => {
+          optionsHtml += `<option value="${expert.id}">${expert.name}</option>`;
+        });
+
       expertSelect1.innerHTML = optionsHtml;
       expertSelect2.innerHTML = optionsHtml;
-      expertSelect1.value = "none";
-      expertSelect2.value = "none";
+
+      if (Array.from(expertSelect1.options).some(opt => opt.value === currentExpert1)) {
+        expertSelect1.value = currentExpert1;
+      } else {
+        expertSelect1.value = 'none';
+      }
+
+      if (Array.from(expertSelect2.options).some(opt => opt.value === currentExpert2)) {
+        expertSelect2.value = currentExpert2;
+      } else {
+        expertSelect2.value = 'none';
+      }
     }
 
     function applyTableFilters() {
-      const startDate = document.getElementById("tableStartDateAlt").value,
-        endDate = document.getElementById("tableEndDateAlt").value;
-      const expert1 = document.getElementById("expertSelect1").value,
-        expert2 = document.getElementById("expertSelect2").value;
+      const startDate = document.getElementById("tableStartDateAlt").value;
+      const endDate = document.getElementById("tableEndDateAlt").value;
+      const selectedShift = document.getElementById("shiftFilterSelect").value;
+      const expert1 = document.getElementById("expertSelect1").value;
+      const expert2 = document.getElementById("expertSelect2").value;
+
+      let baseExpertList = allExperts;
+      if (selectedShift !== 'all') {
+        baseExpertList = allExperts.filter(expert => expert["shifts-time"] === selectedShift);
+      }
+
       const selectedExpertIds = new Set();
       if (expert1 !== "none") selectedExpertIds.add(expert1);
       if (expert2 !== "none") selectedExpertIds.add(expert2);
+
+      let filteredExperts;
+      if (selectedExpertIds.size > 0) {
+        filteredExperts = baseExpertList.filter(expert => selectedExpertIds.has(String(expert.id)));
+      } else {
+        filteredExperts = baseExpertList;
+      }
+
       const filteredDates = allAvailableDates.filter(date => (!startDate || date >= startDate) && (!endDate || date <= endDate));
-      let filteredExperts = allExperts;
-      if (selectedExpertIds.size > 0) filteredExperts = allExperts.filter(expert => selectedExpertIds.has(String(expert.id)));
+
       filteredExperts.sort((a, b) => (a["shifts-time"] || "").localeCompare(b["shifts-time"] || ""));
+
       renderTableView(filteredExperts, filteredDates);
     }
-
     function getShiftStyle(shiftTime) {
       if (!shiftTime) return "";
       if (!shiftColorMap.has(shiftTime)) {

@@ -73,7 +73,7 @@ if (is_array($items)) {
         $sanitized_status = isset($item['status']) && in_array($item['status'], $allowed_statuses) ? $item['status'] : 'نامشخص';
 
         // Sanitize description: only safe, harmless tags are allowed.
-        $allowed_tags = '<b><strong><i><em><u><ul><ol><li>';
+        $allowed_tags = '<b><strong><p><div><br>';
         $sanitized_description = isset($item['description']) ? strip_tags((string)$item['description'], $allowed_tags) : '';
 
         // Only add items that have a name.
