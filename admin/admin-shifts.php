@@ -454,23 +454,25 @@ $claims = requireAuth('admin', '/auth/login.html');
     }
 
     .status-on-duty {
-      background-color: var(--success-light);
-      color: var(--success-color);
+      background-color: #28a745;
     }
 
     .status-off {
-      background-color: var(--danger-light);
-      color: var(--danger-color);
+      background-color: #dc3545;
     }
 
     .status-remote {
-      background-color: var(--info-light);
-      color: var(--info-color);
+      background-color: #d8b100;
+    }
+
+    .status-special {
+      background-color: #5487df;
+      color: #212529;
     }
 
     .status-leave {
-      background-color: var(--warning-light);
-      color: #a17400;
+      background-color: #ec7433;
+      color: white;
     }
 
     .status-swap {

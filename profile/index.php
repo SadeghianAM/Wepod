@@ -586,13 +586,17 @@ if ($agentId) {
         }
 
         .status-remote {
-            background-color: #ede7f6;
-            color: #5e35b1;
+            background-color: #d8b100;
         }
 
         .status-special {
-            background-color: #ffc107;
+            background-color: #5487df;
             color: #212529;
+        }
+
+        .status-leave {
+            background-color: #ec7433;
+            color: white;
         }
 
         /* --- END: CSS for Shift Calendar --- */
@@ -1485,7 +1489,7 @@ if ($agentId) {
                         "on-duty": "status-on-duty",
                         remote: "status-remote",
                         off: "status-off",
-                        leave: "status-special",
+                        leave: "status-leave",
                         unknown: "status-unknown"
                     };
                     statusClass = classMap[shiftDetails.status] || "status-special";
