@@ -393,32 +393,6 @@ $claims = requireAuth('admin', '/auth/login.html');
       color: var(--primary-dark);
     }
 
-    .jdp-popover,
-    .tp-popover {
-      position: absolute;
-      background: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-md);
-      padding: .75rem;
-      z-index: 10000;
-    }
-
-    .jdp-popover {
-      width: 280px;
-    }
-
-    .tp-popover {
-      min-width: 320px;
-      max-width: 360px;
-    }
-
-    .jdp-header,
-    .tp-title {
-      font-weight: 800;
-      color: var(--primary-dark);
-    }
-
     #toast-container {
       position: fixed;
       top: 20px;
@@ -544,7 +518,7 @@ $claims = requireAuth('admin', '/auth/login.html');
           </div>
           <div>
             <label for="startTime">ساعت شروع (اختیاری):</label>
-            <input type="text" id="startTime" name="startTime" placeholder="--:--" autocomplete="off" />
+            <input type="time" id="startTime" name="startTime" autocomplete="off" />
           </div>
         </div>
         <div class="date-time-group">
@@ -555,7 +529,7 @@ $claims = requireAuth('admin', '/auth/login.html');
           </div>
           <div>
             <label for="endTime">ساعت پایان (اختیاری):</label>
-            <input type="text" id="endTime" name="endTime" placeholder="--:--" autocomplete="off" />
+            <input type="time" id="endTime" name="endTime" autocomplete="off" />
           </div>
         </div>
         <div class="button-group">
@@ -568,6 +542,7 @@ $claims = requireAuth('admin', '/auth/login.html');
   <div id="toast-container"></div>
   <div id="footer-placeholder"></div>
   <script src="/js/header.js"></script>
+  <script src="/js/jalali-datepicker.js"></script>
   <script>
     const API_SAVE_URL = "/data/save-news-alerts.php";
     const API_LOAD_URL = `/data/news-alerts.json?v=${new Date().getTime()}`;
@@ -795,11 +770,10 @@ $claims = requireAuth('admin', '/auth/login.html');
       if (e.target === itemModal) itemModal.classList.remove('visible');
     });
 
-    loadInitialJson();
     new JalaliDatePicker("startDateDisplay", "startDate");
     new JalaliDatePicker("endDateDisplay", "endDate");
-    new TimePicker("startTime");
-    new TimePicker("endTime");
+
+    loadInitialJson();
   </script>
 </body>
 
